@@ -18,8 +18,6 @@ The exact data sources, message topics, and delivery schedule depend on the serv
 | --- | --- |
 | `README.md` | Project overview and setup guidance. |
 
-There are currently no Python programs or configuration files in this folder. The programs described below were developed in separate work prompts and have not yet been collected or connected here. Add each program to the file table when its files are copied into this project.
-
 ## Programs being developed
 
 | Program | What it does | How it could help on MeshCore |
@@ -30,7 +28,7 @@ There are currently no Python programs or configuration files in this folder. Th
 | **Caltrans highway conditions** (`highway_info.py`) | Retrieves California highway information by route number and formats active restrictions into compact, separate text blocks. | Short road closure, restriction, or advisory messages. |
 | **MeshCore MQTT bridge** | Connects an MQTT broker to a MeshCore Companion Node over USB serial. A separate Windows package was prepared for COM11 with configuration and setup/start scripts. | Carries prepared messages between the broker and MeshCore. |
 
-The lookup programs currently produce their own command-line or structured output. They still need a shared message formatter, MQTT publishing configuration, and destination rules before this folder can operate as a combined information service. The bridge package was not verified with a live COM11 node and broker in its work prompt.
+The lookup programs currently produce their own command-line or structured output. They still need a shared message formatter, MQTT publishing configuration, and destination rules before this folder can operate as a combined information service.
 
 ## What you need
 

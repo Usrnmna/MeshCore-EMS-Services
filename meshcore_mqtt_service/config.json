@@ -1,0 +1,62 @@
+{
+  "mqtt": {
+    "host": "127.0.0.1",
+    "port": 1883,
+    "prefix": "meshcore/usb",
+    "client_id": "meshcore-usb-bridge",
+    "username_env": "MESHCORE_MQTT_USERNAME",
+    "password_env": "MESHCORE_MQTT_PASSWORD",
+    "tls": false,
+    "ca_file": null
+  },
+  "local_broker": true,
+  "baudrate": 115200,
+  "command_timeout": 45,
+  "command_interval": 15,
+  "responder": {
+    "enabled": true,
+    "channel_name": "#autatestbot",
+    "script_timeout": 20,
+    "max_output_bytes": 65536,
+    "max_reply_parts": 4,
+    "max_message_age": 300,
+    "sender_cooldown": 30,
+    "max_pending": 50,
+    "commands": {
+      "!status": {
+        "script": "scripts/status.py",
+        "args": []
+      },
+      "!time": {
+        "script": "scripts/time_now.py",
+        "args": []
+      },
+      "!aqi": {
+        "script": "scripts/airnow_aqi.py",
+        "args": [],
+        "input": "coordinates",
+        "timeout": 60,
+        "error_reply": "AirNow lookup unavailable. Check the service AIRNOW_API_KEY setting or try again later."
+      },
+      "!traffic": {
+        "script": "scripts/highway_info.py",
+        "args": [],
+        "input": "route_number",
+        "timeout": 30,
+        "error_reply": "Caltrans traffic lookup unavailable. Please try again later."
+      },
+      "!rivers": {
+        "script": "scripts/nearby_river_stations.py",
+        "args": [
+          "--mesh-text",
+          "--timeout",
+          "15"
+        ],
+        "input": "coordinates",
+        "coordinate_style": "options",
+        "timeout": 40,
+        "error_reply": "River station lookup unavailable. Please try again later."
+      }
+    }
+  }
+}

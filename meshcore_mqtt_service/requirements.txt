@@ -1,0 +1,5 @@
+meshcore-cli==1.6.4
+meshcore==2.3.11
+paho-mqtt==2.1.0
+pyserial==3.5
+amqtt==0.12.1

@@ -1,0 +1,31 @@
+WINDOWS 10 X64: START THE CONTINUOUS SERVICE
+
+Double-click Start-Service.exe once.
+
+The launcher starts the local MQTT broker and MeshCore channel responder using
+this folder's existing run.ps1 and config.json. If the local Python environment
+is missing, the existing setup routine creates it (Python must be installed).
+
+Select the USB COM device once in the required MeshCore -S selector. Leave the
+console open; the service then continuously listens and responds on #autatestbot.
+Ctrl+C stops it. Run only one instance for the USB device.
+
+Keep Start-Service.exe in this folder with the other files. You can make a desktop
+shortcut to it. No administrator permission or activation command is needed.
+This does not register a Windows boot service or bypass the -S selector.
+
+Optional diagnostics:
+    Start-Service.exe --check
+    Start-Service.exe --ports
+
+The executable's source is Start-Service.cs. It launches the existing PowerShell
+entry point; no existing configuration or program files were changed.
+
+AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
+!aqi LATITUDE LONGITUDE or !aqi LATITUDE, LONGITUDE on #autatestbot.
+
+TRAFFIC: Send !traffic 80 (or another route number 1-999) on #autatestbot.
+No API key needed. Restart the service to load the new command.
+
+RIVERS: Send !rivers LATITUDE LONGITUDE (or LATITUDE, LONGITUDE) on #autatestbot.
+Searches within 15 miles. No API key needed. Restart to load the new command.

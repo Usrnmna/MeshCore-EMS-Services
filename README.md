@@ -29,6 +29,22 @@ The default channel is `#autatestbot`. The channel must already exist on the Com
 
 The Linux and Windows folders are self-contained. Each uses its own virtual environment, configuration, MQTT namespace, and SQLite request database.
 
+## Included programs and services
+
+Both platform packages contain the same service components:
+
+| Component | File | Purpose |
+| --- | --- | --- |
+| MeshCore/MQTT bridge | `service.py` | Owns the selected USB serial connection, publishes radio events, accepts restricted MQTT commands, and manages the durable event outbox. |
+| Channel responder | `responder.py` | Validates channel commands, records requests, runs approved scripts, and sends rate-limited replies to the requesting channel. |
+| Air quality lookup | `scripts/airnow_aqi.py` | Finds the nearest AirNow PM2.5 monitor and formats current AQI information. |
+| Highway lookup | `scripts/highway_info.py` | Retrieves and compacts active Caltrans highway restrictions. |
+| River lookup | `scripts/nearby_river_stations.py` | Finds nearby CDEC river-stage stations using NOAA station coordinates. |
+| UV lookup | `scripts/uv_index.py` | Resolves coordinates, ZIP codes, or city/state text and reports the current UV index. |
+| Flood-alert lookup | `scripts/flood_warn.py` | Resolves a US location and summarizes active NWS flash-flood warnings, flood warnings, advisories, and watches. |
+| Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current UTC time. |
+| Configuration | `config.json` | Defines MQTT settings, the radio channel, commands, timeouts, cooldowns, and reply limits. |
+
 ## MeshCore commands
 
 Send commands from another MeshCore node on `#autatestbot`.
@@ -41,10 +57,11 @@ Send commands from another MeshCore node on `#autatestbot`.
 | `!traffic` | `!traffic 80` | Compact active California highway restrictions for route 1–999. | Caltrans |
 | `!rivers` | `!rivers 39.0000, -121.0000` | Nearby river stations within 15 miles, including stage, report time, action stage, and flood stage. | CDEC and NOAA |
 | `!uv` | `!uv Sacramento` | Current UV index and risk level for coordinates, a US ZIP code, or a city and state. | CurrentUVIndex.com plus location lookup |
+| `!floodwarn` | `!floodwarn Sacramento` | Active flash flood warnings, flood warnings, advisories, and watches with colored squares. | NWS API, the alert source used by FlashFloodWarn |
 
-Examples of accepted UV locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. City names without a state default to California.
+Examples of accepted UV and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!floodwarn`. City names without a state default to California.
 
-AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, and UV commands do not require an API key. Internet access is required for all external data lookups.
+AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, and flood-alert commands do not require an API key. Internet access is required for all external data lookups.
 
 ## Main features
 
@@ -56,7 +73,7 @@ AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, st
 - Exact command matching, validated arguments, fixed script paths, execution timeouts, and no shell interpretation of received text.
 - Persistent SQLite request history, duplicate suppression, stale-message rejection, sender cooldowns, and bounded request queues.
 - Durable QoS 1 MQTT event outbox with automatic reconnection.
-- Long replies divided into as many as four 150-byte messages by default.
+- Long replies divided into as many as four 150-byte messages by default; `!floodwarn` allows 12 so all four alert descriptions fit.
 - Separate Linux and Windows MQTT ports and topic namespaces, allowing both copies to coexist on one network.
 
 ## Quick start
@@ -130,7 +147,7 @@ Use a unique request ID for every intentional command. Restrict publishing acces
 
 The service records requests before execution so sender names and request state survive restarts. It ignores duplicate, stale, future-dated, malformed, self-originated, and reply-like messages. Interrupted scripts and failed radio sends are recorded without automatic retransmission because execution or transmission may already have occurred.
 
-A `sent` result means the local Companion Node accepted the message for transmission. It does not confirm reception by a remote node. Weather, air-quality, river, and highway reports are informational source data; they are not forecasts or emergency alerts.
+A `sent` result means the local Companion Node accepted the message for transmission. It does not confirm reception by a remote node. Weather, air-quality, river, and highway reports are informational source data; the service does not replace official emergency alert delivery. `!floodwarn` summarizes active official NWS alerts at the resolved point.
 
 ## Development and verification
 
@@ -140,10 +157,10 @@ Both service folders include tests for:
 - Script execution, timeouts, failures, and output limits.
 - Sender retention and same-channel tagged replies.
 - Duplicate suppression and persistent request state.
-- AQI, traffic, river, and UV formatting with sample source responses.
+- AQI, traffic, river, UV, and flood-alert formatting with sample source responses.
 - A real loopback MQTT broker with simulated radio events.
 
-The Windows package reports 42 passing tests on Windows 10 x64 with Python 3.13. A live read-only check connected to a COM11 node, published events, and completed an MQTT `infos` request. Native Linux execution, live external-data calls for every provider, and automatic over-the-air reply delivery have not all been verified. Follow the platform README when repeating checks.
+All 66 automated tests passed in each service folder during this documentation update. The suites used the installed Windows Python environments and covered the two platform configurations independently. Live flood lookups were previously verified for city, ZIP, GPS, full-state and abbreviated-state input, including an active Flash Flood Warning and Flood Watch. A live read-only check connected to a COM11 node, published events, and completed an MQTT `infos` request. Native Linux execution, live external-data calls for every provider, and automatic over-the-air reply delivery have not all been verified. Follow the platform README when repeating checks.
 
 ## Dependencies
 
@@ -156,3 +173,5 @@ The service packages pin these main dependencies:
 - `amqtt 0.12.1`
 
 Do not commit API keys, MQTT passwords, virtual environments, runtime databases, or generated cache files to a public repository.
+
+See the platform READMEs for `!floodwarn` examples, exact reply wording, data sources, and location coverage. Restart the service after configuration changes.

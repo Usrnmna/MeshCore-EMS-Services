@@ -16,6 +16,22 @@ CLI owns one USB connection selected through **-S**. Replies use its channel-sen
 function on that same connection. MQTT commands and automatic replies share a
 serialized, rate-limited command path. All radio events still publish to MQTT.
 
+## Included commands
+
+| Command | Input | Service |
+| --- | --- | --- |
+| `!status` | None | Local service health |
+| `!time` | None | Current UTC time |
+| `!aqi` | Latitude and longitude | AirNow PM2.5 AQI and nearest monitor |
+| `!traffic` | California route number 1–999 | Active Caltrans highway restrictions |
+| `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
+| `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
+| `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
+
+`!aqi` requires `AIRNOW_API_KEY`. The other included commands require no API
+key. AQI, traffic, river, UV, and flood-alert lookups require internet access.
+Detailed input formats, sources, responses, and limitations are documented below.
+
 ## Linux setup
 
 Copy this folder to the computer attached to the USB serial companion node.
@@ -50,8 +66,9 @@ Edit the `responder` section of `config.json`, then restart:
 }
 ```
 
-Included scripts report service status and UTC time. Extend the map with your own
-phrases/scripts. Matching is exact and case-sensitive after trimming outer whitespace.
+Included scripts provide status, UTC time, AQI, traffic, river, UV, and flood-alert
+results. Extend the map with your own phrases/scripts. Matching is exact and
+case-sensitive after trimming outer whitespace.
 Substrings, extra arguments and unknown phrases do not execute anything. Only decoded
 messages received on the configured channel trigger scripts; direct messages, raw
 packet logs and MQTT event replays do not.
@@ -62,8 +79,9 @@ a shell command or executable path. Scripts use the local virtual environment an
 run with this folder as their working directory.
 
 **Print the answer to stdout without the @name prefix.** The service adds the prefix
-and turns newlines into spaces. Long answers become at most four 150-byte messages,
-each starting with @name. Excess output is truncated with `...`. Empty output,
+and turns newlines into spaces. Long answers become at most four 150-byte messages by
+default, each starting with @name. A command may set a higher limit; `!floodwarn`
+allows 12 parts. Excess output is truncated with `...`. Empty output,
 script errors and timeouts produce short tagged explanations. Stderr diagnostics
 are saved locally, not broadcast.
 
@@ -162,7 +180,7 @@ unique client_id and topic prefix.
 ## Verification
 
 ```bash
-.venv-linux/bin/python -m unittest -v test_service.py test_responder.py test_mqtt_integration.py test_aqi.py test_traffic.py test_rivers.py
+.venv-linux/bin/python -m unittest -v test_service.py test_responder.py test_mqtt_integration.py test_aqi.py test_traffic.py test_rivers.py test_uv.py test_floodwarn.py
 .venv-linux/bin/python -m pip check
 ```
 
@@ -171,7 +189,8 @@ loopback MQTT broker with simulated radio events. They verify sender retention,
 same-channel replies through the installed CLI helper, duplicate suppression,
 timeouts/failures, Unicode size limits and persistent request state.
 
-The revised responder was tested on Windows. Native Linux execution and automatic
+All 66 automated tests passed in this folder using its installed Windows Python
+environment during the latest documentation update. Native Linux execution and automatic
 over-the-air reply delivery have not yet been verified. `check_live.py` remains an
 optional read-only USB/MQTT check: it explicitly disables the responder, requires
 one discovered serial device and an unused broker port, and runs only MQTT infos.
@@ -343,3 +362,81 @@ and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
 Offline checks: `python -m unittest test_uv`.
+
+
+## Flood alerts: !floodwarn
+
+Send on the configured channel (default `#autatestbot`):
+
+```text
+!floodwarn 38.5816, -121.4944
+!floodwarn 38.5816 -121.4944
+!floodwarn 95814
+!floodwarn Sacramento
+!floodwarn Reno NV
+!floodwarn Reno, Nevada
+!floodwarn Albany New York
+```
+
+Cities default to California; a trailing full state name or two-letter abbreviation
+(case-insensitive, with or without a comma) overrides it. US ZIP and ZIP+4 codes
+work nationwide. Coordinates are latitude first. City/ZIP lookups use a representative
+point, not the entire city or ZIP boundary; use GPS for a precise location. Exact city
+names are required, and the largest same-name settlement in the state is selected.
+
+When none of the four tracked alert types is active, the reply preserves the supplied
+location (apart from extra whitespace):
+
+```text
+@Alice no flooding events declared for Sacramento
+```
+
+When alerts apply, the supplied location precedes one line per active type, with
+repeated alerts of the same type combined. Types are ordered as follows:
+
+- Flash Flood Warning 🟥 - Life-threatening flash flooding is imminent or occurring. Move to higher ground immediately.
+- Flood Warning 🟧 - Flooding is imminent or occurring. Take necessary precautions now.
+- Flood Advisory 🟨 - Minor flooding expected. May cause inconvenience but not typically life-threatening.
+- Flood Watch 🟦 - Conditions favorable for flooding. Stay alert and be ready to take action.
+
+The responder adds the saved sender's `@name` to every part, flattens newlines, and
+returns the result on the same channel. This command allows up to **12 parts of 150
+bytes** so all four descriptions fit even with a long sender name. Other commands
+retain their existing four-part default. The existing 15-second send spacing applies.
+
+[FlashFloodWarn](https://www.flashfloodwarn.com/#about) identifies the National
+Weather Service API as its alert source. This script calls that same official
+[NWS API](https://www.weather.gov/documentation/services-web-api) directly using
+`/points/{latitude},{longitude}` to verify coverage, then `/alerts/active?point=...`
+for point/zone matching. It does not scrape FlashFloodWarn's national totals or
+expired-warning archive. It reports the four types above; coastal/lakeshore alerts
+and general flood statements are outside this command's scope. Expired, ended,
+cancelled, test, and not-yet-effective messages are excluded. An already issued
+watch is included even if the forecast flooding starts later.
+
+No API key or additional Python dependency is required. City/ZIP resolution uses
+[Open-Meteo](https://open-meteo.com/en/docs/geocoding-api) / GeoNames, as with `!uv`;
+the free geocoder is for non-commercial use. The host needs internet access. Failed,
+malformed, or incomplete responses produce an availability message, never a
+no-events assertion. Coordinates outside NWS coverage produce a coverage error.
+Each HTTP request has a 12-second timeout; the command has a 45-second overall limit.
+
+Run directly from this folder:
+
+```text
+python scripts/flood_warn.py Sacramento
+python scripts/flood_warn.py 95814
+python scripts/flood_warn.py "Reno NV"
+python scripts/flood_warn.py 38.5816 -121.4944
+python -m unittest test_floodwarn
+```
+
+Restart the service using its existing launcher to load the command. Keep
+`scripts/uv_index.py` alongside `scripts/flood_warn.py`; its existing location
+parser is reused. No firmware changes or device flashing are required.
+
+Validation for this addition: all 66 tests passed in each service folder on the
+Windows host. Live city, ZIP, GPS, abbreviated-state, and full-state lookups passed;
+Athens, Ohio returned a Flash Flood Warning and Flood Watch during verification.
+An unsupported point returned a coverage error. Native Linux execution and
+physical MeshCore radio delivery remain unverified; no hardware was flashed.

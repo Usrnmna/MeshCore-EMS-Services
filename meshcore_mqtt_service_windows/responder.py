@@ -34,9 +34,9 @@ def validate_config(config, root):
         script_path(root, spec["script"])
         if not isinstance(spec.get("args", []), list) or not all(isinstance(x, str) for x in spec.get("args", [])):
             raise ValueError("Script args must be a list of fixed strings")
-        if spec.get("input", "none") not in {"none", "coordinates", "route_number"}:
-            raise ValueError("Command input must be none, coordinates or route_number")
-        if spec.get("input") in {"coordinates", "route_number"} and any(c.isspace() for c in phrase):
+        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location"}:
+            raise ValueError("Command input must be none, coordinates, route_number or location")
+        if spec.get("input") in {"coordinates", "route_number", "location"} and any(c.isspace() for c in phrase):
             raise ValueError("Commands with arguments must be a single token")
         if spec.get("coordinate_style", "positional") not in {"positional", "options"}:
             raise ValueError("coordinate_style must be positional or options")
@@ -51,6 +51,14 @@ def match_command(phrase, commands):
     spec = commands.get(key)
     if spec is None or (spec.get("input", "none") == "none" and phrase != key):
         return None
+    if spec.get("input") == "location":
+        from scripts.uv_index import parse_location
+        location = phrase[len(key):].strip()
+        try:
+            parse_location(location)
+        except ValueError as exc:
+            return key, [], str(exc)
+        return key, [location], None
     if spec.get("input") == "route_number":
         route = phrase[len(key):].strip()
         if re.fullmatch(r"[0-9]{1,3}", route) and 1 <= int(route) <= 999:

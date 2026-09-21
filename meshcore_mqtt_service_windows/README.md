@@ -303,3 +303,37 @@ Both copies passed 42 tests on the current Windows host, including real subproce
 execution with sample CDEC/NOAA responses, GPS forwarding, missing readings, empty
 results and failures. Live source retrieval, native Linux execution and over-the-air
 river replies have not been verified for this update.
+
+## Current UV index: !uv
+
+Send on the configured channel (default #autatestbot):
+
+```text
+!uv 38.5816, -121.4944
+!uv 95814
+!uv Sacramento
+!uv Reno NV
+!uv Reno, Nevada
+```
+
+Cities default to California. A trailing full state name or two-letter abbreviation
+(case-insensitive, with or without a comma) overrides it. US ZIP codes, including
+ZIP+4, work nationwide. GPS coordinates accept a comma or a space. City searches
+prefer exact names, then the largest matching settlement; use GPS for precision.
+Example reply: `@Alice UV Index: 6.5 High`.
+
+Run directly with `python scripts/uv_index.py Sacramento` or
+`python scripts/uv_index.py 38.5816 -121.4944`. No extra Python dependencies or UV
+API key are required. Restart the service to load the new command configuration.
+
+UV data: [CurrentUVIndex.com](https://currentuvindex.com/),
+[API](https://currentuvindex.com/api), CC BY 4.0. Only `now.uvi` is reported.
+Risk bands use the unrounded reading: below 3 Low, 3 to below 6 Moderate,
+6 to below 8 High, 8 to below 11 Very-High, and 11+ Extreme.
+The API allows 500 requests per public IP per day, resetting at 00:00 UTC.
+Each request fetches a fresh reading; repeated requests count against that limit.
+Location lookup uses [Open-Meteo](https://open-meteo.com/en/docs/geocoding-api)
+and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
+non-commercial use. Coordinates bypass location lookup.
+
+Offline checks: `python -m unittest test_uv`.

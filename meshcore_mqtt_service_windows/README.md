@@ -3,6 +3,22 @@
 This is an independent Windows copy. It does not load code, configuration, Python
 packages or runtime databases from the original Linux service folder.
 
+## Included commands
+
+| Command | Input | Service |
+| --- | --- | --- |
+| `!status` | None | Local service health |
+| `!time` | None | Current UTC time |
+| `!aqi` | Latitude and longitude | AirNow PM2.5 AQI and nearest monitor |
+| `!traffic` | California route number 1–999 | Active Caltrans highway restrictions |
+| `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
+| `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
+| `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
+
+`!aqi` requires `AIRNOW_API_KEY`. The other included commands require no API
+key. AQI, traffic, river, UV, and flood-alert lookups require internet access.
+Detailed input formats, sources, responses, and limitations are documented below.
+
 ## Start
 
 64-bit Python 3.11 or newer must be installed. This copy was tested with Python
@@ -103,8 +119,9 @@ Scripts receive JSON on stdin with id, sender, phrase, channel_name, channel_ind
 and sender_timestamp. Environment variables also provide MESHCORE_SENDER,
 MESHCORE_CHANNEL, MESHCORE_CHANNEL_INDEX, MESHCORE_PHRASE and MESHCORE_REQUEST_ID.
 
-Newlines in stdout become spaces. Replies are split into at most four 150-byte parts,
-each starting with @name; excess output ends with `...`. Scripts default to a
+Newlines in stdout become spaces. Replies are split into at most four 150-byte parts
+by default, each starting with @name. A command may set a higher limit;
+`!floodwarn` allows 12 parts. Excess output ends with `...`. Scripts default to a
 20-second timeout and 65536-byte output limit. Errors produce short tagged replies;
 stderr diagnostics are saved locally. Scripts should finish in the foreground;
 Windows timeout handling terminates the script process, not arbitrary detached children.
@@ -155,7 +172,8 @@ ca_file relative to this folder. Restrict command-topic publishing to trusted us
 
 ## Validation
 
-- All 42 tests passed in this copy on Windows 10 build 19045 x64 / Python 3.13.0 x64.
+- All 66 automated tests passed in this copy during the latest documentation update.
+- The installed environment uses Windows 10 build 19045 x64 / Python 3.13.0 x64.
 - setup.ps1 and run.ps1 were exercised with Windows PowerShell 5.1.
 - Dependency checks passed in this folder's independent virtual environment.
 - Real loopback broker tests covered script execution and same-channel tagged replies
@@ -337,3 +355,81 @@ and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
 Offline checks: `python -m unittest test_uv`.
+
+
+## Flood alerts: !floodwarn
+
+Send on the configured channel (default `#autatestbot`):
+
+```text
+!floodwarn 38.5816, -121.4944
+!floodwarn 38.5816 -121.4944
+!floodwarn 95814
+!floodwarn Sacramento
+!floodwarn Reno NV
+!floodwarn Reno, Nevada
+!floodwarn Albany New York
+```
+
+Cities default to California; a trailing full state name or two-letter abbreviation
+(case-insensitive, with or without a comma) overrides it. US ZIP and ZIP+4 codes
+work nationwide. Coordinates are latitude first. City/ZIP lookups use a representative
+point, not the entire city or ZIP boundary; use GPS for a precise location. Exact city
+names are required, and the largest same-name settlement in the state is selected.
+
+When none of the four tracked alert types is active, the reply preserves the supplied
+location (apart from extra whitespace):
+
+```text
+@Alice no flooding events declared for Sacramento
+```
+
+When alerts apply, the supplied location precedes one line per active type, with
+repeated alerts of the same type combined. Types are ordered as follows:
+
+- Flash Flood Warning 🟥 - Life-threatening flash flooding is imminent or occurring. Move to higher ground immediately.
+- Flood Warning 🟧 - Flooding is imminent or occurring. Take necessary precautions now.
+- Flood Advisory 🟨 - Minor flooding expected. May cause inconvenience but not typically life-threatening.
+- Flood Watch 🟦 - Conditions favorable for flooding. Stay alert and be ready to take action.
+
+The responder adds the saved sender's `@name` to every part, flattens newlines, and
+returns the result on the same channel. This command allows up to **12 parts of 150
+bytes** so all four descriptions fit even with a long sender name. Other commands
+retain their existing four-part default. The existing 15-second send spacing applies.
+
+[FlashFloodWarn](https://www.flashfloodwarn.com/#about) identifies the National
+Weather Service API as its alert source. This script calls that same official
+[NWS API](https://www.weather.gov/documentation/services-web-api) directly using
+`/points/{latitude},{longitude}` to verify coverage, then `/alerts/active?point=...`
+for point/zone matching. It does not scrape FlashFloodWarn's national totals or
+expired-warning archive. It reports the four types above; coastal/lakeshore alerts
+and general flood statements are outside this command's scope. Expired, ended,
+cancelled, test, and not-yet-effective messages are excluded. An already issued
+watch is included even if the forecast flooding starts later.
+
+No API key or additional Python dependency is required. City/ZIP resolution uses
+[Open-Meteo](https://open-meteo.com/en/docs/geocoding-api) / GeoNames, as with `!uv`;
+the free geocoder is for non-commercial use. The host needs internet access. Failed,
+malformed, or incomplete responses produce an availability message, never a
+no-events assertion. Coordinates outside NWS coverage produce a coverage error.
+Each HTTP request has a 12-second timeout; the command has a 45-second overall limit.
+
+Run directly from this folder:
+
+```text
+python scripts/flood_warn.py Sacramento
+python scripts/flood_warn.py 95814
+python scripts/flood_warn.py "Reno NV"
+python scripts/flood_warn.py 38.5816 -121.4944
+python -m unittest test_floodwarn
+```
+
+Restart the service using its existing launcher to load the command. Keep
+`scripts/uv_index.py` alongside `scripts/flood_warn.py`; its existing location
+parser is reused. No firmware changes or device flashing are required.
+
+Validation for this addition: all 66 tests passed in each service folder on the
+Windows host. Live city, ZIP, GPS, abbreviated-state, and full-state lookups passed;
+Athens, Ohio returned a Flash Flood Warning and Flood Watch during verification.
+An unsupported point returned a coverage error. Native Linux execution and
+physical MeshCore radio delivery remain unverified; no hardware was flashed.

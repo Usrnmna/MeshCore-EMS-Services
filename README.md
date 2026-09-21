@@ -17,6 +17,9 @@ The exact data sources, message topics, and delivery schedule depend on the serv
 | File | Purpose |
 | --- | --- |
 | `README.md` | Project overview and setup guidance. |
+| `meshcore_mqtt_service/` | Self-contained Python CLI/MQTT bridge, local broker, launchers, configuration and tests. |
+
+The [local MeshCore CLI and MQTT service](meshcore_mqtt_service/README.md) is available in `meshcore_mqtt_service/`. It selects Windows COM or Linux USB serial devices using `-S`, publishes radio events to MQTT, and automatically runs preset Python scripts for messages on `#autatestbot`. Replies go to the same channel prefixed with the saved sender's `@name`. It includes a local broker and Linux/Windows launchers. The other lookup programs below have not yet been collected or connected here.
 
 ## Programs being developed
 
@@ -26,9 +29,9 @@ The exact data sources, message topics, and delivery schedule depend on the serv
 | **CDEC latest readings** (`cdec_latest.py`) | Searches California Data Exchange Center stations near a coordinate pair and returns the latest valid reading for each sensor category and reporting interval, with units and timestamps. | Local water, weather, or related station readings when available. |
 | **Nearby river stations** (`nearby_river_stations.py`) | Finds stations within 30 miles of a coordinate pair from the CDEC river stage report. It returns stage data, AS/FS values, distance, and the original report row. | Nearby river level information with the source details retained for checking. |
 | **Caltrans highway conditions** (`highway_info.py`) | Retrieves California highway information by route number and formats active restrictions into compact, separate text blocks. | Short road closure, restriction, or advisory messages. |
-| **MeshCore MQTT bridge** | Connects an MQTT broker to a MeshCore Companion Node over USB serial. A separate Windows package was prepared for COM11 with configuration and setup/start scripts. | Carries prepared messages between the broker and MeshCore. |
+| **MeshCore MQTT bridge** | The local `meshcore_mqtt_service/` package selects a discovered COM node through `-S`, starts its bundled MQTT broker, publishes packet events and executes MQTT command requests. | Carries prepared messages between the broker and MeshCore. |
 
-The lookup programs currently produce their own command-line or structured output. They still need a shared message formatter, MQTT publishing configuration, and destination rules before this folder can operate as a combined information service.
+The lookup programs currently produce their own command-line or structured output. They still need a shared message formatter, MQTT publishing configuration, and destination rules before this folder can operate as a combined information service. The local bridge passed a live read-only check with the COM11 node and bundled broker; outbound mesh-message delivery remains untested.
 
 ## What you need
 

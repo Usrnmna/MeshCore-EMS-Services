@@ -56,6 +56,13 @@
         "coordinate_style": "options",
         "timeout": 40,
         "error_reply": "River station lookup unavailable. Please try again later."
+      },
+      "!uv": {
+        "script": "scripts/uv_index.py",
+        "args": [],
+        "input": "location",
+        "timeout": 35,
+        "error_reply": "UV lookup unavailable. Please try again later."
       }
     }
   }

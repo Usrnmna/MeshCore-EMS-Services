@@ -5,6 +5,15 @@ Python services that connect an MQTT broker to a USB MeshCore Companion Node and
 **Current release:** [v0.2.0-alpha](RELEASE_NOTES.md), updated from
 `v0.1.1-alpha` with snowpack reports, flood-alarm subscriptions, and reference tools/data.
 
+## OS service installers
+
+Release `v0.2.0-alpha` now includes online installation packages for Windows x64,
+Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
+include the complete workspace and reference data, and run with a saved serial port
+under Windows Services or systemd. See the [installation guide](INSTALL.md).
+
+The existing source-folder launchers remain available for interactive operation.
+
 ## About
 
 MC-EMS-Services turns a MeshCore channel into a small command-driven information service. A user sends a supported command on the configured channel, the attached computer runs the matching Python lookup, and the result is returned to the same channel with the sender's name.

@@ -18,6 +18,15 @@ CLI owns one USB connection selected through **-S**. Replies use its channel-sen
 function on that same connection. MQTT commands and automatic replies share a
 serialized, rate-limited command path. All radio events still publish to MQTT.
 
+## OS service installers
+
+Release `v0.2.0-alpha` now includes online installation packages for Windows x64,
+Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
+include the complete workspace and reference data, and run with a saved serial port
+under Windows Services or systemd. See the [installation guide](../INSTALL.md).
+
+The existing source-folder launchers remain available for interactive operation.
+
 ## Folder layout
 
 - `service.py`, `responder.py`, `flood_alarm.py`: bridge and command handling.

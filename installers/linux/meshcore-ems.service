@@ -1,0 +1,27 @@
+[Unit]
+Description=MeshCore EMS Services v0.2.0-alpha
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=meshcore-ems
+Group=meshcore-ems
+SupplementaryGroups=dialout
+WorkingDirectory=/opt/meshcore-ems/current/meshcore_mqtt_service
+ExecStart=/opt/meshcore-ems/current/.venv/bin/python -u /opt/meshcore-ems/current/meshcore_mqtt_service/service_runner.py --config /etc/meshcore-ems/config.json --state-dir /var/lib/meshcore-ems/runtime --environment /etc/meshcore-ems/environment.json
+Environment=PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=15
+TimeoutStopSec=45
+KillMode=control-group
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/meshcore-ems
+
+[Install]
+WantedBy=multi-user.target

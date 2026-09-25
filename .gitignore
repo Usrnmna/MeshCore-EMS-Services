@@ -11,6 +11,7 @@ __pycache__/
 
 # Rebuilt distribution packages and local recovery snapshots
 dist/
+.build/
 archive/*.zip
 
 # SQLite transient files (keep the supplied reference database)

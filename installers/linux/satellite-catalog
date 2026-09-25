@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set -euo pipefail
+exec /opt/meshcore-ems/current/.venv/bin/python /opt/meshcore-ems/current/satellite_database/satellite_db.py --settings /etc/meshcore-ems/satellite-settings.json "$@"

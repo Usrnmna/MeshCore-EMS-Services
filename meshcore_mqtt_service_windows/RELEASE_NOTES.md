@@ -2,6 +2,22 @@
 
 ## v0.2.0-alpha
 
+### Online OS service installers
+
+- Added Windows x64 setup and self-extracting Linux x86_64/Raspberry Pi ARM64
+  installers, with automatic online Python/dependency installation and Skyfield.
+- Included both platform sources, satellite tools, EBMUD/reference snapshots,
+  tests and documentation; excluded local environments, credentials and runtime data.
+- Added a saved-port service runner, Windows SCM host and Linux systemd unit,
+  graceful shutdown, restart-on-failure, separate writable state and upgrade
+  preservation. Existing interactive launchers remain available.
+- Added five service-runner regression tests per package (114 tests total per
+  service package) and three installer inventory/upgrade-preservation tests.
+- See the [installation guide](../INSTALL.md) for supported systems, installation,
+  optional credentials, maintenance and validation limits. These are online
+  installers; Python runtimes and dependency wheels are downloaded during setup.
+
+
 Updates the Windows 10 x64 service from `v0.1.1-alpha`.
 
 ### Changes since v0.1.1-alpha

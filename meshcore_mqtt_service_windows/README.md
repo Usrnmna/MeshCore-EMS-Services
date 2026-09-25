@@ -5,6 +5,15 @@
 This is an independent Windows copy. It does not load code, configuration, Python
 packages or runtime databases from the original Linux service folder.
 
+## OS service installers
+
+Release `v0.2.0-alpha` now includes online installation packages for Windows x64,
+Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
+include the complete workspace and reference data, and run with a saved serial port
+under Windows Services or systemd. See the [installation guide](../INSTALL.md).
+
+The existing source-folder launchers remain available for interactive operation.
+
 ## Folder layout
 
 - `service.py`, `responder.py`, `flood_alarm.py`: bridge and command handling.

@@ -1,0 +1,3 @@
+2b9794866dab9beb8f8d1e1efcafa0980e7cd199b58245a09a8898e231809a1e  MeshCore-EMS-v0.2.0-alpha-linux-x86_64.run
+f099c30011234b81f6247ef5d0290b19996529ad9d66e55fff3398eea0b36624  MeshCore-EMS-v0.2.0-alpha-raspberry-pi-arm64.run
+c56a3bd8611c4307b5cab16ea5752d528c4fd03ac2b504d5b9ac73e513bb01c2  MeshCore-EMS-v0.2.0-alpha-windows-x64-setup.exe

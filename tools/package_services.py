@@ -13,7 +13,7 @@ PACKAGES = ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")
 COMMON = {
     ".gitignore", "README.md", "RELEASE_NOTES.md", "START-HERE.txt",
     "config.json", "requirements.txt", "service.py", "responder.py",
-    "flood_alarm.py", "check_live.py",
+    "flood_alarm.py", "check_live.py", "service_runner.py",
 }
 PLATFORM = {
     PACKAGES[0]: {"Start-Service.sh", "setup.sh", "run.sh", "verify.sh"},
@@ -43,7 +43,7 @@ def main():
     # Validate both packages before replacing either distribution.
     inventories = {name: package_files(name) for name in PACKAGES}
     left, right = (ROOT / name for name in PACKAGES)
-    shared = {"responder.py", "flood_alarm.py", "requirements.txt"}
+    shared = {"responder.py", "flood_alarm.py", "service_runner.py", "requirements.txt"}
     shared |= {p.relative_to(ROOT / name).as_posix()
                for name, files in inventories.items() for p in files
                if p.parent.name in {"scripts", "tests"}}

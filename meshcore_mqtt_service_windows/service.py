@@ -338,8 +338,16 @@ async def radio_mode(config, command=None):
 
     run_connected.__dict__.update(cli.interactive_loop.__dict__)
     cli.interactive_loop = run_connected
-    # Always use the actual upstream -S discovery/selector, never a saved -s port.
-    await cli.main(["-S", "-j", "-b", str(config["baudrate"])])
+    # Installed services opt into a saved port; foreground launchers retain -S.
+    port = config.get("serial_port")
+    if port:
+        from service_runner import validate_serial_port
+        validate_serial_port(port)
+        selected["port"] = port
+        connection = ["-s", port]
+    else:
+        connection = ["-S"]
+    await cli.main([*connection, "-j", "-b", str(config["baudrate"])])
     if not entered:
         raise RuntimeError("No radio session started (no device, cancelled selection, or connection failed).")
 

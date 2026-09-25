@@ -5,7 +5,7 @@ The same Python program runs on Windows and Linux. Database creation, lookup,
 status evidence, and JSON/CSV export require only Python 3.11 or newer.
 Skyfield is optional and only needed to calculate position and antenna direction.
 
-The initial database is already populated in [`../data/satellites/`](../data/satellites/README.md).
+The supplied database and exports are in [`../data/satellites/`](../data/satellites/README.md).
 This is a standalone reference tool; no MQTT command, radio transmission, or
 scheduled/background task is installed.
 
@@ -187,12 +187,6 @@ The calculation is local and uses bundled timescale data; it makes no download.
 Elements farther than the configured 14 days from the requested time are rejected.
 For a specified UTC time, add `--at 2026-09-25T00:00:00Z`.
 
-The included Windows validation environment can also be used:
-
-```powershell
-satellite_database/.venv/Scripts/python.exe satellite_database/satellite_db.py position 25544 37.7749 -122.4194
-```
-
 Positions change continuously, so the database stores orbital elements rather
 than pretending a previously calculated direction stays current. Pass prediction,
 rotator control, Doppler radio tuning and RF reception are not implemented.
@@ -261,6 +255,5 @@ python -m unittest discover -s satellite_database -p "test_*.py"
 
 Tests cover independent capability states, failure requirements, stale and
 conflicting reports, retirement exclusion/pruning, update preservation, cache
-integrity, pagination, scope classification and exports. Software runs and live
-source downloads do not demonstrate satellite reception. Native Linux execution
-has not been validated in this Windows workspace.
+integrity, pagination, scope classification and exports. Software tests and source
+downloads do not demonstrate satellite reception.

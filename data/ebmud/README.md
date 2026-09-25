@@ -108,10 +108,11 @@ For a program inside either platform package's `scripts/` directory, set
 `PROJECT_ROOT = Path(__file__).resolve().parents[2]` instead. For a program
 directly inside either platform package, use `parents[1]`.
 
-The existing service commands do not yet consume these datasets. The shared
-directory is available to both packages while they are inside this project.
-When distributing a platform package on its own with a future GIS feature,
-include the datasets in that package and adjust its data path accordingly.
+The MeshCore commands do not read these datasets. Local programs can access the
+shared directory from either platform package inside this project. Complete
+workspace installers include the reference data; standalone service source ZIPs
+exclude this shared directory. A program using these files needs a data path
+that matches its installation layout.
 
 ## Useful attributes
 

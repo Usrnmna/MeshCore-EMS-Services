@@ -1,7 +1,5 @@
 # MeshCore channel command service
 
-**Current release:** [v0.2.0-alpha](RELEASE_NOTES.md)
-
 Messages on **#autatestbot** run preset local Python scripts and automatically return
 stdout to the same channel, starting with **@SENDERSUSERNAME**.
 
@@ -16,16 +14,16 @@ Service replies on #autatestbot: @Alice Local command service is running.
 The Linux computer running the service executes the scripts. The installed MeshCore
 CLI owns one USB connection selected through **-S**. Replies use its channel-send
 function on that same connection. MQTT commands and automatic replies share a
-serialized, rate-limited command path. All radio events still publish to MQTT.
+serialized, rate-limited command path. Radio events also publish to MQTT.
 
 ## OS service installers
 
-Release `v0.2.0-alpha` now includes online installation packages for Windows x64,
+Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
 include the complete workspace and reference data, and run with a saved serial port
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
-The existing source-folder launchers remain available for interactive operation.
+Source-folder launchers support interactive operation.
 
 ## Folder layout
 
@@ -88,9 +86,10 @@ Edit the `responder` section of `config.json`, then restart:
 }
 ```
 
-Included scripts provide status, UTC time, AQI, traffic, river, UV, and flood-alert
-results. Extend the map with your own phrases/scripts. Matching is exact and
-case-sensitive after trimming outer whitespace.
+Included scripts provide status, UTC time, AQI, traffic, river, UV, flood-alert,
+and snowpack results. Flood monitoring is handled by `!floodalarm`. Extend the map
+with your own phrases/scripts. Matching is exact and case-sensitive after trimming
+outer whitespace.
 Substrings, extra arguments and unknown phrases do not execute anything. Only decoded
 messages received on the configured channel trigger scripts; direct messages, raw
 packet logs and MQTT event replays do not.
@@ -147,8 +146,9 @@ not that another node received it. Relevant limits are configurable under `respo
 The bundled broker starts with the bridge at **127.0.0.1:1883**, accepts local clients
 without a password, and listens only on this computer. It stops with the bridge.
 Run `broker` in another terminal to keep MQTT alive independently; the bridge reuses
-an existing listener on that port. This is a foreground application, not an OS boot
-service, and radio startup uses an interactive selector.
+an existing listener on that port. The source launcher runs in the foreground with
+an interactive radio selector. Use the OS installer above for unattended systemd
+operation with a saved serial port.
 
 ```bash
 bash run.sh ports
@@ -161,7 +161,7 @@ bash run.sh cli infos
 `watch` consumes
 bridged MQTT events as JSON lines and can run beside the bridge. Stop the bridge
 before opening another USB connection with `cli`. Set `responder.enabled` to false
-to run only the original bridge functionality.
+to run the MQTT bridge without automatic channel replies.
 
 | Default topic | Purpose |
 | --- | --- |
@@ -212,16 +212,17 @@ loopback MQTT broker with simulated radio events. They verify sender retention,
 same-channel replies through the installed CLI helper, duplicate suppression,
 timeouts/failures, Unicode size limits and persistent request state.
 
-All 109 tests passed in this folder on Windows after workspace cleanup,
-including flood-alarm and snowpack regression tests. Native Linux execution and automatic
-over-the-air reply delivery have not yet been verified. `check_live.py` remains an
-optional read-only USB/MQTT check: it explicitly disables the responder, requires
-one discovered serial device and an unused broker port, and runs only MQTT infos.
+Tests also cover the lookup scripts with sample provider data, flood-alarm timing
+and persistence, and unattended service configuration. These checks do not establish
+physical radio delivery or installation and reboot behavior on target hardware.
+`check_live.py` provides an optional read-only USB/MQTT check: it disables the
+responder, requires one discovered serial device and an unused broker port, and
+runs only MQTT infos.
 
-Pinned dependencies: meshcore-cli 1.6.4, MeshCore 2.3.11, Paho MQTT 2.1.0 and aMQTT
-0.12.1. The adapter uses internal async CLI interfaces; check compatibility before
-upgrading them. All code, scripts, dependencies and runtime files stay in this folder.
-
+Pinned dependencies are listed in [requirements.txt](requirements.txt). The adapter
+uses internal async CLI interfaces; check compatibility when changing dependencies.
+Interactive source-folder operation keeps code, dependencies, and runtime files
+in this folder. Installed services use the paths in the [installation guide](../INSTALL.md).
 
 ## AirNow AQI command
 
@@ -246,27 +247,21 @@ bash Start-Service.sh
 ```
 
 Get a key through [AirNow's API account page](https://docs.airnowapi.org/account/request/).
-No API key is stored in these files. The original standalone AirNow source file is
-unchanged. Each service folder contains its own independent adapted copy. The lookup
-requires internet access. Missing keys/API failures produce a tagged availability
-message rather than exposing HTTP response contents or credentials.
+No API key is stored in these files. Each service folder contains its own
+AirNow lookup script. The lookup requires internet access. Missing keys/API failures
+produce a tagged availability message rather than exposing HTTP response contents
+or credentials.
 
 The !aqi configuration uses `input: "coordinates"` and a 60-second command-specific
-script timeout. Other preset commands keep exact matching and their existing timeout.
+script timeout. Other preset commands use exact matching and their configured timeout.
 Only validated numeric coordinate arguments are appended to the Python invocation;
-arbitrary command options or shell syntax are not accepted. The inherited 30-second
-per-sender cooldown still applies, including after a malformed request.
+arbitrary command options or shell syntax are not accepted. The 30-second
+per-sender cooldown applies, including after a malformed request.
 
 The result reports nearest-monitor PM2.5 AQI, concentration when available, rating,
 station, distance, observation time and preliminary-data status. It is a monitoring
 station observation, not a measurement at the submitted GPS point. Long output uses
-the existing tagged-message splitting and length limits.
-
-Both copies passed 29 offline/local tests after this change, including execution of
-the AirNow script in a subprocess with sample API data. No live AirNow lookup or
-new over-the-air AQI reply has been verified. Earlier original-file hash manifests
-are historical snapshots and predate these explicitly requested AQI changes.
-
+the configured tagged-message splitting and length limits.
 
 ## Caltrans traffic command
 
@@ -279,8 +274,7 @@ On **#autatestbot**, send a highway/route number:
 ```
 
 Use digits only, from 1 to 999; omit prefixes such as I-, US or SR. The bot runs its
-own `scripts/highway_info.py` with that number as a positional argument. The source
-program in the project's separate highway_info folder remains unchanged.
+own `scripts/highway_info.py` with that number as a positional argument.
 
 The response goes to the same channel with the sender's saved @name at the start of
 every part. Active Caltrans California road restrictions retain the program's compact
@@ -293,16 +287,9 @@ format. When the report is clear, the response is exactly:
 No API key is needed; the computer requires internet access to Caltrans. Missing or
 invalid arguments produce a tagged usage reply without running the script. Fetch
 failures produce a tagged availability message, never a clear-road assertion.
-The command uses `input: "route_number"` and a 30-second subprocess timeout. Existing
-cooldowns, duplicate suppression, maximum reply length and part limits still apply;
+The command uses `input: "route_number"` and a 30-second subprocess timeout.
+Configured cooldowns, duplicate suppression, maximum reply length and part limits apply;
 long reports may be truncated with `...`.
-
-Restart the running service with the same Start-Service launcher to load the new
-command. Both folder test suites passed 35 tests on the current Windows host. Traffic
-tests run the actual Python program against sample HTTP reports, covering clear
-reports, active restrictions and network failures. Live Caltrans retrieval, native
-Linux execution and over-the-air traffic replies have not been verified for this update.
-
 
 ## Nearby river stations command
 
@@ -321,36 +308,30 @@ nearby_river_stations.py --mesh-text --timeout 15 --latitude 39.0 --longitude -1
 ```
 
 The submitted coordinates always override the program's standalone defaults. Both
-service folders own a copy; the original standalone program remains unchanged.
+service folders contain an independent copy of the script.
 The command requires internet access to CDEC and NOAA, but no API key.
 
-The existing **15-mile radius** is retained. Matching CDEC river-stage stations are
+The search radius is **15 miles**. Matching CDEC river-stage stations are
 returned nearest first, with station name/ID, distance, stage, report time, action
 stage (AS) and minor flood stage (FS). Missing readings/thresholds show N/A. An empty
 match produces an explicit no-matching-stations message; source/network errors
 produce an availability message instead. This is a report lookup, not a prediction.
 
 Every reply part starts with the saved sender's @name and goes to the same channel.
-Existing cooldowns, duplicate suppression and reply limits apply: at most four
+Configured cooldowns, duplicate suppression and reply limits apply: at most four
 150-byte parts by default, with excess output truncated using `...`. Long results
 therefore favor the nearest stations. Increase max_reply_parts in config.json if
-needed, accounting for the existing 15-second spacing between transmissions.
+needed, accounting for the configured 15-second spacing between transmissions.
 
-The new `coordinate_style: "options"` configuration maps validated coordinates to
+The `coordinate_style: "options"` configuration maps validated coordinates to
 --latitude and --longitude; !aqi continues using positional arguments. The river
 command has a 40-second subprocess timeout around its two 15-second HTTP requests.
 To choose a different fixed radius, add `"--radius", "30"` to this command's args.
 Additional flags sent over the radio are not accepted.
 
-The program still returns full JSON when run directly without --mesh-text, including
+The program returns full JSON when run directly without --mesh-text, including
 raw_report_line, all stage-history values, coordinates and thresholds. The compact
 mesh format is enabled only through this command's configured --mesh-text argument.
-
-Restart the service using its existing Start-Service launcher to load !rivers.
-Both copies passed 42 tests on the current Windows host, including real subprocess
-execution with sample CDEC/NOAA responses, GPS forwarding, missing readings, empty
-results and failures. Live source retrieval, native Linux execution and over-the-air
-river replies have not been verified for this update.
 
 ## Current UV index: !uv
 
@@ -372,7 +353,7 @@ Example reply: `@Alice UV Index: 6.5 High`.
 
 Run directly with `python scripts/uv_index.py Sacramento` or
 `python scripts/uv_index.py 38.5816 -121.4944`. No extra Python dependencies or UV
-API key are required. Restart the service to load the new command configuration.
+API key are required.
 
 UV data: [CurrentUVIndex.com](https://currentuvindex.com/),
 [API](https://currentuvindex.com/api), CC BY 4.0. Only `now.uvi` is reported.
@@ -385,7 +366,6 @@ and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
 Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
-
 
 ## Flood alerts: !floodwarn
 
@@ -424,8 +404,9 @@ repeated alerts of the same type combined. Types are ordered as follows:
 
 The responder adds the saved sender's `@name` to every part, flattens newlines, and
 returns the result on the same channel. This command allows up to **12 parts of 150
-bytes** so all four descriptions fit even with a long sender name. Other commands
-retain their existing four-part default. The existing 15-second send spacing applies.
+bytes** so all four descriptions fit even with a long sender name. `!floodalarm`
+also allows 12 parts; other commands use the four-part default. The configured
+15-second send spacing applies.
 
 [FlashFloodWarn](https://www.flashfloodwarn.com/#about) identifies the National
 Weather Service API as its alert source. This script calls that same official
@@ -454,15 +435,8 @@ python scripts/flood_warn.py 38.5816 -121.4944
 python -m unittest discover -s tests -p "test_floodwarn.py"
 ```
 
-Restart the service using its existing launcher to load the command. Keep
-`scripts/uv_index.py` alongside `scripts/flood_warn.py`; its existing location
-parser is reused. No firmware changes or device flashing are required.
-
-Validation for this addition: all 66 tests passed in each service folder on the
-Windows host. Live city, ZIP, GPS, abbreviated-state, and full-state lookups passed;
-Athens, Ohio returned a Flash Flood Warning and Flood Watch during verification.
-An unsupported point returned a coverage error. Native Linux execution and
-physical MeshCore radio delivery remain unverified; no hardware was flashed.
+Keep `scripts/uv_index.py` alongside `scripts/flood_warn.py`; the flood lookup
+uses its location parser.
 
 ## Snowpack: !snowpack
 
@@ -512,8 +486,7 @@ same channel. The standalone `scripts/snowpack.py` prints the body only.
 
 City/ZIP coordinates come from [Open-Meteo/GeoNames](https://open-meteo.com/en/docs/geocoding-api).
 Internet access is required. Each request has a 10-second network timeout, with a
-65-second overall script timeout. Existing cooldowns and message splitting apply.
-Restart the running service to load the new command configuration.
+65-second overall script timeout. Configured cooldowns and message splitting apply.
 
 ```text
 python scripts/snowpack.py "39.3279, -120.1833"
@@ -522,20 +495,13 @@ python scripts/snowpack.py Truckee
 python -m unittest discover -s tests -p "test_snowpack.py"
 ```
 
-Validation: all 86 tests passed in each package on the Windows host, and both
-Python environments passed dependency checks. Live California city, ZIP, and GPS
-lookups returned station depths and forecasts; Nevada city, ZIP, and GPS requests
-were rejected. No service restart, radio transmission, or native Linux execution
-was performed for this addition.
-
 ## ZIP package
 
-The distribution ZIP includes this service folder, current snowpack code,
+The distribution ZIP includes this service folder, command scripts,
 configuration, launchers, setup scripts, tests, and documentation. Local Python
 environments, runtime databases, and generated bytecode caches are excluded.
 After extraction, follow the setup/launcher instructions above to install the
 pinned dependencies. Existing local runtime files are not included in the ZIP.
-
 
 ## Flood monitoring: !floodalarm
 
@@ -555,8 +521,8 @@ An accepted, syntactically valid request immediately queues this exact reply:
 ```
 
 The acknowledgment has its own worker and does not wait for a weather lookup.
-Existing sender cooldowns, duplicate/stale-message checks, channel selection, and
-radio spacing still apply; a busy radio can delay actual transmission. The
+Configured sender cooldowns, duplicate/stale-message checks, channel selection, and
+radio spacing apply; a busy radio can delay actual transmission. The
 acknowledgment confirms registration. The subsequent lookup verifies the location.
 
 ### Monitoring rules
@@ -613,7 +579,7 @@ and direct CLI output remain text. There is no extra dependency or separate daem
 
 Restart the service after updating the Python files and `config.json`.
 Test with `python -m unittest discover -s tests -p "test_floodalarm.py"`, or run the full test suite.
-Both packages passed **109 tests on the Windows host**, including simulated time,
-restart persistence, background workers, subprocess JSON, and existing MQTT tests.
-The four-hour behavior was tested with a simulated clock. No live four-hour run,
-native Linux run, radio transmission, firmware change, or service restart was done.
+
+The flood-alarm tests cover simulated timing, restart persistence, background
+workers, and subprocess results. Simulated tests do not establish live four-hour
+monitoring or radio delivery.

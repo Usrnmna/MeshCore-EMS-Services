@@ -2,8 +2,8 @@
 
 Python services that connect an MQTT broker to a USB MeshCore Companion Node and deliver concise, useful local weather, environmental, river, and highway information over a MeshCore channel.
 
-**Current release:** [v0.1.1-alpha](RELEASE_NOTES.md), updated from
-`v0.1.0-alpha` with current UV and NWS flood-alert services.
+**Current release:** [v0.2.0-alpha](RELEASE_NOTES.md), updated from
+`v0.1.1-alpha` with snowpack reports, flood-alarm subscriptions, and reference tools/data.
 
 ## About
 

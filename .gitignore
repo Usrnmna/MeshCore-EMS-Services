@@ -1,0 +1,18 @@
+# Installed dependencies and local service state
+.venv/
+.venv-linux/
+runtime/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+
+# Rebuilt distribution packages and local recovery snapshots
+dist/
+archive/*.zip
+
+# SQLite transient files (keep the supplied reference database)
+*.sqlite3-wal
+*.sqlite3-shm

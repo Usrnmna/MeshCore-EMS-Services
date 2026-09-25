@@ -1,6 +1,6 @@
 # MeshCore command service for Windows 10 Pro x64
 
-**Current release:** [v0.1.1-alpha](RELEASE_NOTES.md)
+**Current release:** [v0.2.0-alpha](RELEASE_NOTES.md)
 
 This is an independent Windows copy. It does not load code, configuration, Python
 packages or runtime databases from the original Linux service folder.

@@ -1,8 +1,9 @@
 # Satellite reference data
 
-Created and refreshed by [`satellite_database/satellite_db.py`](../../satellite_database/README.md).
+The [satellite catalog program](../../satellite_database/README.md) stores its
+database, exports, and source cache in this directory.
 
-- **`satellites.sqlite3`**: primary database for later programs and SQL queries.
+- **`satellites.sqlite3`**: primary database for local programs and SQL queries.
 - **`satellites.json`**: readable snapshot with satellites, supported operations,
   source references, orbital elements and status observations.
 - **`operations.csv`**: spreadsheet-friendly operation list.

@@ -1,7 +1,7 @@
 @echo off
 setlocal
 pushd "%~dp0"
-".venv\Scripts\python.exe" -m unittest -v test_service.py test_responder.py test_mqtt_integration.py test_aqi.py test_traffic.py test_rivers.py test_uv.py test_floodwarn.py
+".venv\Scripts\python.exe" -m unittest discover -s tests -p "test_*.py" -v
 if errorlevel 1 goto failed
 ".venv\Scripts\python.exe" -m pip check
 if errorlevel 1 goto failed

@@ -1,0 +1,59 @@
+{
+  "description": "Manually reviewed operator specifications. Dates are review dates, not reception times. Refreshing never advances these dates. Original source records remain in raw and operation_versions.",
+  "corrections": [
+    {
+      "operation_ids": ["satnogs:ffSvTKKdgVAbrdU5PgfLrv", "satnogs:kDkFdAcUdGsY5ubJtmrsiU", "satnogs:TA2gJcbYU3rW53W4rhoU2o"],
+      "source_url": "https://ospo.noaa.gov/operations/goes/hrit/index.html",
+      "reviewed_at": "2026-09-24T23:00:00Z",
+      "reason": "NOAA specifies 1694.1 MHz BPSK HRIT/EMWIN, 1.205 MHz necessary bandwidth, 400 kbps net data, and 927 ksymbols/s. SatNOGS lists FM and one duplicate GOES-19 record has a tenfold frequency error.",
+      "fields": {
+        "downlink_low_hz": 1694100000,
+        "downlink_high_hz": null,
+        "modulation": "BPSK",
+        "protocols": ["HRIT", "EMWIN"],
+        "necessary_bandwidth_hz": 1205000,
+        "data_rate_bps": 400000,
+        "symbol_rate_baud": 927000,
+        "uplink_availability": "downlink_only",
+        "review_required": false,
+        "scopes": ["weather_data", "weather_alerts"]
+      }
+    },
+    {
+      "operation_ids": ["satnogs:iyfxHeiEWTiCatrAXcLifM"],
+      "source_url": "https://www.ariss.org/hamtv-on-the-iss.html",
+      "reviewed_at": "2026-09-24T23:00:00Z",
+      "reason": "ARISS identifies HamTV as DVB-S with QPSK; SatNOGS mode field says DVB-S2. Video is downlink only.",
+      "fields": {
+        "modulation": "QPSK",
+        "protocols": ["DVB-S"],
+        "uplink_availability": "downlink_only",
+        "review_required": false
+      }
+    }
+  ],
+  "superseded_operations": {
+    "satnogs:kDkFdAcUdGsY5ubJtmrsiU": {
+      "superseded_by": "satnogs:TA2gJcbYU3rW53W4rhoU2o",
+      "reason": "Duplicate GOES-19 HRIT source record; same service after NOAA frequency correction. Retained for audit, not counted twice."
+    }
+  },
+  "status_label_mappings": {
+    "ISS [FM]": "satnogs:eozSf5mKyzNxoascs8V4bV"
+  },
+  "retired_satellites": [
+    {
+      "names": ["NOAA-11", "NOAA-12", "NOAA-14", "NOAA-15", "NOAA-16", "NOAA-17", "NOAA-18", "NOAA-19"],
+      "source_url": "https://ospo.noaa.gov/operations/poes/status.html",
+      "reason": "NOAA explicitly lists these spacecraft as decommissioned. Being physically in orbit does not make them operational."
+    },
+    {
+      "names": ["VO-52", "HAMSAT", "FO-82", "Shin'en-2", "AO-85", "FOX-1A", "HO-107", "HuskySat-1", "BOTAN"],
+      "source_url": "https://www.amsat.org/two-way-satellites/dead-satellites/",
+      "reason": "AMSAT explicitly reports end of mission, departure to solar orbit, or operator shutdown. A nonworking repeater alone is not used as a retirement criterion. AO-95 is deliberately retained because its beacon is listed as operational."
+    }
+  ],
+  "observations": [],
+  "additional_satellites": [],
+  "additional_operations": []
+}

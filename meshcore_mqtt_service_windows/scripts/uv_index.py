@@ -12,6 +12,16 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+# USER SETTINGS AND SOURCES: seconds for timeouts; see ../README.md.
+# Changing providers also requires adapting the response parser, not just the URL.
+DEFAULT_CITY_STATE = 'California'  # Also used by flood_warn and snowpack input parsing.
+HTTP_TIMEOUT_SECONDS = 12  # Per HTTP request, not the entire script.
+GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search'
+GEOCODING_RESULT_LIMIT = 100  # Candidate places requested before local filtering.
+UV_API_URL = 'https://currentuvindex.com/api/v1/uvi'
+USER_AGENT = 'MC-EMS-Services-UV/1.0'
+
+# INPUT CONTRACT: state aliases and decimal-degree syntax, not tuning settings.
 STATES = dict(pair.split(':') for pair in (
     'AL:Alabama|AK:Alaska|AZ:Arizona|AR:Arkansas|CA:California|CO:Colorado|'
     'CT:Connecticut|DE:Delaware|FL:Florida|GA:Georgia|HI:Hawaii|ID:Idaho|'
@@ -29,6 +39,7 @@ NUMBER = r'[+-]?(?:\d+(?:\.\d*)?|\.\d+)'
 
 
 def parse_location(text):
+    """Return (kind, value, state) for GPS, US ZIP, or city text; raise ValueError on bad input. No network access."""
     text = ' '.join(text.strip().split())
     if not text or len(text) > 150:
         raise ValueError(USAGE)
@@ -42,7 +53,7 @@ def parse_location(text):
         return 'zip', text[:5], None
     if not re.fullmatch(r"[A-Za-z][A-Za-z .,'-]*", text):
         raise ValueError(USAGE)
-    state = 'California'
+    state = DEFAULT_CITY_STATE
     # Longest suffix first handles multiword state names, with or without a comma.
     aliases = {name.casefold(): name for name in STATES.values()}
     aliases.update({abbr.casefold(): name for abbr, name in STATES.items()})
@@ -57,10 +68,11 @@ def parse_location(text):
 
 
 def get_json(url, params):
+    """Fetch one JSON response with a per-request timeout; convert HTTP/decoding failures into readable errors."""
     request = Request(url + '?' + urlencode(params), headers={
-        'User-Agent': 'MC-EMS-Services-UV/1.0', 'Accept': 'application/json'})
+        'User-Agent': USER_AGENT, 'Accept': 'application/json'})
     try:
-        with urlopen(request, timeout=12) as response:
+        with urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:
             return json.load(response)
     except HTTPError as exc:
         if exc.code == 429:
@@ -71,12 +83,13 @@ def get_json(url, params):
 
 
 def resolve_location(parsed):
+    """Return (latitude, longitude); use GPS directly or geocode a US ZIP/city with state filtering."""
     kind, value, state = parsed
     if kind == 'coordinates':
         return value
-    data = get_json('https://geocoding-api.open-meteo.com/v1/search', {
+    data = get_json(GEOCODING_URL, {
         'name': f'{value}, {state}' if state else value,
-        'count': 100, 'language': 'en', 'format': 'json', 'countryCode': 'US'})
+        'count': GEOCODING_RESULT_LIMIT, 'language': 'en', 'format': 'json', 'countryCode': 'US'})
     if not isinstance(data, dict) or data.get('error'):
         raise RuntimeError('Location lookup unavailable. Try again later.')
     candidates = [item for item in data.get('results', [])
@@ -95,6 +108,7 @@ def resolve_location(parsed):
 
 
 def risk_level(uvi):
+    """Validate a nonnegative finite UV reading and return its category; thresholds are category definitions."""
     if type(uvi) not in (float, int) or not math.isfinite(uvi) or uvi < 0:
         raise ValueError('UV service returned an invalid current reading.')
     for threshold, label in ((3, 'Low'), (6, 'Moderate'), (8, 'High'), (11, 'Very-High')):
@@ -104,8 +118,9 @@ def risk_level(uvi):
 
 
 def lookup(text):
+    """Resolve location, request the current UV reading, and return one reply string; raise on unavailable data."""
     lat, lon = resolve_location(parse_location(text))
-    data = get_json('https://currentuvindex.com/api/v1/uvi', {'latitude': lat, 'longitude': lon})
+    data = get_json(UV_API_URL, {'latitude': lat, 'longitude': lon})
     if not isinstance(data, dict) or data.get('ok') is not True:
         raise RuntimeError('Current UV reading unavailable. Try again later.')
     now = data.get('now')
@@ -117,6 +132,7 @@ def lookup(text):
 
 
 def main(argv=None):
+    """Read location arguments and print a reply or useful lookup error; return 0 so the responder sends that text."""
     args = list(sys.argv[1:] if argv is None else argv)
     if args and args[0] == '!uv':
         args.pop(0)

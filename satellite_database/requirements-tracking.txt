@@ -1,0 +1,2 @@
+# Optional: database creation, lookup and exports use only Python's standard library.
+skyfield>=1.49,<2

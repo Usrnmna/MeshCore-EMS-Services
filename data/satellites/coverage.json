@@ -1,0 +1,165 @@
+{
+  "completed_at": "2026-09-25T00:06:19.456156+00:00",
+  "coverage": "All records returned by configured feeds were processed. Public catalogs do not guarantee worldwide completeness or current RF activity.",
+  "excluded_satellites_by_reason": {
+    "future": 14,
+    "operator-documented retirement": 6,
+    "re-entered": 523
+  },
+  "excluded_transmitters": {
+    "excluded description": 2,
+    "no documented downlink": 3,
+    "outside public radio scope or insufficient documentation": 2945
+  },
+  "matched_reports": 1182,
+  "offline": true,
+  "orbital_records_loaded": 502,
+  "reception_reports": 1323,
+  "selected_operations": 890,
+  "selected_satellites": 395,
+  "source_receipts": [
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:48:38.947047+00:00",
+      "sha256": "38dc5e3984b6ca45d6249eb6f6e493091bdee8d245d885a3db0ce46f0fb11db2",
+      "url": "https://db.satnogs.org/api/satellites/?format=json"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:48:42.571839+00:00",
+      "sha256": "8827af0b492c5d40c2b283a694d7c6f4d70e4594234a643b3f81c06c36d52814",
+      "url": "https://db.satnogs.org/api/transmitters/?format=json"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:48:42.697261+00:00",
+      "sha256": "ad91017568e847a348ef77fd888f837c77207fb94b9b3ccd6c6ac60c0e4b8d2e",
+      "url": "https://raw.githubusercontent.com/palewire/amateur-satellite-database/main/data/amsat-all-frequencies.json"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:49:24.123177+00:00",
+      "sha256": "e342447e7e00ef78e0b94f9de88ec736a75d7c54bc1b7a39690d70a3099246b9",
+      "url": "https://www.amsat.org/status/"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:49:11.328943+00:00",
+      "sha256": "69017e451312d1f7d3879a9bd769f915db0498804b3032f80eb5fdeca2bac20e",
+      "url": "https://db.satnogs.org/api/tle/?format=json"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:56:49.766105+00:00",
+      "sha256": "94403d974c5fbb50fdacfa4b1304c2d5fd1674b84ec6b26bf2416f5113009b44",
+      "url": "https://celestrak.org/NORAD/elements/gp.php?GROUP=amateur&FORMAT=JSON"
+    },
+    {
+      "cached": true,
+      "fetched_at": "2026-09-24T23:56:50.030699+00:00",
+      "sha256": "c6872cc37347119a3c259a7431339dcb20620ab397291db3ce2c50bbf61ccc49",
+      "url": "https://celestrak.org/NORAD/elements/gp.php?GROUP=weather&FORMAT=JSON"
+    }
+  ],
+  "source_satellites": 2780,
+  "source_transmitters": 5021,
+  "unmatched_reports": 141,
+  "warnings": [],
+  "current_status_counts": {
+    "unknown": 872,
+    "active": 18
+  },
+  "scope_counts": {
+    "telemetry": 197,
+    "beacon": 277,
+    "digital_television": 7,
+    "data_downlink": 227,
+    "image_downlink": 35,
+    "two_way_data": 54,
+    "two_way_voice": 52,
+    "downlink_audio": 27,
+    "weather_data": 51,
+    "weather_alerts": 5
+  },
+  "satellites_with_orbits": 395,
+  "review_required_operations": 479,
+  "lifecycle_counts": {
+    "in orbit": 395
+  },
+  "missing_orbits": 0,
+  "current_status_evaluated_at": "2026-09-25T00:09:06.191575+00:00",
+  "in_orbit_scope_counts": {
+    "telemetry": 197,
+    "beacon": 277,
+    "digital_television": 7,
+    "data_downlink": 227,
+    "image_downlink": 35,
+    "two_way_data": 54,
+    "two_way_voice": 52,
+    "downlink_audio": 27,
+    "weather_data": 51,
+    "weather_alerts": 5
+  },
+  "unmatched_report_labels": [
+    {
+      "satellite_label": "CAS-3H",
+      "mode_label": "FM",
+      "report_count": 1
+    },
+    {
+      "satellite_label": "CO-128",
+      "mode_label": "TLM",
+      "report_count": 10
+    },
+    {
+      "satellite_label": "ISS",
+      "mode_label": "Crew",
+      "report_count": 4
+    },
+    {
+      "satellite_label": "ISS",
+      "mode_label": "SSTV",
+      "report_count": 2
+    },
+    {
+      "satellite_label": "Luca",
+      "mode_label": "SSDV",
+      "report_count": 2
+    },
+    {
+      "satellite_label": "OTP-2",
+      "mode_label": "Music",
+      "report_count": 5
+    },
+    {
+      "satellite_label": "QO-100",
+      "mode_label": "NB",
+      "report_count": 103
+    },
+    {
+      "satellite_label": "RS57S",
+      "mode_label": "SSTV",
+      "report_count": 3
+    },
+    {
+      "satellite_label": "RS61S",
+      "mode_label": "SSDV",
+      "report_count": 1
+    },
+    {
+      "satellite_label": "RS92S4",
+      "mode_label": "SSDV",
+      "report_count": 1
+    },
+    {
+      "satellite_label": "Replicator-2",
+      "mode_label": "Music",
+      "report_count": 7
+    },
+    {
+      "satellite_label": "TEVEL2-8",
+      "mode_label": "FM",
+      "report_count": 2
+    }
+  ]
+}

@@ -1,4 +1,9 @@
-"""Local MeshCore CLI / MQTT bridge. Run service.py --help for modes."""
+"""USB MeshCore connection, MQTT event delivery, and channel-command orchestration.
+
+Start reading at main() -> run_mode() -> radio_mode() -> bridge_loop().
+Operator settings live in config.json; see README.md for configuration guidance.
+This module opens serial/network connections and writes runtime/bridge.sqlite3.
+"""
 from __future__ import annotations
 
 import argparse
@@ -43,6 +48,7 @@ def normalize(value):
 
 
 def envelope(kind, payload, port=None, attributes=None):
+    """Wrap a payload in a timestamped, uniquely identified MQTT event; normalize binary and secret fields."""
     return {"schema": 1, "id": str(uuid.uuid4()),
             "received_at": datetime.now(timezone.utc).isoformat(),
             "event": kind, "device": {"port": port},
@@ -52,6 +58,7 @@ def envelope(kind, payload, port=None, attributes=None):
 class Store:
     """Durable, at-least-once publication; IDs permit consumer deduplication."""
     def __init__(self, path):
+        """Open SQLite and create the durable event outbox and MQTT request-ID tables; writes to disk."""
         self.db = sqlite3.connect(path)
         self.db.execute("PRAGMA journal_mode=WAL")
         self.db.execute("CREATE TABLE IF NOT EXISTS outbox (id INTEGER PRIMARY KEY, topic TEXT, body TEXT)")
@@ -59,23 +66,28 @@ class Store:
         self.db.commit()
 
     def put(self, topic, body):
+        """Serialize one event to JSON and commit it to the pending MQTT outbox."""
         self.db.execute("INSERT INTO outbox(topic,body) VALUES (?,?)", (topic, json.dumps(body)))
         self.db.commit()
 
     def claim(self, request_id):
+        """Persist a request ID and return True only for its first appearance, preventing duplicate execution."""
         cur = self.db.execute("INSERT OR IGNORE INTO requests VALUES (?)", (request_id,))
         self.db.commit()
         return cur.rowcount == 1
 
     def next(self):
+        """Return the oldest pending (row_id, topic, JSON_body), or None; does not remove it."""
         return self.db.execute("SELECT id,topic,body FROM outbox ORDER BY id LIMIT 1").fetchone()
 
     def ack(self, row_id):
+        """Delete and commit a published outbox row after broker acknowledgement."""
         self.db.execute("DELETE FROM outbox WHERE id=?", (row_id,))
         self.db.commit()
 
 
 def validate_request(raw):
+    """Validate raw MQTT JSON against allowed CLI commands; return (id, argv) or raise ValueError."""
     if len(raw) > 8192:
         raise ValueError("Command exceeds 8192 bytes")
     data = json.loads(raw)
@@ -101,6 +113,7 @@ def validate_request(raw):
 
 
 def make_mqtt(config, incoming, watch=False):
+    """Start the MQTT client's background loop; subscribe to commands or watch events on connection."""
     import paho.mqtt.client as mqtt
     cfg = config["mqtt"]
     prefix = cfg["prefix"].strip("/")
@@ -118,6 +131,7 @@ def make_mqtt(config, incoming, watch=False):
         client.will_set(prefix + "/status", '{"state":"offline"}', qos=1, retain=True)
 
     def on_connect(c, userdata, flags, reason, properties):
+        """Subscribe after broker connection and publish retained online status for the bridge."""
         if reason.is_failure:
             LOG.error("MQTT connection refused: %s", reason)
             return
@@ -127,6 +141,7 @@ def make_mqtt(config, incoming, watch=False):
         LOG.info("MQTT connected to %s:%s", cfg["host"], cfg["port"])
 
     def on_message(c, userdata, message):
+        """Reject retained bridge commands and enqueue incoming messages; log and discard queue overflow."""
         if message.retain and not watch:
             LOG.warning("Ignoring retained command")
             return
@@ -142,6 +157,7 @@ def make_mqtt(config, incoming, watch=False):
 
 
 async def publish_outbox(client, store):
+    """Continuously publish queued events at QoS 1; delete rows only after acknowledgement, retaining failures."""
     while True:
         row = store.next()
         if row and client.is_connected():
@@ -156,6 +172,7 @@ async def publish_outbox(client, store):
 
 
 async def bridge_loop(mc, cli, config, port):
+    """Own the connected radio/MQTT session, persist events, run the responder, and serialize radio actions."""
     bot_config = config.get("responder", {"enabled": False})
     validate_config(bot_config, ROOT)
     channel = await resolve_channel(mc, bot_config["channel_name"]) if bot_config.get("enabled") else None
@@ -168,6 +185,7 @@ async def bridge_loop(mc, cli, config, port):
     next_command = 0.0
 
     async def execute(action):
+        """Run one radio action under the shared lock, honoring command timeout and spacing in seconds."""
         nonlocal next_command
         async with command_lock:
             await asyncio.sleep(max(0, next_command - time.monotonic()))
@@ -176,13 +194,18 @@ async def bridge_loop(mc, cli, config, port):
             finally:
                 next_command = time.monotonic() + config["command_interval"]
 
-    async def send_reply(index, text):
+    async def send_reply(index, text, *, guard=None):
+        """Recheck the channel name, send a tagged reply, and persist its result as a BOT_REPLY event."""
         from meshcore import EventType
         async def action():
             # Do not send to a different channel if the radio was reconfigured.
+            """Verify the target channel still matches, ask the radio to send, and record acceptance; not recipient delivery."""
             info = await mc.commands.get_channel(index)
             if info.type != EventType.CHANNEL_INFO or info.payload.get("channel_name") != bot_config["channel_name"]:
                 raise RuntimeError("Reply channel configuration changed")
+            # ALARM EXPIRY: check after rate-limit/USB waits, immediately before transmission.
+            if guard is not None and not guard():
+                return
             result = await cli.send_chan_msg(mc, index, text)
             if result is None or result.type == EventType.ERROR:
                 raise RuntimeError("Radio did not accept the channel reply")
@@ -194,6 +217,7 @@ async def bridge_loop(mc, cli, config, port):
     bot_task = asyncio.create_task(bot.run()) if bot else None
 
     async def receive(event):
+        """Persist each radio event and offer decoded channel messages to the responder queue."""
         record = envelope(event.type.name, event.payload, port, getattr(event, "attributes", {}))
         store.put(prefix + "/events/" + event.type.name.lower(), record)
         if bot and event.type.name == "CHANNEL_MSG_RECV":
@@ -251,12 +275,14 @@ async def bridge_loop(mc, cli, config, port):
 
 
 def supported_serial_port(port):
+    """Return whether this package accepts the discovered serial-port name."""
     return bool(re.fullmatch(r"COM\d+", port, re.I) or
                 re.fullmatch(r"/dev/tty(?:ACM|USB)\d+", port) or port.startswith("/dev/serial/by-id/"))
 
 
 def prepare_cli():
     # Upstream reads configuration at import time. Keep that configuration here.
+    """Import the upstream CLI with package-local runtime settings and install the USB-only device selector."""
     home = RUNTIME / "home"
     local_config = home / ".config" / "meshcore"
     local_config.mkdir(parents=True, exist_ok=True)
@@ -267,6 +293,7 @@ def prepare_cli():
     selected = {}
 
     def serial_dialog(**kwargs):
+        """Filter discovered choices to supported serial devices and retain the user's selected device."""
         kwargs["values"] = [(value, label) for value, label in kwargs["values"]
                             if value.get("type") == "serial" and
                             supported_serial_port(value.get("port", ""))]
@@ -275,7 +302,9 @@ def prepare_cli():
         dialog = original_dialog(**kwargs)
 
         class Selection:
+            """Adapter that records the upstream device dialog's result before returning it."""
             async def run_async(self):
+                """Await the device selection, save the selected port details, and return the user's choice."""
                 choice = await dialog.run_async()
                 if choice:
                     selected.update(choice)
@@ -287,10 +316,12 @@ def prepare_cli():
 
 
 async def radio_mode(config, command=None):
+    """Use the upstream -S selector, then run the bridge or one CLI command; disconnect on completion."""
     cli, selected = prepare_cli()
     entered = False
 
     async def run_connected(mc, **kwargs):
+        """Handle the selected radio session and dispatch either continuous bridge work or one CLI command."""
         nonlocal entered
         entered = True
         if command is None:
@@ -315,6 +346,7 @@ async def radio_mode(config, command=None):
 
 
 async def watch(config):
+    """Print MQTT event messages as JSON lines until cancelled; never opens a serial connection."""
     incoming = queue.Queue(maxsize=1000)
     client = make_mqtt(config, incoming, watch=True)
     try:
@@ -334,6 +366,7 @@ async def watch(config):
 
 
 async def start_local_broker(port=1883):
+    """Start and return an anonymous broker bound to localhost; the caller must shut it down."""
     from amqtt.broker import Broker
     broker = Broker({
         "listeners": {"default": {"type": "tcp", "bind": f"127.0.0.1:{port}"}},
@@ -345,6 +378,7 @@ async def start_local_broker(port=1883):
 
 
 async def run_mode(config, mode, command=None):
+    """Start/reuse the local broker when required, dispatch a mode, and stop any broker created here."""
     broker = None
     if mode == "broker" or (mode == "bridge" and config.get("local_broker", False)):
         cfg = config["mqtt"]
@@ -373,6 +407,7 @@ async def run_mode(config, mode, command=None):
 
 
 def main():
+    """Parse mode/config options, create runtime storage, validate settings, and start the selected mode."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "config.json")
     sub = parser.add_subparsers(dest="mode", required=True)

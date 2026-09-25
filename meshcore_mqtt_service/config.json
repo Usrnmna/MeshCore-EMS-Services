@@ -63,6 +63,27 @@
         "input": "location",
         "timeout": 35,
         "error_reply": "UV lookup unavailable. Please try again later."
+      },
+      "!floodwarn": {
+        "script": "scripts/flood_warn.py",
+        "args": [],
+        "input": "location",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "error_reply": "Flood alert lookup unavailable. Please try again later."
+      },
+      "!snowpack": {
+        "script": "scripts/snowpack.py",
+        "args": [],
+        "input": "location",
+        "timeout": 65,
+        "error_reply": "Snowpack lookup unavailable. Please try again later."
+      },
+      "!floodalarm": {
+        "script": "scripts/flood_warn.py",
+        "args": [],
+        "input": "location",
+        "max_reply_parts": 12
       }
     }
   }

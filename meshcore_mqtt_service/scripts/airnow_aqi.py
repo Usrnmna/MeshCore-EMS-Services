@@ -21,16 +21,20 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
-# ----------------------------- User settings -----------------------------
+# USER SETTINGS AND SOURCES: see ../README.md for units and time budgets.
+# Keep the API key in the launching environment; do not paste it into this file.
 API_KEY = os.environ.get("AIRNOW_API_KEY", "").strip()
-SEARCH_RADII_KM = (10, 25, 50, 100, 250, 500)
-# -------------------------------------------------------------------------
+SEARCH_RADII_KM = (10, 25, 50, 100, 250, 500)  # Search boxes, smallest first.
+HTTP_TIMEOUT_SECONDS = 8  # Each box request; a date-line search may need two.
+USER_AGENT = "airnow-nearest-aqi/1.0"
 
 API_URL = "https://www.airnowapi.org/aq/data/"
+# GEOMETRY CONSTANT: used for distance calculations, not search tuning.
 EARTH_RADIUS_KM = 6371.0088
 
 @dataclass(frozen=True)
 class Observation:
+    """One parsed PM2.5 monitor reading, with AQI, optional concentration, UTC label, and distance in km."""
     site_name: str
     site_id: str
     latitude: float
@@ -44,6 +48,7 @@ class Observation:
 
 
 def validate_coordinates(latitude: float, longitude: float) -> None:
+    """Reject latitude outside -90..90 or longitude outside -180..180; return None on success."""
     if not -90 <= latitude <= 90:
         raise ValueError("LATITUDE must be between -90 and 90.")
     if not -180 <= longitude <= 180:
@@ -51,6 +56,7 @@ def validate_coordinates(latitude: float, longitude: float) -> None:
 
 
 def parse_arguments() -> tuple[float, float]:
+    """Read two positional decimal-degree coordinates; invalid input exits through argparse."""
     parser = argparse.ArgumentParser(
         description="Return PM2.5 and AQI from the nearest AirNow monitoring site."
     )
@@ -65,6 +71,7 @@ def parse_arguments() -> tuple[float, float]:
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Return great-circle distance in kilometers between two latitude/longitude pairs."""
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
     d_phi = math.radians(lat2 - lat1)
     d_lambda = math.radians(lon2 - lon1)
@@ -89,16 +96,17 @@ def bounding_boxes(latitude: float, longitude: float, radius_km: float) -> list[
 
 
 def api_get(bbox: str) -> list[dict[str, Any]]:
+    """Query the AirNow PM25 endpoint for a west,south,east,north box; return rows or raise a key-safe error."""
     params = {
         "parameters": "PM25", "BBOX": bbox, "dataType": "B",
         "format": "application/json", "verbose": 1, "monitorType": 0,
         "includerawconcentrations": 1, "API_KEY": API_KEY,
     }
     request = Request(f"{API_URL}?{urlencode(params)}", headers={
-        "Accept": "application/json", "User-Agent": "airnow-nearest-aqi/1.0"
+        "Accept": "application/json", "User-Agent": USER_AGENT
     })
     try:
-        with urlopen(request, timeout=8) as response:
+        with urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:
             payload = json.load(response)
     except HTTPError as exc:
         raise RuntimeError(f"AirNow API error {exc.code}.") from None
@@ -114,6 +122,7 @@ def api_get(bbox: str) -> list[dict[str, Any]]:
 
 
 def _number(item: dict[str, Any], *names: str) -> float | None:
+    """Return the first numeric value among alternative source field names, or None if none can be parsed."""
     for name in names:
         value = item.get(name)
         if value not in (None, ""):
@@ -125,6 +134,7 @@ def _number(item: dict[str, Any], *names: str) -> float | None:
 
 
 def parse_observation(item: dict[str, Any], latitude: float, longitude: float) -> Observation | None:
+    """Convert a usable PM2.5 row into an Observation; return None for unsupported or missing readings."""
     parameter = str(item.get("Parameter", "")).upper().replace(".", "")
     if parameter not in {"PM25", "PM2_5"}:
         return None
@@ -146,6 +156,7 @@ def parse_observation(item: dict[str, Any], latitude: float, longitude: float) -
 
 
 def find_nearest_observation(latitude: float, longitude: float) -> Observation:
+    """Expand search boxes until any usable readings exist; return the nearest in that first populated box."""
     for radius_km in SEARCH_RADII_KM:
         candidates: list[Observation] = []
         seen: set[tuple[str, str]] = set()
@@ -164,15 +175,22 @@ def find_nearest_observation(latitude: float, longitude: float) -> Observation:
 
 
 def one_word_rating(aqi: int, category_number: int | None = None) -> str:
-    if category_number == 1 or (category_number is None and aqi <= 50): return "Good"
-    if category_number == 2 or (category_number is None and aqi <= 100): return "Moderate"
-    if category_number == 3 or (category_number is None and aqi <= 150): return "Sensitive"
-    if category_number == 4 or (category_number is None and aqi <= 200): return "Unhealthy"
-    if category_number == 5 or (category_number is None and aqi <= 300): return "Very Unhealthy"
+    """Map AirNow category, or fallback AQI thresholds, to reply wording; some labels contain spaces."""
+    if category_number == 1 or (category_number is None and aqi <= 50):
+        return "Good"
+    if category_number == 2 or (category_number is None and aqi <= 100):
+        return "Moderate"
+    if category_number == 3 or (category_number is None and aqi <= 150):
+        return "Sensitive"
+    if category_number == 4 or (category_number is None and aqi <= 200):
+        return "Unhealthy"
+    if category_number == 5 or (category_number is None and aqi <= 300):
+        return "Very Unhealthy"
     return "Hazardous"
 
 
 def main() -> int:
+    """Read coordinates/key, print the observation, and return 0; print expected errors to stderr and return 1."""
     try:
         latitude, longitude = parse_arguments()
         if not API_KEY or API_KEY == "PASTE_YOUR_API_KEY_HERE":

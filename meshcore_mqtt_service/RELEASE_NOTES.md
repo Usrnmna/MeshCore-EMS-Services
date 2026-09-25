@@ -1,31 +1,69 @@
 # Linux service release notes
 
-## Unreleased - flood alarms
+## v0.2.0-alpha
 
-- Added `!floodalarm` with the same inputs as `!floodwarn` and an immediate tagged acknowledgment.
-- Added SQLite subscriptions, silent initial baselines, 20-minute change checks, and a four-hour limit.
-- Only `!floodalarm` starts or renews monitoring; each accepted call overwrites the saved location and resets the four-hour limit. `!floodwarn` leaves alarms unchanged.
-- Added separate acknowledgment/monitor workers, stale-result guards, and a final expiry check before radio transmission.
-- Added clearly labeled adjustment points and 23 regression tests; 109 tests passed in each package on Windows.
-- Existing flood warning wording and command output are preserved. Restart the service after updating.
+Updates the Linux service from `v0.1.1-alpha`.
 
-Validation uses simulated time and mocked weather/radio data plus real local
-subprocess/MQTT tests. No live four-hour monitoring, native Linux execution,
-physical radio transmission, or service restart was performed.
+### Changes since v0.1.1-alpha
 
+- Added `!snowpack` for California GPS, ZIP, or city input, with tagged replies
+  containing nearest CDEC hourly snow depth, NWS next-24h snowfall, station name,
+  and distance. Depth/forecast values are in inches; stale or missing values are
+  unavailable and out-of-state locations are rejected.
+- Added `!floodalarm`: an immediate queued acknowledgment, a silent initial
+  baseline, 20-minute checks, and same-channel notifications when supported NWS
+  flood-alert types change or clear. Radio spacing can delay transmission.
+- Each accepted `!floodalarm` replaces that sender's location and resets a
+  four-hour limit. `!floodwarn` remains a one-shot lookup and never renews alarms.
+  Bulletin text/ID changes alone do not trigger a notification.
+- Added `flood_alarm.py`, SQLite subscriptions in `runtime/bridge.sqlite3`,
+  separate acknowledgment/monitor workers, structured flood snapshots, and
+  stale-result/expiry guards before sending. Restarts do not extend expiry.
+  Lookup errors retain the last good baseline; failed sends are not replayed.
+- Added `scripts/snowpack.py`, new configuration entries, 20 snowpack tests,
+  23 flood-alarm tests, and commented algorithm adjustment points. Both service
+  packages now include nine commands. Existing UV and flood-warning commands
+  and flood-warning output are retained.
+- Distribution ZIPs under `dist/` are built by the workspace packager with
+  shared-code and ZIP integrity checks. They include tests/documentation and
+  exclude local environments, runtime data, caches, and historical backups.
 
-## Unreleased - snowpack
+- Added `verify.sh` for full test discovery and dependency checks. Removed
+  Windows-only launch helpers and the unused Windows virtual environment from
+  this folder; Linux setup creates `.venv-linux/`.
 
-- Added `!snowpack` for California GPS coordinates, ZIP codes, and city names.
-- Reports CDEC hourly snow depth, NWS next-24h snowfall, nearest station, and distance.
-- Preserves same-channel `@sender` replies; unavailable/stale data never implies zero.
-- Added 20 offline regression tests. Restart the service after updating.
+### Upgrade from v0.1.1-alpha
 
-Validation: all 86 tests passed in each package on the Windows host, and both
-Python environments passed dependency checks. Live California city, ZIP, and GPS
-lookups returned station depths and forecasts; Nevada city, ZIP, and GPS requests
-were rejected. No service restart, radio transmission, or native Linux execution
-was performed for this addition.
+Stop the service, back up customized `config.json` and runtime data, and replace
+source files with this release. Merge custom MQTT/channel settings into the new
+configuration, preserving `!snowpack`, `!floodalarm`, and existing command entries.
+Retain the local runtime database if needed; the responder creates its new
+subscription table automatically. Keep `AIRNOW_API_KEY` for `!aqi`.
+The pinned dependencies are unchanged, and the new commands require no new key.
+On a new machine, create a fresh environment rather than copying one.
+
+```bash
+bash setup.sh
+bash verify.sh
+bash Start-Service.sh
+```
+
+### Validation record and limitations
+
+Previously recorded checks passed **109 tests per service package on Windows**,
+up from 66 in `v0.1.1-alpha`, plus dependency checks. Snowpack live California
+city/ZIP/GPS lookups and Nevada rejection were checked. Flood-alarm timing used
+simulated time and mocked weather/radio data, alongside local subprocess and
+loopback MQTT tests. These results were not rerun for this documentation update.
+
+Native Linux execution, live four-hour monitoring, and physical radio delivery
+remain unverified for these additions. The service must run to monitor, and
+local send acceptance does not prove reception. This remains an alpha release;
+external lookups depend on internet/providers and do not replace official alerts.
+
+See the [project release notes](../RELEASE_NOTES.md) for shared implementation
+details, the standalone satellite catalog, EBMUD reference data, workspace cleanup,
+and validation limits. Those reference tools/data are separate from the service ZIP.
 
 ## v0.1.1-alpha — September 20, 2026
 

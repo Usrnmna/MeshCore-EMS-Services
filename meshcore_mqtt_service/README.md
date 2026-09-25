@@ -1,6 +1,6 @@
 # MeshCore channel command service
 
-**Current release:** [v0.1.1-alpha](RELEASE_NOTES.md)
+**Current release:** [v0.2.0-alpha](RELEASE_NOTES.md)
 
 Messages on **#autatestbot** run preset local Python scripts and automatically return
 stdout to the same channel, starting with **@SENDERSUSERNAME**.

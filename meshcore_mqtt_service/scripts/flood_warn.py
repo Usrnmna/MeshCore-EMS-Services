@@ -18,6 +18,15 @@ if __package__:
 else:
     from uv_index import parse_location as _parse_location
 
+# USER SETTINGS AND SOURCES: preserve the NWS GeoJSON contract when changing URLs.
+HTTP_TIMEOUT_SECONDS = 12  # Each geocoder, coverage, and alert request.
+GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search'
+GEOCODING_RESULT_LIMIT = 100
+NWS_POINTS_URL = 'https://api.weather.gov/points/{point}'
+NWS_ALERTS_URL = 'https://api.weather.gov/alerts/active'
+USER_AGENT = 'MC-EMS-Services-FloodWarn/1.0'
+
+# REPLY TEXT: dictionary order controls alert priority; keys must match NWS event names.
 USAGE = 'Use !floodwarn LATITUDE LONGITUDE, ZIP, or CITY [STATE].'
 UNAVAILABLE = 'Flood alert lookup unavailable. Please try again later.'
 ALERTS = {
@@ -29,6 +38,7 @@ ALERTS = {
 
 
 def parse_location(text):
+    """Reuse UV's shared input parser and relabel usage errors for !floodwarn; performs no HTTP requests."""
     try:
         return _parse_location(text)
     except ValueError as exc:
@@ -36,14 +46,15 @@ def parse_location(text):
 
 
 def get_json(url, params=None):
+    """Fetch JSON/GeoJSON; distinguish NWS coverage, rate-limit, and availability errors."""
     if params:
         url += '?' + urlencode(params)
     request = Request(url, headers={
-        'User-Agent': 'MC-EMS-Services-FloodWarn/1.0',
+        'User-Agent': USER_AGENT,
         'Accept': 'application/geo+json, application/json',
     })
     try:
-        with urlopen(request, timeout=12) as response:
+        with urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:
             return json.load(response)
     except HTTPError as exc:
         if exc.code == 429:
@@ -56,12 +67,13 @@ def get_json(url, params=None):
 
 
 def resolve_location(parsed):
+    """Return GPS coordinates or geocode an exact US city/ZIP; reject missing and invalid matches."""
     kind, value, state = parsed
     if kind == 'coordinates':
         return value
-    data = get_json('https://geocoding-api.open-meteo.com/v1/search', {
+    data = get_json(GEOCODING_URL, {
         'name': f'{value}, {state}' if state else value,
-        'count': 100, 'language': 'en', 'format': 'json', 'countryCode': 'US',
+        'count': GEOCODING_RESULT_LIMIT, 'language': 'en', 'format': 'json', 'countryCode': 'US',
     })
     if not isinstance(data, dict) or data.get('error'):
         raise RuntimeError('Location lookup unavailable. Try again later.')
@@ -84,6 +96,7 @@ def resolve_location(parsed):
 
 
 def timestamp(value):
+    """Parse an ISO timestamp with an explicit time zone; raise RuntimeError for invalid or naive times."""
     if not isinstance(value, str):
         raise RuntimeError('Flood alert service returned an invalid time.')
     try:
@@ -128,37 +141,54 @@ def active_types(data, now=None):
     return [event for event in ALERTS if event in found]
 
 
-def lookup(text):
+def snapshot(text):
+    """Return comparable alert types plus reply text; failures raise, never become a clear reading."""
     text = ' '.join(text.strip().split())
     lat, lon = resolve_location(parse_location(text))
     point = f'{lat:.4f},{lon:.4f}'
     # An empty alerts response alone does not establish that NWS covers this point.
-    coverage = get_json(f'https://api.weather.gov/points/{point}')
+    coverage = get_json(NWS_POINTS_URL.format(point=point))
     if (not isinstance(coverage, dict) or coverage.get('type') != 'Feature'
             or not isinstance(coverage.get('properties'), dict)
             or not coverage['properties'].get('forecastZone')):
         raise RuntimeError('Unable to verify NWS coverage for this location.')
-    data = get_json('https://api.weather.gov/alerts/active', {'point': point, 'status': 'actual'})
+    data = get_json(NWS_ALERTS_URL, {'point': point, 'status': 'actual'})
     events = active_types(data)
+    return {'events': events, 'text': format_status(text, events)}
+
+
+def format_status(text, events):
+    """One shared formatter for on-demand replies and alarm status changes."""
     if not events:
         return f'no flooding events declared for {text}'
     return text + ':\n' + '\n'.join(
         f'{event} {ALERTS[event][0]} - {ALERTS[event][1]}' for event in events)
 
 
+def lookup(text):
+    """Keep the original one-shot text interface."""
+    return snapshot(text)['text']
+
+
 def main(argv=None):
+    """Print UTF-8 alert/usage/error text for location arguments; return 0 so the responder forwards the text."""
     args = list(sys.argv[1:] if argv is None else argv)
+    # Internal subprocess mode: the alarm compares structured types, never error text.
+    structured = bool(args and args[0] == '--snapshot')
+    if structured:
+        args.pop(0)
     if args and args[0] == '!floodwarn':
         args.pop(0)
     # Preserve the requested emoji when invoked directly on Windows as well as by the bot.
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')
     try:
-        print(lookup(' '.join(args)))
+        print(json.dumps(snapshot(' '.join(args)), ensure_ascii=False) if structured else lookup(' '.join(args)))
     except (ValueError, RuntimeError) as exc:
-        print(str(exc))
+        print(json.dumps({'error': str(exc)}) if structured else str(exc))
     except (KeyError, TypeError, AttributeError, OverflowError):
-        print('Flood alert lookup unavailable: invalid service response.')
+        message = 'Flood alert lookup unavailable: invalid service response.'
+        print(json.dumps({'error': message}) if structured else message)
     return 0
 
 

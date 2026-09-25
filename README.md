@@ -2,6 +2,9 @@
 
 Python services that connect an MQTT broker to a USB MeshCore Companion Node and deliver concise, useful local weather, environmental, river, and highway information over a MeshCore channel.
 
+**Current release:** [v0.1.1-alpha](RELEASE_NOTES.md), updated from
+`v0.1.0-alpha` with current UV and NWS flood-alert services.
+
 ## About
 
 MC-EMS-Services turns a MeshCore channel into a small command-driven information service. A user sends a supported command on the configured channel, the attached computer runs the matching Python lookup, and the result is returned to the same channel with the sender's name.
@@ -23,11 +26,72 @@ The default channel is `#autatestbot`. The channel must already exist on the Com
 
 | Folder | Platform | Purpose |
 | --- | --- | --- |
-| [`meshcore_mqtt_service/`](meshcore_mqtt_service/) | Linux | Linux launcher, local MQTT broker, MeshCore bridge, command responder, lookup scripts, configuration, and tests. |
-| [`meshcore_mqtt_service_windows/`](meshcore_mqtt_service_windows/) | Windows 10 x64 | Independent Windows package with its own settings, runtime data, setup scripts, tests, and double-click launcher. |
-| [`highway_info/`](highway_info/) | Standalone Python | Original Caltrans highway information program. The service folders contain their own adapted copies for `!traffic`. |
+| [`meshcore_mqtt_service/`](meshcore_mqtt_service/README.md) | Linux | Linux launcher, local MQTT broker, MeshCore bridge, command responder, lookup scripts, configuration, and tests. |
+| [`meshcore_mqtt_service_windows/`](meshcore_mqtt_service_windows/README.md) | Windows 10 x64 | Independent Windows package with its own settings, runtime data, setup scripts, tests, and double-click launcher. |
+| [`satellite_database/`](satellite_database/README.md) | Standalone Python, Windows/Linux | Builds a sourced SQLite satellite radio catalog with capability-level status, retirement exclusions, orbital elements, and JSON/CSV exports in [`data/satellites/`](data/satellites/README.md). |
 
 The Linux and Windows folders are self-contained. Each uses its own virtual environment, configuration, MQTT namespace, and SQLite request database.
+
+## Workspace organization
+
+| Location | Contents |
+| --- | --- |
+| `meshcore_mqtt_service/` | Linux service, shell launchers, command scripts, and `tests/`. |
+| `meshcore_mqtt_service_windows/` | Windows service, Windows launchers, command scripts, and `tests/`. |
+| `satellite_database/` | Independent satellite catalog program, settings, schema, and tests. |
+| `data/` | EBMUD reference layers and satellite database, exports, and offline source cache. |
+| [`tools/package_services.py`](tools/package_services.py) | Builds both distribution ZIPs from current source and checks shared-code parity. |
+| `dist/` | Generated installation ZIPs; rebuild after source changes. |
+| [`archive/`](archive/README.md) | Local historical recovery backups, excluded from version control. |
+
+The service folders are the maintained installation sources. Shared command code
+is deliberately present in both so either package can run independently. Update
+both copies together; retain platform-specific serial selection and MQTT defaults.
+When copies differ, compare contents and modification history and reconcile the
+newer implementation before packaging. The packager rejects divergent shared code.
+
+The redundant `highway_info/` copy has been removed. The same current standalone
+program is available in either service package, without starting MQTT or the radio:
+
+```console
+python meshcore_mqtt_service/scripts/highway_info.py 80
+```
+
+Historical porting hash manifests and their one-time checker were removed from
+the Windows package. Windows launch helpers now belong only to the Windows folder.
+The Windows environment, runtime databases, and all reference data were retained.
+The unused Windows environment inside the Linux folder was removed after confirming
+that it was idle and had the same installed dependency versions. Linux setup creates
+its own `.venv-linux/`. Reference data is intentional even where no current MeshCore
+command consumes it.
+
+Build fresh packages from the workspace root with:
+
+```console
+python tools/package_services.py
+```
+
+This replaces the two ZIPs under `dist/` and excludes environments, runtime state,
+bytecode, and historical backups. The ZIPs include their own tests and documentation.
+
+## Local GIS reference data
+
+The project includes raw EBMUD GeoJSON snapshots in [`data/ebmud/`](data/ebmud/README.md):
+
+- [`trails.geojson`](data/ebmud/trails.geojson): trail geometry and attributes.
+- [`recreation_points.geojson`](data/ebmud/recreation_points.geojson): recreation locations and amenities.
+- [`trail_endpoints.geojson`](data/ebmud/trail_endpoints.geojson): trail start/end markers.
+- [`peaks.geojson`](data/ebmud/peaks.geojson): mountain peak locations and elevations.
+- [`additional_trails.geojson`](data/ebmud/additional_trails.geojson): additional trail linework and attributes.
+- [`boundaries/`](data/ebmud/README.md): seven GeoJSON layers covering reservoir annotations, reservoirs, recreation areas, watershed boundaries, and regional/local parks, plus raw boundary service metadata.
+- [`sources.json`](data/ebmud/sources.json): source URLs, download times, counts, and checksums.
+
+Programs can read these shared files locally without network requests. See the
+[data instructions](data/ebmud/README.md) for Python loading examples and path
+settings for either platform package. These are manual snapshots; existing
+service commands do not yet consume them.
+The instructions also explain the map-only annotation sublayer and one
+preserved annotation record with null geometry.
 
 ## Included programs and services
 
@@ -42,6 +106,7 @@ Both platform packages contain the same service components:
 | River lookup | `scripts/nearby_river_stations.py` | Finds nearby CDEC river-stage stations using NOAA station coordinates. |
 | UV lookup | `scripts/uv_index.py` | Resolves coordinates, ZIP codes, or city/state text and reports the current UV index. |
 | Flood-alert lookup | `scripts/flood_warn.py` | Resolves a US location and summarizes active NWS flash-flood warnings, flood warnings, advisories, and watches. |
+| Snowpack lookup | `scripts/snowpack.py` | Nearest CDEC hourly snow depth, NWS next-24h snowfall, station name, and distance. |
 | Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current UTC time. |
 | Configuration | `config.json` | Defines MQTT settings, the radio channel, commands, timeouts, cooldowns, and reply limits. |
 
@@ -58,10 +123,12 @@ Send commands from another MeshCore node on `#autatestbot`.
 | `!rivers` | `!rivers 39.0000, -121.0000` | Nearby river stations within 15 miles, including stage, report time, action stage, and flood stage. | CDEC and NOAA |
 | `!uv` | `!uv Sacramento` | Current UV index and risk level for coordinates, a US ZIP code, or a city and state. | CurrentUVIndex.com plus location lookup |
 | `!floodwarn` | `!floodwarn Sacramento` | Active flash flood warnings, flood warnings, advisories, and watches with colored squares. | NWS API, the alert source used by FlashFloodWarn |
+| `!floodalarm` | `!floodalarm Sacramento` | Acknowledges immediately; checks every 20 minutes and reports changes for up to four hours. | Same NWS flood source |
+| `!snowpack` | `!snowpack Truckee` | Snow depth and next-24h snowfall in inches, with nearest station and miles. Accepts California GPS, ZIP, or city. | CDEC and NWS |
 
 Examples of accepted UV and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!floodwarn`. City names without a state default to California.
 
-AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, and flood-alert commands do not require an API key. Internet access is required for all external data lookups.
+AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
 
 ## Main features
 
@@ -96,7 +163,7 @@ See the [Linux service README](meshcore_mqtt_service/README.md) for setup, opera
 
 Requirements: 64-bit Python 3.11 or newer and a USB-connected MeshCore Companion Node.
 
-1. Open [`meshcore_mqtt_service_windows/`](meshcore_mqtt_service_windows/).
+1. Open the [Windows service folder instructions](meshcore_mqtt_service_windows/README.md).
 2. Run `setup.cmd` once on a new computer.
 3. Double-click `Start-Service.exe`.
 4. Select the attached COM device in the MeshCore `-S` selector.
@@ -151,16 +218,27 @@ A `sent` result means the local Companion Node accepted the message for transmis
 
 ## Development and verification
 
+After workspace cleanup, both service packages passed **109 tests each** on the
+Windows host. The satellite suite passed **26 tests**, with one optional Skyfield
+test skipped because that dependency was unavailable. Dependency checks passed.
+The Windows launcher file check and Linux shell syntax/file checks passed; these
+do not establish native Linux operation or physical radio delivery.
+
+Run `bash verify.sh` from the Linux service folder after setup, or `verify.cmd`
+from the Windows service folder. Both discover all tests in `tests/` automatically.
+The satellite suite remains `python -m unittest discover -s satellite_database`
+from the workspace root. Historical feature validation is described below.
+
 Both service folders include tests for:
 
 - Command parsing and input validation.
 - Script execution, timeouts, failures, and output limits.
 - Sender retention and same-channel tagged replies.
 - Duplicate suppression and persistent request state.
-- AQI, traffic, river, UV, and flood-alert formatting with sample source responses.
+- AQI, traffic, river, UV, flood-alert, and snowpack formatting with sample source responses.
 - A real loopback MQTT broker with simulated radio events.
 
-All 66 automated tests passed in each service folder during this documentation update. The suites used the installed Windows Python environments and covered the two platform configurations independently. Live flood lookups were previously verified for city, ZIP, GPS, full-state and abbreviated-state input, including an active Flash Flood Warning and Flood Watch. A live read-only check connected to a COM11 node, published events, and completed an MQTT `infos` request. Native Linux execution, live external-data calls for every provider, and automatic over-the-air reply delivery have not all been verified. Follow the platform README when repeating checks.
+All 86 automated tests passed in each service folder after adding snowpack, including 20 snowpack regression tests. Live snowpack city, ZIP, and GPS lookups and out-of-state rejection also passed. The suites used the installed Windows Python environments and covered the two platform configurations independently. Live flood lookups were previously verified for city, ZIP, GPS, full-state and abbreviated-state input, including an active Flash Flood Warning and Flood Watch. A live read-only check connected to a COM11 node, published events, and completed an MQTT `infos` request. Native Linux execution, live external-data calls for every provider, and automatic over-the-air reply delivery have not all been verified. Follow the platform README when repeating checks.
 
 ## Dependencies
 
@@ -175,3 +253,46 @@ The service packages pin these main dependencies:
 Do not commit API keys, MQTT passwords, virtual environments, runtime databases, or generated cache files to a public repository.
 
 See the platform READMEs for `!floodwarn` examples, exact reply wording, data sources, and location coverage. Restart the service after configuration changes.
+
+## Snowpack command
+
+Both packages now include `!snowpack`. Examples: `!snowpack 39.3279, -120.1833`,
+`!snowpack 96161`, or `!snowpack Truckee`. The reply format is:
+
+```text
+@Alice Snowpack: Current: 12in | Next 24h: 4in | Station: Snow Creek 2.3mi.
+```
+
+Values above are illustrative. Current depth is measured at the nearest active
+CDEC hourly snow-depth station; snowfall is the NWS forecast at the requested
+location for the next rolling 24 hours. Forecast boundary intervals are prorated.
+Missing/stale data is shown as `unavailable`, and a valid zero is `0in`.
+
+See the [Linux snowpack details](meshcore_mqtt_service/README.md#snowpack-snowpack)
+or [Windows snowpack details](meshcore_mqtt_service_windows/README.md#snowpack-snowpack)
+for sources, freshness rules, and limitations. Restart the service after updating.
+The Windows and Linux ZIP archives under `dist/` are built from the current service folders.
+They contain source, launchers, setup scripts, tests, and documentation; local Python
+environments, runtime databases, and bytecode caches are excluded. Run the included
+setup/launcher after extraction to install the pinned dependencies.
+
+## Flood alarm subscriptions
+
+`!floodalarm` accepts the same city, state, ZIP, and GPS inputs as `!floodwarn`.
+Its immediate acknowledgment is `@Alice Flood Alarm is set for requested location.`
+Only `!floodalarm` starts monitoring. The service then saves a silent baseline,
+checks every 20 minutes, and sends tagged same-channel replies when the flood-alert
+types change, including when they clear. Existing radio spacing still applies.
+
+Monitoring stops four hours after the sender's last accepted `!floodalarm` call.
+Each new accepted `!floodalarm` overwrites that user's previous location and resets
+the full four-hour limit. `!floodwarn` is a one-shot lookup and never modifies
+an alarm or its timer. Other commands do not renew the timer.
+Subscriptions persist in each package's `runtime/bridge.sqlite3`; restarting does
+not extend the deadline. The service must be running to check and send.
+
+See the [Linux code guide](meshcore_mqtt_service/README.md#where-to-adjust-the-algorithm)
+or [Windows code guide](meshcore_mqtt_service_windows/README.md#where-to-adjust-the-algorithm)
+for the commented algorithm, timing constants, database fields, and error behavior.
+Both packages passed 109 tests on the Windows host. Timing was simulated; physical
+radio delivery and native Linux execution were not tested for this addition.

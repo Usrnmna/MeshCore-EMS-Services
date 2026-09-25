@@ -1,0 +1,3084 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>High Rate Information Transmission / Emergency Managers Weather Information Network | OSPO</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index" />
+    <meta http-equiv="last-modified" content="Monday, 13-Apr-2026 22:15:46 UTC" />
+    <meta http-equiv="expires" content="0" />
+
+    <meta content="https://ospo.noaa.gov/assets/img/ospo_default_og.jpg" property="og:image"/>
+    <meta content="1920" property="og:image:width"/>
+    <meta content="1080" property="og:image:height"/>
+    <meta content="website" property="og:type"/>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="NOAA Office of Satellite and Product Operations (OSPO)">
+    <meta property="og:description" content="">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ospo.noaa.gov/">
+    <meta property="og:image" content="https://ospo.noaa.gov/assets/img/ospo_default_og.jpg">
+    <meta property="og:site_name" content="NOAA OSPO">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NOAA Office of Satellite and Product Operations (OSPO)">
+    <meta name="twitter:description" content="">
+    <meta name="twitter:image" content="https://ospo.noaa.gov/assets/img/ospo_default_og.jpg">
+    <meta name="twitter:site" content="@NOAASatellites">
+
+	<link rel="preload" href="/assets/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2" as="font" type="font/woff2"  crossorigin="anonymous">
+    <link rel="preload" href="/assets/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff" as="font" type="font/woff2"  crossorigin="anonymous">
+    <link rel="shortcut icon" href="/graphics/favicon.ico" />
+    <link href="/assets/css/main.css?v=164439989197111" rel="stylesheet" type="text/css" />
+
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"></noscript>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"></noscript>
+
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
+    <style>#loader{display: none !important;}</style>
+
+    <link rel="stylesheet" href="/products/ocean/sar/tc/assets/css/styles.css" />
+    <link rel="stylesheet" href="/assets/css/imagery.css" type="text/css" />
+    <link rel="stylesheet" href="/operations/goes/product-quality-overview/css/basic.css" />
+    <link href="/css/fancybox3/dist/jquery.fancybox.css" rel="stylesheet" type="text/css" />
+    <link href="/css/fancybox3/fancybox_ospo.css" rel="stylesheet" type="text/css" />
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-1.11.1.min.js"></script>
+
+    <link href="/css/ospo-tables.css" rel="stylesheet" type="text/css" />
+    <link href="css/basic.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    
+<div class="left-0 nav-wrap position-relative right-0 z-500 " id="nav-top">
+	<a class="usa-skipnav" href="#main-content">Skip to main content</a>
+
+	<section class="usa-banner" aria-label="Official website of the United States government">
+		<div class="usa-accordion">
+			<header class="usa-banner__header">
+				<div class="usa-banner__inner">
+					<div class="grid-col-auto">
+						<img aria-hidden="true" class="usa-banner__header-flag" src="/assets/img/us_flag_small.png"
+							alt="" width="16" height="11" />
+					</div>
+					<div class="grid-col-fill tablet:grid-col-auto" aria-hidden="true">
+						<p class="usa-banner__header-text">
+							An official website of the United States government
+						</p>
+						<p class="usa-banner__header-action">Here’s how you know</p>
+					</div>
+					<button type="button" class="usa-accordion__button usa-banner__button" aria-expanded="false"
+						aria-controls="gov-banner-default">
+						<span class="usa-banner__button-text">Here’s how you know</span>
+					</button>
+				</div>
+			</header>
+			<div class="usa-banner__content usa-accordion__content" id="gov-banner-default" hidden>
+				<div class="grid-row grid-gap-lg">
+					<div class="usa-banner__guidance tablet:grid-col-6">
+						<img class="usa-banner__icon usa-media-block__img" src="/assets/img/icon-dot-gov.svg" role="img"
+							alt="" aria-hidden="true" />
+						<div class="usa-media-block__body">
+							<p>
+								<strong>Official websites use .gov</strong><br />A
+								<strong>.gov</strong> website belongs to an official government
+								organization in the United States.
+							</p>
+						</div>
+					</div>
+					<div class="usa-banner__guidance tablet:grid-col-6">
+						<img class="usa-banner__icon usa-media-block__img" src="/assets/img/icon-https.svg" role="img"
+							alt="" aria-hidden="true" />
+						<div class="usa-media-block__body">
+							<p>
+								<strong>Secure .gov websites use HTTPS</strong><br />A
+								<strong>lock</strong> (
+								<span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" width="52" height="64"
+										viewBox="0 0 52 64" class="usa-banner__lock-image" role="img"
+										aria-labelledby="banner-lock-description" focusable="false">
+										<title id="banner-lock-title">Lock</title>
+										<desc id="banner-lock-description">
+											Locked padlock icon
+										</desc>
+										<path fill="#000000" fill-rule="evenodd"
+											d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z" />
+									</svg> </span>) or <strong>https://</strong> means you’ve safely connected to
+								the .gov website. Share sensitive information only on official,
+								secure websites.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<header
+		class="usa-header usa-header--basic usa-header--megamenu grid-container-widescreen desktop:padding-x-10 padding-x-0">
+		<div class="desktop:padding-0 grid-container-widescreen margin-top-0 padding-y-1 usa-nav-container">
+			<div class="border-0 flex-justify usa-navbar z-500">
+				<div class="usa-logo" id="ospo-logo-desktop">
+					<a href="/">
+						<img src="/assets/img/ospo_logo.svg" id="logo-svg" alt="Home" />
+					</a>
+				</div>
+				<div class="usa-logo" id="ospo-logo-mobile">
+					<a href="/">
+						<img src="/assets/img/ospo_mobile_blk.svg"
+							alt="Home" />
+					</a>
+				</div>
+
+                <button class="usa-menu-btn">
+                    <span class="menu-icon menu-icon--blue"></span>Menu
+                </button>
+
+			</div>
+			<nav aria-label="Primary navigation" class="margin-bottom-2 usa-nav" style="z-index: 9999;">
+				<button class="usa-nav__close" type="button"><img alt="" role="img"
+						src="/assets/img/usa-icons/close.svg"></button>
+				<ul class="usa-nav__primary usa-accordion">
+					<li class="usa-nav__primary-item">
+						<button aria-controls="extended-nav-section-products" aria-expanded="false"
+							class="usa-accordion__button usa-nav__link" type="button">
+							<span>Products</span>
+						</button>
+						<ul class="usa-nav__submenu" hidden="" id="extended-nav-section-products">
+							<li class="usa-nav__submenu-item">
+								<a href="/products/"><span>All Products</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/atmosphere/"><span>Atmosphere</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/land/"><span>Land</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/ocean/"><span>Ocean</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/suites/"><span>Product Suites</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/imagery/"><span>Imagery</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/retirements.html"><span>Legacy Product Retirements</span></a>
+							</li>
+						</ul>
+					</li>
+					<li class="usa-nav__primary-item">
+						<button aria-controls="extended-nav-section-one" aria-expanded="false"
+							class="usa-accordion__button usa-nav__link" type="button">
+							<span>Hazard Analysis</span>
+						</button>
+						<ul class="usa-nav__submenu" hidden="" id="extended-nav-section-one">
+							<li class="usa-nav__submenu-item">
+								<a href="/products/atmosphere/vaac/"><span>Washington VAAC</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/land/hms.html"><span>Hazard Mapping System</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/ocean/tropical/"><span>Tropical Cyclones</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/ocean/marinepollution/"><span>Marine Pollution</span></a>
+							</li>
+						</ul>
+					</li>
+					<li class="usa-nav__primary-item">
+						<button aria-controls="extended-nav-section-satellites" aria-expanded="false"
+							class="usa-accordion__button usa-nav__link" type="button">
+							<span>Operational Satellites</span>
+						</button>
+						<ul class="usa-nav__submenu" hidden="" id="extended-nav-section-satellites">
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/operational-satellites/"><span>Satellite Operations</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/goes/"><span>GOES</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/solar/"><span>SOLAR</span></a>
+							</li>
+							
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/jpss/status.html"><span>JPSS</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/metop/status.html"><span>MetOp</span></a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="usa-nav__primary-item">
+						<button aria-controls="extended-nav-section-resources" aria-expanded="false"
+							class="usa-accordion__button usa-nav__link" type="button">
+							<span>Resources</span>
+						</button>
+						<ul class="usa-nav__submenu" hidden="" id="extended-nav-section-resources">
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/messages.html"><span>Satellite Alerts</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/resources/data-access/"><span>Data Access</span></a>
+							</li>
+							<li class="usa-nav__submenu-item">
+								<a href="/operations/poes/"><span>POES (Historical)</span></a>
+							<li class="usa-nav__submenu-item">
+								<a href="/products/ppp/index.html"><span>Pre Product Processing</span></a>
+							</li>
+						</ul>
+					</li>
+					<li class="usa-nav__primary-item">
+						<button aria-controls="extended-nav-section-about" aria-expanded="false"
+							class="usa-accordion__button usa-nav__link" type="button"><span>About</span></button>
+						<ul class="usa-nav__submenu" hidden="" id="extended-nav-section-about">
+							<li class="usa-nav__submenu-item">
+								<a href="/about/mission/"><span>Mission</span></a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<section aria-label="Search component" class="display">
+					<form class="usa-search usa-search--small margin-0" role="search" id="search-form" method="get"
+						action="https://search.usa.gov/search">
+						<input id="affiliate" name="affiliate" type="hidden" value="www.ospo.noaa.gov" />
+						<label class="usa-sr-only" for="query">Search</label>
+						<input class="margin-left-3 search-input bg-transparent border-0  border-white text-white" id="query" name="query" type="search" placeholder="Search" autocomplete="off">
+						<button class="usa-button" type="submit"><img alt="Search" class="usa-search__submit-icon"
+								src="/assets/img/usa-icons-bg/search--white.svg">
+						</button>
+					</form>					
+					
+					<script type="text/javascript">
+						//<![CDATA[
+							var usasearch_config = { siteHandle:"www.ospo.noaa.gov" };
+						//]]>
+					</script>
+				</section>
+			</nav>
+		</div>
+	</header>
+</div>
+<div class="usa-overlay z-100"></div>
+
+
+
+    <div class="hero myallery position-relative z-bottom desktop:display-block display-none h-140">
+        <div class="swiper-wrapper position-relative ">
+            <div class="hero-overlay z-100"></div>
+            <div class="paragraph swiper-slide swiper-image text-center"
+                style="background-image: url('/assets/img/heros/goes.jpg')">
+            </div>
+        </div>
+    </div>
+
+    <header class="usa-banner__header bg-base-lightest">
+        <div class="grid-container-widescreen desktop:padding-x-10">
+            <div class="grid-row">
+                <nav class="usa-breadcrumb-nav" aria-label="Breadcrumbs,,">
+                    <ol class="usa-breadcrumb__list">
+                        <li class="usa-breadcrumb__list-item">
+                            <a href="/operations/operational-satellites/"
+                                class="usa-breadcrumb__link"><span>Operations</span></a>
+                        </li>
+                        <li class="usa-breadcrumb__list-item usa-current">
+                            <a href="/operations/goes/" class="usa-breadcrumb__link"><span>GOES</span></a>
+                        </li>
+                        <li class="usa-breadcrumb__list-item usa-current" aria-current="page">
+                            <span>High Rate Information Transmission / Emergency Managers Weather Information
+                                Network</span>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!--<div class="tabs-bg">
+        <div class="grid-container-widescreen-xl">
+        </div>
+    </div>-->
+    <main id="main-content" class="padding-y-2">
+        <div class="grid-container-widescreen desktop:padding-x-10 padding-y2">
+            <div class="grid-row grid-gap">
+                <div class="grid-col-12">
+                    <h1 class="hp-heading text-primary z-400">
+                        High Rate Information Transmission / Emergency Managers Weather Information Network
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <nav class="padding-y desktop:display-block display-none sticky-subnav margin-bottom-2"
+            aria-label="In-page navigation">
+            <div class="grid-container-widescreen-xl">
+                <ul class="subnav usa-list--unstyled display-flex flex-justify-start">
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link   usa-current" href="#hrit-overview" role="tab" id="hrit-overview-tab"
+                            aria-controls="hrit-overview" aria-selected="true">
+                            Overview
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#aerospace" role="tab" id="aerospace-tab"
+                            aria-controls="aerospace-tab" aria-selected="false">
+                            Aerospace HRIT/EMWIN
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#broadcast" role="tab" id="broadcast-tab"
+                            aria-controls="broadcast-tab" aria-selected="false">
+                            Broadcast
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#products" role="tab" id="products-tab"
+                            aria-controls="products-tab" aria-selected="false">
+                            Products
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#reception" role="tab" id="reception-tab"
+                            aria-controls="receptiontab" aria-selected="false">
+                            Reception
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#imagery" role="tab" id="imagery-tab"
+                            aria-controls="imagery-tab" aria-selected="false">
+                            Sample Imagery HRIT/EMWIN
+                        </a>
+                    </li>
+                    <li class="usa-tabs__item" role="presentation">
+                        <a class="usa-tabs__link" href="#faq" role="tab" id="faq-tab" aria-controls="links-tab"
+                            aria-selected="false">
+                            FAQ
+                        </a>
+                    </li>
+            </div>
+        </nav>
+        <nav
+            class="detail-subnav-mobile position-sticky top-0 display-block desktop:display-none margin-y-2 padding-y-1">
+            <div class="grid-container">
+                <div class="display-flex flex-column flex-align-center">
+                    <button type="button"
+                        class="text-center usa-button usa-button--outline width-full text-no-underline"
+                        id="dropdown-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="dropdown-menu">
+                        Go to...
+                        <i class="fa fa-caret-down"></i>
+                    </button>
+                    <div id="dropdown-menu" class="radius-md margin-top-1 font-sans-md width-full display-none">
+                        <a class="usa-tabs__link   usa-current" href="#hrit-overview" role="tab" id="hrit-overview-tab"
+                            aria-controls="hrit-overview-tab" aria-selected="true">
+                            Overview
+                        </a>
+                        <a class="usa-tabs__link" href="#aerospace" role="tab" id="aerospace-tab"
+                            aria-controls="aerospace-tab" aria-selected="false">
+                            Aerospace HRIT/EMWIN
+                        </a>
+                        <a class="usa-tabs__link" href="#broadcast" role="tab" id="broadcast-tab"
+                            aria-controls="broadcast-tab" aria-selected="false">
+                            Broadcast
+                        </a>
+                        <a class="usa-tabs__link" href="#products" role="tab" id="products-tab"
+                            aria-controls="products-tab" aria-selected="false">
+                            Products
+                        </a>
+                        <a class="usa-tabs__link" href="#reception" role="tab" id="reception-tab"
+                            aria-controls="reception-tab" aria-selected="false">
+                            Reception
+                        </a>
+                        <a class="usa-tabs__link" href="#imagery" role="tab" id="imagery-tab"
+                            aria-controls="imagery-tab" aria-selected="false">
+                            Sample Imagery HRIT/EMWIN
+                        </a>
+                        <a class="usa-tabs__link" href="#faq" role="tab" id="faq-tab" aria-controls="links-tab"
+                            aria-selected="false">
+                            FAQ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="grid-container-widescreen desktop:padding-x-10 padding-top-2">
+            <div class="grid-row grid-gap">
+                <div class="grid-col padding-y-2">
+                    <div class="tab-container minh-mobile">
+                        <div class="tab-container minh-mobile">
+                            <section id="hrit-overview" role="tabpanel" aria-labelledby="hrit-overview-tab">
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">HRIT/EMWIN Overview</h2>
+<p class="font-body-sm line-height-sans-5">
+    HRIT/EMWIN is a direct-to-user broadcast at L-band (1694.1 MHz) with hemispherical coverage from dedicated
+    transponders on the GOES-R series geostationary satellites. Broadcast data include NWS warnings/watches,
+    environmental charts, both GOES and Himawari imagery, and a re-broadcast of GOES Data Collection System (DCS)
+    platform sensor messages. There is no fee or license requirement by NOAA to receive this broadcast, which is in an
+    open format. Users can have unlimited access to the data by purchasing the necessary equipment (computer, software,
+    antenna and receivers) from commercial companies and/or community-driven hardware and open source software.
+</p>
+<p class="font-body-sm line-height-sans-5">
+    GOES-R Series continues the previous broadcast services of LRIT (Low Rate Information Transmission) and EMWIN but
+    does so at a significantly higher data capacity. This was accomplished by combining the two services into a single
+    service with a data relay capacity of 400Kbps. This compares with the previous LRIT service at 128 Kbps and EMWIN
+    that transmits at 9.6 kbps on the GOES I-M (8-12) series and 19.2 kbps for the GOES-NOP (13-15) series. The new
+    service is called HRIT/EMWIN—HRIT for High Rate Information Transmission.
+</p>
+<p class="font-body-sm line-height-sans-5">
+    The HRIT service requires users to acquire new receiver hardware as well as a receiver frequency shift to 1694.1
+    MHz, from 1692.7 MHz (EMWIN) and 1691.0 (LRIT). With encouragement from NWS (operator of the EMWIN Program) and
+    NESDIS (operator of the current GOES LRIT service) the GOES-R program undertook a technology demonstration program
+    to show that relatively inexpensive receivers designed for the new service:
+</p>
+<ul class="font-body-sm line-height-sans-5">
+    <li>Supports not only HRIT/EMWIN but all of the predecessor services, eliminating costly and disruptive changes to
+        the user systems as the services evolve from the GOES-I-M era, to the GOES-NOP series, and finally to the GOES-R
+        Series.
+    </li>
+    <li>Through the technology of Software Defined Radio, the receiver consists of a modest amount of hardware (an
+        antenna, low noise amplifier and a computer interface) at very low cost. The bulk of the traditional signal
+        processing, error correction decoding and data recovery and display can be done in a convention personal
+        computer.
+    </li>
+    <li>Has a design that is available to all users, hobbyist and manufacturers, with the software available to anyone
+        at no cost.
+    </li>
+</ul>
+<!-- Accordion Section -->
+<div class="usa-accordion">
+
+    <h4 class="usa-accordion__heading">
+        <button type="button" class="usa-accordion__button" aria-expanded="false" aria-controls="a1">
+            Useful Links
+        </button>
+    </h4>
+
+    <div id="a1" class="usa-accordion__content usa-prose">
+
+        <section class="usa-section padding-top-2">
+
+            <ul class="hrit-links">
+
+                <li>
+                    <a href="https://www.weather.gov/emwin/" target="_blank" rel="noopener noreferrer">
+                        EMWIN Home Page
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://dcs1.noaa.gov/Account/Login" target="_blank" rel="noopener noreferrer">
+                        DCS USER Login
+                    </a>
+                </li>
+
+                <li>
+                    <a href="http://www.nhc.noaa.gov/" target="_blank" rel="noopener noreferrer">
+                        National Hurricane Center
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://www.goes-r.gov/mission/ups.html" target="_blank" rel="noopener noreferrer">
+                        GOES-R Unique Payload Services
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://www.goes-r.gov/resources/Scipubs/index.html" target="_blank"
+                        rel="noopener noreferrer">
+                        GOES-R Scienific Publications
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/resources/documents/goes-r.html" target="_blank" rel="noopener noreferrer">
+                        GOES-R Series Documents
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://www.star.nesdis.noaa.gov/goesr/documentation_ATBDs.php" target="_blank"
+                        rel="noopener noreferrer">
+                        GOES-R Product Algorithm Theoretical Basis Documents
+                    </a>
+                </li>
+
+                <li>
+                    <a href="/resources/documents/GOES-RSeriesDataBook.pdf" target="_blank" rel="noopener noreferrer">
+                        GOES-R Series Data Book
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://noaa-goes19.s3.amazonaws.com/index.html" target="_blank" rel="noopener noreferrer">
+                        GOES-19 Data Download
+                    </a>(Amazon Web Service)
+                </li>
+
+                <li>
+                    <a href="https://www.nesdis.noaa.gov/content/our-satellites#flyout" target="_blank"
+                        rel="noopener noreferrer">
+                        NESDIS Flyout Chart
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://cgms-info.org/publication/cgms-lrit-hrit-global-specification-v2-8-of-30-oct-2013/"
+                        target="_blank" rel="noopener noreferrer">
+                        The Coordination Group for Meteoro-logical Satellites LRIT/HRIT Global Specification
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://www.unidata.ucar.edu/software/netcdf" target="_blank" rel="noopener noreferrer">
+                        Unidata at UCAR netCDF
+                    </a>
+                </li>
+
+                <li>
+                    <a href="https://ccsds.org/" target="_blank" rel="noopener noreferrer">
+                        Consultative Committee for Space Data Systems
+                    </a>
+                </li>
+
+            </ul>
+
+        </section>
+
+    </div>
+</div>
+
+<!-- Modal Section (OUTSIDE ACCORDION) -->
+<div class="usa-modal usa-modal--lg" id="goes-dcs-modal" aria-labelledby="modal-2-heading"
+    aria-describedby="modal-2-description" aria-hidden="true">
+
+    <div class="usa-modal__content">
+
+        <button type="button" class="usa-button usa-modal__close" aria-label="Close this window" data-close-modal>
+            <svg class="usa-icon" aria-hidden="true" focusable="false" role="img">
+                <use href="/assets/img/sprite.svg#close"></use>
+            </svg>
+        </button>
+
+        <div class="usa-modal__main">
+
+            <h2 class="hp-heading text-primary text-center usa-modal__heading" id="modal-2-heading">
+                GOES Data Collection System
+            </h2>
+
+            <div class="usa-prose">
+
+                <p id="modal-2-description" class="font-body-sm line-height-sans-5">
+                    Since 1975, NESDIS has managed the U.S. Data Collection System. DCS is a system consisting of
+                    in-situ platforms that collect environmental information, the Geostationary Operational
+                    Environmental Satellites (GOES), an operational receiving and processing center located at the NOAA
+                    Command and Data Acquisition station in Wallops, Virginia, program management and oversight located
+                    at the NOAA Satellite Operations Facility (NSOF) in Suitland, Maryland, a second receiving and
+                    processing system located at the NSOF and several communications links for dissemination of the
+                    collected data.
+                </p>
+
+                <p class="font-body-sm line-height-sans-5">
+                    Environmental data are collected from platforms located primarily in remote areas (rivers, lakes,
+                    oceans, forests and rough terrain) all within the footprint of the NOAA geostationary East and West
+                    satellites. The GOES satellites act as the communications link between the remote platform and
+                    processing facility.
+                </p>
+
+                <p class="font-body-sm line-height-sans-5">
+                    After obtaining a Systems Use Agreement (SUA) with NESDIS, user data are uplinked to the GOES
+                    satellites, processed at Wallops or Suitland and made available through multiple dissemination
+                    systems including HRIT, NOAAPORT, and LRGS.
+                </p>
+
+                <p class="font-body-sm line-height-sans-5">
+                    Most environmental observations are also available from the Global Telecommunications System (GTS).
+                </p>
+
+                <p class="font-body-sm line-height-sans-5">
+                    DCS customers include agencies responsible for monitoring environmental and earth resources such as
+                    flood warning, earthquake monitoring, and wildfire response.
+                </p>
+
+                <p class="font-body-sm line-height-sans-5">
+                    Decision-makers depend on GOES DCS for emergency response and resource allocation.
+                </p>
+
+                <ul>
+                    <li><a href="docs/Web_Interface_User_Guide_KM.pdf" target="_blank">DADDS Web Interface User's
+                            Guide</a></li>
+                    <li><a href="docs/DCPR_CS2_final_June09.pdf" target="_blank">GOES DCPRS Certification Standards</a>
+                    </li>
+                    <li><a href="docs/Channel_Frequencies.pdf" target="_blank">Channel Frequency</a></li>
+                    <li><a href="docs/goes_dcs_shef_code_full.pdf" target="_blank">GOES DCS SHEF Code</a></li>
+                </ul>
+
+            </div>
+        </div>
+
+        <div class="usa-modal__footer">
+            <ul class="usa-button-group">
+                <li class="usa-button-group__item">
+                    <button type="button" class="usa-button usa-button--unstyled padding-105 text-center"
+                        data-close-modal>
+                        Go back
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+                            </section>
+
+                            <section id="aerospace" role="tabpanel" aria-labelledby="aerospace-tab" hidden>
+                                
+<h2 class="hp-heading text-primary z-400 margin-bottom-2">Aerospace HRIT/EMWIN Prototype</h2>
+<p class="font-body-sm line-height-sans-5">
+	In 2009, NASA/NOAA contracted work to Aerospace to design and build a HRIT/EMWIN prototype software-based radio
+	receiver that can process the received downlink frequency signal from an antenna and demodulator. This prototype
+	would be open-sourced to the public that would display how one could download the software and assemble a ready to
+	receive ground station at a low cost.</p>
+
+<p class="font-body-sm line-height-sans-5"><a data-fancybox href="img/HRIT Aerospace Prototype Diagram.jpg"
+		title="HRIT Aerospace Prototype Diagram"> <img alt="HRIT Aerospace Prototype Diagram" class="img-responsive"
+			src="img/HRIT Aerospace Prototype Diagram.jpg" style="float: right; margin-left:15px;" width="30%"></a> The
+	GOES Software Defined Radio (GOESSDR) supports
+	most Intel-based personal computers and
+	tablets by creating a live USB image. The live USB image is actually a self-contained, bootable Ubuntu Linux
+	operating system with all the software necessary to run the GOES-R receiver application. Users can follow the
+	included directions to create a Live USB thumb drive from this image and use this receiver with minimum
+	configuration and support. The Linux software does not actually install on a user’s PC, but runs from the USB
+	device. This method was selected for simplicity and avoids the user having to find the necessary software libraries
+	and drivers if one were to install it directly on a Windows operating system. An alternative downloadable package
+	can be directly loaded on a LINUX operating system without a USB memory stick.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	To use the USB image, a user at the minimum would need a 4 GB USB drive, though a 16GB USB 3.0 is recommended. The
+	process uses free software to create the live USB drive. Once the user has created the bootable USB drive, the PC
+	would need to be restarted and booted from USB drive itself at start-up (via BIOS menu). Depending upon the PC or
+	operating system, you either have to press the ESC key at boot time to access the computer’s BIOS configuration and
+	select the booting priorities (make sure the USB drive is selected before the computer’s hard drive) or press the F9
+	key to select the device (e.g., USB drive) to boot the PC. Please check with your personal computers manufacturer on
+	the correct process of getting to the BIOS configuration. Note that booting up from a USB drive may not be available
+	on the Apple Mac Operating System (OS), depending on the CPU type.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	Use the links below to download the software and instructions for the prototype:
+</p>
+<ul class="font-body-sm line-height-sans-5">
+	<li>ATR-2010 Document
+		<ul>
+			<li>
+				<a href="docs/ATR-2010-5482.pdf" target="_blank">A Flexible
+					Software Based EMWIN/HRIT Prototype Solution for The GOES-R Transition</a>
+			</li>
+		</ul>
+	</li><br>
+	<li>NOAA GOES-R LRIT/HRIT & EMWIN Software Radio Receiver User's Guide
+		<ul>
+			<li>
+				<a href="docs/NOAA GOES-R LRIT-HRIT and EMWIN Software Radio Receiver User Guide508.pdf"
+					target="_blank">NOAA GOES LRIT/HRIT & EMWIN Software Radio Receiver</a>
+			</li>
+		</ul>
+	</li><br>
+	<li>Creating a Live USB Thumb Drive On Windows to Run the GOES-R HRIT/EMWIN Software
+		<ul>
+			<li>
+				<a href="docs/create_live_usb_from_iso_on_windows_508.pdf"
+					target="_blank">Creating a Live USB Thumb Drive on Windows</a>
+			</li>
+			<li>
+				<a href="docs/files/ubuntu-14.04.5-desktop-amd64-goessdr-gnuradio-3.7.10.1_07-24-17.zip"
+					target="_blank">Bootable ISO image with the GOES-R HRIT/EMWIN Prototype SDR Receiver Software</a>
+			</li>
+		</ul>
+	</li>
+</ul><br>
+<h3 class="hp-heading text-primary z-400 margin-bottom-2">Radio Frequency Changes between GOES and GOES-R Series for HRIT and EMWIN</h3>
+<p class="font-body-sm line-height-sans-5">
+	As discussed elsewhere on this website, frequencies and bandwidth values are different for direct broadcasts from
+	previous GOES (13, 14, and 15) versus the GOES-R Series. Please ensure your equipment and/or settings account for
+	these differences, if required.
+</p>
+<div>
+	<table class="usa-table usa-table--bordered usa-table--scrollable table-full">
+	  <caption class="usa-sr-only">
+		Downlink Service Information
+	  </caption>
+  
+	  <thead>
+		<tr>
+		  <th scope="col">Downlink Service Name</th>
+		  <th scope="col">Spacecraft Series</th>
+		  <th scope="col">Center Frequency (MHz)</th>
+		  <th scope="col">Bandwidth</th>
+		</tr>
+	  </thead>
+  
+	  <tbody>
+		<tr>
+		  <td data-label="Downlink Service Name">
+			LRIT
+		  </td>
+		  <td data-label="Spacecraft Series">
+			GOES 13,14 &amp; 15
+		  </td>
+		  <td data-label="Center Frequency (MHz)">
+			1691.0
+		  </td>
+		  <td data-label="Bandwidth">
+			586 kHz
+		  </td>
+		</tr>
+  
+		<tr>
+		  <td data-label="Downlink Service Name">
+			EMWIN
+		  </td>
+		  <td data-label="Spacecraft Series">
+			GOES 13,14 &amp; 15
+		  </td>
+		  <td data-label="Center Frequency (MHz)">
+			1692.7
+		  </td>
+		  <td data-label="Bandwidth">
+			27 kHz
+		  </td>
+		</tr>
+  
+		<tr>
+		  <td data-label="Downlink Service Name">
+			HRIT
+		  </td>
+		  <td data-label="Spacecraft Series">
+			GOES-R
+		  </td>
+		  <td data-label="Center Frequency (MHz)">
+			1694.1
+		  </td>
+		  <td data-label="Bandwidth">
+			1.205 MHz
+		  </td>
+		</tr>
+  
+		<tr>
+		  <td data-label="Downlink Service Name">
+			EMWIN
+		  </td>
+		  <td data-label="Spacecraft Series">
+			GOES-R
+		  </td>
+		  <td data-label="Center Frequency (MHz)">
+			1694.1
+		  </td>
+		  <td data-label="Bandwidth">
+			1.205 MHz
+		  </td>
+		</tr>
+	  </tbody>
+	</table>
+  </div>
+<p class="font-body-sm line-height-sans-5">For GOES 13, 14 and 15, the Low Rate Information Transmission (LRIT) and
+	Emergency Managers Weather Information Network (EMWIN) were separate downlinks. For GOES-R, these services are
+	combined into a single downlink and the increased data amount drives the need to use High Rate Information
+	Transmission (HRIT) instead of LRIT.
+</p>
+<p class="font-body-sm line-height-sans-5">Some older versions of documentation do not correctly reflect the center
+	frequency values that were constructed for the GOES-R Series. A radio frequency change was made in the GOES-R design
+	to minimize the impact on commercial licensees due to the auctioned shared spectrum above 1695 MHz in 2015. Some
+	documentation prepared prior to that change cites incorrect center frequency values for GOES-R Series services.
+</p>
+<p class="font-body-sm line-height-sans-5">
+	For all questions or feedback concerning the links above, please contact <a href="mailto:hrit.manager@noaa.gov"
+		target="_blank">hrit.manager@noaa.gov</a>, for inquiries about the software content itself, please
+	contact Aerospace.
+</p>
+                            </section>
+
+                            <section id="broadcast" role="tabpanel" aria-labelledby="broadcast-tab" hidden>
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">Broadcast</h2>
+<p class="font-body-sm line-height-sans-5">
+	<a data-fancybox href="img/GOES-R Series Satellite Footprint.jpg" title="GOES-R Series Satellite Footprint"> <img
+			alt="GOES-R Series Satellite Footprint" class="img-responsive"
+			src="img/GOES-R Series Satellite Footprint.jpg" style="float: right; margin-left:15px;" width="30%"></a>
+	The NOAA/NESDIS High Rate Information Transmission / Emergency Managers Weather Information Network (HRIT/EMWIN)
+	broadcast is resident on NOAA’s GOES-R Series of Satellites. It is now operational on GOES-19 as the operational
+	East satellite and GOES-18 as the operational West satellite. The NOAA-NESDIS fly out chart can be located <a
+		href="https://www.nesdis.noaa.gov/content/our-satellites#flyout" target="_blank">NOAA-NESDIS fly out chart</a>.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	The GOES HRIT/EMWIN Broadcast transition from the previously separate LRIT and EMWIN broadcasts began in December
+	2017, when the first of the new GOES-R Series of satellites (GOES-16) became the operational East satellite after
+	its launch the previous year. GOES-17 was then launched on March 1st, 2018 to eventually become the West satellite
+	at GOES-15’s position. GOES-13 and GOES-15 have been transferred to the USSF and renamed EWS-G1 and EWS-G2. GOES-14
+	is in a storage orbit. GOES-16 is in standby for contingency operations. To find out more regarding GOES status,
+	please visit the <a href="https://www.goes-r.gov/" target="_blank">GOES-R website</a> and the <a
+		href="https://www.goes-r.gov/mission/mission.html" target="_blank">GOES-R Mission Overview</a>. NESDIS provides
+	“<a href="https://www.nesdis.noaa.gov/s3/2026-03/GEO-Flyout-Chart-2026.pdf" target="_blank">Satellite Programs
+		Launch Date
+		Charts</a>” with information regarding each GOES mission life expectancy for operations.
+</p>
+
+<p class="font-body-sm line-height-sans-5">The HRIT/EMWIN broadcast is in the L-band range at 1694.1 center
+	frequency. The broadcast should be able to be received using a VSAT antenna of less than 2 meters with a predicted
+	minimum size of 1 meter (see the “Antenna System” specification in the accompanying table). It is advisable to
+	consult with your equipment provider as each installation is unique based on your location within the broadcast
+	footprint and your unique antenna location.
+</p>
+<h2 class="hp-heading text-primary z-400 margin-top-4">HRIT/EMWIN Broadcast Specification</h2>
+<table class="usa-table usa-table--bordered usa-table--scrollable table-full">
+	<thead>
+		<tr>
+			<th scope="col">Characteristics</th>
+			<th scope="col">HRIT/EMWIN Broadcast Specifications</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Platform</td>
+			<td>Operational East and West<br>GOES-R Series Satellites</td>
+		</tr>
+		<tr>
+			<td>Operating Frequency Range</td>
+			<td>L-band</td>
+		</tr>
+		<tr>
+			<td>Center Frequency</td>
+			<td>1694.1 MHz</td>
+		</tr>
+		<tr>
+			<td>Data Rate</td>
+			<td>400 Kbps</td>
+		</tr>
+		<tr>
+			<td>Symbol Rate</td>
+			<td>927 Ksps</td>
+		</tr>
+		<tr>
+			<td>Modulation</td>
+			<td>BPSK</td>
+		</tr>
+		<tr>
+			<td>Polarization</td>
+			<td>Linear – Vertical offset</td>
+		</tr>
+		<tr>
+			<td>Antenna System</td>
+			<td>
+				At 5 degree elevation, the minimum antenna is 1.2 meter.<br>
+				At 10 degrees or more elevation, the minimum size is 1.0 meter.
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<p class="font-body-sm line-height-sans-5">
+	<a data-fancybox href="img/HRIT Acquisition Site Overview.png" title="HRIT Acquisition Site Overview"> <img
+			alt="HRIT Acquisition Site Overview" class="img-responsive" src="img/HRIT Acquisition Site Overview.png"
+			style="float: left; margin-right:15px;" width="31%"></a>
+	The primary HRIT/EMWIN broadcast is formed in the HRIT/EMWIN processors within the Product Distribution and Access
+	(PDA) system at the NOAA Satellite Operations
+	Facility (NSOF) in Suitland, MD. It is formed into a broadcast stream and sent to either the Command and Data
+	Acquisition Station at Wallops Island, Virginia (WCDAS)
+	or the Consolidated Backup Facility (CBU) at Fairmont, WV for uplink to the satellite. A secondary instance of the
+	HRIT/EMWIN and PDA systems are located at the
+	Consolidated Backup Facility (CBU) in Fairmont, WV. This broadcast is restricted to the essential components of the
+	Emergency Manager Weather Information Network
+	(EMWIN) and GOES Data Collection Service (DCS) products along with some graphic format satellite images. This
+	broadcast stream can be uplinked at the CBU at Fairmont
+	or transferred to the Wallops Command and Data Acquisition Station (WCDAS) in Wallops Island, Virginia. The
+	broadcast is formed in accordance with the
+	<a href="https://www.cgms-info.org/documents/cgms-lrit-hrit-global-specification-(v2-8-of-30-oct-2013).pdf"
+		target="_blank">HRIT/LRIT Standard</a> and
+	<a href="https://ccsds.org/publications/" target="_blank">CCSDS Standards</a>.
+</p>
+<p class="font-body-sm line-height-sans-5">
+	The HRIT/EMWIN broadcast can be received within the footprint of the GOES East and West satellites. The HRIT/EMWIN
+	broadcast can be received from the Eastern Atlantic
+	Ocean to the West-Central Pacific Ocean. In addition, the HRIT/EMWIN broadcast contains imagery in the NOAA HRIT
+	format from the Himawari satellite. This extends the
+	coverage available to the Indian Ocean and East Asia mainland.
+</p>
+<p>
+	Following the <a
+		href="https://www.cgms-info.org/wp-content/uploads/2021/10/cgms-lrit-hrit-global-specification-(v2-8-of-30-oct-2013).pdf"
+		target="_blank">HRIT/LRIT</a> Standard, data files are assigned to a number of Virtual Channels with associated
+	priorities on the broadcast.
+</p>
+
+<table class="usa-table usa-table--bordered table-full table-scroll-mobile">
+	<thead>
+		<tr>
+			<th>VCID #</th>
+			<th>Product Name</th>
+			<th>GOES-E (19)</th>
+			<th>GOES-W (18)</th>
+			<th>Frequency (Minutes)</th>
+			<th>Priority</th>
+			<th>Bandwidth</th>
+			<th>Format</th>
+			<th>Resolution</th>
+			<th>Status</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>0</td>
+			<td>Admin Text</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>60</td>
+			<td>1</td>
+			<td>38%</td>
+			<td>Text Messages</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>1</td>
+			<td>Mesoscale CMI</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>15</td>
+			<td>12</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>0.5km (B2), 2km (B7,13)</td>
+			<td>Both Meso scenes active</td>
+		</tr>
+		<tr>
+			<td>2</td>
+			<td>CMI Band 2</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>7</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>7</td>
+			<td>CMI Band 7</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>6</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>8</td>
+			<td>CMI Band 8</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>8</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>9</td>
+			<td>CMI Band 9</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>9</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>13</td>
+			<td>CMI Band 13</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>5</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>14</td>
+			<td>CMI Band 14</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>10</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>15</td>
+			<td>CMI Band 15</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>30</td>
+			<td>11</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>16</td>
+			<td>G19 CMI Band 13</td>
+			<td></td>
+			<td>✅</td>
+			<td>60</td>
+			<td>17</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>4 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>17</td>
+			<td>G18 CMI Band 13</td>
+			<td>✅</td>
+			<td></td>
+			<td>60</td>
+			<td>17</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>4 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>20</td>
+			<td>EMWIN – High Priority</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>Continuous</td>
+			<td>1</td>
+			<td>8%</td>
+			<td>Text</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>21</td>
+			<td>EMWIN - Graphics</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>15–60</td>
+			<td>3</td>
+			<td>8%</td>
+			<td>GIF/JPEG</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>22</td>
+			<td>EMWIN – Low Priority</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>Continuous</td>
+			<td>2</td>
+			<td>8%</td>
+			<td>Text</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>24</td>
+			<td>NHC Maritime Graphics</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>Variable</td>
+			<td>14</td>
+			<td>87%</td>
+			<td>GIF/JPEG</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>25</td>
+			<td>GOES-E/W Level 2+ Products</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>Variable</td>
+			<td>15</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>2–10 km</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>32</td>
+			<td>DCS Data</td>
+			<td>✅</td>
+			<td>✅</td>
+			<td>Continuous</td>
+			<td>4</td>
+			<td>5%</td>
+			<td>DCS Format</td>
+			<td>N/A</td>
+			<td>Active and available</td>
+		</tr>
+		<tr>
+			<td>60</td>
+			<td>Himawari-9</td>
+			<td></td>
+			<td>✅</td>
+			<td>60</td>
+			<td>16</td>
+			<td>87%</td>
+			<td>HRIT/LRIT</td>
+			<td>4 km</td>
+			<td>Active and available</td>
+		</tr>
+	</tbody>
+</table>
+                            </section>
+
+                            <section id="products" role="tabpanel" aria-labelledby="products-tab" hidden>
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">Emergency Manager Weather Information Network</h2>
+
+<p class="font-body-sm line-height-sans-5">
+	The EMWIN virtual channels 20-22 carry a large array of NWS-produced warnings, watches, forecasts, discussions and
+	graphic imagery products. Also included are other emergency information; for example, amber alerts. The EMWIN
+	products are now sent as individual messages. Commercial and open-source software packages are available to present
+	the EMWIN information graphically.
+</p>
+
+<h2 class="hp-heading text-primary z-400 margin-top-4">GOES Data Collection System</h2>
+<p class="font-body-sm line-height-sans-5">
+	The <a href="https://dcs1.noaa.gov/" target="_blank">GOES Data Collection System (DCS)</a> information
+	is a data relay system used to transmit observations from
+	surface-based environmental platforms through NOAA's geostationary satellites, for delivery back to the platform
+	owner. Approved users (e.g. government, non-profit) anywhere in the footprint of GOES can apply to utilize the
+	system. Users are given frequency and time slots for their transmissions. GOES DCS is a critical communication tool
+	for near-real-time observations for 40+ countries in the western hemisphere. There are thousands of Data Collection
+	Platforms that transfer their observations through GOES satellites. Some examples are: automatic weather stations,
+	tide and tsunami buoys, river and flood gauges and seismic gauges. There are several ways to access or receive GOES
+	DCS data, through the internet or via satellite broadcast. One way is through HRIT/EMWIN, another is the
+	GEONETCast-Americas broadcast. GOES DCS observations, while in text, are coded and require each DCS user of
+	HRIT/EMWIN to have the proper application to store these files in a database and to decode them if necessary.
+	Message latency for DCS over HRIT/EMWIN, from message reception at the Wallops Command and Data Acquisition site to
+	re-broadcast over HRIT/EMWIN, is less than 30 seconds and typically 13 seconds (median).
+</p>
+
+<h2 class="hp-heading text-primary z-400 margin-top-4">Imagery</h2>
+
+<p class="font-body-sm line-height-sans-5">The GOES-R Series carries the Advanced Baseline Imager (ABI) instrument which
+	has 16 imagery bands. The baseline spatial resolution at nadir varies from 0.5 km in the visible Band 2, to 1 km in
+	Bands 1,3, and 5, to 2km for all other Bands. For more information about the ABI instrument see the <a
+		href="https://www.goes-r.gov/resources/docs.html" target="_blank">GOES-R Series
+		Data Book</a>. The HRIT/EMWIN Broadcast selects the Cloud and Moisture Imagery Product full-disk and mesoscale
+	images
+	for seven bands (2, 7, 8, 9, 13, 14 ,15). Although the <a
+		href="https://www.ospo.noaa.gov/operations/goes/schedules.html" target="_blank">ABI instrument schedule</a>
+	usually takes a full-disk image every
+	10 minutes, HRIT/EMWIN bandwidth constraints allow two full-disk images per selected band per hour. The mesoscale
+	products are sent at native resolution, but the full-disk products are all 2km resolution. For more information
+	about the CMI Product, see the <a href="https://www.goes-r.gov/resources/docs.html" target="_blank">Fact Sheet</a>
+	or the full <a href="https://www.star.nesdis.noaa.gov/goesr/documentation_ATBDs.php" target="_blank">Algorithm
+		Theoretical Basis Document</a>.
+</p>
+
+<div class="usa-section">
+	<div class="grid-container">
+		<div class="carousel" aria-roledescription="carousel">
+
+			<div class="carousel__viewport" tabindex="0">
+				<div class="carousel__track">
+
+					<div class="carousel__slide" aria-label="Slide 1">
+						<a data-fancybox href="img/Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY.GIF" title="Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY"> <img
+								alt="Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY" class="img-responsive" src="img/Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY.GIF"></a>
+					</div>
+
+					<div class="carousel__slide" aria-label="Slide 2">
+						<a data-fancybox href="img/A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA.png" title="A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA">
+							<img alt="A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA" class="img-responsive" src="img/A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA.png"></a>
+					</div>
+
+					<div class="carousel__slide" aria-label="Slide 3">
+						<a data-fancybox href="img/NOAA Satellite Operations Facility HRIT_EMWIN VSAT Antennas.jpg"
+							title="NOAA Satellite Operations Facility HRIT_EMWIN VSAT Antennas.jpg"> <img
+								alt="W HRITNOAA Satellite Operations Facility HRIT_EMWIN VSAT Antennas"
+								class="img-responsive"
+								src="img/NOAA Satellite Operations Facility HRIT_EMWIN VSAT Antennas.jpg"></a>
+					</div>
+
+					<div class="carousel__slide" aria-label="Slide 4">
+						<a data-fancybox href="img/GOES-16 Longwave Infrared Band 13 Full Disk Imagery.jpg"
+							title="GOES-16 Longwave Infrared Band 13 Full Disk Imagery"> <img
+								alt="GOES-16 Longwave Infrared Band 13 Full Disk Imagery" class="img-responsive"
+								src="img/GOES-16 Longwave Infrared Band 13 Full Disk Imagery.jpg"></a>
+					</div>
+
+					<div class="carousel__slide" aria-label="Slide 5">
+						<a data-fancybox href="img/2018 National Hurricane Center North Atlantic Tracking Chart.gif"
+							title="2018 National Hurricane Center North Atlantic Tracking Chart"> <img
+								alt="2018 National Hurricane Center North Atlantic Tracking Chart"
+								class="img-responsive"
+								src="img/2018 National Hurricane Center North Atlantic Tracking Chart.gif"></a>
+					</div>
+
+					<div class="carousel__slide" aria-label="Slide 6">
+						<a data-fancybox href="img/Himawari Infrared Imagery.jpg" title="Himawari Infrared Imagery">
+							<img alt="Himawari Infrared Imagery" class="img-responsive"
+								src="img/Himawari Infrared Imagery.jpg"></a>
+					</div>
+
+					
+				</div>
+			</div>
+
+			<button class="carousel__control prev" aria-label="Previous slide">
+				&#10094;
+			</button>
+			<button class="carousel__control next" aria-label="Next slide">
+				&#10095;
+			</button>
+
+		</div>
+	</div>
+</div>
+<p class="font-body-sm line-height-sans-5">Click the link below to download the files associated with <strong>Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY</strong>.</p>
+<ul>
+	<li class="font-body-sm line-height-sans-5"><a href="docs/files/A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA.lrit">A_WWUS53KDVN102359_C_KWIN_20260311000017_940099-1-SVSDVNIA</a></li>
+	<li class="font-body-sm line-height-sans-5"><a href="docs/files/Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY.lrit">Z_QATA00KWBC110845_C_KWIN_20260311204545_011287-3-RADSMSVY</a></li>
+</ul>
+<p class="font-body-sm line-height-sans-5">For more information see <a
+		href="https://www.goes-r.gov/education/docs/fs_imagery.pdf" target="_blank">GOES-R “Cloud and Moisture Imagery
+		Fact Sheet”</a> or
+	the <a href="https://www.goes-r.gov/mission/ABI-bands-quick-info.html" target="_blank">GOES-R “ABI Bands Quick
+		Information Guides</a>. This is a significant increase in quality and in quantity of imagery
+	over the GOES-NOP era LRIT broadcast. Of the 16 ABI bands, 7 bands in the full disk sector have been selected for
+	broadcast on HRIT/EMWIN. HRIT also includes 3 bands in the mesoscale sector.
+</p>
+
+<p class="font-body-sm line-height-sans-5">Note that the native release format of the image products from the GOES-R
+	Series of satellites is the <a href="https://www.unidata.ucar.edu/software/netcdf" target="_blank">Network Common
+		Data Form</a> – Version 4, or netCDF4. This format is transposed into the
+	HRIT/LRIT format for the HRIT/EMWIN broadcast. See Broadcast tab for the HRIT/EMWIN Broadcast Virtual Channel
+	allocations and schedule.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	Another product component is a <a href="https://www.nhc.noaa.gov/tafb_latest/" target="_blank">selection of tropical
+		weather and ocean graphics</a> that are pulled from the NWS
+	<a href="https://www.nhc.noaa.gov/" target="_blank">National Hurricane Center</a>. These include tropical storm
+	tracks, maritime forecasts, maritime surface charts and
+	discussions along with winds and seas warnings.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	Also included in the HRIT/EMWIN broadcasts are HRIT-formatted Japan Meteorological Agency (JMA) Himawari image data.
+	NOAA receives Himawari visible, Infrared and Water Vapor images from the Japanese Meteorological Agency and converts
+	them to NOAA HRIT format. The imagery datasets are transmitted each hour. Himawari carries the <a
+		href="https://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html" target="_blank">AHI or
+		Advanced
+		Himawari Imager</a> instrument which is very similar to the GOES-R ABI. Thus, the full disk images are nearly
+	compatible
+	with the ABI images that are closest in wavelength and in the case of GOES-West, offer a view of the Pacific area
+	from Asia to much of North America.
+</p>
+                            </section>
+
+                            <section id="reception" role="tabpanel" aria-labelledby="reception-tab" hidden>
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">Reception</h2>
+<p class="font-body-sm line-height-sans-5">
+	The NOAA/NESDIS High Rate Information Transmission / Emergency Managers Weather Information Network (HRIT/EMWIN)
+	broadcast can be received using a VSAT system with the basic components of a VSAT antenna, low-noise block-down
+	converter (LNB), satellite signal receiver, software to de-encapsulate the broadcast stream and some type of
+	visualization software. The necessary components and related specifications are located in the accompanying table. A
+	partial list of component and system manufacturers can be found in the “<a
+		href="/resources/data-access/direct-readout-community.html">Satellite Receiving Equipment
+		Manufacturers</a>”. Note that this is a voluntary and partial list of vendors and there are manufacturers not
+	listed and
+	some that may have ceased to participate in the industry.
+</p>
+
+
+<table class="usa-table usa-table--striped table-full">
+	<thead>
+		<tr>
+			<th scope="col">Component</th>
+			<th scope="col">HRIT/EMWIN Broadcast Specifications</th>
+			<th scope="col">Additional Information</th>
+		</tr>
+	</thead>
+	<tbody>
+
+		<tr>
+			<td>Platform</td>
+			<td>Operational East and West GOES-R Series Satellites</td>
+			<td>
+				<ul>
+					<li>GOES-19 at 75.2 West</li>
+					<li>
+						GOES-18 at 137.0 West
+					</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td>Broadcast</td>
+			<td>Operating Frequency Range</td>
+			<td>L-Band</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td>Center Frequency</td>
+			<td>1694.1 MHz</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td>Data Rate</td>
+			<td>400 Kbps</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td>Symbol Rate</td>
+			<td>927 Ksps</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td>Modulation – BPSK</td>
+			<td>
+				<ul>
+					<li>Convolutional rate ½ code with constraint length 7 concatenated with Reed Solomon (255,223) with
+						Interleave = 4</li>
+					<li>Square Root Raised Cosine filtering using an Alpha factor of 0.3</li>
+					<li>The resulting “Necessary Bandwidth” for this signal will be 1.205 MHz</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td>Polarization – Linear</td>
+			<td>Vertical Offset</td>
+		</tr>
+
+		<tr>
+			<td>Antenna System</th>
+			<td>Antenna System</td>
+			<td>
+				<ul>
+					<li>At 5 degree elevation, the minimum antenna is 1.2 meter diameter</li>
+					<li>At 10 degrees or more elevation the minimum size is 1.0 meter diameter</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td>
+				<p class="margin-0">Low-Noise</p>
+				<p class="margin-0">Block-Down</p>
+				</th>
+			<td>L-Band</td>
+			<td>
+				<p class="margin-bottom-1"><strong>Example:</strong></p>
+				<ul>
+					<li>Input 1691 MHz</li>
+					<li>Output 137.5 MHz</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td>Satellite Receiver</td>
+			<td>L-Band</td>
+			<td>
+				<ul>
+					<li>BPSK</li>
+					<li>1691 MHz to 137.5 MHz</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td>Software</td>
+			<td>N/A</td>
+			<td>
+				<ul>
+					<li>De-encapsulates HRIT/LRIT files</li>
+				</ul>
+			</td>
+		</tr>
+
+		<tr>
+			<td></td>
+			<td></td>
+			<td>
+				<ul>
+					<li>Visualization and Manipulation of Files</li>
+					<li>
+						Optional Applications (examples)
+						<ul>
+							<li>EMWIN visualization application</li>
+							<li>GOES-DCS database software</li>
+						</ul>
+					</li>
+				</ul>
+			</td>
+		</tr>
+
+	</tbody>
+</table>
+<p class="font-body-sm line-height-sans-5" style="font-size: 0.9rem !important;">*Table 4.1: HRIT/EMWIN Broadcast
+	Reception Components and Specifications
+	(Updated 03/11/2026)*</p>
+
+
+<p class="font-body-sm line-height-sans-5">HRIT/EMWIN can be received over much of the Western Hemisphere between
+	extreme Western Africa and extreme Eastern Australia and Eastern Polynesia. The combination of the low rain-fad
+	characteristic of the L-band signal and the small aperture antenna required for reception allows for simultaneous
+	reception of GOES-R Series and Himawari reduced resolution imagery, the EMWIN content and GOES-DCS observations.
+
+</p>
+
+<p class="font-body-sm line-height-sans-5">On HRIT/EMWIN, the products are arranged into Broadcast Groups and then
+	virtual sub-channels. The HRIT/EMWIN Virtual Channel Identification – Product Table (table below) on this page and
+	repeated under the Products Tab provides a mapping of the products to the Virtual Channel IDs with the product
+	delivery periodicity and format.
+</p>
+
+<div class="usa-table-container--scrollable">
+	<table class="usa-table usa-table--striped table-full">
+		<thead>
+			<tr>
+				<th scope="col">VCID #</th>
+				<th scope="col">Product Name</th>
+				<th scope="col">GOES-E (19)</th>
+				<th scope="col">GOES-W (18)</th>
+				<th scope="col">Frequency (Minutes)</th>
+				<th scope="col">Priority</th>
+				<th scope="col">Bandwidth</th>
+				<th scope="col">Format</th>
+				<th scope="col">Resolution</th>
+				<th scope="col">Product Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>0</td>
+				<td>Admin Text</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>60</td>
+				<td>1</td>
+				<td>38%</td>
+				<td>Text Messages</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>1</td>
+				<td>Mesoscale CMI</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>15</td>
+				<td>12</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>0.5 km (Band 2), 2 km (Bands 7,13)</td>
+				<td>Both Meso scenes active and available</td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>CMI Band 2</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>7</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>7</td>
+				<td>CMI Band 7</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>6</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>8</td>
+				<td>CMI Band 8</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>8</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>9</td>
+				<td>CMI Band 9</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>9</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>13</td>
+				<td>CMI Band 13</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>5</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>14</td>
+				<td>CMI Band 14</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>10</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>15</td>
+				<td>CMI Band 15</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>30</td>
+				<td>11</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>16</td>
+				<td>G19 CMI Band 13</td>
+				<td></td>
+				<td>✅</td>
+				<td>60</td>
+				<td>17</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>4 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>17</td>
+				<td>G18 CMI Band 13</td>
+				<td>✅</td>
+				<td></td>
+				<td>60</td>
+				<td>17</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>4 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>20</td>
+				<td>EMWIN – High Priority</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>Continuous</td>
+				<td>1</td>
+				<td>8%</td>
+				<td>Text</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>21</td>
+				<td>EMWIN – Graphics</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>15–60</td>
+				<td>3</td>
+				<td>8%</td>
+				<td>Graphic (GIF, JPEG)</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>22</td>
+				<td>EMWIN – Low Priority</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>Continuous</td>
+				<td>2</td>
+				<td>8%</td>
+				<td>Text</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>24</td>
+				<td><a href="http://www.nhc.noaa.gov/tafb_latest/" target="_blank">NHC Maritime Graphics</a></td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>Variable</td>
+				<td>14</td>
+				<td>87%</td>
+				<td>Graphic (GIF, JPEG)</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>25</td>
+				<td>GOES-E/W Level 2+ Products</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>Variable</td>
+				<td>15</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>2–10 km</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>32</td>
+				<td>DCS Data</td>
+				<td>✅</td>
+				<td>✅</td>
+				<td>Continuous</td>
+				<td>4</td>
+				<td>5%</td>
+				<td>DCS Format</td>
+				<td>N/A</td>
+				<td>Active and available</td>
+			</tr>
+			<tr>
+				<td>60</td>
+				<td>Himawari-9</td>
+				<td></td>
+				<td>✅</td>
+				<td>60</td>
+				<td>16</td>
+				<td>87%</td>
+				<td>HRIT/LRIT</td>
+				<td>4 km</td>
+				<td>Active and available</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+<p class="font-body-sm line-height-sans-5" style="font-size: 0.9rem !important;">*Figure 4.2: HRIT/EMWIN Virtual Channel
+	Identification – Product Table
+	(Updated 03/11/2026)*</p>
+
+<p class="font-body-sm line-height-sans-5">
+	More information on the HRIT/EMWIN broadcast and products can be found under their tabs on this site. The broadcast
+	stream is based on the <a
+		href="https://cgms-info.org/publication/cgms-lrit-hrit-global-specification-v2-8-of-30-oct-2013/"
+		target="_blank">HRIT/LRIT</a> and <a href="https://ccsds.org/" target="_blank">CCSDS Standards</a>. Depending
+	on the software used to de-encapsulate the broadcast
+	stream, users can select which products to store or archive on their systems.
+
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	Most products are in formats that are easily viewed by most computer systems such as text, jpeg and gif. The GOES
+	DCS observations, while in text, are coded. Each owner of a Data Collection Platforms (DCP) is the owner of the
+	observation from those platforms. Each DCS user of HRIT/EMWIN is responsible for having an application to store
+	these files in a database and to decode them.
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	<a data-fancybox href="img/2010 NOAA Satellite Conference Receive Terminal Example.png"
+		title="2010 NOAA Satellite Conference Receive Terminal Example"> <img
+			alt="2010 NOAA Satellite Conference Receive Terminal Example" class="img-responsive"
+			src="img/2010 NOAA Satellite Conference Receive Terminal Example.png"
+			style="float: left; margin-right:15px;" width="31%"></a>
+	The native format of the imagery from the GOES-R Series of satellites is the Network Common Data Form – Version 4,
+	or netCDF4. This format is transposed into the HRIT/LRIT format for inclusion into the HRIT/EMWIN broadcast. View
+	the <a href="https://www.unidata.ucar.edu/software/netcdf/docs/netcdf_introduction.html" target="_blank">netCDF and
+		netCDF4</a> for more information. Visit the “<a
+		href="https://www.cgms-info.org/documents/cgms-lrit-hrit-global-specification-(v2-8-of-30-oct-2013).pdf"
+		target="_blank">Coordination Group for Meteorological Satellites LRIT/HRIT
+		Global Specification</a>”. Most commercial HRIT/EMWIN or XRIT systems contain software that will view and / or
+	manipulate the images in HRIT format.
+</p>
+<p class="font-body-sm line-height-sans-5">
+	<a data-fancybox href="img/acg1.png" title="HRIT/EMWIN Prototype Receive System"> <img
+			alt="HRIT/EMWIN Prototype Receive System" class="img-responsive" src="img/acg1.png"
+			style="float: right; margin-left:15px;" width="30%"></a>During the NOAA Satellite Conference in Miami,
+	Florida in the spring of 2010, a provisional installation of a
+	HRIT/EMWIN system was installed in the parking lot outside the hotel conference center. The system consisted of a
+	lightweight antenna, LNA, the original version of the prototype receiver and software, a laptop computer, a normal
+	CRT and a batter for power. It successfully showed the satellite imagery of an approaching squall line with
+	thunderstorm activity along with the EMWIN warning information and graphics.
+
+</p>
+
+<p class="font-body-sm line-height-sans-5">View all of <a href="/operations/goes/status.html">Geostationary
+		Satellites Status and their instruments</a></p>
+
+<p class="font-body-sm line-height-sans-5">View the imaging <a href="/operations/goes/schedules.html">“Schedules and
+		Scan Sectors”</a></p>
+
+<p class="font-body-sm line-height-sans-5">NOAA/NESDIS/OSPO posts notifications that consist of <a
+		href="/operations/messages.html" target="_blank">“information about NOAA's
+		satellite operations.”</a> To “decode the ".txt" filenames listed above, MSGXXXHHMM.NN.txt, MSG means "Message",
+	XXX is
+	the Julian Date, HHMM is the time of the message and NN is the sequence number.”
+</p>
+
+<p class="font-body-sm line-height-sans-5">
+	Users can also be put on email distribution of the notifications by emailing the NESDIS Help Desk at <a
+		href="mailto: ESPCOperations@noaa.gov">ESPC Operations</a> or <a href="/about/contact/">visit the Contact
+		Page</a>.
+</p>
+                            </section>
+
+                            <section id="imagery" role="tabpanel" aria-labelledby="imagery-tab" hidden>
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">Sample Imagery HRIT/EMWIN</h2>
+<p class="font-body-sm line-height-sans-5">
+	The following HRIT/EMWIN test data files in the HRIT/LRIT Format are provided for GOES-R Series Satellites. GOES-19
+	is currently the operational East satellite at 75.2° west, while GOES-18 is the operational West satellite at 137.0°
+	west.
+</p>
+
+
+
+<p class="font-body-sm line-height-sans-5">
+	The GOES-R series spacecraft have the Advanced Baseline Imager (ABI), which has a total of 16 image bands each.
+	HRIT/EMWIN only carries the following bands in full disk sectors: 2, 7, 8, 9, 13, 14 and 15. There are 3 sectors in
+	the Mesoscale sector: 1) 2 (0.5 km resolution), 7 and 13 (both 2 km resolution). Information about the bands can be
+	found on the GOES-R <a href="https://www.goes-r.gov/resources/docs.html" target="_blank">website</a> at:
+</p>
+
+<ul class="font-body-sm line-height-sans-5">
+	<li>
+		<a href="https://www.goes-r.gov/mission/ABI-bands-quick-info.html" target="_blank">
+			ABI Bands Quick Information Guides
+		</a>
+	</li>
+	<li>
+		<a href="docs/Factsheet_ABI.pdf" target="_blank">
+			Advanced Baseline Imager (ABI) Fact Sheet
+		</a>
+	</li>
+</ul>
+
+<p class="font-body-sm line-height-sans-5">
+	Click on the text below the imagery to download the .lrit sample file for each GOES-16 channel selection:
+</p>
+
+
+<div class="grid-row grid-gap hrit-gallery">
+
+	<!-- Item 1 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Visual%20Band%202%20Full%20Disk%20Imagery.jpg"
+				title="GOES-16 Visual Band 2 Full Disk Imagery">
+				<img src="img/GOES-16%20Visual%20Band%202%20Full%20Disk%20Imagery.jpg"
+					alt="GOES-16 Visual Band 2 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC2_20180223175001_39326_OR_ABI-L2-CMIPF-M3C02_G16_s20180541730394_e20180541741161_c20180541741231.lrit">
+					GOES-16 Visual Band 2 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 2 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Near-infrared%20Band%207%20Full%20Disk%20Imagery.jpg"
+				title="GOES-16 Near-infrared Band 7 Full Disk Imagery">
+				<img src="img/GOES-16%20Near-infrared%20Band%207%20Full%20Disk%20Imagery.jpg"
+					alt="GOES-16 Near-infrared Band 7 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC7_20180223175313_39452_OR_ABI-L2-CMIPF-M3C07_G16_s20180541730394_e20180541741172_c20180541741227.lrit">
+					GOES-16 Near-infrared Band 7 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 3 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16 Water Vapor Band 8 Full Disk Imagery.jpg"
+				title="GOES-16 Water Vapor Band 8 Full Disk Imagery">
+				<img src="img/GOES-16 Water Vapor Band 8 Full Disk Imagery.jpg"
+					alt="GOES-16 Water Vapor Band 8 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC8_20180223175454_39513_OR_ABI-L2-CMIPF-M3C08_G16_s20180541730394_e20180541741160_c20180541741234.lrit">
+					GOES-16 Water Vapor Band 8 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 4 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16 Water Vapor Band 9 Full Disk Imagery.jpg"
+				title="GOES-16 Water Vapor Band 9 Full Disk Imagery">
+				<img src="img/GOES-16 Water Vapor Band 9 Full Disk Imagery.jpg"
+					alt="GOES-16 Water Vapor Band 9 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC1_20180223190420_42909_OR_ABI-L2-CMIPM1-M3C13_G16_s20180541846283_e20180541846351_c20180541846385.lrit">
+					GOES-16 Water Vapor Band 9 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 5 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Longwave%20Infrared%20Band%2013%20Full%20Disk%20Imagery.jpg"
+				title="GOES-16 Longwave Infrared Band 13 Full Disk Imagery">
+				<img src="img/GOES-16%20Longwave%20Infrared%20Band%2013%20Full%20Disk%20Imagery.jpg"
+					alt="GOES-16 Longwave Infrared Band 13 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC13_20180223175735_39654_OR_ABI-L2-CMIPF-M3C13_G16_s20180541730394_e20180541741172_c20180541741251.lrit">
+					GOES-16 Longwave Infrared Band 13 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 6 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Longwave%20Infrared%20Band%2014%20Full%20Disk%20Imagery.jpg"
+				title="GOES-16 Longwave Infrared Band 14 Full Disk Imagery">
+				<img src="img/GOES-16%20Longwave%20Infrared%20Band%2014%20Full%20Disk%20Imagery.jpg"
+					alt="GOES-16 Longwave Infrared Band 14 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC14_20180223180022_39802_OR_ABI-L2-CMIPF-M3C14_G16_s20180541730394_e20180541741160_c20180541741250.lrit">
+					GOES-16 Longwave Infrared Band 14 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 7 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Longwave%20Infrared%20Band%2015%20Full%20Disk%20Imagery.jpg"
+				title="GOES-16 Longwave Infrared Band 15 Full Disk Imagery">
+				<img src="img/GOES-16%20Longwave%20Infrared%20Band%2015%20Full%20Disk%20Imagery.jpg"
+					alt="GOES-16 Longwave Infrared Band 15 Full Disk Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC15_20180223183157_41554_OR_ABI-L2-CMIPF-M3C15_G16_s20180541800394_e20180541811167_c20180541811252.lrit">
+					GOES-16 Longwave Infrared Band 15 Full Disk Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 8 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Visual%20Band%202%20Mesoscale%20Imagery.jpg"
+				title="GOES-16 Visual Band 2 Mesoscale Imagery">
+				<img src="img/GOES-16%20Visual%20Band%202%20Mesoscale%20Imagery.jpg"
+					alt="GOES-16 Visual Band 2 Mesoscale Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC1_20180223190422_42910_OR_ABI-L2-CMIPM1-M3C02_G16_s20180541858283_e20180541858340_c20180541858410.lrit">
+					GOES-16 Visual Band 2 Mesoscale Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 9 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16 Longwave Band 13 Mesoscale Imagery.png"
+				title="GOES-16 Longwave Band 13 Mesoscale Imagery">
+				<img src="img/GOES-16 Longwave Band 13 Mesoscale Imagery.png"
+					alt="GOES-16 Longwave Band 13 Mesoscale Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC9_20180223180450_40061_OR_ABI-L2-CMIPF-M3C09_G16_s20180541745394_e20180541756166_c20180541756248.lrit">
+					GOES-16 Band 13 IR Mesoscale
+				</a>
+			</p>
+		</div>
+	</div>
+
+	<!-- Item 10 -->
+	<div class="gallery-col">
+		<div class="hrit-gallery-item">
+			<a data-fancybox href="img/GOES-16%20Near-Infrared%20Band%207%20Mesoscale%20Imagery.jpg"
+				title="GOES-16 Near-Infrared Band 7 Mesoscale Imagery">
+				<img src="img/GOES-16%20Near-Infrared%20Band%207%20Mesoscale%20Imagery.jpg"
+					alt="GOES-16 Near-Infrared Band 7 Mesoscale Imagery">
+			</a>
+			<p>
+				<a
+					href="LRIT_Test_Data/GOES-16/VC1_20180223190508_42931_OR_ABI-L2-CMIPM2-M3C07_G16_s20180541859583_e20180541900054_c20180541900109.lrit">
+					GOES-16 Near-Infrared Band 7 Mesoscale Imagery
+				</a>
+			</p>
+		</div>
+	</div>
+
+</div>
+
+<h2 class="hp-heading text-primary z-400 margin-bottom-2">GOES-15 LRIT Test Data Files</h2>
+<p class="font-body-sm line-height-sans-5">The following GOES-15 test data files are provided for the
+	GOES-N/O/P LRIT broadcast in the HRIT/LRIT Format. At this time, GOES-15 is Operational West Satellite. GOES-13 is
+	currently in a storage orbit. Until GOES-13/14/15 are decommissioned, sample files will be maintained on this page.
+</p>
+
+<table class="usa-table usa-table--bordered usa-table--scrollable lrit-table table-full">
+	<thead>
+		<tr>
+			<th scope="col">Image Title</th>
+			<th scope="col">File Size</th>
+		</tr>
+	</thead>
+
+	<tbody>
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_Full_Disk/gos15chnVS01rgnFDseg002res04dat335144128229_040.lrit">
+					GOES-15 Visual (VIS) Full Disk
+				</a>
+			</td>
+			<td>2.7M</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_Full_Disk/gos15chnIR04rgnFDseg002res04dat335144135354_050.lrit">
+					GOES-15 Infrared (IR) Full Disk
+				</a>
+			</td>
+			<td>2.7M</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_Full_Disk/gos15chnWV03rgnFDseg002res04dat335144134923_030.lrit">
+					GOES-15 Water Vapor (WV) Full Disk
+				</a>
+			</td>
+			<td>692K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_North/gos15chnVS01rgnNHseg002res04dat339160536295_040.lrit">
+					GOES-15 Northern Hemisphere VIS
+				</a>
+			</td>
+			<td>881K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_North/gos15chnIR04rgnNHseg002res04dat339160539126_050.lrit">
+					GOES-15 Northern Hemisphere IR
+				</a>
+			</td>
+			<td>884K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_North/gos15chnWV03rgnNHseg002res04dat339160539401_030.lrit">
+					GOES-15 Northern Hemisphere WV
+				</a>
+			</td>
+			<td>224K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_South/gos15chnVS01rgnSHseg002res04dat339155615837_040.lrit">
+					GOES-15 Southern Hemisphere VIS
+				</a>
+			</td>
+			<td>576K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_South/gos15chnIR04rgnSHseg002res04dat339155612070_050.lrit">
+					GOES-15 Southern Hemisphere IR
+				</a>
+			</td>
+			<td>579K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_South/gos15chnWV03rgnSHseg002res04dat339155617497_030.lrit">
+					GOES-15 Southern Hemisphere WV
+				</a>
+			</td>
+			<td>149K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_US/gos15chnVS01rgnUSseg002res04dat336144908973_040.lrit">
+					GOES-15 CONUS VIS
+				</a>
+			</td>
+			<td>551K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_US/gos15chnIR04rgnUSseg002res04dat336144910370_050.lrit">
+					GOES-15 CONUS IR
+				</a>
+			</td>
+			<td>553K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_US/gos15chnWV03rgnUSseg002res04dat336144910461_030.lrit">
+					GOES-15 CONUS WV
+				</a>
+			</td>
+			<td>142K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_RSO/gos15chnVS01rgnXXseg002res04dat336143537857_021.lrit">
+					GOES-15 Rapid Scan VIS
+				</a>
+			</td>
+			<td>147K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_RSO/gos15chnIR04rgnXXseg002res04dat336143534824_021.lrit">
+					GOES-15 Rapid Scan IR
+				</a>
+			</td>
+			<td>150K</td>
+		</tr>
+
+		<tr>
+			<td>
+				<a href="LRIT_Test_Data/GOES-15_RSO/gos15chnWV03rgnXXseg002res04dat336143534720_021.lrit">
+					GOES-15 Rapid Scan WV
+				</a>
+			</td>
+			<td>41K</td>
+		</tr>
+
+	</tbody>
+</table>
+                            </section>
+
+                            <section id="faq" role="tabpanel" aria-labelledby="faq-tab" hidden>
+                                <h2 class="hp-heading text-primary z-400 margin-bottom-2">HRIT/EMWIN Frequently Asked Questions</h2>
+<div class="usa-accordion" aria-multiselectable="true">
+	<!-- ================= HRIT/EMWIN General Information ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section1">
+			HRIT/EMWIN General Information
+		</button>
+	</h4>
+	<div id="section1" class="usa-accordion__content ">
+
+		<ul>
+			<li>How do I find more information on the HRIT Standard?
+				<ul>
+					<li>“The intention of LRIT/HRIT is to define a standard for dissemination of data, preferably from
+						geostationary spacecraft towards LRIT/HRIT user stations. The main approach of LRIT/HRIT is to
+						disseminate rasterized image data mapped to the surface of the earth, preferably those generated
+						by or deducted from satellite remote sensing data. Additionally, LRIT/HRIT shall provide means
+						to forward other types of graphical information, alphanumeric data or binary data. LRIT is
+						intended for use on low rate communication links, mainly at 10 kb/s until 256 kb/s. HRIT is
+						intended for use on high rate communication links, mainly at 0.256 Mbit/s through 10 Mbit/s.”
+						See the “<a
+							href="https://www.cgms-info.org/documents/cgms-lrit-hrit-global-specification-(v2-8-of-30-oct-2013).pdf"
+							target="_blank">LRIT/HRIT Global Specification</a></li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>How do I find more information on EMWIN?
+				<ul>
+					<li><a href="https://www.weather.gov/emwin/" target="_blank">EMWIN</a> provides the emergency
+						management community and other users equipped with VSAT stations with NWS warnings, watches,
+						forecasts, and other products at no recurring cost. EMWIN had its own transponder onboard
+						GOES-N/O/P. Onboard GOES-R Series satellites, there is only one transponder for the combined
+						HRIT/EMWIN broadcast.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>How do I find more information on the EMWIN products?
+				<ul>
+					<li>EMWIN product information can be found at the <a href="https://www.weather.gov/iscs/"
+							target="_blank">NWS "International Services and Communication Systems" (ISCS)</a>.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>How do I find more information on GOES Data Collection Service (DCS)?
+				<ul>
+					<li>
+						GOES DCS users monitor the environment through the transmission of observations from
+						surface-based
+						data collection platforms directly to NOAA geostationary satellites. Decision-makers in the
+						areas of
+						emergency response and resource allocation depend on the GOES DCS. Go to GOES DCS for more
+						information along with information on the DCS Administration and Data Distribution System
+						(DADDS)
+						which can be found at:
+
+						<ul>
+							<li><a href="https://dcs1.noaa.gov/" target="_blank">DCS1</a></li>
+							<li><a href="https://dcs2.noaa.gov/" target="_blank">DCS2</a></li>
+							<li><a href="https://dcs3.noaa.gov/" target="_blank">DCS3</a></li>
+							<li><a href="https://dcs4.noaa.gov/" target="_blank">DCS4</a></li>
+						</ul>
+					</li>
+				</ul>
+
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>What is the difference between WEFAX, LRIT and HRIT/EMWIN?
+				<ul>
+					<li>At the CGMS XXVIII meeting in October 2000, NOAA announced that the analogue Weather Facsimile
+						(WEFAX) direct broadcast service on GOES I-M satellites would be migrated to the new digital
+						LRIT format. The NOAA LRIT service became operational October 1, 2005. The LRIT broadcasts
+						provided users with additional imagery data, products and broadcast services including the GOES
+						Data Collection Service in-situ observations, the NWS’ Emergency Managers Weather Information
+						Network (EMWIN), GOES visible and infrared imagery, and other hydro-meteorological products. On
+						December 18, 2017, the new HRIT/ EMWIN service that combined the LRIT and EMWIN services became
+						operational on GOES-16 in the GOES-East position. The HRIT (High Rate Information Transmission)
+						broadcast employs the same <a
+							href="https://cgms-info.org/publication/cgms-lrit-hrit-global-specification-v2-8-of-30-oct-2013/"
+							target="_blank">format specification</a> as LRIT; the difference is in data content and
+						bit rate. <a href="/operations/goes/status.html">View GOES
+							Operational Status</a></li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>What continuity of operations or backup does HRIT/EMWIN have?
+				<ul>
+					<li>EMWIN has a primary generation facility at College Park, MD and a backup facility in Boulder,
+						CO. GOES-DCS has two generation servers at the NSOF in Suitland, MD and another two at the
+						Command and Distribution facility in Wallops Island, VA. The HRIT/EMWIN broadcast can be
+						generated at the primary facility in Suitland, MD and at the backup site at Fairmont, WV. Both
+						the EMWIN and DCS data can be sent to either Suitland or Fairmont. Both the Suitland and
+						Fairmont HRIT/EMWIN systems can send the data stream to either the primary uplink facility at
+						Wallops Island or the backup uplink facility at Fairmont. More information can be found on pages
+						59-61 including Figure 9 of the “<a href="https://www.goes-r.gov/syseng/docs/CONOPS.pdf"
+							target="_blank">GOES-R Series Concept of Operations (CONOPS)</a>” and the Broadcast Tab on
+						the site.</li>
+				</ul>
+			</li>
+		</ul>
+
+	</div>
+
+	<!-- ================= HRIT/EMWIN Content ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section2">
+			HRIT/EMWIN Content
+		</button>
+	</h4>
+	<div id="section2" class="usa-accordion__content ">
+
+		<ul>
+			<li>How do I find out what products are on the HRIT/EMWIN broadcast?
+				<ul>
+					<li>There are tables detailing the products on HRIT/EMWIN under the Products Tab on this site.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Which imagery bands are on HRIT/EMWIN?
+				<ul>
+					<li>Seven channels were selected for both the GOES-East and West broadcasts. They are bands 2, 7, 8,
+						9, 13, 14 and 15. This gives a mix of visible, water vapor and infrared bands. They are
+						broadcast at 2 km spatial resolution in HRIT format every 30 minutes. There are also 3 mesoscale
+						sectors broadcast for bands 2, 7 and 13. There are tables detailing the products on HRIT/EMWIN
+						under the Products Tab on this site. More information on the bands can be found on the GOES-R
+						web site at the link to “<a href="https://www.goes-r.gov/mission/ABI-bands-quick-info.html"
+							target="_blank">ABI Bands
+							Quick Information Guides</a>”.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Why are not all the GOES-R Series imagery bands on HRIT/EMWIN?
+				<ul>
+					<li>HRIT/EMWIN has a net data rate of 400 kilobits-per-second. It is not possible to broadcast all
+						16 channels, the three mesoscale sectors, and plus DCS and EMWIN, without drastic spatial
+						resolution downsampling. The selected bands (2, 7, 8, 9, 13, 14 and 15) give a mix of visible,
+						water vapor and infrared bands that should be of value to forecasters and planners. They are
+						broadcast at 2 km spatial resolution in HRIT format every 30 minutes. Other <a
+							href="https://www.goes-r.gov/products/baseline.html" target="_blank">GOES-R Baseline
+							products</a> are broadcast as well.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>What are the GOES-DCS observation messages and how do I read them?
+				<ul>
+					<li>Registered users of the <a href="https://www.noaasis.noaa.gov/GOES/GOES_DCS/goes_dcs.html"
+							target="_blank">GOES Data Collection System Data</a> are allowed to uplink environmental
+						sensor data messages directly from their own Data Collection Platforms to the GOES spacecraft.
+						All the messages are rebroadcast to users through various means, including the GOES HRIT/EMWIN
+						broadcast. On HRIT/EMWIN, 40 to 50 messages are enclosed in a <a href="https://dcs1.noaa.gov/documents/HRIT%20DCS%20File%20Format%20Rev1.pdf
+							target=" _blank">formatted file</a>. Some commercial
+						HRIT receivers (for example <a href="https://microcomenviro.com/goes-lrithrit-receive-system"
+							target="_blank">the Microcom DigiRIT LRIT/HRIT Receiver</a>) process the file to extract
+						individual messages. The open-source <a href="https://github.com/opendcs"
+							target="_blank">openDCS project</a> can also process the DCS files broadcast by
+						HRIT/EMWIN.
+				</ul>
+			</li>
+
+			<li>What are the default mesoscale sectors:
+				<ul>
+					<li>The mesoscale default sectors are determined from areas of the highest population density
+						coinciding with the biggest aviation hubs in the Continental United States.
+						Mesoscale sector #1 box is centered over 38°N – 78° W, while mesoscale sector #2 box is centered
+						over 37°N – 86°W. <a href="https://www.star.nesdis.noaa.gov/GOES/index.php" target="_blank">View
+							all mesoscale channels and current locations</a></li>
+				</ul>
+			</li>
+
+			<li>Where can I get information on when the mesoscale sectors are moved?
+				<ul>
+					<li>Users will need to subscribe to receive update email notifications of mesoscale change requests
+						and timeframe by contacting the <a href="mailto: ESPCOperations@noaa.gov">ESPC Help Desk</a>
+					</li>
+				</ul>
+			</li>
+
+			<li>Who decides when a mesoscale sector is changed?
+				<ul>
+					<li>The National Weather Service (NWS) WFO regional focal point offices, all the NCEP National
+						Centers (NHC, SPC, etc.) and the Satellite Analysis Branch are the only requesting entities
+						currently</li>
+				</ul>
+			</li>
+		</ul>
+
+	</div>
+
+	<!-- Continue remaining sections exactly the same way -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section3">
+			HRIT and netCDF4 format GOES-R Imagery Access
+		</button>
+	</h4>
+	<div id="section3" class="usa-accordion__content ">
+
+		<ul>
+			<li>Where can I find sample imagery in the HRIT format?
+
+				<ul>
+					<li>Sample GOES-16 imagery in the HRIT format can be found under the sample imagery tab on this
+						site. The HRIT/EMWIN broadcast splits large images into 16 segments (files) which are
+						transmitted separately, for robustness and queue management.
+
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Where can I find samples and real-time imagery in the native netCDF4 format?
+
+				<ul>
+					<li>
+						GOES-R imagery in the JPEG graphic format can be found at the official access point at
+						<a href="https://www.star.nesdis.noaa.gov/GOES/index.php" target="_blank">NOAA’s Center for
+							Satellite Applications and Research (STAR)</a>. The <a
+							href="https://slider.cira.colostate.edu" target="_blank">RAMMB/CIRA Slider</a>
+						provides animated PNG and GIF imagery downloads.
+					</li>
+
+					<li>
+						The NOAA Open Data Dissemination (<a
+							href="https://www.noaa.gov/information-technology/open-data-dissemination"
+							target="_blank">NODD</a>) website links to a variety of NOAA <a
+							href="https://www.noaa.gov/nodd/datasets" target="_blank">data
+							available for download</a> in netCDF4 format. Quick link: <a
+							href="https://noaa-goes19.s3.amazonaws.com/index.html#ABI-L2-CMIPF/" target="_blank">GOES-19
+							Cloud Moisture Imagery
+							Full-disk products at Amazon Web Services</a>.
+					</li>
+
+					<li>
+						The <a href="http://cimss.ssec.wisc.edu/goes/goesdata.html" target="_blank">Cooperative
+							Institute for Meteorological Satellite Studies (CIMSS)</a> has a list of
+						interesting links related to GOES data and software.
+					</li>
+				</ul>
+			</li>
+
+			<li>What is the netCDF4 format?
+				<ul>
+					<li>
+						“NetCDF is a set of software libraries and self-describing, machine-independent data
+						formats that support the creation, access, and sharing of array-oriented scientific
+						data.” A description of the netCDF format and netCDF Introduction are available on the
+						<a href="https://www.unidata.ucar.edu/software/netcdf" target="_blank">UCAR page</a>.
+					</li>
+				</ul>
+			</li>
+
+			<li>How can I get information on all of the GOES-R series of satellite imagery and
+				products?
+				<ul>
+					<li>
+						Descriptions of the products and links to the Algorithm Theoretical Basis Documents can
+						be found on the <a href="https://www.goes-r.gov/products/overview.html"
+							target="_blank"></a>GOES-R
+						Baseline Products page or directly on the <a
+							href="https://www.star.nesdis.noaa.gov/goesr/documentation_ATBDs.php" target="_blank">STAR
+							website</a>.
+					</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+
+	<!-- ================= HRIT/EMWIN Broadcast ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section4">
+			HRIT/EMWIN Broadcast
+		</button>
+	</h4>
+	<div id="section4" class="usa-accordion__content ">
+
+		<ul>
+			<li>Where does the HRIT/EMWIN broadcast originate?
+				<ul>
+					<li>The primary HRIT/EMWIN broadcast is formed in the HRIT/EMWIN processors within the Product
+						Distribution and Access (PDA) system at the NOAA Satellite Operations Facility (NSOF) in
+						Suitland, MD. It is formed into a broadcast stream and sent to either the Command and Data
+						Acquisition Station at Wallops Island, Virginia (WCDAS) or the Consolidated Backup Facility
+						(CBU) at Fairmont, WV for uplink to the satellite. A secondary instance of the HRIT/EMWIN and
+						PDA systems are located at CBU in Fairmont, WV, with independent access to EMWIN and DCS data,
+						but relying on PDA at NSOF to provide imagery data.
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Where does HRIT/EMWIN get uplinked to the satellite from?
+				<ul>
+					<li>The HRIT/EMWIN broadcast is uplinked from antenna systems located at the primary GOES-R site at
+						the Command and Data Acquisition Station at Wallops Island, Virginia (WCDAS) and at the
+						Consolidated Backup Facility (CBU) at Fairmont, WV. For more information see the <a
+							href="https://www.goes-r.gov/ground/facilities-antennas.html" target="_blank">GOES-R
+							Facilities and Antennas</a>.</li>
+				</ul>
+			</li>
+
+		</ul>
+	</div>
+
+
+	<!-- ================= HRIT/EMWIN Reception ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section5">
+			HRIT/EMWIN Reception
+		</button>
+	</h4>
+	<div id="section5" class="usa-accordion__content ">
+
+		<ul>
+			<li>How can I receive the HRIT/EMWIN broadcast?
+				<ul>
+					<li>The broadcast can be received anywhere in the GOES-East and the GOES-West footprint. The basic
+						receive system consists of a Very Small Aperture Terminal (VSAT) Antenna system, a receiver, a
+						computer and receiver software. A description of a HRIT/EMWIN receive system can be found under
+						the Reception Tab on this site.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Where can I find vendors who sell HRIT/EMWIN systems?
+				<ul>
+					<li>Commercial vendors of systems that can receive HRIT/EMWIN and can be found on the <a
+							href="/resources/data-access/direct-readout-community.html">Manufacturers List</a>. Note
+						that this is a voluntary and partial list of vendors and there are manufacturers not listed and
+						some that may have ceased to participate in the industry.
+
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Can I build my own satellite receiver?
+				<ul>
+					<li>The “Aerospace HRIT/EMWIN Prototype” receiver described on this web site provides useful
+						technical background for anyone wishing to understand fundamentals. Also, there are very
+						well-developed open source and hobbyist HRIT/EMWIN receiver projects employing relatively
+						inexpensive antennas, amplifiers, and Software Defined Radios (SDRs). While it should be
+						understood this is not an endorsement, we recommend looking at:
+						<ul>
+							<li><a href="https://usradioguy.com/" target="_blank">USRadioguy.com</a> advice and
+								community for satellite reception</li>
+							<li><a href="https://www.satdump.org/" target="_blank">SatDump</a> software for satellite
+								signal processing</li>
+							<li><a href="https://github.com/JVital2013" target="_blank">Vitality-goes</a> web
+								application for displaying data from the HRIT/EMWIN Broadcast</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>What size antenna do I need?
+				<ul>
+					<li>The broadcast should be able to be received using a VSAT antenna of less than 2 meters diameter
+						equivalent with a minimum size of 1 meter at 10 degrees or more elevation and 1.2 meters at 5
+						degrees elevation or less.
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>How much data will I receive?
+				<ul>
+					<li>The HRIT/EMWIN net data rate is 400 kilobits per second, at which rate the maximum amount of
+						data that could be downloaded in one day is approximately 4.0 Gigabytes. However, the broadcast
+						will never be full as un unused buffer is kept to avoid broadcast file latency, especially for
+						National Weather Service watches, warnings and emergency information. Currently, the averaged
+						maximum utilized bandwidth is 75%.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Do I need the internet in order to receive HRIT/EMWIN?
+				<ul>
+					<li>The internet is not necessary for HRIT/EMWIN reception. Electrical power is needed to power the
+						computer, satellite receiver and low noise block down converter (LNB). The LNB is often powered
+						by the receiver.
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Do I have to pay a fee to receive HRIT/EMWIN?
+				<ul>
+					<li>No NOAA initial or recurring fee is required for HRIT/EMWIN reception. Depending on how you
+						acquired your reception system, you may have a maintenance and licensing agreement with your
+						vendor.
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Do I have to register with NOAA to receive HRIT/EMWIN?
+				<ul>
+					<li>There is no mandatory registration required to receive HRIT/EMWIN. If you would like to complete
+						a voluntary registration navigate to the link just below. This registration is voluntary.
+						Outside of FOIA requests, the information will not be disclosed.
+						<ul>
+							<li><a href="https://dcs1.noaa.gov/" target="_blank">DCS1</a></li>
+							<li><a href="https://dcs2.noaa.gov/" target="_blank">DCS2</a></li>
+							<li><a href="https://dcs3.noaa.gov/" target="_blank">DCS3</a></li>
+							<li><a href="https://dcs4.noaa.gov/" target="_blank">DCS4</a></li>
+						</ul>
+					</li>
+					<li>
+						At the bottom of the webpage, click the text that states: "Help us keep you up to date with
+						changes and anomalies!" to open the Direct ReadOut database registration page
+					</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>Do I need special software for the EMWIN products?
+				<ul>
+					<li>EMWIN products are in either a text or graphic (e.g. JPG) format so they can be read and
+						displayed by most systems. However, there are software packages offering various levels of
+						enhanced display including warnings, etc.</li>
+				</ul>
+			</li>
+
+		</ul>
+	</div>
+
+
+	<!-- ================= HRIT/EMWIN and GOES-R Notifications ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section6">
+			HRIT/EMWIN and GOES-R Notifications
+		</button>
+	</h4>
+	<div id="section6" class="usa-accordion__content ">
+
+		<ul>
+			<li>How can I get the latest information about the HRIT/EMWIN broadcast?
+				<ul>
+					<li>The NOAA Office of Satellite and Product Operations maintains an <a
+							href="https://www.ospo.noaa.gov/operations/messages.html" target="_blank"></a>archive of all
+						notifications</a>
+						regarding events related to satellite operations or product generation. You may register to
+						receive all such notifications by emailing the ESPC Helpdesk at <a
+							href="mailto:ESPC.Notification@noaa.gov">ESPC.Notification@noaa.gov</a>.
+					</li>
+
+					<li>If you wish to receive only notifications deemed by the HRIT/EMWIN Program Manager to be of
+						interest to broadcast users, please request to be added to the HRIT/EMWIN User Group mailing
+						list by emailing <a href="mailto:hrit.manager@noaa.gov">hrit.manager@noaa.gov</a>.
+					</li>
+
+					<li>Occasional information is promulgated to users who have voluntarily registered with the Direct
+						ReadOut database maintained by the DCS program, at any of the links:
+						<ul>
+							<li><a href="https://dcs1.noaa.gov/" target="_blank">DCS1</a></li>
+							<li><a href="https://dcs2.noaa.gov/" target="_blank">DCS2</a></li>
+							<li><a href="https://dcs3.noaa.gov/" target="_blank">DCS3</a></li>
+							<li><a href="https://dcs4.noaa.gov/" target="_blank">DCS4</a></li>
+						</ul>
+					</li>
+					<li>
+						At the bottom of the webpage, click the text that states: "Help us keep you up to date with
+						changes and anomalies!" to open the Direct ReadOut database registration page
+					</li>
+					<li>
+						Users are free to attend the virtual HRIT/EMWIN User’s Group meetings to get the latest
+						information on the broadcasts. Please email the HRIT/EMWIN Program Manager to be added to the
+						HRIT/EMWIN User Group email list. Recent meeting presentations are kept on the <a
+							href="https://www.ospo.noaa.gov/operations/goes/grb/" target="_blank">GRB web page</a>.
+
+					</li>
+				</ul>
+			</li>
+
+			<li>Who can I call for help if my reception stops or if there are anomalies with the HRIT/EMWIN broadcast?
+				<ul>
+					<li>Users can contact the NOAA Satellite Operations Facility Help Desk by email
+						<a href="mailto:ESPCOperations@noaa.gov">ESPCOperations@noaa.gov</a> or phone 301-817-3880
+						(24x7), or at lesser priority the HRIT/EMWIN
+						Program Manager directly at <a href="mailto:hrit.manager@noaa.gov">hrit.manager@noaa.gov</a>.
+					</li>
+				</ul>
+			</li>
+
+		</ul>
+	</div>
+
+
+	<!-- ================= GOES Satellites ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section7">
+			GOES Satellites
+		</button>
+	</h4>
+	<div id="section7" class="usa-accordion__content ">
+
+		<ul>
+			<li>What is GOES-R?
+				<ul>
+					<li>From the <a href="https://www.goes-r.gov/resources/faqs.html" target="_blank">GOES-R FAQ</a>
+						Page, “The GOES-R Series is the next generation of NOAA geostationary Earth-observing systems.
+						The satellite’s advanced spacecraft and instrument technology will support expanded detection of
+						environmental phenomena, resulting in more timely and accurate forecasts and warnings.” <a
+							href="https://www.goes-r.gov/mission/mission.html" target="_blank">View Mission Page for
+							more information</a>.</li>
+				</ul>
+			</li>
+
+
+
+			<li>What is the ABI instrument?
+				<ul>
+					<li>“The Advanced Baseline Imager is the primary instrument on the GOES-R Series for imaging Earth’s
+						weather, oceans and environment.” <a href="https://www.goes-r.gov/spacesegment/abi.html"
+							target="_blank">View Advanced Baseline Imager (ABI) for more information</a>.</li>
+				</ul>
+			</li>
+
+
+
+			<li>What is the difference between the GOES-Imager and the ABI?
+				<ul>
+					<li>“ABI views the Earth with 16 different spectral bands (compared to five on the previous
+						generation of GOES), including two visible channels, four near-infrared channels, and ten
+						infrared channels.” “It provides three times more spectral information, four times the spatial
+						resolution, and more than five times faster temporal coverage than the previous system.” <a
+							href="https://www.goes-r.gov/spacesegment/abi.html" target="_blank">View Advanced Baseline
+							Imager (ABI) for more information</a>.</li>
+				</ul>
+			</li>
+
+
+
+			<li>What is HBI?
+				<ul>
+					<li>HBI is the <a href="http://www.data.jma.go.jp/mscweb/en/himawari89/space_segment/spsg_ahi.html"
+							target="_blank">Himawari Baseline Imager</a>. It is resident on the Japanese Himawari-9
+						spacecraft. It is similar to the NOAA GOES-R Series Advanced Baseline Imager.</li>
+				</ul>
+			</li>
+
+			<li>How can I get training on the GOES-R products?
+				<ul>
+					<li>
+						Information can be found on the <a
+							href="https://www.goes-r.gov/users/user-readiness-overview.html" target="_blank">GOES-R User
+							Readiness Page</a> and there are many resources listed
+						on the <a href="https://www.goes-r.gov/resources/education.html" target="_blank">GOES-R
+							Educational Resources Page</a>.
+					</li>
+				</ul>
+			</li>
+
+			<li>How do I find out the imagery schedules from the NOAA satellites?
+				<ul>
+					<li>
+						The Advanced Baseline Imager (ABI) can be operated in several scheduling modes. More information
+						can be found on the <a href="https://www.goes-r.gov/spacesegment/abi.html" target="_blank">ABI
+							Page</a> and on the <a href="http://www.ospo.noaa.gov/Operations/GOES/schedules.html"
+							target="_blank">NOAA Satellite Operations Schedule page</a>.
+
+					</li>
+				</ul>
+			</li>
+
+		</ul>
+	</div>
+
+
+	<!-- ================= WMO, CGMS, NOAA, NESDIS links ================= -->
+	<h4 class="usa-accordion__heading">
+		<button class="usa-accordion__button" aria-expanded="false" aria-controls="section8">
+			WMO, CGMS, NOAA, NESDIS links
+		</button>
+	</h4>
+	<div id="section8" class="usa-accordion__content ">
+
+
+		<ul>
+			<li>How can I find more information on NOAA satellites?
+				<ul>
+					<li>See the <a href="https://www.ospo.noaa.gov/operations/operational-satellites/">Satellite
+							Operations</a> page hosted by OSPO.</li>
+				</ul>
+			</li>
+
+			<li style="list-style: none"></li>
+
+			<li>How can I find more information on all of the meteorological satellites?
+				<ul>
+					<li>The WMO-CGMS Satellite User Readiness Navigator (SATURN) site exists to provide information on
+						the new generation of Meteorological satellites. The Saturn Portal will provide a single point
+						of access for all information needed for user community preparations for the new missions using
+						information gathered from the satellite operators and by the <a
+							href="https://www.wmo-sat.info/satellite-user-readiness/" target="_blank">WMO Space
+							Programme</a>.</li>
+				</ul>
+			</li>
+
+		</ul>
+	</div>
+</div>
+                            </section>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="usa-footer usa-footer--big" role="contentinfo">
+    <div class="">
+        <a id="return-to-top" class="scrollToTopBtn"><i class="fa-solid fa-angle-up"></i></a>
+    </div>
+
+    <div class="usa-footer__primary-section">
+
+        <div class="usa-footer__primary-content">
+            <div class="grid-container-widescreen desktop:padding-x-10">
+                <div class="grid-row grid-gap">
+
+                    <nav role="navigation" aria-labelledby="block-nesdis-footer-menu" id="block-nesdis-footer">
+
+                        <h2 class="usa-sr-only" id="block-nesdis-footer-menu">Footer menu</h2>
+                        <ul class="menu menu--footer nav">
+                            <li class="expanded dropdown first">
+                                <a href="/" class="expanded dropdown first dropdown-toggle"
+                                    data-toggle="dropdown">OSPO <span class="caret"></span></a>
+
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="https://www.commerce.gov/" target="_blank">Department of Commerce</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.noaa.gov/" target="_blank">NOAA</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://www.nesdis.noaa.gov/" target="_blank">NESDIS</a>
+                                    </li>
+                                    <li>
+                                        <a href="/about/mission/">Our Mission</a>
+                                    </li>
+                                    <li>
+                                        <a href="/site-map.html">Site Map</a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                            <li class="expanded dropdown">
+                                <a href="/products/" class="expanded dropdown dropdown-toggle"
+                                    data-toggle="dropdown" aria-label="Products">Products <span
+                                        class="caret"></span></a>
+
+                                <ul class="dropdown-menu">
+                                    <li class="first">
+                                        <a href="/products/atmosphere/" class="first">Atmosphere</a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/land/">Land</a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/ocean/">Ocean</a>
+                                    </li>
+                                    <li>
+                                        <a href="/products/suites/">Product Suites</a>
+                                    </li>
+                                    <li class="last">
+                                        <a href="/products/imagery/" class="last">Imagery</a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                            <li class="expanded dropdown">
+                                <a href="/operations/operational-satellites/" class="expanded dropdown dropdown-toggle">Satellites <span
+                                        class="caret"></span></a>
+
+                                <ul class="dropdown-menu">
+                                    <li class="first">
+                                        <a href="/operations/goes/">GOES</a>
+                                    </li>
+                                    <li>
+                                        <a href="/operations/solar/">SOLAR</a>
+                                    </li>
+                                    <li>
+                                        <a href="/operations/jpss/status.html">JPSS</a>
+                                    </li>
+                                    <li>
+                                        <a href="/operations/metop/status.html">MetOp</a>
+                                    </li>
+                                    <li>
+                                        <a href="/operations/poes/">POES</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="expanded dropdown">
+                                <a href="/about/contact/"
+                                    class="expanded dropdown dropdown-toggle" data-toggle="dropdown"
+                                    aria-label="Contact">Contact <span class="caret"></span></a>
+
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="mailto:OSPOWebmaster@noaa.gov">OSPO Webmaster</a>
+                                    </li>
+                                    <li>
+                                        <a href="/about/contact/">Contact
+                                            Information</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://touchpoints.app.cloud.gov/touchpoints/df7e5897/submit" target="_blank">Customer
+                                            Survey</a>
+                                    </li>
+                                    <li>
+                                        <a href="mailto:ESPCoperations@noaa.gov">ESPC
+                                            Helpdesk</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://touchpoints.app.cloud.gov/touchpoints/fe076ca9/submit" target="_blank">User Services</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+        </div>
+        
+    </div>
+    <div class="bg-gray-10">
+        <div class="grid-container-widescreen desktop:padding-x-10">
+            <div class="grid-row grid-gap">
+                <div class="grid-col-fill">
+                    <div class="grid-container-widescreen nesdis-footer__second">
+                        <div class="grid-row grid-gap">
+                            <div class="grid-col-2">
+                                <a href="https://noaa.gov/" aria-label="footer noaa logo"
+                                    class="footer-logo"></a>
+                            </div>
+                            <div class="grid-col-fill horizontal-list">
+
+                                <nav aria-labelledby="block-footersecond-2-menu" id="block-footersecond-2">
+                                    <h2 class="usa-sr-only" id="block-footersecond-2-menu">Footer Second</h2>
+
+                                    <ul class="menu menu--footer-second nav">
+                                        <li class="first">
+                                            <a target="_blank" href="http://www.noaa.gov/accessibility" class="first">Accessibility</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="https://www.noaa.gov/disclaimer">Disclaimer</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="https://www.noaa.gov/information-technology/foia" title="FOIA">FOIA</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank"  href="https://www.noaa.gov/office-of-chief-information-officer/it-policy-oversight/information-quality">Information Quality</a>
+                                        </li>
+                                        <li>
+                                            <a target="_blank" href="https://www.noaa.gov/protecting-your-privacy">Privacy Policy</a>
+                                        </li>
+                                        <li class="last">
+                                            <a target="_blank" href="https://www.usa.gov/" class="last">USA.gov</a>
+                                        </li>
+                                    </ul>
+
+                                </nav>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script type="text/javascript" src="/assets/js/uswds.min.js" defer></script>
+<script type="text/javascript" src="/assets/js/uswds-init.min.js"></script>
+<script type="text/javascript" src="/assets/js/scripts.js"></script>
+<script src="/assets/js/animation-controls.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+      setTimeout(function () {
+        // Load the gtag.js script
+        var gaScript = document.createElement('script');
+        gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-WFK3K5ECCC';
+        gaScript.async = true;
+        document.head.appendChild(gaScript);
+  
+        // Once loaded, initialize gtag
+        gaScript.onload = function () {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', 'G-WFK3K5ECCC');
+        };
+      }, 3000); // Delay GA4 load by 3 seconds
+    });
+
+    function loadScriptWithFadeIn(src, timeout) {
+    var script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+  
+    var timeoutId = setTimeout(function() {
+      console.log('Script load timed out: ' + src);
+    }, timeout);
+  
+    script.onload = function() {
+      clearTimeout(timeoutId);
+  
+      // Fade in the button (if it exists)
+      var button = document.getElementById('fba-button');
+      if (button) {
+        button.style.display = 'inline-block';
+        setTimeout(function() {
+          button.classList.add('show');
+        }, 50);
+      }
+  
+      // Update aria-label on skip nav (if element exists)
+      const skipNavLink = document.querySelector('.usa-skipnav.touchpoints-skipnav');
+      if (skipNavLink) {
+        skipNavLink.setAttribute('aria-label', 'Skip to feedback');
+      }
+    };
+  
+    document.body.appendChild(script);
+  }
+  
+  
+  // Usage: Load the scripts and fade in the button
+  loadScriptWithFadeIn('https://touchpoints.app.cloud.gov/touchpoints/df7e5897.js', 5000);  // 5 seconds timeout
+  loadScriptWithFadeIn('https://siteimproveanalytics.com/js/siteanalyze_6294131.js', 5000);  // 5 seconds timeout
+
+  </script>
+  
+<script async type="text/javascript" id="_fed_an_ua_tag" src="https://dap.digitalgov.gov/Universal-Federated-Analytics-Min.js?agency=DOC&subagency=NOAA"></script>
+
+
+
+
+    <script>
+        window.uswds && window.uswds.init();
+    </script>
+    <script src="/scripts/fancybox3/jquery-3.2.1.js"></script>
+    <script src="/scripts/fancybox3/dist/jquery.fancybox.js"></script>
+    <script src="/scripts/fancybox3/fancybox_init_test3.js"></script>
+
+    <script defer src="/products/ocean/sar/tc/assets/scripts/uswds-tabs.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script defer src="/operations/goes/product-quality-overview/js/pspvr-alt.js"></script>
+    <script src="/operations/goes/product-quality-overview/js/easyResponsiveTabs.js"></script>
+    <script src="/assets/js/imagery.js"></script>
+
+    <script>
+        document.addEventListener("click", () => {
+            if (window.location.hash) {
+                history.replaceState(
+                    null,
+                    document.title,
+                    window.location.pathname + window.location.search
+                );
+            }
+        });
+    </script>
+
+<script>
+    (function () {
+      const track = document.querySelector('.carousel__track');
+      const slides = Array.from(track.children);
+      const nextBtn = document.querySelector('.next');
+      const prevBtn = document.querySelector('.prev');
+    
+      let index = 0;
+    
+      function updateCarousel() {
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        track.style.transform = `translateX(-${index * slideWidth}px)`;
+      }
+    
+      function nextSlide() {
+        if (index < slides.length - 1) {
+          index++;
+          updateCarousel();
+        }
+      }
+    
+      function prevSlide() {
+        if (index > 0) {
+          index--;
+          updateCarousel();
+        }
+      }
+    
+      nextBtn.addEventListener('click', nextSlide);
+      prevBtn.addEventListener('click', prevSlide);
+    
+      // Keyboard support
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+      });
+    
+      // Resize fix
+      window.addEventListener('resize', updateCarousel);
+    })();
+    </script>
+
+    </body>
+</html>

@@ -13,10 +13,14 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
+# USER SETTINGS AND SOURCES: provider changes require reviewing HighwayReportParser.
 BASE_URL = "https://roads.dot.ca.gov/"
+HTTP_TIMEOUT_SECONDS = 20  # One request; config.json caps the whole mesh script at 30.
+USER_AGENT = "Caltrans-highway-info/1.0"
+# SOURCE/OUTPUT CONTRACTS: preserve the explicit clear message and report marker.
 REPORT_MARKER = "This highway information is the latest reported"
 NO_RESTRICTIONS_MESSAGE = "No Traffic Restrictions Reported"
-OUTPUT_WIDTH = 120
+OUTPUT_WIDTH = 120  # Standalone wrapping in characters; mesh reply limits use UTF-8 bytes.
 
 # Familiar short codes for California locations commonly found in Caltrans reports.
 # The explicit codes requested by the user take precedence over airport codes.
@@ -105,12 +109,14 @@ class HighwayReportParser(HTMLParser):
     """Extract the highway report, which runs from its timestamp to the next rule."""
 
     def __init__(self) -> None:
+        """Initialize report capture state and its text buffer."""
         super().__init__(convert_charrefs=True)
         self.capturing = False
         self.finished = False
         self.parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        """Stop at the report's next horizontal rule; preserve line boundaries for block tags."""
         if self.capturing and tag == "hr":
             self.finished = True
             self.capturing = False
@@ -118,10 +124,12 @@ class HighwayReportParser(HTMLParser):
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
+        """Add a line break when a captured heading or paragraph ends."""
         if self.capturing and tag in {"p", "h1", "h2", "h3", "h4", "strong"}:
             self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
+        """Begin capture at REPORT_MARKER and collect text until the report ends."""
         if self.finished:
             return
         if not self.capturing and REPORT_MARKER in data:
@@ -130,6 +138,7 @@ class HighwayReportParser(HTMLParser):
             self.parts.append(data)
 
     def text(self) -> str:
+        """Return cleaned report lines from the captured HTML text."""
         lines = []
         for line in "".join(self.parts).splitlines():
             clean_line = re.sub(r"\s+", " ", line).strip()
@@ -273,9 +282,10 @@ def highway_number(value: str) -> int:
 
 
 def fetch_highway_info(number: int) -> str:
+    """Fetch one Caltrans route page, extract active conditions, and return compact text; raise on missing report."""
     url = f"{BASE_URL}?{urlencode({'roadnumber': number})}"
-    request = Request(url, headers={"User-Agent": "Caltrans-highway-info/1.0"})
-    with urlopen(request, timeout=20) as response:
+    request = Request(url, headers={"User-Agent": USER_AGENT})
+    with urlopen(request, timeout=HTTP_TIMEOUT_SECONDS) as response:
         charset = response.headers.get_content_charset() or "utf-8"
         page = response.read().decode(charset, errors="replace")
 
@@ -288,6 +298,7 @@ def fetch_highway_info(number: int) -> str:
 
 
 def main() -> int:
+    """Read or prompt for a route, print the report, and return 0; return 1 for retrieval or 2 for prompted input errors."""
     parser = argparse.ArgumentParser(
         description="Print current California highway information from Caltrans."
     )

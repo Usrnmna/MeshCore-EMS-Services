@@ -19,11 +19,13 @@ from html.parser import HTMLParser
 from typing import Any
 
 
-# Set these two values, or pass --latitude and --longitude on the command line.
+# USER SETTINGS AND SOURCES: distances are miles; timeouts are seconds.
+# CLI flags override these defaults. Mesh requests always supply their own GPS.
 USER_LATITUDE = 37.5816
 USER_LONGITUDE = -121.4944
 
 DEFAULT_RADIUS_MILES = 15.0
+HTTP_TIMEOUT_SECONDS = 30.0  # Per request; the shipped mesh command overrides this to 15.
 CDEC_REPORT_URL = (
     "https://cdec.water.ca.gov/reportapp/javareports?name=RNORR8RSA"
 )
@@ -35,30 +37,36 @@ class _PreExtractor(HTMLParser):
     """Collect the text inside the first HTML <pre> element."""
 
     def __init__(self) -> None:
+        """Initialize the first-PRE-block parser and its text buffer."""
         super().__init__(convert_charrefs=True)
         self._inside_pre = False
         self._finished = False
         self._parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        """Start collecting the first preformatted report block when its opening tag appears."""
         if tag.lower() == "pre" and not self._finished:
             self._inside_pre = True
 
     def handle_endtag(self, tag: str) -> None:
+        """Stop collection after the first closing pre tag."""
         if tag.lower() == "pre" and self._inside_pre:
             self._inside_pre = False
             self._finished = True
 
     def handle_data(self, data: str) -> None:
+        """Append text only while inside the selected report block."""
         if self._inside_pre:
             self._parts.append(data)
 
     @property
     def text(self) -> str:
+        """Return the collected report text without fetching or changing external state."""
         return "".join(self._parts)
 
 
 def _get_text(url: str, timeout: float) -> str:
+    """Download and decode one source response; raise RuntimeError on a network timeout or failure."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
@@ -69,6 +77,7 @@ def _get_text(url: str, timeout: float) -> str:
 
 
 def _get_json(url: str, params: dict[str, Any], timeout: float) -> dict[str, Any]:
+    """URL-encode parameters, fetch text, and return decoded JSON; raise on malformed JSON."""
     query_url = f"{url}?{urllib.parse.urlencode(params)}"
     try:
         return json.loads(_get_text(query_url, timeout))
@@ -77,6 +86,7 @@ def _get_json(url: str, params: dict[str, Any], timeout: float) -> dict[str, Any
 
 
 def _extract_report_text(html: str) -> str:
+    """Extract and normalize the CDEC PRE block; reject pages that lack the expected report."""
     parser = _PreExtractor()
     parser.feed(html)
     if not parser.text.strip():
@@ -85,6 +95,7 @@ def _extract_report_text(html: str) -> str:
 
 
 def _reading(value: str) -> float | None:
+    """Parse one river-stage field in feet; blank, plus-marker, or invalid data becomes None."""
     value = value.strip()
     if not value or value == "+":
         return None
@@ -176,6 +187,7 @@ def haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float
 
 
 def _bounding_box(latitude: float, longitude: float, radius_miles: float) -> dict[str, Any]:
+    """Build NOAA's bounding-box query in decimal degrees from a search radius in miles."""
     latitude_delta = radius_miles / 69.0
     cosine = max(abs(math.cos(math.radians(latitude))), 0.01)
     longitude_delta = radius_miles / (69.172 * cosine)
@@ -192,7 +204,7 @@ def find_nearby_river_stations(
     latitude: float,
     longitude: float,
     radius_miles: float = DEFAULT_RADIUS_MILES,
-    timeout: float = 30.0,
+    timeout: float = HTTP_TIMEOUT_SECONDS,
 ) -> list[dict[str, Any]]:
     """Return RR8 river stations within radius_miles of latitude/longitude."""
     if not -90.0 <= latitude <= 90.0:
@@ -239,13 +251,14 @@ def find_nearby_river_stations(
 
 
 def _parse_args() -> argparse.Namespace:
+    """Read coordinates, radius in miles, HTTP timeout in seconds, and optional compact output mode."""
     parser = argparse.ArgumentParser(
         description="Find stations in the CDEC river-stage report within a radius."
     )
     parser.add_argument("--latitude", type=float, default=USER_LATITUDE)
     parser.add_argument("--longitude", type=float, default=USER_LONGITUDE)
     parser.add_argument("--radius", type=float, default=DEFAULT_RADIUS_MILES)
-    parser.add_argument("--timeout", type=float, default=30.0)
+    parser.add_argument("--timeout", type=float, default=HTTP_TIMEOUT_SECONDS)
     parser.add_argument("--mesh-text", action="store_true", help="Compact readable output for a mesh reply instead of JSON")
     return parser.parse_args()
 
@@ -255,6 +268,7 @@ def format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str:
     if not stations:
         return f"No matching river stations found within {radius:g} mi."
     def stage(value):
+        """Format a stage as feet or N/A without converting missing readings to zero."""
         return "N/A" if value is None else f"{value:g} ft"
     issued = stations[0].get("report_issued") or "unknown report time"
     lines = [f"CDEC report: {issued}. Within {radius:g} mi:"]
@@ -270,6 +284,7 @@ def format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str:
 
 
 def main() -> int:
+    """Fetch nearby stations and print JSON or mesh text; return 1 with JSON error text on expected failures."""
     args = _parse_args()
     try:
         stations = find_nearby_river_stations(

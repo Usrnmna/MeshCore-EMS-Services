@@ -16,13 +16,11 @@ If your file copy preserves executable permission, you may also run:
     ./Start-Service.sh
 
 Otherwise bash Start-Service.sh works without changing file permissions.
-No existing configuration or program files were changed to add this launcher.
+Configuration is in config.json; command programs are in scripts/.
+Run bash verify.sh after setup to run the tests in tests/.
 
 AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
 !aqi LATITUDE LONGITUDE or !aqi LATITUDE, LONGITUDE on #autatestbot.
 
-TRAFFIC: Send !traffic 80 (or another route number 1-999) on #autatestbot.
-No API key needed. Restart the service to load the new command.
-
-RIVERS: Send !rivers LATITUDE LONGITUDE (or LATITUDE, LONGITUDE) on #autatestbot.
-Searches within 15 miles. No API key needed. Restart to load the new command.
+See README.md for all commands, including traffic, rivers, UV, flood warnings,
+flood alarms, and snowpack. Restart the service after changing config.json.

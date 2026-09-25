@@ -1,0 +1,194 @@
+{
+  "description": "Raw EBMUD trail map GeoJSON snapshots for local project use.",
+  "frontend_url": "https://webapps.ebmud.com/trailmap/",
+  "path_base": "Directory containing this manifest.",
+  "coordinate_reference_system": "WGS 84 (EPSG:4326)",
+  "coordinate_order": "longitude, latitude",
+  "refresh_policy": "Manual snapshot; no automatic network requests.",
+  "datasets": {
+    "trails": {
+      "path": "trails.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDtrails2D/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T22:46:05.947921+00:00",
+      "feature_count": 39,
+      "byte_count": 8869622,
+      "sha256": "baad10a6a4467af2f3cb76f8092d6a9eb7a618faa46ee8c54094e49fdb9297df",
+      "geometry_types": [
+        "LineString",
+        "MultiLineString"
+      ]
+    },
+    "recreation_points": {
+      "path": "recreation_points.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/RecPoints/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T22:46:05.207213+00:00",
+      "feature_count": 42,
+      "byte_count": 28913,
+      "sha256": "1a82cb0b07b84cbc4b5f5044e23d592edfa137b70e304d0fa7082adfe4e07373",
+      "geometry_types": [
+        "Point"
+      ]
+    },
+    "trail_endpoints": {
+      "path": "trail_endpoints.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDtrails2D_ENDS/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.532986+00:00",
+      "byte_count": 18352,
+      "sha256": "4a91381c780fa199da047267a26989902f57db1d790e06d5aac4c50df518c099",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDtrails2D_ENDS/MapServer/0",
+      "layer_id": 0,
+      "feature_count": 78,
+      "geometry_types": [
+        "Point"
+      ],
+      "null_geometry_count": 0
+    },
+    "peaks": {
+      "path": "peaks.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/peaks/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.532567+00:00",
+      "byte_count": 24165,
+      "sha256": "40e9e8615dae5e70ae6dbf4b222b8c4b0b25cfd9811bdbc5d910afde3bd5284a",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/peaks/MapServer/0",
+      "layer_id": 0,
+      "feature_count": 90,
+      "geometry_types": [
+        "Point"
+      ],
+      "null_geometry_count": 0
+    },
+    "additional_trails": {
+      "path": "additional_trails.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/trailsMoreLight/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.590818+00:00",
+      "byte_count": 360323,
+      "sha256": "2fd4d488b4505f44d3d8e5c625522a6af5beacee335648bc1783ab8568240e87",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/trailsMoreLight/MapServer/0",
+      "layer_id": 0,
+      "feature_count": 89,
+      "geometry_types": [
+        "LineString",
+        "MultiLineString"
+      ],
+      "null_geometry_count": 0
+    },
+    "reservoir_annotations": {
+      "path": "boundaries/reservoir_annotations.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/0/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.587319+00:00",
+      "byte_count": 4238,
+      "sha256": "60c4706a495ba7e025413b4e2e7ef20a0e9f68de59f7e74804e2a888e294723d",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/0",
+      "layer_id": 0,
+      "feature_count": 6,
+      "geometry_types": [
+        "Polygon"
+      ],
+      "null_geometry_count": 1
+    },
+    "reservoirs": {
+      "path": "boundaries/reservoirs.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/2/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.570855+00:00",
+      "byte_count": 158595,
+      "sha256": "f7a12fa97c3e10265c4835441336921b3070beef022fb6e5e8010a36a6052db6",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/2",
+      "layer_id": 2,
+      "feature_count": 6,
+      "geometry_types": [
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    },
+    "recreation_areas": {
+      "path": "boundaries/recreation_areas.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/3/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:43.806023+00:00",
+      "byte_count": 525866,
+      "sha256": "208019e76528c69804e0974f39bbe405cccc02b401279f4dd9b945e6b551f8d5",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/3",
+      "layer_id": 3,
+      "feature_count": 2,
+      "geometry_types": [
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    },
+    "watershed_boundary": {
+      "path": "boundaries/watershed_boundary.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/4/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.689315+00:00",
+      "byte_count": 262514,
+      "sha256": "dee7a3a112a3706690acd9b29f6d81084cf38e65ddc549c30cbb57c74c06b452",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/4",
+      "layer_id": 4,
+      "feature_count": 5,
+      "geometry_types": [
+        "MultiPolygon",
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    },
+    "ebrpd": {
+      "path": "boundaries/ebrpd.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/5/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:37.046550+00:00",
+      "byte_count": 2173292,
+      "sha256": "3581563512dd9f59bc8e098f311ddcebe05b0455800e3a6198e9c7669ed7e45f",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/5",
+      "layer_id": 5,
+      "feature_count": 324,
+      "geometry_types": [
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    },
+    "ebrpd_display_2_jan_14": {
+      "path": "boundaries/ebrpd_display_2_jan_14.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/6/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.871909+00:00",
+      "byte_count": 743877,
+      "sha256": "76efda540f84f18ea67b554631f2c9e71842853f86b852f5cb309205882ba17a",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/6",
+      "layer_id": 6,
+      "feature_count": 16,
+      "geometry_types": [
+        "MultiPolygon",
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    },
+    "adjacent_local_parks_jan_14": {
+      "path": "boundaries/adjacent_local_parks_jan_14.geojson",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/7/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
+      "retrieved_at_utc": "2026-09-24T23:10:36.709881+00:00",
+      "byte_count": 7871,
+      "sha256": "64396cf0b492b6fbd20be82289134b252af7ceeb7e36cddc4c2518a6073a7ee6",
+      "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/7",
+      "layer_id": 7,
+      "feature_count": 4,
+      "geometry_types": [
+        "Polygon"
+      ],
+      "null_geometry_count": 0
+    }
+  },
+  "service_resources": {
+    "boundaries": {
+      "path": "boundaries/service_metadata.json",
+      "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer?f=pjson",
+      "retrieved_at_utc": "2026-09-24T23:10:43.865991+00:00",
+      "byte_count": 4570,
+      "sha256": "ea0f6644c3d16842d10e02ce2f3f5b31a064603677d0d837a1aea29d0d210890",
+      "description": "Raw boundary MapServer metadata, including all sublayer IDs and default visibility.",
+      "non_queryable_layers": [
+        {
+          "layer_id": 1,
+          "name": "Default",
+          "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/1",
+          "reason": "Annotation SubLayer with Map capability only. Parent layer 0 provides the queryable reservoir annotation features."
+        }
+      ]
+    }
+  }
+}

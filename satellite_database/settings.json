@@ -1,0 +1,36 @@
+{
+  "database": "../data/satellites/satellites.sqlite3",
+  "cache_directory": "../data/satellites/raw",
+  "export_directory": "../data/satellites",
+  "cache_hours": 24,
+  "timeout_seconds": 45,
+  "max_response_bytes": 30000000,
+  "max_pages": 100,
+  "status_max_age_days": 30,
+  "orbit_max_age_days": 14,
+  "excluded_lifecycle_states": ["retired", "decommissioned", "re-entered", "decayed", "future", "not launched", "end of mission"],
+  "user_agent": "SatelliteReferenceDatabase/1.0 (public radio catalog)",
+  "sources": {
+    "satellites": "https://db.satnogs.org/api/satellites/?format=json",
+    "transmitters": "https://db.satnogs.org/api/transmitters/?format=json",
+    "amsat": "https://raw.githubusercontent.com/palewire/amateur-satellite-database/main/data/amsat-all-frequencies.json",
+    "tle": "https://db.satnogs.org/api/tle/?format=json"
+  },
+  "orbit_groups": ["amateur", "weather"],
+  "celestrak_url": "https://celestrak.org/NORAD/elements/gp.php?GROUP={group}&FORMAT=JSON",
+  "excluded_description_terms": ["encrypted", "military", "command only", "command uplink", "soyuz communication"],
+  "public_service_terms": ["amateur"],
+  "public_description_terms": ["beacon", "sstv", "ssdv", "hamtv", "aprs", "digipeater", "hrit", "lrpt", "hrpt", "apt", "emwin", "music"],
+  "scopes": {
+    "two_way_voice": "Two-way voice / linear transponders",
+    "two_way_data": "Two-way data / packet / digipeaters",
+    "downlink_audio": "Downlink-only voice / experimental audio",
+    "image_downlink": "SSTV / SSDV / digital images",
+    "digital_television": "Digital amateur television / video",
+    "telemetry": "Educational / scientific / spacecraft telemetry",
+    "weather_data": "Weather imagery / environmental observations",
+    "weather_alerts": "Weather warnings / forecasts / text products",
+    "beacon": "CW / modulated / carrier beacons",
+    "data_downlink": "Other publicly documented digital downlinks"
+  }
+}

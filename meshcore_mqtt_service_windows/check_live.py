@@ -1,7 +1,7 @@
-"""Read-only end-to-end check. Selects the sole discovered COM entry via -S.
+"""Read-only end-to-end check. Selects the sole supported serial entry via -S.
 
 Requires an idle USB companion radio and unused configured localhost port (1884 by default).
-Does not send any over-the-air messages.
+Opens USB and localhost sockets and writes runtime state. Sends no over-the-air messages.
 """
 import asyncio
 import json
@@ -14,16 +14,20 @@ import service
 
 
 class SelectOnlyCOM:
+    """Diagnostic selector for exactly one supported serial device; retained name also used in the Linux package."""
     def __init__(self, **kwargs):
+        """Keep the choices supplied by the upstream device dialog."""
         self.values = kwargs["values"]
 
     async def run_async(self):
+        """Return the only discovered choice; raise if no device or multiple devices exist."""
         if len(self.values) != 1:
             raise RuntimeError("This check requires exactly one discovered COM device")
         return self.values[0][0]
 
 
 async def check():
+    """Start a local broker and USB session, issue read-only infos, verify MQTT results, and clean up connections."""
     cfg = json.loads((service.ROOT / "config.json").read_text())
     cfg["responder"] = {"enabled": False}  # This diagnostic must remain read-only.
     if cfg["mqtt"]["host"] != "127.0.0.1" or cfg["mqtt"]["tls"]:
@@ -38,6 +42,7 @@ async def check():
     client.on_subscribe = lambda *a: ready.set()
 
     def receive(c, u, msg):
+        """Collect MQTT event topics/status/results and signal waiting diagnostic steps."""
         if "/events/" in msg.topic:
             events.append(msg.topic)
         if msg.topic == prefix + "/status" and json.loads(msg.payload).get("state") == "online":

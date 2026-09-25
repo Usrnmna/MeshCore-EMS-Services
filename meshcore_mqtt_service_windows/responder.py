@@ -1,4 +1,9 @@
-"""Exact channel phrase -> local Python script -> tagged channel response."""
+"""Configured channel phrase -> local Python script -> tagged channel response.
+
+Read parse_message() for input handling, run_script() for child execution, and
+Responder.process_one() for queue state and replies. Settings: config.json.
+Functions that commit SQLite or launch a child process say so in their docstrings.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -12,10 +17,13 @@ import signal
 import sys
 import time
 
+from flood_alarm import ACKNOWLEDGMENT, FloodAlarms
+
 LOG = logging.getLogger("responder")
 
 
 def validate_config(config, root):
+    """Validate enabled responder settings and script paths; return None or raise before processing messages."""
     if not config.get("enabled", False):
         return
     if not isinstance(config.get("channel_name"), str) or not config["channel_name"]:
@@ -44,9 +52,12 @@ def validate_config(config, root):
             raise ValueError("Named coordinate options require coordinates input")
         if "timeout" in spec and (type(spec["timeout"]) not in (int, float) or spec["timeout"] <= 0):
             raise ValueError("Command timeout must be positive")
+        if "max_reply_parts" in spec and (type(spec["max_reply_parts"]) is not int or spec["max_reply_parts"] <= 0):
+            raise ValueError("Command max_reply_parts must be a positive integer")
 
 
 def match_command(phrase, commands):
+    """Return (command, arguments, input_error), or None for unknown text; validate inputs without running scripts."""
     key = phrase if phrase in commands else (phrase.split(maxsplit=1)[0] if phrase else "")
     spec = commands.get(key)
     if spec is None or (spec.get("input", "none") == "none" and phrase != key):
@@ -57,7 +68,7 @@ def match_command(phrase, commands):
         try:
             parse_location(location)
         except ValueError as exc:
-            return key, [], str(exc)
+            return key, [], str(exc).replace("!uv", key)
         return key, [location], None
     if spec.get("input") == "route_number":
         route = phrase[len(key):].strip()
@@ -77,6 +88,7 @@ def match_command(phrase, commands):
 
 
 def script_path(root, relative):
+    """Resolve an existing Python script inside the package; reject absolute, escaping, or non-Python paths."""
     path = (root / relative).resolve()
     if Path(relative).is_absolute() or not path.is_relative_to(root.resolve()) or path.suffix != ".py" or not path.is_file():
         raise ValueError("Scripts must be existing .py files within the service folder")
@@ -101,6 +113,7 @@ async def resolve_channel(mc, name):
 
 
 def parse_message(payload, channel, own_name, config, now):
+    """Return validated sender/channel/request context, or None for stale, self, reply, or unrelated messages."""
     if payload.get("channel_idx") != channel or payload.get("txt_type", 0) != 0:
         return None
     text = payload.get("text")
@@ -128,6 +141,7 @@ def parse_message(payload, channel, own_name, config, now):
 
 
 def reply_parts(sender, output, limit=150, max_parts=4):
+    """Return tagged UTF-8-safe pieces within the byte/part limits; collapse whitespace and mark truncation."""
     prefix = f"@{sender} "
     budget = limit - len(prefix.encode("utf-8"))
     if budget < 8:
@@ -145,6 +159,7 @@ def reply_parts(sender, output, limit=150, max_parts=4):
 
 
 async def run_script(root, spec, request, config):
+    """Run the configured Python file with args/context, bounded stdout/stderr and timeout; return (reply, diagnostic)."""
     path = script_path(root, spec["script"])
     arguments = request.get("arguments", [])
     if spec.get("coordinate_style") == "options":
@@ -161,6 +176,7 @@ async def run_script(root, spec, request, config):
         start_new_session=(os.name == "posix"))
 
     async def read_bounded(stream):
+        """Read one child output stream as UTF-8 and raise if its independent byte limit is exceeded."""
         data = bytearray()
         while chunk := await stream.read(4096):
             data.extend(chunk)
@@ -169,6 +185,7 @@ async def run_script(root, spec, request, config):
         return data.decode("utf-8", "replace")
 
     async def communicate():
+        """Send request JSON on stdin and collect stdout, stderr, and child exit status concurrently."""
         proc.stdin.write(json.dumps(request).encode("utf-8"))
         await proc.stdin.drain()
         proc.stdin.close()
@@ -197,7 +214,9 @@ async def run_script(root, spec, request, config):
 
 
 class Responder:
+    """Persist accepted channel requests and process them one at a time through a supplied async send callback."""
     def __init__(self, root, db, config, channel, own_name, send):
+        """Create the request table and mark unfinished running/sending requests interrupted; commits to SQLite."""
         self.root, self.db, self.config = root, db, config
         self.channel, self.own_name, self.send = channel, own_name, send
         db.execute("""CREATE TABLE IF NOT EXISTS bot_requests (
@@ -206,8 +225,10 @@ class Responder:
         # Never blindly repeat a possibly completed execution or transmission.
         db.execute("UPDATE bot_requests SET state='interrupted' WHERE state IN ('running','sending')")
         db.commit()
+        self.alarms = FloodAlarms(db, config['channel_name'], self.read_flood_status, self.send_flood_change)
 
     def accept(self, payload, now=None):
+        """Validate and queue one message unless duplicate, cooling down, or full; return whether it was accepted."""
         now = time.time() if now is None else now
         request = parse_message(payload, self.channel, self.own_name, self.config, now)
         if request is None:
@@ -221,18 +242,27 @@ class Responder:
             LOG.warning("Responder queue full; request ignored")
             return False
         request["script"] = self.config["commands"][request["command"]]
+        # ENROLLMENT/RENEWAL: only !floodalarm overwrites location and resets the four-hour timer.
+        if request['command'] == '!floodalarm' and not request['input_error']:
+            if not self.alarms.remember(request, now):
+                return False
         self.db.execute("INSERT INTO bot_requests VALUES (?,?,?,?,?,?,?)",
                         (request["id"], request["sender"], now, json.dumps(request), "queued", None, None))
         self.db.commit()
         return True
 
     def update(self, request_id, state, response=None, detail=None):
+        """Commit request state and diagnostics, retaining the prior response when response is None."""
         self.db.execute("UPDATE bot_requests SET state=?,response=COALESCE(?,response),detail=? WHERE id=?",
                         (state, response, detail, request_id))
         self.db.commit()
 
-    async def process_one(self):
-        row = self.db.execute("SELECT id,context FROM bot_requests WHERE state='queued' ORDER BY created LIMIT 1").fetchone()
+    async def process_one(self, alarm_only=None):
+        """Process the oldest queued request, expire stale work, run its script and send replies; return False if empty."""
+        # Separate acknowledgment worker bypasses slow weather lookups in the ordinary queue.
+        rows = self.db.execute("SELECT id,context FROM bot_requests WHERE state='queued' ORDER BY created").fetchall()
+        row = next((row for row in rows if alarm_only is None or
+                    (json.loads(row[1])['command'] == '!floodalarm') == alarm_only), None)
         if row is None:
             return False
         request_id, context = row
@@ -246,15 +276,20 @@ class Responder:
             try:
                 if request.get("input_error"):
                     output, detail = request["input_error"], "Invalid command arguments; script not executed"
+                elif request['command'] == '!floodalarm':
+                    output, detail = ACKNOWLEDGMENT, ''
                 else:
                     output, detail = await run_script(self.root, request["script"], request, self.config)
             except Exception as exc:
                 output, detail = "The requested script could not be run.", str(exc)
-            parts = reply_parts(request["sender"], output, max_parts=self.config["max_reply_parts"])
+            parts = reply_parts(request["sender"], output,
+                                max_parts=request["script"].get("max_reply_parts", self.config["max_reply_parts"]))
             self.update(request_id, "sending", json.dumps(parts), detail)
             for part in parts:
                 await self.send(request["channel_index"], part)
             self.update(request_id, "sent", detail=detail)
+            if request['command'] == '!floodalarm' and not request.get('input_error'):
+                self.alarms.acknowledge(request)
         except asyncio.CancelledError:
             self.update(request_id, "interrupted", detail="Stopped; execution or delivery may be incomplete")
             raise
@@ -263,7 +298,43 @@ class Responder:
             self.update(request_id, "failed", detail=str(exc))
         return True
 
-    async def run(self):
+    async def read_flood_status(self, location):
+        """Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status."""
+        from scripts.flood_warn import ALERTS, format_status
+        request = dict(arguments=[location], sender='Flood Alarm', channel_name=self.config['channel_name'],
+                       channel_index=self.channel, id='flood-alarm-check', phrase='!floodalarm ' + location)
+        spec = dict(script='scripts/flood_warn.py', args=['--snapshot'], timeout=45)
+        output, detail = await run_script(self.root, spec, request, self.config)
+        try:
+            data = json.loads(output)
+        except ValueError as exc:
+            raise RuntimeError('Flood alert lookup unavailable. Will retry at the next check.') from exc
+        if not isinstance(data, dict) or data.get('error'):
+            raise RuntimeError(data.get('error') if isinstance(data, dict) else 'Invalid flood response.')
+        events = data.get('events')
+        if not isinstance(events, list) or any(not isinstance(event, str) or event not in ALERTS for event in events):
+            raise RuntimeError('Invalid flood status. Will retry at the next check.')
+        events = [event for event in ALERTS if event in events]
+        return {'events': events, 'text': format_status(location, events)}
+
+    async def send_flood_change(self, reading, output):
+        """Tag changes just like !floodwarn; guard again after waiting for the radio's send slot."""
+        guard = lambda: self.alarms.is_current(reading)
+        for part in reply_parts(reading['sender'], output, max_parts=12):
+            if not guard():
+                break
+            await self.send(self.channel, part, guard=guard)
+
+    async def run_requests(self, alarm_only=False):
+        """Drain this worker's queue without blocking the alarm scheduler or acknowledgment worker."""
         while True:
-            if not await self.process_one():
+            if not await self.process_one(alarm_only=alarm_only):
                 await asyncio.sleep(0.1)
+
+    async def run(self):
+        """All workers stop with the service; radio sends still use the existing shared rate limiter."""
+        async with asyncio.TaskGroup() as workers:
+            workers.create_task(self.run_requests())
+            if '!floodalarm' in self.config['commands']:
+                workers.create_task(self.run_requests(alarm_only=True))
+                workers.create_task(self.alarms.run())

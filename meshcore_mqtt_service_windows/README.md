@@ -1,7 +1,18 @@
 # MeshCore command service for Windows 10 Pro x64
 
+**Current release:** [v0.1.1-alpha](RELEASE_NOTES.md)
+
 This is an independent Windows copy. It does not load code, configuration, Python
 packages or runtime databases from the original Linux service folder.
+
+## Folder layout
+
+- `service.py`, `responder.py`, `flood_alarm.py`: bridge and command handling.
+- `config.json`: this installation's settings; `requirements.txt`: pinned dependencies.
+- `scripts/`: command programs, also runnable directly.
+- `tests/`: offline regression and loopback MQTT integration tests.
+- `check_live.py`: optional USB diagnostic; run only while the service is stopped.
+- `runtime/`: local request history and subscriptions; preserve during upgrades.
 
 ## Included commands
 
@@ -14,9 +25,11 @@ packages or runtime databases from the original Linux service folder.
 | `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
 | `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
 | `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
+| `!floodalarm` | Coordinates, US ZIP, or city and state | Monitor flood-alert changes for four hours |
+| `!snowpack` | California coordinates, ZIP, or city | Nearest-station snow depth and next-24h snowfall |
 
 `!aqi` requires `AIRNOW_API_KEY`. The other included commands require no API
-key. AQI, traffic, river, UV, and flood-alert lookups require internet access.
+key. AQI, traffic, river, UV, flood-alert, and snowpack lookups require internet access.
 Detailed input formats, sources, responses, and limitations are documented below.
 
 ## Start
@@ -172,7 +185,7 @@ ca_file relative to this folder. Restrict command-topic publishing to trusted us
 
 ## Validation
 
-- All 66 automated tests passed in this copy during the latest documentation update.
+- All 109 automated tests passed in this copy after workspace cleanup.
 - The installed environment uses Windows 10 build 19045 x64 / Python 3.13.0 x64.
 - setup.ps1 and run.ps1 were exercised with Windows PowerShell 5.1.
 - Dependency checks passed in this folder's independent virtual environment.
@@ -186,8 +199,6 @@ Run verify.cmd to repeat automated tests. The optional read-only check_live.py d
 the responder and requires one discovered COM device and a free configured broker port.
 Run it with `.venv\Scripts\python.exe check_live.py` while the bridge is stopped.
 
-source_integrity.json and verify_original.py record/check the original folder's hashes.
-They are development evidence only; normal operation never accesses the original folder.
 Pinned dependencies are in requirements.txt. Review the internal CLI adapter before
 upgrading MeshCore CLI versions. The tests and live check exit and stop their brokers;
 the application is not left running after validation.
@@ -354,7 +365,7 @@ Location lookup uses [Open-Meteo](https://open-meteo.com/en/docs/geocoding-api)
 and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
-Offline checks: `python -m unittest test_uv`.
+Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
 
 
 ## Flood alerts: !floodwarn
@@ -421,7 +432,7 @@ python scripts/flood_warn.py Sacramento
 python scripts/flood_warn.py 95814
 python scripts/flood_warn.py "Reno NV"
 python scripts/flood_warn.py 38.5816 -121.4944
-python -m unittest test_floodwarn
+python -m unittest discover -s tests -p "test_floodwarn.py"
 ```
 
 Restart the service using its existing launcher to load the command. Keep
@@ -433,3 +444,157 @@ Windows host. Live city, ZIP, GPS, abbreviated-state, and full-state lookups pas
 Athens, Ohio returned a Flash Flood Warning and Flood Watch during verification.
 An unsupported point returned a coverage error. Native Linux execution and
 physical MeshCore radio delivery remain unverified; no hardware was flashed.
+
+## Snowpack: !snowpack
+
+Send on the configured MeshCore channel (default `#autatestbot`):
+
+```text
+!snowpack 39.3279, -120.1833
+!snowpack 96161
+!snowpack Truckee
+!snowpack South Lake Tahoe CA
+```
+
+Coordinates with a space instead of a comma and ZIP+4 codes also work. City names
+are matched in California; GPS and ZIP locations are checked against the NWS
+California county coverage. No API key or additional Python dependency is needed.
+
+Example format (illustrative values):
+
+```text
+@Alice Snowpack: Current: 12in | Next 24h: 4in | Station: Snow Creek 2.3mi.
+```
+
+The responder supplies the requesting sender's `@name` and sends the result to the
+same channel. The standalone `scripts/snowpack.py` prints the body only.
+
+- **Current:** latest valid hourly **snow depth**, in inches, from the nearest
+  active hourly sensor-18 station in the [CDEC station directory](https://cdec.water.ca.gov/dynamicapp/staSearch?search=Search&sensor_chk=on&sensor=18&dur_chk=on&dur=H&active_chk=on&active=Y&display=sta).
+  This is the snow on the ground at that station, not snow-water equivalent or a
+  measurement at the user's coordinates. Station elevation and terrain can differ
+  greatly from the requested location, especially in cities far from the mountains.
+- **Next 24h:** forecast new snow at the **requested location**, using the
+  [NWS numerical forecast grid](https://weather-gov.github.io/api/gridpoints).
+  Sums snowfall-amount intervals covering the next rolling 24 hours and converts
+  millimeters to inches. Boundary intervals are prorated by their overlap, assuming
+  snow falls uniformly within each source interval (usually six hours); this is an
+  estimate of the rolling total, not an hourly timing prediction.
+- **Station:** nearest listed active hourly snow-depth station, with straight-line
+  distance in miles. A stale/missing reading does not silently switch to a farther
+  station. Stations are discovered live; manual monthly snow courses are excluded.
+- **Availability:** readings and forecast updates must be at most 24 hours old.
+  Negative, flagged, nonnumeric, missing, or future readings are excluded. CDEC
+  timestamps omit UTC offsets, so freshness is conservatively required under both
+  Pacific offsets (UTC-7 and UTC-8); this can omit the newest hour. Missing data,
+  stale forecasts, or gaps/overlaps in the 24-hour forecast produce `unavailable`
+  for the affected field, never a fabricated `0in`. A valid zero remains `0in`.
+  Positive amounts below 0.05 inches are shown as `<0.1in`.
+
+City/ZIP coordinates come from [Open-Meteo/GeoNames](https://open-meteo.com/en/docs/geocoding-api).
+Internet access is required. Each request has a 10-second network timeout, with a
+65-second overall script timeout. Existing cooldowns and message splitting apply.
+Restart the running service to load the new command configuration.
+
+```text
+python scripts/snowpack.py "39.3279, -120.1833"
+python scripts/snowpack.py 96161
+python scripts/snowpack.py Truckee
+python -m unittest discover -s tests -p "test_snowpack.py"
+```
+
+Validation: all 86 tests passed in each package on the Windows host, and both
+Python environments passed dependency checks. Live California city, ZIP, and GPS
+lookups returned station depths and forecasts; Nevada city, ZIP, and GPS requests
+were rejected. No service restart, radio transmission, or native Linux execution
+was performed for this addition.
+
+## ZIP package
+
+The distribution ZIP includes this service folder, current snowpack code,
+configuration, launchers, setup scripts, tests, and documentation. Local Python
+environments, runtime databases, and generated bytecode caches are excluded.
+After extraction, follow the setup/launcher instructions above to install the
+pinned dependencies. Existing local runtime files are not included in the ZIP.
+
+
+## Flood monitoring: !floodalarm
+
+```text
+!floodalarm 38.5816, -121.4944
+!floodalarm 95814
+!floodalarm Sacramento
+!floodalarm Reno NV
+!floodalarm Reno Nevada
+```
+
+Uses the same location rules as `!floodwarn`, including the California default.
+An accepted, syntactically valid request immediately queues this exact reply:
+
+```text
+@Alice Flood Alarm is set for requested location.
+```
+
+The acknowledgment has its own worker and does not wait for a weather lookup.
+Existing sender cooldowns, duplicate/stale-message checks, channel selection, and
+radio spacing still apply; a busy radio can delay actual transmission. The
+acknowledgment confirms registration. The subsequent lookup verifies the location.
+
+### Monitoring rules
+
+1. **Only `!floodalarm` starts monitoring.** Each sender has one saved location per
+   channel. A repeated `!floodalarm` renews the alarm and replaces its location.
+2. After acknowledgment, take the first reading as a **silent baseline**. Check
+   again every **20 minutes** while the service is running. Due lookups run one at
+   a time; slow requests or a busy service can delay a check.
+3. Compare the set of the four supported alert types. Notify the saved `@sender`
+   on the same channel only when that set changes, including when all alerts clear.
+   Changes to bulletin IDs, issue times, or wording alone do not trigger a reply.
+4. Stop at **four hours since that sender's last accepted `!floodalarm` call**.
+   Each new accepted `!floodalarm` overwrites that user's previous alarm location
+   and resets the full four-hour limit, including when the location is unchanged.
+   Checks and outgoing notifications recheck this deadline. `!floodwarn` remains
+   a one-shot lookup: it never changes the alarm location or renews the timer.
+5. A new location gets a fresh baseline so moving between towns is not interpreted
+   as a change in flood conditions. Repeating the same location retains its baseline
+   and scheduled check. Late messages cannot overwrite a newer call's location.
+6. A failed lookup preserves the last successful reading. Send one availability
+   notice per failure episode, then retry on the next scheduled check. A successful
+   recovery is compared with the last good reading; an error never means no floods.
+
+Subscriptions survive restarts in **`runtime/bridge.sqlite3`**, table
+**`flood_subscriptions`**, using Python's built-in SQLite library. Stored fields
+include channel, username, last requested location, last-heard time, enabled state,
+next-check time, last successful alert types/time, and lookup error. Expired rows
+retain their last location for review but are inactive. Restarting never extends
+the four-hour deadline, and missed checks are not replayed in a burst.
+
+The service must stay running and connected to perform checks/send notifications.
+Interrupted or failed radio sends are logged and are not automatically replayed.
+Usernames are MeshCore display names; two nodes using the same name on the same
+channel share one subscription, just as replies use those display names.
+
+### Where to adjust the algorithm
+
+| File / function | What to review or change |
+| --- | --- |
+| [`flood_alarm.py`](flood_alarm.py), top constants | `CHECK_INTERVAL = 20 * 60`, `MAX_AGE = 4 * 60 * 60`, polling interval, acknowledgment text. |
+| `FloodAlarms.remember()` | One row per sender/channel; enrollment, renewal, location replacement, older-message rejection. |
+| `FloodAlarms.check_one()` | Initial baseline, scheduling, alert-type comparison, error handling, four-hour expiry. |
+| `FloodAlarms.is_current()` | Reject an expired subscription or a result from a superseded request. |
+| [`responder.py`](responder.py), `accept()` / `process_one()` / `run()` | Save/renew accepted alarm locations, acknowledge without HTTP, and start independent workers. |
+| `Responder.read_flood_status()` / `send_flood_change()` | Bounded lookup subprocess, structured result validation, tagged notifications. |
+| [`service.py`](service.py), `send_reply()` | Recheck alarm validity after waiting for the radio, before sending. |
+| [`scripts/flood_warn.py`](scripts/flood_warn.py), `snapshot()` / `format_status()` | Shared NWS lookup, structured alert types, exact wording and colored squares. |
+
+The source uses visible comments named `TWEAK HERE`, `ENROLLMENT`, `EXPIRY`,
+`CHANGE DETECTION`, `OUTAGE`, and `ALARM EXPIRY` to make these sections easy to find.
+The internal `--snapshot` option outputs JSON for the monitor; normal `!floodwarn`
+and direct CLI output remain text. There is no extra dependency or separate daemon.
+
+Restart the service after updating the Python files and `config.json`.
+Test with `python -m unittest discover -s tests -p "test_floodalarm.py"`, or run the full test suite.
+Both packages passed **109 tests on the Windows host**, including simulated time,
+restart persistence, background workers, subprocess JSON, and existing MQTT tests.
+The four-hour behavior was tested with a simulated clock. No live four-hour run,
+native Linux run, radio transmission, firmware change, or service restart was done.

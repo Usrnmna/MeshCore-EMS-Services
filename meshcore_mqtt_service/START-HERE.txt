@@ -5,11 +5,13 @@ Run this one command from the service folder:
     bash Start-Service.sh
 
 It sets up the local Python environment if missing, starts the local MQTT broker,
-and opens the MeshCore -S device selector. Select the USB client node once; the
-service then keeps listening and responding on #autatestbot until Ctrl+C.
+and detects the single attached USB serial device with serial_port: "auto".
+The service keeps listening on assigned channels (default #autatestbot) until Ctrl+C.
 
-Keep its terminal open. Run only one instance for the USB device.
-This does not install an automatic boot service or bypass the -S selector.
+Keep its terminal open. Run only one instance for the selected node.
+This does not install an automatic boot service. Detection runs again on each start.
+If no USB device or multiple candidates are found, startup reports an error. Set
+serial_port to the intended fixed device when several USB serial devices are used.
 
 If your file copy preserves executable permission, you may also run:
 
@@ -24,3 +26,16 @@ AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
 
 See README.md for all commands, including traffic, rivers, UV, flood warnings,
 flood alarms, and snowpack. Restart the service after changing config.json.
+
+See MULTI_CHANNEL_GUIDE.md to add Public, hashtag, or private channels, assign
+programs to them, manage private keys and MQTT export, and use channel_setup.py.
+Stop the bridge before channel setup; restart after configuration changes.
+
+RADIO CONNECTION
+USB serial remains the default. To use TCP, set config.json's connection to:
+    {"type": "tcp", "host": "192.168.1.50", "port": 5000}
+For BLE, pair in the OS first and set connection to:
+    {"type": "ble", "address": "AA:BB:CC:DD:EE:FF"}
+These are values for the connection object, not complete config files.
+See README.md for firmware, Bluetooth access, timeout, and service-account details.
+USB detection settings apply only when connection.type is serial.

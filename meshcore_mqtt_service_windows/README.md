@@ -7,19 +7,100 @@ packages or runtime databases from the Linux service folder.
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
-include the complete workspace and reference data, and run with a saved serial port
+include the complete workspace and reference data, and connect to the configured companion node
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
 Source-folder launchers support interactive operation.
 
+## Multiple channels and program assignments
+
+Use [MULTI_CHANNEL_GUIDE.md](MULTI_CHANNEL_GUIDE.md) for the complete change list,
+Public/hashtag/private channel examples, per-program assignments, private keys,
+radio setup commands, MQTT export controls, migration, and file/function guide.
+Every command has an explicit `channels` list; replies stay on its incoming channel.
+Adding a channel does not automatically enable programs there. The guide also
+explains how to add plain Python programs to an installed service without rebuilding
+or rerunning the installer. Restart after edits.
+
 ## Folder layout
 
 - `service.py`, `responder.py`, `flood_alarm.py`: bridge and command handling.
+- `channels.py`, `channel_setup.py`: registry validation, identity checks, and explicit radio setup.
 - `config.json`: this installation's settings; `requirements.txt`: pinned dependencies.
 - `scripts/`: command programs, also runnable directly.
 - `tests/`: offline regression and loopback MQTT integration tests.
-- `check_live.py`: optional USB diagnostic; run only while the service is stopped.
+- `radio_connection.py`: connection validation, transport selection, and bounded cleanup.
+- `check_live.py`: optional radio/MQTT diagnostic; run only while the service is stopped.
 - `runtime/`: local request history and subscriptions; preserve during upgrades.
+
+## Radio connection settings
+
+The service, local `cli` commands, and `channel_setup.py` use the same
+`connection` object in `config.json`. Select one transport for one companion node.
+Stop the service before changing settings or running a separate radio tool, then
+restart it. Existing configurations without `connection` keep USB serial behavior.
+
+USB serial (default; retain the top-level `serial_port` and `baudrate` settings):
+
+```json
+"connection": {"type": "serial", "timeout": 30},
+"serial_port": "auto",
+"baudrate": 115200
+```
+
+Wi-Fi / TCP, using the node's local IP address:
+
+```json
+"connection": {"type": "tcp", "host": "192.168.1.50", "port": 5000, "timeout": 30}
+```
+
+`port` defaults to **5000** when omitted and accepts integers from 1 to 65535.
+`host` accepts an IPv4 or IPv6 address, without a URL prefix or appended port.
+The computer must be able to reach the node at that address. The firmware must
+expose the MeshCore companion TCP protocol; board Wi-Fi capability alone is not
+sufficient. These settings do not configure the node's Wi-Fi credentials.
+TCP is a plain local-network connection, without TLS or node authentication.
+Use it on a trusted LAN. MQTT host/port, TLS settings and topic names are separate
+and remain unchanged when the radio transport changes.
+
+Bluetooth LE:
+
+```json
+"connection": {"type": "ble", "address": "AA:BB:CC:DD:EE:FF", "timeout": 30}
+```
+
+Use the intended node's Bluetooth address, not its display name. A working BLE
+adapter and compatible BLE companion firmware are required. Complete pairing,
+including any node PIN prompt, through the OS before starting the service. The
+service does not scan for an arbitrary node or prompt for a PIN. No PIN belongs
+in this configuration; the pinned SDK's PIN option only requests OS pairing and
+does not supply a passkey to the OS.
+
+On Linux, install/start BlueZ (`sudo apt install bluez` and
+`sudo systemctl enable --now bluetooth`), then use `bluetoothctl` to scan, pair,
+and trust the intended address. The OS installer installs BlueZ when BLE is
+selected. Verify Bluetooth/D-Bus access under the `meshcore-ems` service account.
+On Windows, enable Bluetooth and pair through Windows settings. Verify access
+under the installed `NT AUTHORITY\LocalService` account; success in an interactive
+console does not establish background-service access. Close other applications
+holding the node connection. BLE service-account access still requires testing
+on the target computer and adapter.
+
+`timeout` bounds connection establishment in seconds (default 30; range 1–300).
+The bridge also bounds its initial device query. After a detected radio disconnect,
+the installed service manager restarts the process and rechecks the channel
+bindings. Source-folder launchers require a manual restart. There is no automatic
+fallback to a different transport or node. Commands with uncertain transmission
+outcomes are not replayed. TCP also sends a read-only device check every 30 seconds, with a 10-second
+response timeout after acquiring the radio command lock. Failure stops the bridge
+so the installed service manager reconnects. These local checks do not transmit RF;
+queued radio operations can delay a check. The intervals are prominent constants
+at the top of `service.py`.
+
+MQTT event `device` metadata includes `type`. Serial keeps the original string
+`device.port`; TCP uses numeric `port` plus `host`; BLE uses `address` and a null
+`port`. Historical outbox records retain their original metadata. The `ports`
+command continues to list USB serial devices only.
 
 ## Included commands
 
@@ -45,8 +126,8 @@ Interactive source-folder operation requires 64-bit Python 3.11 or newer.
 
 1. Open this folder and run **setup.cmd** once on a new computer.
 2. Run **run.cmd** to start the bundled broker and radio responder.
-3. In the MeshCore CLI **-S** selector, choose the discovered USB **COM** device.
-   Use the arrow keys, Tab to OK, then Enter.
+3. Configure the radio connection. The default serial mode detects one attached
+   USB device; BLE and TCP settings are described above.
 4. Send `!status` or `!time` on **#autatestbot** from another MeshCore node.
 
 Example reply: `@Alice Local command service is running.`
@@ -54,20 +135,26 @@ Example reply: `@Alice Local command service is running.`
 Setup creates this folder's `.venv`. To use another computer, copy the source folder
 without `.venv`, `runtime` or `__pycache__`, and run setup.cmd to create its environment.
 Virtual environments are not portable.
-Setup requires internet access; normal operation uses the local broker and USB node.
+Setup requires internet access; normal operation uses the local broker and configured node.
 
-The node must run serial companion firmware and already have a channel named exactly
-`#autatestbot`. The application discovers that channel's index; it does not create
-channels or fall back to public channel 0. BLE selection is disabled. With the default
-interactive configuration, the launcher prompts for a COM device on each start.
+The node must run companion firmware supporting the selected interface and have the configured channels
+(default `#autatestbot`). Startup verifies channel names and keys and does not create
+channels or fall back to Public. Use `channel_setup.py` explicitly for provisioning.
+Serial, BLE and TCP selection are supported. USB serial detection is the default.
 
 Keep the console open. Ctrl+C stops the application and its owned broker. The source
-launcher runs in the foreground; its -S selector requires an interactive desktop
-session. Use the OS installer above for unattended Windows Service operation.
+launcher runs in the foreground. Use the OS installer above for unattended Windows Service operation.
 Administrator privileges are not normally needed. Launchers use Windows PowerShell
 5.1 and do not change execution policy
 permanently. On systems where organizational policy blocks scripts, that policy
 still applies.
+
+In serial mode with `serial_port: "auto"`, no detected USB serial device or multiple candidates
+produces a clear error. Connect the intended Companion Node or set `serial_port`
+to a specific device when several USB serial devices are attached. Detection uses
+USB metadata, then the MeshCore connection verifies the selected device; it does
+not guess which of several devices is the radio. A restart rescans the current
+ports, including after COM or tty numbering changes.
 
 ## Independent settings
 
@@ -80,6 +167,7 @@ Only this folder's `config.json` controls this copy:
 | Topic prefix | meshcore/windows |
 | MQTT client ID | meshcore-windows-bridge |
 | Radio channel | #autatestbot |
+| Serial port selection | auto |
 | Python environment | .venv/ |
 | Packet/request database | runtime/bridge.sqlite3 |
 | CLI configuration/history | runtime/home/.config/meshcore/ |
@@ -104,7 +192,7 @@ verify.cmd
 ```
 
 `run.cmd` defaults to bridge/responder mode. `broker` runs the local broker without
-opening USB. `watch` prints bridged MQTT events as JSON lines. Stop the bridge before
+opening a radio connection. `watch` prints bridged MQTT events as JSON lines. Stop the bridge before
 using `cli` to open the same radio separately. PowerShell users may invoke the same
 files with `.\`, for example `.\run.cmd ports`.
 
@@ -120,13 +208,14 @@ Edit the `responder.commands` map in this copy's config.json and restart:
 
 ```json
 "commands": {
-  "!status": {"script": "scripts/status.py", "args": []},
-  "!time": {"script": "scripts/time_now.py", "args": []}
+  "!status": {"script": "scripts/status.py", "args": [], "channels": ["default"]},
+  "!time": {"script": "scripts/time_now.py", "args": [], "channels": ["default"]}
 }
 ```
 
 Matching is exact and case-sensitive after trimming outer whitespace. Scripts must
-be existing .py files inside this folder. Arguments are fixed configuration values;
+be existing .py files inside this folder or the configured external
+`program_directory`; use `programs/NAME.py` for external programs. Arguments are fixed configuration values;
 received text is never executed as a shell command. The script runs in this folder
 using this copy's Python environment. Print the answer to stdout without an @ prefix.
 
@@ -135,9 +224,9 @@ script, then adds `@SENDERSUSERNAME` and sends through the MeshCore CLI's existi
 connection on the same channel. Names containing spaces are preserved. Channel
 names/displayed usernames are not authenticated user identities.
 
-Scripts receive JSON on stdin with id, sender, phrase, channel_name, channel_index
+Scripts receive JSON on stdin with id, sender, phrase, channel_id, channel_name, channel_index
 and sender_timestamp. Environment variables also provide MESHCORE_SENDER,
-MESHCORE_CHANNEL, MESHCORE_CHANNEL_INDEX, MESHCORE_PHRASE and MESHCORE_REQUEST_ID.
+MESHCORE_CHANNEL, MESHCORE_CHANNEL_ID, MESHCORE_CHANNEL_INDEX, MESHCORE_PHRASE and MESHCORE_REQUEST_ID.
 
 Newlines in stdout become spaces. Replies are split into at most four 150-byte parts
 by default, each starting with @name. A command may set a higher limit;
@@ -147,9 +236,9 @@ stderr diagnostics are saved locally. Scripts should finish in the foreground;
 Windows timeout handling terminates the script process, not arbitrary detached children.
 
 Duplicate suppression and sender names persist in SQLite. Defaults allow one request
-per sender every 30 seconds and reject stale messages older than five minutes, missing
+per sender per channel every 30 seconds and reject stale messages older than five minutes, missing
 names/timestamps, local-node echoes and @-prefixed replies. Keep radio clocks accurate.
-Up to 50 requests can wait. Interrupted execution/sending is not automatically repeated,
+Up to 50 requests can wait globally, with at most 20 per channel by default. Interrupted execution/sending is not automatically repeated,
 since a side effect or transmission may already have happened. Radio acceptance is not
 proof of remote receipt. Set responder.enabled to false to disable automatic replies.
 
@@ -177,14 +266,15 @@ Example request to meshcore/windows/command:
 Supported MQTT commands: infos, ver, contacts, self_telemetry, clock, msg, chan. Use a
 new ID for each intentional request. Retained requests are ignored. Commands and bot
 reply parts share the configured 15-second spacing. Channel responder triggers come
-from decoded radio events, not MQTT event replays. Both private and channel packet
-events still publish with available timestamps, text, RSSI, SNR, paths and other data.
+from decoded radio events, not MQTT event replays. With a channel registry, only channels with `mqtt_export: true` export decoded
+messages and replies with available metadata. Raw/unclassified and unknown-channel
+traffic is suppressed; allowed node/device telemetry remains available.
 Known secret fields are redacted; binary fields have explicit hex encoding.
 
 The event outbox survives restarts and uses QoS 1. Consumers should deduplicate event
 UUIDs. MQTT reconnects automatically; monitor disk usage during outages. Broker state
-is in memory. Commands use live subscriptions and may be missed while offline. USB
-disconnect stops the bridge; restart it to select a COM device again.
+is in memory. Commands use live subscriptions and may be missed while offline. A detected radio disconnect stops the bridge; the installed service manager
+restarts it. Source-folder launchers require a manual restart.
 
 For an external broker set local_broker to false and edit mqtt. Authentication uses
 MESHCORE_MQTT_USERNAME and MESHCORE_MQTT_PASSWORD. TLS uses tls=true with an optional
@@ -318,7 +408,7 @@ mesh format is enabled only through this command's configured --mesh-text argume
 
 ## Current UV index: !uv
 
-Send on the configured channel (default #autatestbot):
+Send on a channel assigned to this command (default #autatestbot):
 
 ```text
 !uv 38.5816, -121.4944
@@ -352,7 +442,7 @@ Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
 
 ## Flood alerts: !floodwarn
 
-Send on the configured channel (default `#autatestbot`):
+Send on a channel assigned to this command (default `#autatestbot`):
 
 ```text
 !floodwarn 38.5816, -121.4944
@@ -423,7 +513,7 @@ uses its location parser.
 
 ## Snowpack: !snowpack
 
-Send on the configured MeshCore channel (default `#autatestbot`):
+Send on a MeshCore channel assigned to this command (default `#autatestbot`):
 
 ```text
 !snowpack 39.3279, -120.1833

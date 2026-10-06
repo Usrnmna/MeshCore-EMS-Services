@@ -1,7 +1,12 @@
 param(
     [Parameter(Mandatory=$true)][string]$InstallRoot,
-    [Parameter(Mandatory=$true)][ValidatePattern('^COM[1-9][0-9]*$')][string]$SerialPort,
+    [ValidatePattern('(?i)^(auto|COM[1-9][0-9]*)$')][string]$SerialPort,
+    [ValidateSet('serial','tcp','ble')][string]$Transport,
+    [string]$TcpHost,
+    [ValidateRange(1,65535)][int]$TcpPort,
+    [ValidatePattern('^([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}$')][string]$BleAddress,
     [string]$Channel = '',
+    [string]$ChannelsConfig = '',
     [string]$StateRoot = (Join-Path $env:ProgramData 'MeshCore-EMS'),
     [switch]$PrepareOnly,
     [switch]$NoStart
@@ -11,6 +16,13 @@ $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $StateRoot = [IO.Path]::GetFullPath($StateRoot)
+# Keep auto in the saved config; the service detects the USB device on each start.
+if ($SerialPort -ieq 'auto') { $SerialPort = 'auto' }
+if ($Channel -and $ChannelsConfig) { throw 'Use -Channel or -ChannelsConfig, not both.' }
+if ($ChannelsConfig) {
+    $ChannelsConfig = [IO.Path]::GetFullPath($ChannelsConfig)
+    if (-not (Test-Path -LiteralPath $ChannelsConfig -PathType Leaf)) { throw 'Channels configuration JSON was not found.' }
+}
 if (-not [Environment]::Is64BitOperatingSystem) { throw 'Windows x64 is required.' }
 if (-not $PrepareOnly) {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -21,6 +33,21 @@ if (-not $PrepareOnly) {
     if ($existing) { Stop-Service MeshCoreEMS; $existing.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(50)) }
 }
 New-Item -ItemType Directory -Force $StateRoot | Out-Null
+# Secure settings, backups and runtime before writing any private channel state.
+$stateAcl = New-Object System.Security.AccessControl.DirectorySecurity
+$stateAcl.SetAccessRuleProtection($true, $false)
+$access = @{'S-1-5-18'='FullControl'; 'S-1-5-32-544'='FullControl'; 'S-1-5-19'='ReadAndExecute'}
+if ($PrepareOnly) { $access[[Security.Principal.WindowsIdentity]::GetCurrent().User.Value] = 'FullControl' }
+foreach ($sid in $access.Keys) {
+    $principal = New-Object System.Security.Principal.SecurityIdentifier($sid)
+    $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($principal, $access[$sid], 'ContainerInherit,ObjectInherit', 'None', 'Allow')
+    $stateAcl.AddAccessRule($rule)
+}
+Set-Acl -LiteralPath $StateRoot -AclObject $stateAcl
+foreach ($item in Get-ChildItem -LiteralPath $StateRoot -Force) {
+    & icacls.exe $item.FullName /reset /T /Q
+    if ($LASTEXITCODE -ne 0) { throw 'Could not restrict existing service state permissions.' }
+}
 Start-Transcript -Path (Join-Path $StateRoot 'install.log') -Append | Out-Null
 try {
     $python = Join-Path $InstallRoot 'python\python.exe'
@@ -45,21 +72,24 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed. Check internet access and rerun setup.' }
     & $python -I -m pip check
     if ($LASTEXITCODE -ne 0) { throw 'Dependency validation failed.' }
-    $configArgs = @('--root',$InstallRoot,'--state',$StateRoot,'--config-dir',$StateRoot,'--platform','windows','--port',$SerialPort)
+    $configArgs = @('--root',$InstallRoot,'--state',$StateRoot,'--config-dir',$StateRoot,'--platform','windows')
+    if ($SerialPort) { $configArgs += @('--port',$SerialPort) }
+    if ($Transport) { $configArgs += @('--transport',$Transport) }
+    if ($TcpHost) { $configArgs += @('--tcp-host',$TcpHost) }
+    if ($PSBoundParameters.ContainsKey('TcpPort')) { $configArgs += @('--tcp-port',[string]$TcpPort) }
+    if ($BleAddress) { $configArgs += @('--ble-address',$BleAddress) }
     if ($Channel) { $configArgs += @('--channel',$Channel) }
+    if ($ChannelsConfig) { $configArgs += @('--channels-config',$ChannelsConfig) }
     & $python (Join-Path $InstallRoot 'installers\configure.py') @configArgs
     if ($LASTEXITCODE -ne 0) { throw 'Configuration failed.' }
+    foreach ($folder in @('runtime','data')) {
+        & icacls.exe (Join-Path $StateRoot $folder) /grant '*S-1-5-19:(OI)(CI)M' /T /Q
+        if ($LASTEXITCODE -ne 0) { throw 'Could not grant runtime permissions.' }
+    }
     $env:PYTHONNOUSERSITE = '1'
     & $python (Join-Path $InstallRoot 'meshcore_mqtt_service_windows\service_runner.py') --config (Join-Path $StateRoot 'config.json') --state-dir (Join-Path $StateRoot 'runtime') --environment (Join-Path $StateRoot 'environment.json') --check
     if ($LASTEXITCODE -ne 0) { throw 'Service readiness check failed.' }
     if (-not $PrepareOnly) {
-        # Config/credentials: administrators can modify; LocalService can read.
-        & icacls.exe $StateRoot /inheritance:r /grant:r '*S-1-5-18:(OI)(CI)F' '*S-1-5-32-544:(OI)(CI)F' '*S-1-5-19:(OI)(CI)RX'
-        if ($LASTEXITCODE -ne 0) { throw 'Could not secure service settings.' }
-        foreach ($folder in @('runtime','data')) {
-            & icacls.exe (Join-Path $StateRoot $folder) /grant '*S-1-5-19:(OI)(CI)M' /T /Q
-            if ($LASTEXITCODE -ne 0) { throw 'Could not grant runtime permissions.' }
-        }
         # Explicit Windows argv quoting keeps spaces inside SCM's quoted executable path,
         # including when this script is invoked by Windows PowerShell 5.1.
         $verb = if (Get-Service MeshCoreEMS -ErrorAction SilentlyContinue) { 'config' } else { 'create' }
@@ -72,7 +102,7 @@ try {
         $scProcess = [System.Diagnostics.Process]::Start($scStart)
         $scProcess.WaitForExit()
         if ($scProcess.ExitCode -ne 0) { throw 'Windows service registration failed.' }
-        & sc.exe description MeshCoreEMS 'MeshCore EMS v0.2.0-alpha USB/MQTT responder'
+        & sc.exe description MeshCoreEMS 'MeshCore EMS v0.3.0-beta serial/BLE/TCP MQTT responder'
         & sc.exe failure MeshCoreEMS reset= 86400 actions= restart/15000/restart/30000/restart/60000
         if ($LASTEXITCODE -ne 0) { throw 'Service recovery setup failed.' }
         if (-not $NoStart) {
@@ -81,7 +111,7 @@ try {
             if ((Get-Service MeshCoreEMS).Status -ne 'Running') { throw 'Service stopped; inspect runtime\service.log and wrapper.log.' }
         }
     }
-    Write-Host 'MeshCore EMS v0.2.0-alpha installation prepared successfully.'
+    Write-Host 'MeshCore EMS v0.3.0-beta installation prepared successfully.'
     Write-Host "Configuration and data: $StateRoot"
 } finally {
     Stop-Transcript | Out-Null

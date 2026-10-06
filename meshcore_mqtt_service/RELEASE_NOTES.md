@@ -1,5 +1,15 @@
 # Linux service release notes
 
+## v0.3.0-beta
+
+- Supports USB serial, BLE, and TCP connections; TCP defaults to port 5000.
+- Uses shared connection settings for the bridge, CLI, and channel tools, with
+  bounded connection cleanup and periodic TCP health checks.
+- Includes multiple-channel assignments, private-channel controls, and external
+  Python programs. Installer upgrades preserve the selected connection.
+- Provides Windows x64 and Linux x86_64/ARM64 installers. Physical BLE/Wi-Fi
+  operation and Bluetooth access under service accounts remain unverified.
+
 ## v0.2.0-alpha
 
 ### Online OS service installers

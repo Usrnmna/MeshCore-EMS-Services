@@ -6,13 +6,16 @@ The launcher starts the local MQTT broker and MeshCore channel responder using
 this folder's existing run.ps1 and config.json. If the local Python environment
 is missing, the existing setup routine creates it (Python must be installed).
 
-Select the USB COM device once in the required MeshCore -S selector. Leave the
-console open; the service then continuously listens and responds on #autatestbot.
-Ctrl+C stops it. Run only one instance for the USB device.
+With serial_port: "auto", the service detects the single attached USB serial
+device at each start, even when its COM number changes. Leave the console open;
+the service listens and responds on assigned channels (default #autatestbot).
+Ctrl+C stops it. Run only one instance for the selected node.
 
 Keep Start-Service.exe in this folder with the other files. You can make a desktop
 shortcut to it. No administrator permission or activation command is needed.
-This does not register a Windows boot service or bypass the -S selector.
+This does not register a Windows boot service. If no USB device or multiple
+candidates are found, startup reports an error. Set serial_port to the intended
+fixed COM device when several USB serial devices are used.
 
 Optional diagnostics:
     Start-Service.exe --check
@@ -27,3 +30,16 @@ AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
 
 See README.md for all commands, including traffic, rivers, UV, flood warnings,
 flood alarms, and snowpack. Restart the service after changing config.json.
+
+See MULTI_CHANNEL_GUIDE.md to add Public, hashtag, or private channels, assign
+programs to them, manage private keys and MQTT export, and use channel_setup.py.
+Stop the bridge before channel setup; restart after configuration changes.
+
+RADIO CONNECTION
+USB serial remains the default. To use TCP, set config.json's connection to:
+    {"type": "tcp", "host": "192.168.1.50", "port": 5000}
+For BLE, pair in the OS first and set connection to:
+    {"type": "ble", "address": "AA:BB:CC:DD:EE:FF"}
+These are values for the connection object, not complete config files.
+See README.md for firmware, Bluetooth access, timeout, and service-account details.
+USB detection settings apply only when connection.type is serial.

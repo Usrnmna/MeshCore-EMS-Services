@@ -1,33 +1,20 @@
-"""Read-only end-to-end check. Selects the sole supported serial entry via -S.
+"""Read-only end-to-end check. Uses the configured serial, BLE, or TCP connection.
 
-Requires an idle USB companion radio and unused configured localhost port (1884 by default).
-Opens USB and localhost sockets and writes runtime state. Sends no over-the-air messages.
+Requires an idle compatible companion radio and unused configured localhost port (1884 by default).
+Opens the configured radio interface and localhost sockets and writes runtime state. Sends no over-the-air messages.
 """
+
 import asyncio
 import json
 import threading
 import uuid
-from unittest.mock import patch
 
 import paho.mqtt.client as mqtt
 import service
 
 
-class SelectOnlyCOM:
-    """Diagnostic selector for exactly one supported serial device; retained name also used in the Linux package."""
-    def __init__(self, **kwargs):
-        """Keep the choices supplied by the upstream device dialog."""
-        self.values = kwargs["values"]
-
-    async def run_async(self):
-        """Return the only discovered choice; raise if no device or multiple devices exist."""
-        if len(self.values) != 1:
-            raise RuntimeError("This check requires exactly one discovered COM device")
-        return self.values[0][0]
-
-
 async def check():
-    """Start a local broker and USB session, issue read-only infos, verify MQTT results, and clean up connections."""
+    """Start a local broker and radio session, issue read-only infos, verify MQTT results, and clean up connections."""
     cfg = json.loads((service.ROOT / "config.json").read_text())
     cfg["responder"] = {"enabled": False}  # This diagnostic must remain read-only.
     if cfg["mqtt"]["host"] != "127.0.0.1" or cfg["mqtt"]["tls"]:
@@ -58,12 +45,14 @@ async def check():
         client.loop_start()
         assert await asyncio.to_thread(ready.wait, 8), "MQTT subscription failed"
         task = asyncio.create_task(service.radio_mode(cfg))
-        assert await asyncio.to_thread(online.wait, 8), "Bridge not online"
+        assert await asyncio.to_thread(online.wait, 2 * cfg.get("connection", {}).get("timeout", 30) + 10), "Bridge not online"
         client.publish(prefix + "/command", json.dumps({"id": rid, "argv": ["infos"]}), qos=1)
         assert await asyncio.to_thread(done.wait, 12), "No command result received"
         assert results[0]["payload"]["status"] == "completed", results
         assert events, "No events received"
-        print("LIVE CHECK PASSED: radio events published; MQTT infos command executed and result received.")
+        print(
+            "LIVE CHECK PASSED: radio events published; MQTT infos command executed and result received."
+        )
         print("Event types:", sorted(set(events)))
     finally:
         if task:
@@ -76,5 +65,4 @@ async def check():
 
 if __name__ == "__main__":
     service.RUNTIME.mkdir(exist_ok=True)
-    with patch("prompt_toolkit.shortcuts.radiolist_dialog", SelectOnlyCOM):
-        asyncio.run(asyncio.wait_for(check(), 35))
+    asyncio.run(check())

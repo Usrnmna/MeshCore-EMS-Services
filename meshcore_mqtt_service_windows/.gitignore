@@ -2,4 +2,17 @@
 .venv-linux/
 runtime/
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Local service credentials, including private channel keys
+environment.json
+
+# Generated configuration and recovery state (also protect standalone copies)
+environment.json.tmp
+config.json.tmp
+config.before-install.json
+config.rollback.json
+backups/
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal

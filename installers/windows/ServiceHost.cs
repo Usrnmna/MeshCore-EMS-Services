@@ -5,8 +5,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 
-[assembly: AssemblyVersion("0.2.0.0")]
-[assembly: AssemblyFileVersion("0.2.0.0")]
+[assembly: AssemblyVersion("0.3.0.0")]
+[assembly: AssemblyFileVersion("0.3.0.0")]
+[assembly: AssemblyInformationalVersion("v0.3.0-beta")]
 internal sealed class MeshCoreService : ServiceBase
 {
     private Process child;
@@ -122,7 +123,7 @@ internal sealed class MeshCoreService : ServiceBase
     private static int Main(string[] args)
     {
         if (args.Length == 1 && args[0] == "--version")
-        { Console.WriteLine("MeshCore EMS Windows service host v0.2.0-alpha x64"); return 0; }
+        { Console.WriteLine("MeshCore EMS Windows service host v0.3.0-beta x64"); return 0; }
         ServiceBase.Run(new MeshCoreService());
         return 0;
     }

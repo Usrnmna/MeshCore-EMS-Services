@@ -1,34 +1,44 @@
-# v0.2.0-alpha installer validation
+# Installer and service validation
 
-Validation performed on September 24, 2026, using a Windows x64 build host and
-Ubuntu 24.04 x86_64 under WSL. No production service or radio was started.
+Validation for serial/BLE/TCP connections, multiple channels, and external programs was
+performed on October 4, 2026. No installed production service or radio was started.
 
 | Check | Result |
 | --- | --- |
-| Windows setup compilation with Inno Setup 6.7.3 | Passed |
-| Windows SCM host compilation as x64 .NET executable | Passed |
-| Both Linux archive builds, SHA-256 integrity and payload manifests | Passed |
-| Windows PowerShell and Linux shell syntax | Passed |
-| Linux systemd unit schema (executable substituted for non-installed path) | Passed |
-| Windows online preparation in isolated workspace directories | Passed: private Python 3.13.15 downloaded, checksum verified, dependencies installed, configuration/import check passed |
-| Linux dependency installation in isolated workspace venv | Passed on Python 3.12.3; pip dependency check passed |
-| Raspberry Pi baseline dependency resolution | Passed: Python 3.11 ARM64 wheels available; this is not execution on a Pi |
-| Both service suites on Windows | 114 tests passed per package |
-| Windows suite on freshly downloaded private runtime | 114 tests passed |
-| Linux service suite on Ubuntu x86_64 under WSL | 114 tests passed |
-| Satellite suite with Skyfield installed | 27 tests passed on Windows and Linux |
-| Installer preservation/inventory tests | 3 tests passed on Windows and Linux |
+| Windows package on Windows Python 3.13 | 158 tests passed |
+| Linux package on Ubuntu 24.04 x86_64 under WSL | 158 tests passed |
+| Installer migration/preservation tests on Windows | 13 tests passed |
+| Installer migration/preservation tests on Ubuntu under WSL | 13 tests passed |
+| Windows service environment dependency check | Passed |
+| Changed Python formatting | Black 25.1.0, 100-column formatting; syntax-tree equivalence checked |
 
-The lifecycle tests cover saved-port selection, input validation, restricted
-credential loading, graceful cancellation/cleanup, and propagation of a bridge
-failure to the service manager. Existing tests use mocked radio/weather responses,
-subprocesses, and loopback MQTT. Installer tests check that existing credentials,
-configuration, runtime data, and refreshed satellite databases survive an upgrade.
+Transport tests cover selected-interface validation, default TCP port 5000,
+legacy serial configurations, upgrade preservation and explicit transport
+switches, bounded connect/cancellation cleanup, serial DTR fallback, and shared
+bridge/CLI/channel-tool settings. A real loopback TCP server exercises the pinned
+MeshCore SDK with a fragmented companion handshake and remote disconnect.
+A simulated silent TCP link verifies that a failed periodic device check ends
+the bridge for service-manager recovery. BLE transport selection is simulated;
+no physical Bluetooth adapter or node was used.
 
-Not performed: administrator installation/uninstallation into Windows SCM;
-root installation into systemd; boot/reboot recovery; a real ARM64/Pi run; physical
-USB serial selection, four-hour live monitoring, or over-the-air delivery.
-Windows online preparation deliberately skipped service registration, ACL changes,
-and starting the service. Linux dependency/testing work used a workspace venv.
-The Windows setup executable is unsigned. SHA-256 checks detect changed artifacts
-but do not establish publisher identity without a trusted checksum distribution.
+Tests also cover USB serial autodetection and port renumbering without hardware,
+missing/ambiguous-device errors, fixed overrides, mixed public/private assignments,
+origin-channel replies, private
+MQTT export suppression, serialized radio operations, graceful shutdown with
+pending callbacks, name/key checks, empty-slot provisioning, atomic SQLite
+migration and retry, independent alarms, and duplicate handling after slot moves.
+Custom-program tests execute real temporary Python scripts and verify context,
+key exclusion, containment after symlink resolution, and upgrade preservation.
+Radio responses and external weather services are simulated. MQTT integration
+uses a real local broker on loopback; this does not establish radio delivery.
+
+The build procedure compiles the Windows setup executable and service host,
+creates both Linux installer payloads, and writes integrity manifests and SHA-256
+checksums. Artifact verification is separate from installing the OS services.
+
+Not performed: production Windows SCM or Linux systemd install/uninstall;
+boot/reboot recovery; a real ARM64/Pi execution; physical radio channel creation,
+USB/BLE/Wi-Fi operation, Bluetooth pairing/service-account permissions,
+over-the-air reception, or long-duration flood monitoring. The
+Windows installer is unsigned. Custom programs require operator review and must
+run with the dependencies available in the installed Python environment.

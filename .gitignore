@@ -17,3 +17,16 @@ archive/*.zip
 # SQLite transient files (keep the supplied reference database)
 *.sqlite3-wal
 *.sqlite3-shm
+*.sqlite3-journal
+
+# Local service credentials, including private channel keys
+environment.json
+
+# Installer-generated credentials, temporary settings, and recovery state
+environment.json.tmp
+config.json.tmp
+config.before-install.json
+config.rollback.json
+/backups/
+/meshcore_mqtt_service/backups/
+/meshcore_mqtt_service_windows/backups/

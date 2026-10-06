@@ -1,7 +1,7 @@
 [Unit]
-Description=MeshCore EMS Services v0.2.0-alpha
+Description=MeshCore EMS Services v0.3.0-beta
 Wants=network-online.target
-After=network-online.target
+After=network-online.target bluetooth.service
 StartLimitIntervalSec=0
 
 [Service]

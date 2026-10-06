@@ -4,6 +4,7 @@ Run from anywhere: python tools/package_services.py
 Shared implementations must agree; resolve differences before packaging rather
 than silently distributing two versions. Platform-specific files stay separate.
 """
+
 from pathlib import Path
 import json
 import zipfile
@@ -11,18 +12,38 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")
 COMMON = {
-    ".gitignore", "README.md", "RELEASE_NOTES.md", "START-HERE.txt",
-    "config.json", "requirements.txt", "service.py", "responder.py",
-    "flood_alarm.py", "check_live.py", "service_runner.py",
+    ".gitignore",
+    "README.md",
+    "RELEASE_NOTES.md",
+    "START-HERE.txt",
+    "config.json",
+    "requirements.txt",
+    "service.py",
+    "responder.py",
+    "flood_alarm.py",
+    "check_live.py",
+    "service_runner.py",
+    "channels.py",
+    "channel_setup.py",
+    "radio_connection.py",
+    "MULTI_CHANNEL_GUIDE.md",
 }
 PLATFORM = {
     PACKAGES[0]: {"Start-Service.sh", "setup.sh", "run.sh", "verify.sh"},
-    PACKAGES[1]: {"Start-Service.exe", "Start-Service.cs", "setup.cmd",
-                  "setup.ps1", "run.cmd", "run.ps1", "verify.cmd"},
+    PACKAGES[1]: {
+        "Start-Service.exe",
+        "Start-Service.cs",
+        "setup.cmd",
+        "setup.ps1",
+        "run.cmd",
+        "run.ps1",
+        "verify.cmd",
+    },
 }
 
 
 def package_files(name):
+    """Return the explicit distributable inventory; reject missing files or scripts."""
     base = ROOT / name
     files = [base / entry for entry in COMMON | PLATFORM[name]]
     files += sorted((base / "scripts").glob("*.py"))
@@ -40,13 +61,26 @@ def package_files(name):
 
 
 def main():
+    """Check paired sources, then atomically replace each validated standalone ZIP."""
     # Validate both packages before replacing either distribution.
     inventories = {name: package_files(name) for name in PACKAGES}
     left, right = (ROOT / name for name in PACKAGES)
-    shared = {"responder.py", "flood_alarm.py", "service_runner.py", "requirements.txt"}
-    shared |= {p.relative_to(ROOT / name).as_posix()
-               for name, files in inventories.items() for p in files
-               if p.parent.name in {"scripts", "tests"}}
+    shared = {
+        "responder.py",
+        "flood_alarm.py",
+        "service_runner.py",
+        "requirements.txt",
+        "channels.py",
+        "channel_setup.py",
+    "radio_connection.py",
+        "MULTI_CHANNEL_GUIDE.md",
+    }
+    shared |= {
+        p.relative_to(ROOT / name).as_posix()
+        for name, files in inventories.items()
+        for p in files
+        if p.parent.name in {"scripts", "tests"}
+    }
     # These tests deliberately exercise different serial ports/topic namespaces.
     shared -= {"tests/test_responder.py", "tests/test_mqtt_integration.py"}
     for relative in sorted(shared):

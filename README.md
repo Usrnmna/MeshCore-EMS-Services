@@ -1,32 +1,47 @@
 # MC-EMS-Services
 
-Python services that connect an MQTT broker to a USB MeshCore Companion Node and deliver concise, useful local weather, environmental, river, and highway information over a MeshCore channel.
+Python services that connect an MQTT broker to a MeshCore Companion Node over USB serial, Bluetooth LE, or Wi-Fi/TCP and deliver concise, useful local weather, environmental, river, and highway information over configured MeshCore channels.
 
 ## OS service installers
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
-include the complete workspace and reference data, and run with a saved serial port
+include the complete workspace and reference data, and connect to the configured companion node
 under Windows Services or systemd. See the [installation guide](INSTALL.md).
 
 Source-folder launchers support interactive operation.
 
+## Radio connections
+
+Select `serial`, `ble`, or `tcp` in `config.json`'s `connection.type`.
+USB serial auto detection remains the default, including for older configuration
+files. For TCP, use `"connection": {"type": "tcp", "host": "192.168.1.50", "port": 5000}`.
+For BLE, pair the node in the OS and use
+`"connection": {"type": "ble", "address": "AA:BB:CC:DD:EE:FF"}`.
+The node must expose the selected MeshCore companion interface. One connection
+is active at a time; MQTT settings and channel/program assignments stay the same.
+
+See the [Linux connection guide](meshcore_mqtt_service/README.md#radio-connection-settings)
+or [Windows connection guide](meshcore_mqtt_service_windows/README.md#radio-connection-settings)
+for timeouts, Bluetooth/service-account setup, metadata, and recovery behavior.
+The [installation guide](INSTALL.md) covers setup options and upgrade preservation.
+
 ## About
 
-MC-EMS-Services turns a MeshCore channel into a small command-driven information service. A user sends a supported command on the configured channel, the attached computer runs the matching Python lookup, and the result is returned to the same channel with the sender's name.
+MC-EMS-Services turns a MeshCore channel into a small command-driven information service. A user sends a supported command on a channel assigned to that program, the attached computer runs the matching Python lookup, and the result is returned to the same channel with the sender's name.
 
 ```text
 MeshCore user
     ↓ command over LoRa
-USB Companion Node
-    ↓ serial connection
+Companion Node
+    ↓ USB serial, BLE, or TCP connection
 Linux or Windows service
     ├─ runs the requested local Python program
     ├─ publishes radio events and commands through MQTT
     └─ sends a concise reply back to the same MeshCore channel
 ```
 
-The default channel is `#autatestbot`. The channel must already exist on the Companion Node.
+The default channel is `#autatestbot`. Add Public, hashtag, or private channels and assign each program to one or more of them using the [multi-channel changes and usage guide](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md). Configure channels on the radio before starting; the setup utility can explicitly provision empty slots. The guide also explains how to add Python programs after installation without rebuilding or rerunning the installer.
 
 ## Included service folders
 
@@ -100,10 +115,11 @@ Both platform packages contain the same service components:
 
 | Component | File | Purpose |
 | --- | --- | --- |
-| MeshCore/MQTT bridge | `service.py` | Owns the selected USB serial connection, publishes radio events, accepts restricted MQTT commands, and manages the durable event outbox. |
+| MeshCore/MQTT bridge | `service.py` | Owns the selected serial, BLE, or TCP connection, publishes radio events, accepts restricted MQTT commands, and manages the durable event outbox. |
+| Channel registry/setup | `channels.py`, `channel_setup.py` | Validates program assignments, verifies radio identities, controls MQTT export, and explicitly provisions empty slots. |
 | Channel responder | `responder.py` | Validates channel commands, records requests, runs approved scripts, and sends rate-limited replies to the requesting channel. |
 | Flood monitor | `flood_alarm.py` | Stores subscriptions, schedules checks, compares alert types, and expires monitoring after four hours. |
-| Installed service runner | `service_runner.py` | Runs unattended with a saved serial port, external settings, persistent state, and rotating logs. |
+| Installed service runner | `service_runner.py` | Runs unattended with a configured serial, BLE, or TCP connection, external settings, persistent state, and rotating logs. |
 | Air quality lookup | `scripts/airnow_aqi.py` | Finds the nearest AirNow PM2.5 monitor and formats current AQI information. |
 | Highway lookup | `scripts/highway_info.py` | Retrieves and compacts active Caltrans highway restrictions. |
 | River lookup | `scripts/nearby_river_stations.py` | Finds nearby CDEC river-stage stations using NOAA station coordinates. |
@@ -111,11 +127,11 @@ Both platform packages contain the same service components:
 | Flood-alert lookup | `scripts/flood_warn.py` | Resolves a US location and summarizes active NWS flash-flood warnings, flood warnings, advisories, and watches. |
 | Snowpack lookup | `scripts/snowpack.py` | Nearest CDEC hourly snow depth, NWS next-24h snowfall, station name, and distance. |
 | Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current UTC time. |
-| Configuration | `config.json` | Defines MQTT settings, the radio channel, commands, timeouts, cooldowns, and reply limits. |
+| Configuration | `config.json` | Defines MQTT settings, channel registry, program assignments, commands, timeouts, cooldowns, and reply limits. |
 
 ## MeshCore commands
 
-Send commands from another MeshCore node on `#autatestbot`.
+Send commands from another MeshCore node on a channel assigned to that command (default `#autatestbot`).
 
 | Command | Example | Result | Data source |
 | --- | --- | --- | --- |
@@ -135,10 +151,10 @@ AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, st
 
 ## Main features
 
-- USB serial connection to a MeshCore Companion Node through the interactive `-S` device selector.
+- Automatic detection of the single attached USB serial device at each start; an explicit port override supports systems with several USB serial devices.
 - Bundled local MQTT broker for operation without a separate broker installation.
 - Optional external MQTT broker with username/password environment variables and TLS support.
-- Radio events published as structured MQTT messages with available text, channel, timestamps, RSSI, SNR, paths, and other metadata.
+- Per-channel choices for exporting decoded radio events as structured MQTT messages with available text, channel, timestamps, RSSI, SNR, paths, and other metadata.
 - Same-channel replies prefixed with the saved sender name, such as `@Alice`.
 - Exact command matching, validated arguments, fixed script paths, execution timeouts, and no shell interpretation of received text.
 - Persistent SQLite request history, duplicate suppression, stale-message rejection, sender cooldowns, and bounded request queues.
@@ -158,21 +174,21 @@ export AIRNOW_API_KEY="YOUR_AIRNOW_API_KEY"  # only needed for !aqi
 bash Start-Service.sh
 ```
 
-Choose the attached `/dev/ttyACM*` or `/dev/ttyUSB*` device when prompted. Keep the terminal open while the service is running. If access is denied, add the user to the serial-device group used by the Linux distribution, commonly `dialout`, then sign in again.
+With the default `serial_port: "auto"`, attach one supported USB serial device; the service detects its current port on each start. Keep the terminal open while the service is running. If access is denied, add the user to the serial-device group used by the Linux distribution, commonly `dialout`, then sign in again.
 
 See the [Linux service README](meshcore_mqtt_service/README.md) for setup, operating modes, command details, and verification instructions.
 
 ### Windows x64
 
-Requirements: 64-bit Python 3.11 or newer and a USB-connected MeshCore Companion Node.
+Requirements: 64-bit Python 3.11 or newer and a reachable MeshCore Companion Node supporting the selected interface.
 
 1. Open the [Windows service folder instructions](meshcore_mqtt_service_windows/README.md).
 2. Run `setup.cmd` once on a new computer.
 3. Double-click `Start-Service.exe`.
-4. Select the attached COM device in the MeshCore `-S` selector.
+4. Attach one USB Companion Node; the default `serial_port: "auto"` detects its current COM port.
 5. Keep the console window open while the service is running.
 
-Set `AIRNOW_API_KEY` before starting the service if `!aqi` will be used. The interactive launcher prompts for a COM port with the default configuration, and administrator permission is normally unnecessary.
+Set `AIRNOW_API_KEY` before starting the service if `!aqi` will be used. The default configuration detects the USB serial port at each start; administrator permission is normally unnecessary. If several USB serial devices are attached, set `serial_port` to the intended port explicitly.
 
 See the [Windows service README](meshcore_mqtt_service_windows/README.md) for complete setup and diagnostic instructions.
 
@@ -186,9 +202,10 @@ See the [Windows service README](meshcore_mqtt_service_windows/README.md) for co
 | Python environment | `.venv-linux/` | `.venv/` |
 | Runtime database | `runtime/bridge.sqlite3` | `runtime/bridge.sqlite3` |
 | Default channel | `#autatestbot` | `#autatestbot` |
+| Serial port selection | `auto` | `auto` |
 | Serial speed | 115200 baud | 115200 baud |
 
-Edit the appropriate folder's `config.json` to change the channel, broker, topics, timeouts, cooldowns, reply limits, or command definitions. Restart the service after changing its configuration.
+Edit the appropriate folder's `config.json` to change channel definitions, program assignments, broker, topics, timeouts, cooldowns, reply limits, or command definitions. Restart the service after changing its configuration.
 
 ## MQTT interface
 
@@ -196,7 +213,7 @@ The service can be used as a MeshCore-to-MQTT bridge even when the automatic res
 
 | Topic suffix | Purpose |
 | --- | --- |
-| `events/<event_name>` | Radio events and available packet metadata. |
+| `events/<event_name>` | Channel events permitted by `mqtt_export` and allowed node/device telemetry; raw/unclassified and unknown-channel traffic is suppressed with a registry. |
 | `events/bot_reply` | Records an automatic reply accepted by the local radio. |
 | `command` | Accepts non-retained JSON MeshCore CLI requests. |
 | `results/<id>` | Returns MQTT command output and status. |
@@ -240,7 +257,7 @@ Both service folders include tests for:
 Automated tests use sample provider data and simulated radio events. They do not
 establish physical radio delivery, live four-hour monitoring, or installation and
 reboot behavior on target hardware. Follow the platform README for optional
-USB/MQTT diagnostics and the [installer validation guide](installers/VALIDATION.md)
+radio/MQTT diagnostics and the [installer validation guide](installers/VALIDATION.md)
 for installation checks.
 
 ## Dependencies
@@ -284,7 +301,7 @@ checks every 20 minutes, and sends tagged same-channel replies when the flood-al
 types change, including when they clear. Configured radio spacing applies.
 
 Monitoring stops four hours after the sender's last accepted `!floodalarm` call.
-Each new accepted `!floodalarm` overwrites that user's previous location and resets
+Each new accepted `!floodalarm` overwrites that user's previous location on that channel and resets
 the full four-hour limit. `!floodwarn` is a one-shot lookup and never modifies
 an alarm or its timer. Other commands do not renew the timer.
 Subscriptions persist in each package's `runtime/bridge.sqlite3`; restarting does

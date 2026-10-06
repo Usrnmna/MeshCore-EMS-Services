@@ -15,7 +15,6 @@
   "command_interval": 15,
   "responder": {
     "enabled": true,
-    "channel_name": "#autatestbot",
     "script_timeout": 20,
     "max_output_bytes": 65536,
     "max_reply_parts": 4,
@@ -25,25 +24,37 @@
     "commands": {
       "!status": {
         "script": "scripts/status.py",
-        "args": []
+        "args": [],
+        "channels": [
+          "default"
+        ]
       },
       "!time": {
         "script": "scripts/time_now.py",
-        "args": []
+        "args": [],
+        "channels": [
+          "default"
+        ]
       },
       "!aqi": {
         "script": "scripts/airnow_aqi.py",
         "args": [],
         "input": "coordinates",
         "timeout": 60,
-        "error_reply": "AirNow lookup unavailable. Check the service AIRNOW_API_KEY setting or try again later."
+        "error_reply": "AirNow lookup unavailable. Check the service AIRNOW_API_KEY setting or try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!traffic": {
         "script": "scripts/highway_info.py",
         "args": [],
         "input": "route_number",
         "timeout": 30,
-        "error_reply": "Caltrans traffic lookup unavailable. Please try again later."
+        "error_reply": "Caltrans traffic lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!rivers": {
         "script": "scripts/nearby_river_stations.py",
@@ -55,14 +66,20 @@
         "input": "coordinates",
         "coordinate_style": "options",
         "timeout": 40,
-        "error_reply": "River station lookup unavailable. Please try again later."
+        "error_reply": "River station lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!uv": {
         "script": "scripts/uv_index.py",
         "args": [],
         "input": "location",
         "timeout": 35,
-        "error_reply": "UV lookup unavailable. Please try again later."
+        "error_reply": "UV lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!floodwarn": {
         "script": "scripts/flood_warn.py",
@@ -70,21 +87,43 @@
         "input": "location",
         "timeout": 45,
         "max_reply_parts": 12,
-        "error_reply": "Flood alert lookup unavailable. Please try again later."
+        "error_reply": "Flood alert lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!snowpack": {
         "script": "scripts/snowpack.py",
         "args": [],
         "input": "location",
         "timeout": 65,
-        "error_reply": "Snowpack lookup unavailable. Please try again later."
+        "error_reply": "Snowpack lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       },
       "!floodalarm": {
         "script": "scripts/flood_warn.py",
         "args": [],
         "input": "location",
-        "max_reply_parts": 12
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
       }
-    }
+    },
+    "channels": {
+      "default": {
+        "name": "#autatestbot",
+        "type": "hashtag",
+        "mqtt_export": true
+      }
+    },
+    "max_pending_per_channel": 20
+  },
+  "serial_port": "auto",
+  "connection": {
+    "type": "serial",
+    "timeout": 30
   }
 }

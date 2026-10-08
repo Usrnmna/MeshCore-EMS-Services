@@ -51,7 +51,7 @@ use different channels even though they share the flood lookup script.
 
 The following is a complete **installer import file**, for example
 `channels.json`. It is an overlay, not a replacement for the service's entire
-`config.json`. It supplies assignments for all nine bundled commands and preserves
+`config.json`. It supplies assignments for all ten bundled commands and preserves
 their scripts, arguments, input validation, timeouts, and reply settings.
 
 ```json
@@ -73,6 +73,7 @@ their scripts, arguments, input validation, timeouts, and reply settings.
     "!traffic": ["community", "operations"],
     "!rivers": ["community", "operations"],
     "!uv": ["community", "operations"],
+    "!heatadv": ["community", "operations"],
     "!floodwarn": ["community", "operations"],
     "!floodalarm": ["operations"],
     "!snowpack": []

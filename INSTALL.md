@@ -1,13 +1,51 @@
 # Install MeshCore EMS v0.3.0-beta as an OS service
 
 These **online installers** include the complete maintained workspace: both
-platform source packages, all nine responder commands, tests and documentation,
+platform source packages, bundled responder commands, tests and documentation,
 the standalone satellite catalog, EBMUD GeoJSON, and the supplied satellite
 database/source snapshots. They automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
 ZIPs are excluded. The catalog and GIS data remain reference tools, not new radio
 commands or automatically scheduled refresh jobs.
+
+## Heat command source update
+
+Current source contains ten commands, including `!heatadv`. Rebuilt installers
+and service ZIPs include this command and the component function references. Older
+copies with the same version name can predate these additions; verify the supplied
+checksums and payload manifest when distributing a build. No new Python dependency
+or API key is required.
+
+For an existing installation, stop the service, back up its active configuration,
+and copy `scripts/heat_adv.py` from the appropriate platform source into the active
+service package's `scripts/` directory, beside `uv_index.py`. Merge the `!heatadv`
+entry from the source `config.json` into the active `responder.commands` object:
+
+```json
+"!heatadv": {
+  "script": "scripts/heat_adv.py",
+  "args": [],
+  "input": "location",
+  "timeout": 45,
+  "max_reply_parts": 12,
+  "error_reply": "Heat alert lookup unavailable. Please try again later.",
+  "channels": ["default"]
+}
+```
+
+Replace `default` with the intended existing channel IDs if your registry differs;
+do not replace the entire configuration. Restart after the change. The platform
+heat guides describe [Linux usage](meshcore_mqtt_service/README.md#heat-alerts-heatadv)
+and [Windows usage](meshcore_mqtt_service_windows/README.md#heat-alerts-heatadv).
+Installer upgrades preserve existing program assignments and disable newly added
+programs when an existing channel registry is retained, until channels are
+explicitly assigned. Rebuilding an installer alone does not enable a new command
+on an existing custom registry.
+
+The [Python function reference](tools/FUNCTION_REFERENCE.md) explains installer
+configuration, migration, and build functions. It distinguishes disk writes,
+backups, and validation from radio/service operations.
 
 ## Choose an installer
 

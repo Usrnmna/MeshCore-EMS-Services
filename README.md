@@ -53,6 +53,16 @@ The default channel is `#autatestbot`. Add Public, hashtag, or private channels 
 
 The Linux and Windows folders are self-contained. Each uses its own virtual environment, configuration, MQTT namespace, and SQLite request database.
 
+## Python function documentation
+
+Every maintained application function, including methods and nested callbacks,
+is described in the component references. Test helpers are excluded.
+
+- [Linux service and commands](meshcore_mqtt_service/FUNCTION_REFERENCE.md)
+- [Windows service and commands](meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md)
+- [Satellite catalog, sources, and exports](satellite_database/FUNCTION_REFERENCE.md)
+- [Installer configuration and packaging tools](tools/FUNCTION_REFERENCE.md)
+
 ## Workspace organization
 
 | Location | Contents |
@@ -90,6 +100,15 @@ python tools/package_services.py
 This replaces the two ZIPs under `dist/` and excludes environments, runtime state,
 bytecode, and historical backups. The ZIPs include their own tests and documentation.
 
+## Workspace ignore policy
+
+The root `.gitignore` excludes local environments, service runtime state, Python
+bytecode/tool caches, coverage reports, build/distribution directories, credentials,
+recovery backups, and interrupted satellite export/cache writes. Source Python,
+configuration templates, tests, function references, reference SQLite/JSON/CSV data,
+and retained raw source receipts remain trackable. Ignore rules do not remove
+files that Git already tracks, including previously committed distribution files.
+
 ## Local GIS reference data
 
 The project includes raw EBMUD GeoJSON snapshots in [`data/ebmud/`](data/ebmud/README.md):
@@ -124,6 +143,7 @@ Both platform packages contain the same service components:
 | Highway lookup | `scripts/highway_info.py` | Retrieves and compacts active Caltrans highway restrictions. |
 | River lookup | `scripts/nearby_river_stations.py` | Finds nearby CDEC river-stage stations using NOAA station coordinates. |
 | UV lookup | `scripts/uv_index.py` | Resolves coordinates, ZIP codes, or city/state text and reports the current UV index. |
+| Heat-alert lookup | `scripts/heat_adv.py` | Reports each active NWS extreme heat warning, watch, and heat advisory for a US location. |
 | Flood-alert lookup | `scripts/flood_warn.py` | Resolves a US location and summarizes active NWS flash-flood warnings, flood warnings, advisories, and watches. |
 | Snowpack lookup | `scripts/snowpack.py` | Nearest CDEC hourly snow depth, NWS next-24h snowfall, station name, and distance. |
 | Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current UTC time. |
@@ -141,13 +161,16 @@ Send commands from another MeshCore node on a channel assigned to that command (
 | `!traffic` | `!traffic 80` | Compact active California highway restrictions for route 1–999. | Caltrans |
 | `!rivers` | `!rivers 39.0000, -121.0000` | Nearby river stations within 15 miles, including stage, report time, action stage, and flood stage. | CDEC and NOAA |
 | `!uv` | `!uv Sacramento` | Current UV index and risk level for coordinates, a US ZIP code, or a city and state. | CurrentUVIndex.com plus location lookup |
+| `!heatadv` | `!heatadv Sacramento` | Active heat warnings, watches, and advisories; reports every applicable type. | NWS API plus location lookup |
 | `!floodwarn` | `!floodwarn Sacramento` | Active flash flood warnings, flood warnings, advisories, and watches with colored squares. | NWS API, the alert source used by FlashFloodWarn |
 | `!floodalarm` | `!floodalarm Sacramento` | Acknowledges immediately; checks every 20 minutes and reports changes for up to four hours. | Same NWS flood source |
 | `!snowpack` | `!snowpack Truckee` | Snow depth and next-24h snowfall in inches, with nearest station and miles. Accepts California GPS, ZIP, or city. | CDEC and NWS |
 
-Examples of accepted UV and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!floodwarn`. City names without a state default to California.
+Examples of accepted UV, heat-alert, and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!heatadv` and `!floodwarn`. City names without a state default to California.
 
-AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
+`!heatadv` preserves the supplied location in its reply: `There is no Heat Advisories for <location>`, `Advisory: Extreme Heat Warning for <location>`, `Advisory: Extreme Heat Watch for <location>`, or `Heat Advisory for <location>`. Multiple active types are all reported; lookup failures produce an error rather than a no-advisories result. See the [Linux heat guide](meshcore_mqtt_service/README.md#heat-alerts-heatadv) or [Windows heat guide](meshcore_mqtt_service_windows/README.md#heat-alerts-heatadv) for standalone usage, location limitations, and updating an existing service.
+
+AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, heat-alert, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
 
 ## Main features
 

@@ -24,7 +24,7 @@ Run bash verify.sh after setup to run the tests in tests/.
 AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
 !aqi LATITUDE LONGITUDE or !aqi LATITUDE, LONGITUDE on #autatestbot.
 
-See README.md for all commands, including traffic, rivers, UV, flood warnings,
+See README.md for all commands, including traffic, rivers, UV, heat advisories, flood warnings,
 flood alarms, and snowpack. Restart the service after changing config.json.
 
 See MULTI_CHANNEL_GUIDE.md to add Public, hashtag, or private channels, assign
@@ -39,3 +39,5 @@ For BLE, pair in the OS first and set connection to:
 These are values for the connection object, not complete config files.
 See README.md for firmware, Bluetooth access, timeout, and service-account details.
 USB detection settings apply only when connection.type is serial.
+
+FUNCTION_REFERENCE.md explains every maintained service Python function.

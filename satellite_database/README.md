@@ -257,3 +257,9 @@ Tests cover independent capability states, failure requirements, stale and
 conflicting reports, retirement exclusion/pruning, update preservation, cache
 integrity, pagination, scope classification and exports. Software tests and source
 downloads do not demonstrate satellite reception.
+
+## Python function reference
+
+[FUNCTION_REFERENCE.md](FUNCTION_REFERENCE.md) explains every function and method
+in `catalog.py`, `reports.py`, `sources.py`, and `satellite_db.py`, including
+cache writes, SQLite transactions, exports, and command exit statuses.

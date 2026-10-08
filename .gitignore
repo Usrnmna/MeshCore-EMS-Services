@@ -5,6 +5,18 @@ runtime/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# Local test coverage reports; keep test source and fixtures trackable.
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Local environment files; retain the distributable example.
 .env
 .env.*
 !.env.example
@@ -27,6 +39,12 @@ environment.json.tmp
 config.json.tmp
 config.before-install.json
 config.rollback.json
+satellite-settings.json.tmp
 /backups/
 /meshcore_mqtt_service/backups/
 /meshcore_mqtt_service_windows/backups/
+
+# Interrupted satellite export/cache writes; retain reference data and raw receipts.
+/data/satellites/*.json.tmp
+/data/satellites/*.csv.tmp
+/data/satellites/raw/*.tmp

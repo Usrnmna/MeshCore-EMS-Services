@@ -112,12 +112,13 @@ command continues to list USB serial devices only.
 | `!traffic` | California route number 1–999 | Active Caltrans highway restrictions |
 | `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
 | `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
+| `!heatadv` | Coordinates, US ZIP, or city and state | Active NWS heat warnings, watches, and advisories |
 | `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
 | `!floodalarm` | Coordinates, US ZIP, or city and state | Monitor flood-alert changes for four hours |
 | `!snowpack` | California coordinates, ZIP, or city | Nearest-station snow depth and next-24h snowfall |
 
 `!aqi` requires `AIRNOW_API_KEY`. The other included commands require no API
-key. AQI, traffic, river, UV, flood-alert, and snowpack lookups require internet access.
+key. AQI, traffic, river, UV, heat-alert, flood-alert, and snowpack lookups require internet access.
 Detailed input formats, sources, responses, and limitations are documented below.
 
 ## Start
@@ -230,7 +231,7 @@ MESHCORE_CHANNEL, MESHCORE_CHANNEL_ID, MESHCORE_CHANNEL_INDEX, MESHCORE_PHRASE a
 
 Newlines in stdout become spaces. Replies are split into at most four 150-byte parts
 by default, each starting with @name. A command may set a higher limit;
-`!floodwarn` and `!floodalarm` allow 12 parts. Excess output ends with `...`. Scripts default to a
+`!heatadv`, `!floodwarn`, and `!floodalarm` allow 12 parts. Excess output ends with `...`. Scripts default to a
 20-second timeout and 65536-byte output limit. Errors produce short tagged replies;
 stderr diagnostics are saved locally. Scripts should finish in the foreground;
 Windows timeout handling terminates the script process, not arbitrary detached children.
@@ -439,6 +440,84 @@ and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
 Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
+
+## Heat alerts: !heatadv
+
+The [heat function reference](FUNCTION_REFERENCE.md#scripts-heat-adv-py) explains
+all seven lookup functions, their inputs, outputs, and failure behavior. The
+[complete service function reference](FUNCTION_REFERENCE.md) also covers the
+bridge, responder, channels, transport, service runner, and other lookup scripts.
+
+Send on a channel assigned to this command (default `#autatestbot`):
+
+```text
+!heatadv 38.5816, -121.4944
+!heatadv 38.5816 -121.4944
+!heatadv 95814
+!heatadv Sacramento
+!heatadv Reno NV
+!heatadv Reno, Nevada
+!heatadv Albany New York
+```
+
+Cities without a state are looked up in California only. For another state, put
+its two-letter abbreviation or full name after the town/city, with an optional
+comma. ZIP+4 is accepted and resolved using its first five digits. Replies retain
+the supplied location spelling and format, apart from collapsing extra whitespace.
+A city or ZIP is checked at its representative coordinate; use GPS for a precise
+point rather than a city/ZIP-wide result.
+
+The standalone program prints these exact reply bodies, depending on the result:
+
+```text
+There is no Heat Advisories for <location>
+Advisory: Extreme Heat Warning for <location>
+Advisory: Extreme Heat Watch for <location>
+Heat Advisory for <location>
+```
+
+When multiple types apply, every distinct type is included in the listed order:
+warning, watch, advisory. The script prints one line per type; the responder joins
+lines with spaces, prefixes each message with `@<sender>`, and replies on the
+requesting channel. Up to 12 parts preserve combined results and long location
+names. This command performs one lookup per request.
+
+[`scripts/heat_adv.py`](scripts/heat_adv.py) uses the
+[NWS API](https://www.weather.gov/documentation/services-web-api): first
+`/points/{latitude},{longitude}` to verify coverage, then
+`/alerts/active?point=LAT,LON&status=actual` for alerts applying to that point.
+Expired, ended, cancelled, test, and not-yet-effective alerts are excluded.
+An effective watch counts even when its heat event starts in the future.
+Older `Excessive Heat Warning/Watch` names are accepted and displayed as
+`Extreme Heat Warning/Watch`, matching the
+[NWS naming change](https://www.weather.gov/news/250310-heat-hazard).
+Network failures, malformed/incomplete replies, and unverified coverage produce
+an error message, never the no-advisories reply.
+
+City/ZIP coordinates come from [Open-Meteo](https://open-meteo.com/en/docs/geocoding-api)
+/ GeoNames with exact city/state or ZIP matching. The free geocoder is for
+non-commercial use. GPS bypasses geocoding. Internet access is required; no API key
+or new Python dependency is needed. Requests have a 12-second timeout each;
+`config.json` allows 45 seconds for the entire command. Timeouts, URLs, event
+aliases, and reply templates are grouped at the top of `heat_adv.py`.
+
+Run directly from this folder:
+
+```console
+python scripts/heat_adv.py Sacramento
+python scripts/heat_adv.py 95814
+python scripts/heat_adv.py "Reno NV"
+python scripts/heat_adv.py "38.5816, -121.4944"
+python -m unittest discover -s tests -p "test_heatadv.py"
+```
+
+Keep `scripts/uv_index.py` alongside `scripts/heat_adv.py`; it supplies the location
+parser. To update an existing service, copy the script into its active `scripts/`
+directory and merge the `!heatadv` entry from this package's `config.json` into the
+active configuration. Set its `channels` list to the intended existing channel IDs
+(`default` in the supplied configuration), then restart the service. Preserve the
+other settings. Generated ZIPs/installers need rebuilding to include source edits;
+editing this source folder does not update an already installed service.
 
 ## Flood alerts: !floodwarn
 

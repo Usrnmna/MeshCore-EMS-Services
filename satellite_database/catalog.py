@@ -17,10 +17,12 @@ def has_term(text, term):
 
 
 def has_any(text, terms):
+    """Return whether text contains any supplied whole term, case-insensitively; no external I/O."""
     return any(has_term(text, term) for term in terms)
 
 
 def positive_number(value):
+    """Convert a value to a positive finite float, or return None for invalid, zero, or negative input."""
     try:
         value = float(value)
         return value if value > 0 and value < float("inf") else None
@@ -117,6 +119,7 @@ def normalize_operation(tx, sat_key, scopes, reason, source_url, fetched_at):
 
 
 def frequency_band(hz):
+    """Map a frequency in Hz to HF, VHF, UHF, SHF, or EHF; return None for missing input or a label outside those bands."""
     if hz is None:
         return None
     for lower, upper, name in [(3e6, 30e6, "HF"), (30e6, 300e6, "VHF"), (300e6, 3e9, "UHF"), (3e9, 30e9, "SHF"), (30e9, 300e9, "EHF")]:

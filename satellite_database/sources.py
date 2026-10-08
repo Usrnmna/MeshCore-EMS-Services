@@ -10,6 +10,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 def utc_now():
+    """Return the current timezone-aware UTC time as an ISO-8601 string."""
     return datetime.now(timezone.utc).isoformat()
 
 
@@ -24,6 +25,7 @@ def parse_time(value):
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
+        """Reject an HTTP redirect with HTTPError so an operator reviews the configured source URL before following it."""
         raise HTTPError(req.full_url, code, "Redirect: review the configured URL", headers, fp)
 
 
@@ -31,6 +33,7 @@ class SourceReader:
     """Cache by URL, keep acquisition time, and fail instead of hiding HTTP errors."""
 
     def __init__(self, directory, settings, offline=False):
+        """Create the cache directory and retain settings/offline mode; initialize acquisition receipts without fetching data."""
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
         self.settings = settings
@@ -38,6 +41,13 @@ class SourceReader:
         self.receipts = []
 
     def read(self, url, cache_hours=None):
+        """Return (body_bytes, metadata) for an HTTPS URL from a checksum-verified cache or bounded download.
+
+        Offline mode requires a cached response. Online cache age uses cache_hours
+        or the configured default. Successful downloads replace the body through a
+        temporary file and write metadata; every successful read records a receipt.
+        Network, redirect, size, and integrity failures propagate to the caller.
+        """
         if urlparse(url).scheme != "https":
             raise ValueError("Sources must use HTTPS: " + url)
         key = hashlib.sha256(url.encode()).hexdigest()

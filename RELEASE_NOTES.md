@@ -1,5 +1,18 @@
 # Release notes
 
+## Current source and rebuilt distributions
+
+- Adds `!heatadv` to both service packages, bringing current source defaults to
+  ten commands. Accepts GPS, US ZIP/ZIP+4, and city/state input; bare cities default
+  to California. Preserves supplied location text and the requested reply wording.
+- Reports every distinct active NWS heat warning, watch, and advisory. Confirms
+  coverage first; failed, malformed, or incomplete lookups produce errors.
+- Documents every maintained application function in component references and
+  adds missing satellite-tool docstrings without changing executable behavior.
+- Rebuilt service ZIPs and Windows x64/Linux x86_64/ARM64 installers include
+  the command and function references. See [the installation guide](INSTALL.md#heat-command-source-update)
+  for updating an existing service and setting explicit channel assignments.
+
 ## v0.3.0-beta
 
 - Supports USB serial, BLE, and TCP connections; TCP defaults to port 5000.

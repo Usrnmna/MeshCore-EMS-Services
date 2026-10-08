@@ -1,5 +1,18 @@
 # Windows service release notes
 
+## Current source and rebuilt distributions
+
+- Added `!heatadv` for GPS coordinates, US ZIP codes, and city/state input, with
+  California as the city default. Reports each active NWS heat warning, watch,
+  and advisory using the requested wording and supplied location text.
+- Confirms NWS coverage before reporting no advisories; unavailable or invalid
+  data produces an error. Includes paired command registration, offline tests,
+  and usage documentation. Rebuilt ZIPs and installers include this change;
+  merge the active command/channel configuration and restart after upgrading.
+
+- Added [FUNCTION_REFERENCE.md](FUNCTION_REFERENCE.md) for every maintained
+  service function, method, and nested callback; test helpers are excluded.
+
 ## v0.3.0-beta
 
 - Supports USB serial, BLE, and TCP connections; TCP defaults to port 5000.

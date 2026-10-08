@@ -1,5 +1,44 @@
 # Installer and service validation
 
+## Documentation and heat-command rebuild checks
+
+Checks on October 7, 2026 used Windows Python 3.13:
+
+| Check | Result |
+| --- | --- |
+| Linux service source package on Windows | 176 tests passed |
+| Windows service source package on Windows | 176 tests passed |
+| Installer configuration and packaging suite | 13 tests passed |
+| Satellite suite | 26 passed; 1 optional Skyfield test skipped because Skyfield is absent in this test environment |
+| Application function documentation | 372 definitions covered, including methods and nested callbacks; test helpers excluded |
+| Added satellite docstrings | 20 additions; executable syntax trees unchanged |
+| Local documentation links and anchors | 169 checked |
+| Ignore policy | 12 generated/local paths excluded; 13 source/reference paths retained |
+
+The service ZIP inventory includes each package's `FUNCTION_REFERENCE.md` and
+`!heatadv` source/tests/configuration. Installer inventories include those files
+plus the satellite and packaging function references. Build outputs retain version
+`v0.3.0-beta`; their SHA-256 files identify this particular rebuild. Artifact
+validation must compare payload manifests and file bytes with the current source,
+check the service ZIPs and combined bundle, and verify the x64 Windows service
+wrapper. Building or inspecting these artifacts does not install or start a service.
+
+## Heat command source validation
+
+The `!heatadv` implementation was checked on October 6, 2026, using Windows
+Python 3.13. Each platform source package passed 176 tests, including 18 heat
+command tests; the installer suite passed 13 tests. Real subprocess tests cover
+sender tags, origin-channel replies, and all three heat alert types. Live city,
+ZIP, GPS, state-abbreviation, and full-state-name lookups exercised advisory and
+no-advisory replies. Warning/watch combinations and error cases used fixtures.
+These checks did not rebuild installers or verify native Linux execution,
+installed-service activation, or physical radio delivery for this addition.
+
+The earlier transport validation below describes its own dated source/build;
+it is not evidence that `!heatadv` was included in those installer artifacts.
+
+## Transport and multi-channel validation
+
 Validation for serial/BLE/TCP connections, multiple channels, and external programs was
 performed on October 4, 2026. No installed production service or radio was started.
 

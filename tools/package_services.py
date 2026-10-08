@@ -14,6 +14,7 @@ PACKAGES = ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")
 COMMON = {
     ".gitignore",
     "README.md",
+    "FUNCTION_REFERENCE.md",
     "RELEASE_NOTES.md",
     "START-HERE.txt",
     "config.json",

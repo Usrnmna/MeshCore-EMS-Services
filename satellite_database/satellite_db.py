@@ -24,14 +24,17 @@ STATUSES = ("active", "inactive", "scheduled_off", "unknown")
 
 
 def dumps(value):
+    """Serialize a JSON-compatible value with sorted keys and Unicode preserved; return the string without writing a file."""
     return json.dumps(value, ensure_ascii=False, sort_keys=True)
 
 
 def read_json(path):
+    """Read a UTF-8 JSON file, allowing a BOM, and return the decoded value; propagate file and JSON errors."""
     return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
 def settings_from(path):
+    """Load settings, resolve database/cache/export paths relative to the settings file, and reject nonpositive tuning values."""
     path = Path(path).resolve()
     settings = read_json(path)
     for key in ("database", "cache_directory", "export_directory"):
@@ -44,6 +47,12 @@ def settings_from(path):
 
 
 def connect(settings, create=False):
+    """Open the configured SQLite database with row objects and foreign keys enabled; the caller must close it.
+
+    Without create, reject a missing database. With create, initialize schema
+    version 1 or reject an unsupported version. Create the parent directory if
+    needed; schema initialization writes to disk.
+    """
     path = settings["database"]
     if not create and not path.exists():
         raise ValueError("Database not found. Run the refresh command first.")
@@ -62,10 +71,12 @@ def connect(settings, create=False):
 
 
 def receipt_time(reader, url):
+    """Return fetched_at from the latest recorded receipt for a URL; raise StopIteration if the reader has no matching receipt."""
     return next(r["fetched_at"] for r in reversed(reader.receipts) if r["url"] == url)
 
 
 def as_norad(value):
+    """Convert a value with int() and return a positive NORAD identifier, or None for invalid or nonpositive input."""
     try:
         result = int(value)
         return result if result > 0 else None
@@ -202,6 +213,7 @@ def validate_observation(observation, operation_ids):
 
 
 def save_observation(db, observation):
+    """Copy an already validated observation, normalize its time to UTC, and insert it idempotently using a content hash. The caller owns the transaction and commit."""
     observation = dict(observation)
     observation["observed_at"] = parse_time(observation["observed_at"]).astimezone(timezone.utc).isoformat()
     key = hashlib.sha256(dumps(observation).encode()).hexdigest()
@@ -241,6 +253,13 @@ def fetch_orbits(reader, satellites, settings, warnings, use_celestrak):
 
 
 def refresh(settings, args):
+    """Read required feeds, apply corrections and retirement policy, and commit the resulting catalog and evidence to SQLite.
+
+    Use cached responses in offline mode; required-feed or override failures
+    stop before catalog mutation. Optional report/orbit failures become warnings.
+    Write cache files, exports, coverage data, and a printed JSON report. Return
+    0 without warnings or 2 when optional-source warnings remain.
+    """
     reader = SourceReader(settings["cache_directory"], settings, args.offline)
     feeds = settings["sources"]
     print("Reading satellite identities, radio capabilities and AMSAT references...", file=sys.stderr)
@@ -370,6 +389,7 @@ def operation_rows(db, settings, satellite=None, scope=None, status=None):
 
 
 def find_satellites(db, query):
+    """Return matching satellite IDs from names, aliases, stable IDs, or NORAD IDs, preferring exact over substring matches; raise ValueError when none match."""
     exact, partial = [], []
     for row in db.execute("SELECT * FROM satellites"):
         sat = json.loads(row["data_json"])
@@ -385,12 +405,19 @@ def find_satellites(db, query):
 
 
 def atomic_json(path, value):
+    """Write a JSON value as indented UTF-8 through an adjacent .tmp file, then replace the destination; the parent directory must exist."""
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     temporary.replace(path)
 
 
 def export_database(db, settings):
+    """Write satellites.json, operations.csv, and coverage.json snapshots from SQLite into the configured export directory.
+
+    Evaluate operation freshness at export time, escape spreadsheet formula
+    prefixes, and replace each output through a temporary file. Create the
+    directory if needed; do not fetch sources or modify the database.
+    """
     directory = settings["export_directory"]
     directory.mkdir(parents=True, exist_ok=True)
     satellites = [json.loads(row[0]) for row in db.execute("SELECT data_json FROM satellites ORDER BY name")]
@@ -427,6 +454,13 @@ def export_database(db, settings):
 
 
 def position(db, settings, args):
+    """Print a Skyfield orbital prediction and observer pointing from stored elements and the requested coordinates/time.
+
+    Require one satellite match, valid observer coordinates/altitude, and
+    elements within the configured age limit. Return None; raise ValueError
+    for unsupported inputs, missing Skyfield, stale elements, or propagation
+    failure. No refresh or radio operation occurs.
+    """
     if not (-90 <= args.latitude <= 90 and -180 <= args.longitude <= 180):
         raise ValueError("Latitude/longitude out of range")
     if not (-500 <= args.altitude <= 100000):
@@ -475,6 +509,13 @@ def position(db, settings, args):
 
 
 def main(argv=None):
+    """Parse CLI arguments, dispatch the selected catalog command, print results/errors, and close any opened database.
+
+    Refresh, observation import, summary, and export can write local data;
+    list, show, and position read the catalog. Return 0 on success, 1 for
+    handled errors, or refresh status 2 for optional-source warnings. Argparse
+    handles invalid command syntax separately.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--settings", default=str(HERE / "settings.json"))
     sub = parser.add_subparsers(dest="command", required=True)

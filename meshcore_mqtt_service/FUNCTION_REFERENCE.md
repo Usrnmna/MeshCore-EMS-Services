@@ -1,6 +1,7 @@
 # Service Python function reference
 
 See [the service guide](README.md) for setup and commands.
+The lightning command is documented under [scripts/lightning.py](#scripts-lightning-py).
 The heat command is documented under [scripts/heat_adv.py](#scripts-heat-adv-py).
 
 This reference covers functions defined in maintained application files, including
@@ -12,6 +13,15 @@ that a live service, device, or provider was tested.
 
 ## Modules
 
+- [scripts/trail.py](#scripts-trail-py)
+- [scripts/rec.py](#scripts-rec-py)
+- [scripts/peak.py](#scripts-peak-py)
+- [scripts/park.py](#scripts-park-py)
+- [scripts/boundary.py](#scripts-boundary-py)
+- [scripts/floodalarm.py](#scripts-floodalarm-py)
+- [scripts/gis_lookup.py](#scripts-gis-lookup-py)
+- [scripts/gis_spatial.py](#scripts-gis-spatial-py)
+- [scripts/gis_data.py](#scripts-gis-data-py)
 - [channel_setup.py](#channel-setup-py)
 - [channels.py](#channels-py)
 - [check_live.py](#check-live-py)
@@ -23,10 +33,12 @@ that a live service, device, or provider was tested.
 - [scripts/airnow_aqi.py](#scripts-airnow-aqi-py)
 - [scripts/flood_warn.py](#scripts-flood-warn-py)
 - [scripts/heat_adv.py](#scripts-heat-adv-py)
+- [scripts/lightning.py](#scripts-lightning-py)
 - [scripts/highway_info.py](#scripts-highway-info-py)
 - [scripts/nearby_river_stations.py](#scripts-nearby-river-stations-py)
 - [scripts/snowpack.py](#scripts-snowpack-py)
 - [scripts/status.py](#scripts-status-py)
+- [scripts/time_settings.py](#scripts-time-settings-py)
 - [scripts/time_now.py](#scripts-time-now-py)
 - [scripts/uv_index.py](#scripts-uv-index-py)
 
@@ -126,12 +138,12 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 
 | Function signature | Purpose and behavior |
 | --- | --- |
-| `validate_config(config, root)` | Validate enabled responder settings and script paths; return None or raise before processing messages. |
-| `match_command(phrase, commands)` | Return (command, arguments, input_error), or None for unknown text; validate inputs without running scripts. |
+| `validate_config(config, root)` | Validate the shared IANA timezone, enabled responder settings, and script paths; return None or raise before processing messages. |
+| `match_command(phrase, commands)` | Return (command, arguments, input_error), or None for unknown text; validate inputs without running scripts. GIS queries use parse_query and become one subprocess argument; radius/projection settings are checked during lookup. |
 | `script_path(root, relative, program_directory=None)` | Resolve a bundled script or an administrator-installed programs/*.py file. program_directory is a trusted absolute folder from local configuration. Radio messages cannot select file paths. Resolve symlinks before checking containment so neither ../ nor a symlink can escape the selected folder. |
 | `parse_message(payload, channel, own_name, config, now)` | Return validated sender/channel/request context, or None for stale, self, reply, or unrelated messages. |
 | `reply_parts(sender, output, limit=150, max_parts=4)` | Return tagged UTF-8-safe pieces within the byte/part limits; collapse whitespace and mark truncation. |
-| `async run_script(root, spec, request, config)` | Run the configured Python file with args/context, bounded stdout/stderr and timeout; return (reply, diagnostic). |
+| `async run_script(root, spec, request, config)` | Run the configured Python file with args/context and the shared MESHCORE_TIMEZONE environment, bounded stdout/stderr and timeout; return (reply, diagnostic). |
 | `async run_script.read_bounded(stream)` | Read one child output stream as UTF-8 and raise if its independent byte limit is exceeded. |
 | `async run_script.communicate()` | Send request JSON on stdin and collect stdout, stderr, and child exit status concurrently. |
 | `Responder.__init__(self, root, db, config, channel, own_name, send, verify=None)` | Create the request table and mark unfinished running/sending requests interrupted; commits to SQLite. |
@@ -167,7 +179,7 @@ Serial, BLE, or TCP MeshCore connection, MQTT event delivery, and channel-comman
 | `make_mqtt.on_message(c, userdata, message)` | Reject retained bridge commands and enqueue incoming messages; log and discard queue overflow. |
 | `async publish_outbox(client, store)` | Continuously publish queued events at QoS 1; delete rows only after acknowledgement, retaining failures. |
 | `async bridge_loop(mc, cli, config, port)` | Own the connected radio/MQTT session, persist events, run the responder, and serialize radio actions. |
-| `async bridge_loop.get_message()` | Put SDK background fetches under the same lock as verification and sends. MeshCore 2.3.11 otherwise issues get_msg outside our command lock. Its global ERROR replies cannot identify which concurrent command failed. |
+| `async bridge_loop.get_message()` | Put SDK background fetches under the same lock as verification and sends. MeshCore 2.3.11 otherwise issues get_msg outside the service command lock. Its global ERROR replies cannot identify which concurrent command failed. |
 | `async bridge_loop.execute(action)` | Run one radio action under the shared lock, honoring command timeout and spacing in seconds. |
 | `async bridge_loop.send_reply(index, text, *, guard=None)` | Recheck the channel name, send a tagged reply, and persist its result as a BOT_REPLY event. |
 | `async bridge_loop.send_reply.action()` | Verify the target channel still matches, ask the radio to send, and record acceptance; not recipient delivery. |
@@ -218,7 +230,7 @@ Find the nearest AirNow monitoring site and report its PM2.5 AQI. Set AIRNOW_API
 | `parse_observation(item: dict[str, Any], latitude: float, longitude: float) -> Observation \| None` | Convert a usable PM2.5 row into an Observation; return None for unsupported or missing readings. |
 | `find_nearest_observation(latitude: float, longitude: float) -> Observation` | Expand search boxes until any usable readings exist; return the nearest in that first populated box. |
 | `one_word_rating(aqi: int, category_number: int \| None=None) -> str` | Map AirNow category, or fallback AQI thresholds, to reply wording; some labels contain spaces. |
-| `main() -> int` | Read coordinates/key, print the observation, and return 0; print expected errors to stderr and return 1. |
+| `main() -> int` | Read coordinates/key, print the observation with its timestamp in the shared timezone, and return 0; print expected errors to stderr and return 1. |
 
 <a id="scripts-flood-warn-py"></a>
 
@@ -252,11 +264,35 @@ Look up active NWS heat alerts for GPS coordinates, a US ZIP, or a city/state. U
 | --- | --- |
 | `parse_location(text)` | Return `(kind, value, state)` for validated decimal GPS, US ZIP/ZIP+4, or city/state text. Reuse `uv_index.parse_location`; a bare city means California. No network access. Invalid syntax raises `ValueError` with `!heatadv` usage. |
 | `get_json(url, params=None)` | URL-encode optional query parameters and return decoded JSON with the configured User-Agent and 12-second timeout. HTTP 404 from `/points/` raises a coverage `ValueError`; rate limits, network failures, and invalid JSON raise readable `RuntimeError` messages. |
-| `resolve_location(parsed)` | Accept the parsed tuple and return `(latitude, longitude)`. GPS bypasses HTTP. City/ZIP input queries Open-Meteo and requires an exact US city/state or ZIP match; choose the largest population among matches. Reject missing matches and nonfinite/out-of-range coordinates. |
+| `resolve_location(parsed, fetch=None)` | Use `fetch` when supplied, otherwise `get_json`, for geocoding transport. Accept the parsed tuple and return `(latitude, longitude)`. GPS bypasses HTTP. City/ZIP input queries Open-Meteo and requires an exact US city/state or ZIP match; choose the largest population among matches. Reject missing matches and nonfinite/out-of-range coordinates. |
 | `timestamp(value)` | Convert an ISO-8601 string containing an explicit timezone into a timezone-aware `datetime`; reject missing, malformed, or naive values with `RuntimeError`. |
 | `active_types(data, now=None)` | Accept an NWS FeatureCollection and optional timezone-aware `now` (default: current UTC); return distinct supported event names ordered Warning, Watch, Advisory. Normalize legacy Excessive Heat names. Exclude non-Actual, cancelled, future-effective, expired, and ended alerts; include effective future-onset watches. Reject malformed or paginated/incomplete data instead of returning a false clear. |
-| `lookup(text)` | Normalize whitespace in supplied location text, resolve its coordinates, verify NWS `/points/` coverage, and request active point alerts. Return the exact no-advisories reply or one requested-format line per active type, preserving supplied location spelling. Errors propagate to `main`; no subscriptions or radio I/O occur here. |
+| `lookup(text)` | Normalize whitespace in supplied location text, resolve its coordinates, verify NWS `/points/` coverage, and request active point alerts. Return the exact no-advisories reply or one defined-format line per active type, preserving supplied location spelling. Errors propagate to `main`; no subscriptions or radio I/O occur here. |
 | `main(argv=None)` | Read supplied arguments or `sys.argv`, remove an optional leading `!heatadv`, and print UTF-8 reply/error text. Return 0 for handled success and failure so the responder forwards the message. The responder adds sender tags, joins newlines, and enforces the configured 45-second command timeout. |
+
+<a id="scripts-lightning-py"></a>
+
+## scripts/lightning.py
+
+[Source](scripts/lightning.py) | [Usage and timezone configuration](README.md#lightning-potential-lightning)
+
+NWS lightning potential over 24 elapsed hours. All windows use the configurable display timezone; Pacific is the default. `lookup` returns reply text and the CLI prints it. API failures never produce a no-lightning reply.
+
+| Function | Purpose, inputs, output, and effects |
+| --- | --- |
+| `parse_location(text)` | Validate shared GPS/ZIP/city syntax and give lightning-specific usage errors. |
+| `get_json(url, params=None)` | Fetch JSON with bounded network time; HTTP/network failures never mean clear. |
+| `timestamp(value)` | Parse an aware NWS ISO timestamp into UTC so DST cannot change elapsed hours. |
+| `interval(value)` | Decode NWS start/duration or start/end intervals; reject empty/reversed spans. |
+| `weather_labels(conditions)` | Keep NWS thunder coverage wording, including slight chance and dry attributes. |
+| `forecast_windows(data, now)` | Return (start, end, label) hazards; require fresh weather covering all 24 hours. Missing optional thunder probability/LAL layers are normal. When supplied, positive probabilities and LAL 2-6 also count; rain probability never does. A null weather type inside a condition is NWS's valid no-weather value. |
+| `alert_labels(props)` | Identify convective alerts or explicit lightning hazard text and stated chance. Do not treat wind-only fire alerts or generic preparedness instructions as lightning. Text matching handles common negations; it is not a language model. |
+| `alert_windows(data, now)` | Select actual lightning-related point alerts overlapping the requested 24h. Onset is the hazard start, effective is its fallback; ends is preferred to product expiration. Point matching covers NWS polygons and zones server-side. |
+| `merge_windows(windows)` | Combine coincident labels and adjacent identical spans without hiding clear gaps. |
+| `format_window(start, end, zone)` | Display source-window bounds in the selected zone, labeling both sides of DST. |
+| `request_time()` | Use the responder's original request timestamp from stdin; CLI uses current UTC. |
+| `lookup(text, now=None, timezone_name=None)` | Resolve location, fetch NWS point alerts/grid, and format chance/time or clear text. Preserve a known hazard with an incompleteness note if the other source fails; require both sources for a clear reply. |
+| `main(argv=None)` | Read location args and optional standalone timezone; bot replies always use the shared saved zone. Print replies/errors for the responder. |
 
 <a id="scripts-highway-info-py"></a>
 
@@ -288,27 +324,29 @@ Print current Caltrans highway information for a highway number.
 
 [Source](scripts/nearby_river_stations.py)
 
-Find CDEC river-stage stations near a latitude/longitude. The public CDEC RR8 report supplies the fixed-width river-stage rows. NOAA's NWPS API supplies coordinates for the same five-character station identifiers. Only the Python standard library is required.
+Find CDEC river-stage stations near a latitude/longitude. The public CDEC RR8 report supplies the fixed-width river-stage rows. NOAA's NWPS API supplies coordinates for the same five-character station identifiers. Timezone display uses the shared reply setting and tzdata where the OS lacks it.
 
 | Function signature | Purpose and behavior |
 | --- | --- |
-| `_PreExtractor.__init__(self) -> None` | Initialize the first-PRE-block parser and its text buffer. |
-| `_PreExtractor.handle_starttag(self, tag: str, attrs: list[tuple[str, str \| None]]) -> None` | Start collecting the first preformatted report block when its opening tag appears. |
-| `_PreExtractor.handle_endtag(self, tag: str) -> None` | Stop collection after the first closing pre tag. |
-| `_PreExtractor.handle_data(self, data: str) -> None` | Append text only while inside the selected report block. |
-| `_PreExtractor.text(self) -> str` | Return the collected report text without fetching or changing external state. |
-| `_get_text(url: str, timeout: float) -> str` | Download and decode one source response; raise RuntimeError on a network timeout or failure. |
-| `_get_json(url: str, params: dict[str, Any], timeout: float) -> dict[str, Any]` | URL-encode parameters, fetch text, and return decoded JSON; raise on malformed JSON. |
-| `_extract_report_text(html: str) -> str` | Extract and normalize the CDEC PRE block; reject pages that lack the expected report. |
-| `_reading(value: str) -> float \| None` | Parse one river-stage field in feet; blank, plus-marker, or invalid data becomes None. |
-| `parse_cdec_report(report_text: str) -> dict[str, Any]` | Parse the CDEC fixed-width report into station records. |
-| `haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float` | Return great-circle distance using mean Earth radius 3,958.761 miles. |
-| `_bounding_box(latitude: float, longitude: float, radius_miles: float) -> dict[str, Any]` | Build NOAA's bounding-box query in decimal degrees from a search radius in miles. |
-| `find_nearby_river_stations(latitude: float, longitude: float, radius_miles: float=DEFAULT_RADIUS_MILES, timeout: float=HTTP_TIMEOUT_SECONDS) -> list[dict[str, Any]]` | Return RR8 river stations within radius_miles of latitude/longitude. |
-| `_parse_args() -> argparse.Namespace` | Read coordinates, radius in miles, HTTP timeout in seconds, and optional compact output mode. |
-| `format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str` | Summarize nearest-first station readings without inventing missing values. |
+| `_PreExtractor.__init__(self)` | Initialize the first-PRE-block parser and its text buffer. |
+| `_PreExtractor.handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]])` | Start collecting the first preformatted report block when its opening tag appears. |
+| `_PreExtractor.handle_endtag(self, tag: str)` | Stop collection after the first closing pre tag. |
+| `_PreExtractor.handle_data(self, data: str)` | Append text only while inside the selected report block. |
+| `_PreExtractor.text(self)` | Return the collected report text without fetching or changing external state. |
+| `_get_text(url: str, timeout: float)` | Download and decode one source response; raise RuntimeError on a network timeout or failure. |
+| `_get_json(url: str, params: dict[str, Any], timeout: float)` | URL-encode parameters, fetch text, and return decoded JSON; raise on malformed JSON. |
+| `_extract_report_text(html: str)` | Extract and normalize the CDEC PRE block; reject pages that lack the expected report. |
+| `_reading(value: str)` | Parse one river-stage field in feet; blank, plus-marker, or invalid data becomes None. |
+| `parse_cdec_report(report_text: str)` | Parse the CDEC fixed-width report into station records. |
+| `haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float)` | Return great-circle distance using mean Earth radius 3,958.761 miles. |
+| `_bounding_box(latitude: float, longitude: float, radius_miles: float)` | Build NOAA's bounding-box query in decimal degrees from a search radius in miles. |
+| `find_nearby_river_stations(latitude: float, longitude: float, radius_miles: float=DEFAULT_RADIUS_MILES, timeout: float=HTTP_TIMEOUT_SECONDS)` | Return RR8 river stations within radius_miles of latitude/longitude. |
+| `_parse_args()` | Read coordinates, radius in miles, HTTP timeout in seconds, and optional compact output mode. |
+| `parse_report_time(value)` | Parse a dated CDEC issuance using its explicit PST/PDT offset; return None if unknown. |
+| `reading_time(label, issued)` | Resolve an hourly CDEC label to its latest Pacific occurrence before issuance, including DST. |
+| `format_mesh_report(stations: list[dict[str, Any]], radius: float)` | Summarize nearest-first station readings without inventing missing values. |
 | `format_mesh_report.stage(value)` | Format a stage as feet or N/A without converting missing readings to zero. |
-| `main() -> int` | Fetch nearby stations and print JSON or mesh text; return 1 with JSON error text on expected failures. |
+| `main()` | Fetch nearby stations and print JSON or mesh text; return 1 with JSON error text on expected failures. |
 
 <a id="scripts-snowpack-py"></a>
 
@@ -356,10 +394,11 @@ This script executes at module level and defines no Python functions.
 
 [Source](scripts/time_now.py)
 
-Print host-clock UTC time for !time; the responder adds @sender. Edit TIME_FORMAT for wording/layout. timezone.utc controls the time basis.
+Print the host clock in the shared reply timezone for !time.
 
-This script executes at module level and defines no Python functions.
-
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main()` | Print the current instant in the saved reply zone, including its PST/PDT-style label. |
 
 <a id="scripts-uv-index-py"></a>
 
@@ -377,3 +416,146 @@ Current UV Index CLI. UV data: https://currentuvindex.com (CC BY 4.0). Location 
 | `risk_level(uvi)` | Validate a nonnegative finite UV reading and return its category; thresholds are category definitions. |
 | `lookup(text)` | Resolve location, request the current UV reading, and return one reply string; raise on unavailable data. |
 | `main(argv=None)` | Read location arguments and print a reply or useful lookup error; return 0 so the responder sends that text. |
+
+<a id="scripts-time-settings-py"></a>
+
+## scripts/time_settings.py
+
+[Source](scripts/time_settings.py)
+
+Shared reply timezone. The responder exports its saved setting to every program.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `display_timezone(name=None)` | Return an IANA zone from an explicit name, responder environment, or Pacific default. |
+| `format_timestamp(value, zone=None)` | Format an aware instant in the shared reply zone with date, time, and DST label. |
+| `format_utc_observation(value)` | Convert AirNow's UTC field for display; missing/unparseable values remain Unknown. |
+
+<a id="scripts-gis-data-py"></a>
+
+## scripts/gis_data.py
+
+[Source](scripts/gis_data.py)
+
+Local GIS configuration, query parsing, and verified snapshot access. No network operations are performed. LAYER_FIELDS, PARK_LAYERS, and BOUNDARY_LAYERS centralize source fields and search categories; source URLs and snapshot filenames remain in the shared sources.json manifest. GISUnavailable identifies an unusable local snapshot.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `load_settings(path=SETTINGS_FILE)` | Read tunable settings; resolve a relative data path against the settings file. |
+| `parse_query(text)` | Return mode/value for a name, coordinates, near coordinates, or trail name. Optional near radius is expressed in miles. Only syntax and global coordinate bounds are checked here; configured radius and projection bounds are checked in the lookup process. The parser is safe to import into the responder. |
+| `parse_command_query(kind, text)` | Parse a named attribute, filtered proximity, or boundary-category query. Return (mode, value, attribute). Coordinate values retain whether a radius was supplied; an absent radius means closest-only, never a default radius. Reserved attributes precede near and follow names. Boundary categories precede coordinates, near, or trail NAME. No data or projection is loaded. |
+| `normalize_name(name)` | Normalize case, punctuation, accents, and an optional trailing Trail label. |
+| `group_features(records)` | Group same-category names without discarding separate source records. |
+| `find_by_name(groups, query)` | Prefer exact normalized matches; return all partial matches if none are exact. |
+| `Snapshot.__init__(self, directory)` | Capture manifest bytes before reading layers; reject an active refresh. |
+| `Snapshot.check_lock(self)` | Reject refresh overlap and retained refresh recovery directories. |
+| `Snapshot.load_dataset(self, name)` | Verify checksum/count, retain source fields, and expose named features. |
+| `Snapshot.verify_unchanged(self)` | Reject a refresh completed during the request before exposing its answer. |
+| `Snapshot.date_label(self)` | Return the oldest retrieval date among layers used, not a source-edit date. |
+
+<a id="scripts-gis-spatial-py"></a>
+
+## scripts/gis_spatial.py
+
+[Source](scripts/gis_spatial.py)
+
+Offline geometry operations in a configured metric projection.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `Spatial.__init__(self, settings)` | Disable projection downloads and require a projected CRS in meters. |
+| `Spatial.point(self, latitude, longitude)` | Validate the configured search area and project an input location. |
+| `Spatial.geometry(self, group)` | Combine a named feature's parts; null geometry is omitted, never fabricated. |
+| `Spatial.nearby(self, groups, point, radius_miles=None)` | Rank full geometries; absent radius returns only the nearest feature. Equal distances are ordered by name and category. An explicit radius returns all qualifying geometries for the caller's result limit. |
+| `Spatial.containing(self, groups, point)` | Report interior and exact-boundary matches; polygon holes remain excluded. |
+| `Spatial.intersections(self, target, groups)` | Find mapped overlap, which does not establish public access or connectivity. |
+
+<a id="scripts-gis-lookup-py"></a>
+
+## scripts/gis_lookup.py
+
+[Source](scripts/gis_lookup.py)
+
+Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `field_values(group, *fields)` | Preserve distinct source values and qualifications across grouped records. |
+| `number(value, units)` | Format source numbers without exposing floating-point storage artifacts. |
+| `summary(group)` | Label a result with source category and park status when available. |
+| `short_list(labels, limit)` | Bound result lists while explicitly reporting omitted matches. |
+| `trail_groups(snapshot)` | Prefer primary trail records; retain supplementary trails absent from that layer. |
+| `area_groups(snapshot, layers)` | Group named park polygons, preserving all original status and agency fields. |
+| `format_trail_reply(group, snapshot, spatial, settings)` | Describe primary trail attributes and mapped area overlap without routing claims. |
+| `format_recreation_reply(group)` | Describe recorded amenities, retaining limited parking and accessible restroom values. |
+| `format_peak_reply(group)` | Report stored peak elevation in feet and point coordinates when available. |
+| `format_park_reply(group, snapshot, spatial, settings)` | Describe grouped park records and geometric associations, not accessible routes. |
+| `bounded_reply(body, spatial, settings)` | Bound the UTF-8 reply size and retain any geometry-repair note. |
+| `eligible(group, kind, attribute)` | Require affirmative policy/amenity values before spatial ranking. Every grouped record must explicitly qualify. Missing, negative, unknown, or conflicting values exclude the group. Source qualifications remain in the displayed attribute instead of being reduced to an unconditional Yes. |
+| `command_help(kind)` | Describe accepted syntax and subcommands without loading GIS datasets. |
+| `attribute_text(kind, attribute, group, snapshot, spatial, settings)` | Format only the requested field or association, retaining unknown values. |
+| `feature_reply(kind, group, attribute, snapshot, spatial, settings)` | Return compact identification, one attribute, or an explicitly requested full reply. |
+| `lookup(kind, query, settings=None)` | Execute one offline name, proximity, containment, or trail-area query. |
+| `main(argv=None, *, kind=None)` | Run a fixed command with positional input or the generic --kind/--query CLI. Command programs supply kind so received arguments cannot select another command. Shared lookup, settings, output limits, and error handling are retained. |
+
+<a id="scripts-trail-py"></a>
+
+## scripts/trail.py
+
+[Source](scripts/trail.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Read a trail query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
+
+<a id="scripts-rec-py"></a>
+
+## scripts/rec.py
+
+[Source](scripts/rec.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Read a rec query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
+
+<a id="scripts-peak-py"></a>
+
+## scripts/peak.py
+
+[Source](scripts/peak.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Read a peak query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
+
+<a id="scripts-park-py"></a>
+
+## scripts/park.py
+
+[Source](scripts/park.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Read a park query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
+
+<a id="scripts-boundary-py"></a>
+
+## scripts/boundary.py
+
+[Source](scripts/boundary.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Read a boundary query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
+
+<a id="scripts-floodalarm-py"></a>
+
+## scripts/floodalarm.py
+
+[Source](scripts/floodalarm.py)
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Print one structured flood snapshot or error for the persistent monitor. Standalone use does not enroll a subscription. |
+
+Shared data-maintenance functions are documented in the [EBMUD utility reference](../data/ebmud/FUNCTION_REFERENCE.md).

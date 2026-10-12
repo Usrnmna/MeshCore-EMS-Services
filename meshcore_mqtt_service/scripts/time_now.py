@@ -1,9 +1,18 @@
-"""Print host-clock UTC time for !time; the responder adds @sender.
-
-Edit TIME_FORMAT for wording/layout. timezone.utc controls the time basis.
-"""
+"""Print the host clock in the shared reply timezone for !time."""
 from datetime import datetime, timezone
 
-TIME_FORMAT = "Current UTC time: %Y-%m-%d %H:%M:%S"
+try:
+    from scripts.time_settings import display_timezone
+except ModuleNotFoundError:
+    from time_settings import display_timezone
 
-print(datetime.now(timezone.utc).strftime(TIME_FORMAT))
+TIME_FORMAT = 'Current time: %Y-%m-%d %H:%M:%S %Z'
+
+
+def main():
+    """Print the current instant in the saved reply zone, including its PST/PDT-style label."""
+    print(datetime.now(timezone.utc).astimezone(display_timezone()).strftime(TIME_FORMAT))
+
+
+if __name__ == '__main__':
+    main()

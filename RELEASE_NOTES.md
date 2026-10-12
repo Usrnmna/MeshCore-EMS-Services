@@ -1,10 +1,47 @@
 # Release notes
 
-## Current source and rebuilt distributions
+## v0.9.0-beta - October 11, 2026
 
-- Adds `!heatadv` to both service packages, bringing current source defaults to
-  ten commands. Accepts GPS, US ZIP/ZIP+4, and city/state input; bare cities default
-  to California. Preserves supplied location text and the requested reply wording.
+- Adds focused GIS attributes and an explicit `info` mode. Policy and amenity
+  filters run before proximity ranking; no-radius queries return only the
+  closest matching feature. Explicit radii retain bounded result lists.
+- Adds boundary category selection and command help. The old default radius
+  setting is ignored; source snapshots and dedicated entry points are retained.
+
+- Gives every bundled command its own Python entry point under `scripts/`,
+  including `trail.py`, `rec.py`, `peak.py`, `park.py`, `boundary.py`, and
+  `floodalarm.py`. Shared helpers remain reusable; alarm scheduling is unchanged.
+- Retains the generic GIS CLI for compatibility and adds a regression check
+  against missing or shared command programs. GIS settings are included in
+  both service ZIPs and all three installer targets.
+
+- Adds `!trail`, `!rec`, `!peak`, `!park`, and `!boundary` using local EBMUD data.
+- Adds adjustable GIS settings, Shapely/pyproj dependencies, bounded replies,
+  snapshot integrity checks, spatial relationships, and regression tests.
+- Documents the manual deployment sequence while preserving transport, channel, credential, and timezone configuration.
+- Provides a manual twelve-dataset refresh with independent counts/ID coverage, manifest checksums, README count updates, and failure recovery.
+- Repairs six invalid polygons in three local datasets; preserves original response bytes and per-feature provenance. Raw refresh can reintroduce upstream defects.
+- Rebuilds the Windows x64 installer, Linux x86_64 and Raspberry Pi ARM64
+  installers, both service ZIPs, and the combined installer bundle from current
+  source. Version filenames use `v0.9.0-beta`; SHA-256 files identify the rebuild.
+- Complete installers include shared datasets and repair originals. Service ZIPs
+  require the shared data directory separately. Existing installed definitions
+  are preserved; older registrations and channel assignments require review.
+
+
+## October 8, 2026 source and distribution snapshot
+
+- Adds `!lightning`: NWS thunderstorm/dry-lightning potential in the next 24 hours,
+  with all stated chance levels, including slight chance and positive percentages.
+  Pacific display time follows PST/PDT; change the shared installed `responder.timezone`
+  to another IANA zone without rebuilding. It persists across upgrades and applies
+  to clock, AQI, river, and lightning timestamps across all service programs. Adds pinned `tzdata` support.
+- Both service ZIPs and all three installers include the lightning command,
+  dependencies, tests, and function documentation. There are eleven bundled
+  commands. See [installation and timezone settings](INSTALL.md#lightning-command-and-timezone).
+
+- Adds `!heatadv` to both service packages, alongside the other bundled commands. Accepts GPS, US ZIP/ZIP+4, and city/state input; bare cities default
+  to California. Preserves supplied location text and the defined reply format.
 - Reports every distinct active NWS heat warning, watch, and advisory. Confirms
   coverage first; failed, malformed, or incomplete lookups produce errors.
 - Documents every maintained application function in component references and
@@ -136,7 +173,7 @@ remote reception. No service restart or hardware change is part of this update.
 
 1. Stop the service and back up customized `config.json` and runtime data.
 2. Replace the source with the `v0.2.0-alpha` package for the correct platform.
-   Preserve your local runtime database if its history is needed; distribution
+   Preserve the local runtime database if its history is needed; distribution
    ZIPs do not include it. The flood-subscription table is created by the responder.
 3. Merge custom MQTT/channel/timing settings into the new configuration, retaining
    the `!snowpack` and `!floodalarm` entries and all existing command entries.
@@ -152,7 +189,7 @@ representative points. Flood alarms compare alert types, not every bulletin
 revision, and senders sharing a display name on the same channel share an alarm.
 These reports do not replace official emergency notification systems.
 
-## v0.1.1-alpha — September 20, 2026
+## v0.1.1-alpha â€” September 20, 2026
 
 This alpha release updates both service packages:
 
@@ -197,10 +234,10 @@ alerts at a resolved US point.
 
 It reports these alert types in severity order:
 
-- Flash Flood Warning 🟥
-- Flood Warning 🟧
-- Flood Advisory 🟨
-- Flood Watch 🟦
+- Flash Flood Warning ðŸŸ¥
+- Flood Warning ðŸŸ§
+- Flood Advisory ðŸŸ¨
+- Flood Watch ðŸŸ¦
 
 The command accepts the same location formats as `!uv`, needs no API key, combines
 duplicate alerts of the same type, excludes expired/cancelled/test alerts, and returns
@@ -251,7 +288,7 @@ accepted radio send does not prove reception by a remote MeshCore node.
 ### Upgrade notes
 
 1. Stop the running service.
-2. Back up any customized `config.json` and runtime data you want to retain.
+2. Back up any customized `config.json` and runtime data required for retention.
 3. Replace the old service source files with the `v0.1.1-alpha` folder for the
    correct platform.
 4. Reapply custom MQTT, channel, timing, or command settings to the new

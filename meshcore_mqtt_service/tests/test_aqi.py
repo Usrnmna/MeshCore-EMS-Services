@@ -60,6 +60,7 @@ class AQITests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copyfile(service.ROOT / 'scripts/airnow_aqi.py', root / 'airnow_aqi.py')
+            shutil.copyfile(service.ROOT / 'scripts/time_settings.py', root / 'time_settings.py')
             fixture = [{
                 'Parameter': 'PM2.5', 'Latitude': 37.775, 'Longitude': -122.419,
                 'AQI': 42, 'RawConcentration': 7.2, 'Unit': 'UG/M3',

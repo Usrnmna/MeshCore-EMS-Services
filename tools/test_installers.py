@@ -61,6 +61,7 @@ class InstallerTests(unittest.TestCase):
         }
         for name in ("status.py", "snowpack.py"):
             (package / "scripts" / name).write_text('print("test")\n')
+        shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts/time_settings.py", package / "scripts/time_settings.py")
         configure.write_json(package / "config.json", defaults)
         (root / "satellite_database/settings.json").write_text("{}")
         (root / "data/satellites/satellites.sqlite3").write_bytes(b"supplied-reference")
@@ -110,6 +111,28 @@ class InstallerTests(unittest.TestCase):
             self.assertEqual(
                 json.loads((config / "config.before-install.json").read_text()), current
             )
+
+    def test_upgrade_preserves_shared_reply_timezone(self):
+        """An installed display-zone override must survive either platform's upgrade."""
+        for platform in ("linux", "windows"):
+            with self.subTest(platform=platform), tempfile.TemporaryDirectory() as folder:
+                root, state, config = self.fixture(folder)
+                package = root / "meshcore_mqtt_service"
+                defaults = json.loads((package / "config.json").read_text())
+                shipped = json.loads((ROOT / "meshcore_mqtt_service/config.json").read_text())
+                defaults["responder"]["commands"]["!lightning"] = shipped["responder"]["commands"]["!lightning"]
+                (package / "scripts/lightning.py").write_text('print("test")\n')
+                configure.write_json(package / "config.json", defaults)
+                if platform == "windows":
+                    shutil.copytree(package, root / "meshcore_mqtt_service_windows")
+                configure.configure(root, state, config, platform)
+                current = json.loads((config / "config.json").read_text())
+                current["responder"]["timezone"] = "America/Denver"
+                configure.write_json(config / "config.json", current)
+                configure.configure(root, state, config, platform)
+                updated = json.loads((config / "config.json").read_text())
+                self.assertEqual(updated["responder"]["timezone"], "America/Denver")
+                self.assertEqual(updated["responder"]["commands"]["!lightning"]["args"], [])
 
     def test_legacy_upgrade_assigns_existing_and_added_commands(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -173,7 +173,7 @@ when supported by the source. Unsupported additions fail before catalog changes.
 
 ## Optional position and direction
 
-Install the optional dependency in your chosen Python environment:
+Install the optional dependency in the selected Python environment:
 
 ```console
 python -m pip install -r satellite_database/requirements-tracking.txt

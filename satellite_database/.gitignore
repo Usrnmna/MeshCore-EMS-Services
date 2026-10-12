@@ -1,3 +1,52 @@
-__pycache__/
+# Retain catalog programs, tests, settings.json, operator_overrides.json, schema,
+# documentation, reference databases, exports, and original source receipts.
+# Temporary output rules below must not exclude the corresponding final files.
+
+# Installed dependencies, bytecode, and temporary test workspaces
 .venv/
+.venv-*/
+__pycache__/
+*.py[cod]
 test-work-*/
+
+# Generated dependency metadata, caches, and local test reports
+*.egg-info/
+pip-wheel-metadata/
+.pip-cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.build/
+dist/
+# dist/ covers every release version, including installers, bundles, and checksums.
+# Already tracked distribution files remain tracked until explicitly removed.
+
+# Conventional Python build output and interrupted archive publication
+build/
+*.zip.tmp
+
+# Local environment settings; retain the distributable example.
+.env
+.env.*
+!.env.example
+
+# Interrupted exports and SQLite sidecars; retain reference databases and receipts.
+*.json.tmp
+*.csv.tmp
+raw/*.tmp
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+
+# Local operating-system metadata and editor swap files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo

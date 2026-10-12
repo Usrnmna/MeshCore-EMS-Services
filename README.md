@@ -1,8 +1,10 @@
 # MC-EMS-Services
 
-Python services that connect an MQTT broker to a MeshCore Companion Node over USB serial, Bluetooth LE, or Wi-Fi/TCP and deliver concise, useful local weather, environmental, river, and highway information over configured MeshCore channels.
+Python services that connect an MQTT broker to a MeshCore Companion Node over USB serial, Bluetooth LE, or Wi-Fi/TCP and deliver concise, useful local weather, environmental, river, highway, and local GIS information over configured MeshCore channels.
 
 ## OS service installers
+
+Current distribution version: `v0.9.0-beta`.
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
@@ -32,13 +34,13 @@ MC-EMS-Services turns a MeshCore channel into a small command-driven information
 
 ```text
 MeshCore user
-    ↓ command over LoRa
+    â†“ command over LoRa
 Companion Node
-    ↓ USB serial, BLE, or TCP connection
+    â†“ USB serial, BLE, or TCP connection
 Linux or Windows service
-    ├─ runs the requested local Python program
-    ├─ publishes radio events and commands through MQTT
-    └─ sends a concise reply back to the same MeshCore channel
+    â”œâ”€ runs the requested local Python program
+    â”œâ”€ publishes radio events and commands through MQTT
+    â””â”€ sends a concise reply back to the same MeshCore channel
 ```
 
 The default channel is `#autatestbot`. Add Public, hashtag, or private channels and assign each program to one or more of them using the [multi-channel changes and usage guide](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md). Configure channels on the radio before starting; the setup utility can explicitly provision empty slots. The guide also explains how to add Python programs after installation without rebuilding or rerunning the installer.
@@ -51,7 +53,9 @@ The default channel is `#autatestbot`. Add Public, hashtag, or private channels 
 | [`meshcore_mqtt_service_windows/`](meshcore_mqtt_service_windows/README.md) | Windows x64 | Independent Windows package with its own settings, runtime data, setup scripts, tests, and double-click launcher. |
 | [`satellite_database/`](satellite_database/README.md) | Standalone Python, Windows/Linux | Builds a sourced SQLite satellite radio catalog with capability-level status, retirement exclusions, orbital elements, and JSON/CSV exports in [`data/satellites/`](data/satellites/README.md). |
 
-The Linux and Windows folders are self-contained. Each uses its own virtual environment, configuration, MQTT namespace, and SQLite request database.
+Each service folder contains independent application code, a virtual environment,
+configuration, an MQTT namespace, and a SQLite request database. GIS commands also
+require the shared `data/ebmud` snapshots at the path in `gis_settings.json`.
 
 ## Python function documentation
 
@@ -62,6 +66,7 @@ is described in the component references. Test helpers are excluded.
 - [Windows service and commands](meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md)
 - [Satellite catalog, sources, and exports](satellite_database/FUNCTION_REFERENCE.md)
 - [Installer configuration and packaging tools](tools/FUNCTION_REFERENCE.md)
+- [GIS refresh and polygon-repair utilities](data/ebmud/FUNCTION_REFERENCE.md)
 
 ## Workspace organization
 
@@ -78,6 +83,9 @@ is described in the component references. Test helpers are excluded.
 The service folders are the maintained installation sources. Shared command code
 is deliberately present in both so either package can run independently. Update
 both copies together; retain platform-specific serial selection and MQTT defaults.
+Every shipped command has its own executable Python program in `scripts/`;
+shared helper modules are permitted. The rule is recorded in [AGENTS.md](AGENTS.md)
+and checked by each package's `tests/test_command_programs.py`.
 When copies differ, compare contents and modification history and reconcile the
 newer implementation before packaging. The packager rejects divergent shared code.
 
@@ -104,14 +112,15 @@ bytecode, and historical backups. The ZIPs include their own tests and documenta
 
 The root `.gitignore` excludes local environments, service runtime state, Python
 bytecode/tool caches, coverage reports, build/distribution directories, credentials,
-recovery backups, and interrupted satellite export/cache writes. Source Python,
+recovery backups, interrupted archive/export writes, and GIS refresh staging/locks.
+The platform and satellite ignore files also protect standalone checkouts. Source Python,
 configuration templates, tests, function references, reference SQLite/JSON/CSV data,
 and retained raw source receipts remain trackable. Ignore rules do not remove
 files that Git already tracks, including previously committed distribution files.
 
 ## Local GIS reference data
 
-The project includes raw EBMUD GeoJSON snapshots in [`data/ebmud/`](data/ebmud/README.md):
+The project includes EBMUD GeoJSON snapshots (with documented local polygon repairs) in [`data/ebmud/`](data/ebmud/README.md):
 
 - [`trails.geojson`](data/ebmud/trails.geojson): trail geometry and attributes.
 - [`recreation_points.geojson`](data/ebmud/recreation_points.geojson): recreation locations and amenities.
@@ -124,9 +133,18 @@ The project includes raw EBMUD GeoJSON snapshots in [`data/ebmud/`](data/ebmud/R
 Programs can read these shared files locally without network requests. See the
 [data instructions](data/ebmud/README.md) for Python loading examples and path
 settings for either platform package. These are manual snapshots;
-the MeshCore commands do not read them.
-The instructions also explain the map-only annotation sublayer and one
-preserved annotation record with null geometry.
+the GIS commands read them locally with checksum and refresh-consistency checks.
+The instructions also explain the map-only annotation sublayer and preserved
+annotation records with null geometry.
+
+Run `python data/ebmud/refresh_geojson.py` to manually refresh all 12 datasets,
+verify complete downloads, and update the manifest and dataset README counts.
+Add `--check` to verify downloads without replacing local reference files.
+Sources are configured in `data/ebmud/sources.json`; network settings are grouped
+at the top of the script. Refreshing data does not rebuild installers. For permanent local polygon repair,
+run `python data/ebmud/repair_geojson.py` with Shapely installed. Raw refresh can
+restore upstream defects; repair preserves originals and records provenance in
+the manifest. See [repair instructions](data/ebmud/README.md#local-polygon-repairs).
 
 ## Included programs and services
 
@@ -143,10 +161,16 @@ Both platform packages contain the same service components:
 | Highway lookup | `scripts/highway_info.py` | Retrieves and compacts active Caltrans highway restrictions. |
 | River lookup | `scripts/nearby_river_stations.py` | Finds nearby CDEC river-stage stations using NOAA station coordinates. |
 | UV lookup | `scripts/uv_index.py` | Resolves coordinates, ZIP codes, or city/state text and reports the current UV index. |
+| Lightning lookup | `scripts/lightning.py` | NWS lightning potential over the next 24h, with chance levels and adjustable display timezone. |
 | Heat-alert lookup | `scripts/heat_adv.py` | Reports each active NWS extreme heat warning, watch, and heat advisory for a US location. |
 | Flood-alert lookup | `scripts/flood_warn.py` | Resolves a US location and summarizes active NWS flash-flood warnings, flood warnings, advisories, and watches. |
 | Snowpack lookup | `scripts/snowpack.py` | Nearest CDEC hourly snow depth, NWS next-24h snowfall, station name, and distance. |
-| Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current UTC time. |
+| GIS command programs | `scripts/trail.py`, `rec.py`, `peak.py`, `park.py`, `boundary.py` | Dedicated offline entry points for trail, recreation, peak, park, and boundary queries. |
+| GIS helpers | `scripts/gis_lookup.py`, `gis_data.py`, `gis_spatial.py` | Shared reply formatting, verified snapshot loading, and projected geometry. |
+| Flood-alarm program | `scripts/floodalarm.py` | Structured readings for the persistent service monitor; standalone execution does not enroll subscriptions. |
+| GIS settings | `gis_settings.json` | Data path, radius, projection, result count, and reply limits for local queries. |
+| Shared data maintenance | `data/ebmud/refresh_geojson.py`, `repair_geojson.py` (workspace root) | Manually verify complete raw downloads or repair invalid polygons with original-byte provenance. |
+| Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current time in the shared timezone. |
 | Configuration | `config.json` | Defines MQTT settings, channel registry, program assignments, commands, timeouts, cooldowns, and reply limits. |
 
 ## MeshCore commands
@@ -156,21 +180,31 @@ Send commands from another MeshCore node on a channel assigned to that command (
 | Command | Example | Result | Data source |
 | --- | --- | --- | --- |
 | `!status` | `!status` | Confirms that the local command service is running. | Local service |
-| `!time` | `!time` | Returns the current UTC time. | Local system |
+| `!time` | `!time` | Returns the current time in the shared timezone. | Local system |
 | `!aqi` | `!aqi 37.7749 -122.4194` | Nearest-monitor PM2.5 AQI, concentration, rating, station, distance, and observation time. | AirNow |
-| `!traffic` | `!traffic 80` | Compact active California highway restrictions for route 1–999. | Caltrans |
+| `!traffic` | `!traffic 80` | Compact active California highway restrictions for route 1â€“999. | Caltrans |
 | `!rivers` | `!rivers 39.0000, -121.0000` | Nearby river stations within 15 miles, including stage, report time, action stage, and flood stage. | CDEC and NOAA |
 | `!uv` | `!uv Sacramento` | Current UV index and risk level for coordinates, a US ZIP code, or a city and state. | CurrentUVIndex.com plus location lookup |
+| `!lightning` | `!lightning Sacramento` | Next-24h thunderstorm/dry-lightning potential, stated chance, and Pacific time windows by default. | NWS API plus location lookup |
+| `!trail` | `!trail Bear Creek dogs` | Recorded dog policy; other attributes or `info` select detail. | Local EBMUD GeoJSON |
+| `!rec` | `!rec water near 37.90 -122.20` | Closest recreation feature with recorded drinking water. | Local EBMUD GeoJSON |
+| `!peak` | `!peak Wildcat Peak elevation` | Only the stored peak elevation. | Local EBMUD GeoJSON |
+| `!park` | `!park Pleasanton Ridge status` | Only the recorded park status. | Local EBMUD GeoJSON |
+| `!boundary` | `!boundary 37.90 -122.20` | Mapped area containment; also accepts `trail NAME`. | Local EBMUD GeoJSON |
 | `!heatadv` | `!heatadv Sacramento` | Active heat warnings, watches, and advisories; reports every applicable type. | NWS API plus location lookup |
 | `!floodwarn` | `!floodwarn Sacramento` | Active flash flood warnings, flood warnings, advisories, and watches with colored squares. | NWS API, the alert source used by FlashFloodWarn |
 | `!floodalarm` | `!floodalarm Sacramento` | Acknowledges immediately; checks every 20 minutes and reports changes for up to four hours. | Same NWS flood source |
 | `!snowpack` | `!snowpack Truckee` | Snow depth and next-24h snowfall in inches, with nearest station and miles. Accepts California GPS, ZIP, or city. | CDEC and NWS |
 
-Examples of accepted UV, heat-alert, and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!heatadv` and `!floodwarn`. City names without a state default to California.
+Examples of accepted UV, heat-alert, lightning, and flood-alert locations include `!uv 95814`, `!uv Reno NV`, and `!uv 38.5816, -121.4944`. The same locations work with `!heatadv`, `!lightning`, and `!floodwarn`. City names without a state default to California.
 
 `!heatadv` preserves the supplied location in its reply: `There is no Heat Advisories for <location>`, `Advisory: Extreme Heat Warning for <location>`, `Advisory: Extreme Heat Watch for <location>`, or `Heat Advisory for <location>`. Multiple active types are all reported; lookup failures produce an error rather than a no-advisories result. See the [Linux heat guide](meshcore_mqtt_service/README.md#heat-alerts-heatadv) or [Windows heat guide](meshcore_mqtt_service_windows/README.md#heat-alerts-heatadv) for standalone usage, location limitations, and updating an existing service.
 
-AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, heat-alert, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
+`!lightning` reports `Lightning Strike Warning for <location> at <time window> (<stated chance/level>)`, including slight chance and any positive thunderstorm probability, or `No Lightning expected for <location> in the next 24h`. NWS has no standalone lightning-warning product; this is the program's summary of point alerts and thunderstorm/dry-lightning forecasts. Times default to Pacific (PST/PDT). Edit the one installed `responder.timezone` value (default `America/Los_Angeles`) and restart to change all MeshCore reply timestamps. The value persists across upgrades; no rebuild is required. All programs receive `MESHCORE_TIMEZONE`. See the [Linux guide](meshcore_mqtt_service/README.md#lightning-potential-lightning), [Windows guide](meshcore_mqtt_service_windows/README.md#lightning-potential-lightning), and [installed configuration instructions](INSTALL.md#lightning-command-and-timezone).
+
+The five GIS commands require neither an API key nor network access.
+
+AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, heat-alert, lightning, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
 
 ## Main features
 
@@ -182,7 +216,7 @@ AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, st
 - Exact command matching, validated arguments, fixed script paths, execution timeouts, and no shell interpretation of received text.
 - Persistent SQLite request history, duplicate suppression, stale-message rejection, sender cooldowns, and bounded request queues.
 - Durable QoS 1 MQTT event outbox with automatic reconnection.
-- Long replies divided into as many as four 150-byte messages by default; `!floodwarn` and `!floodalarm` allow 12 so all four alert descriptions fit.
+- Long replies divided into as many as four 150-byte messages by default; command overrides allow 12 parts for flood alerts, 64 for lightning, and 6 for GIS. GIS also bounds its untagged output to 480 UTF-8 bytes by default.
 - Separate Linux and Windows MQTT ports and topic namespaces, allowing both copies to coexist on one network.
 
 ## Quick start
@@ -227,6 +261,8 @@ See the [Windows service README](meshcore_mqtt_service_windows/README.md) for co
 | Default channel | `#autatestbot` | `#autatestbot` |
 | Serial port selection | `auto` | `auto` |
 | Serial speed | 115200 baud | 115200 baud |
+| Reply timezone (`responder.timezone`) | `America/Los_Angeles` | `America/Los_Angeles` |
+| GIS data path (relative to GIS settings file) | `../data/ebmud` | `../data/ebmud` |
 
 Edit the appropriate folder's `config.json` to change channel definitions, program assignments, broker, topics, timeouts, cooldowns, reply limits, or command definitions. Restart the service after changing its configuration.
 
@@ -272,7 +308,10 @@ Both service folders include tests for:
 - Script execution, timeouts, failures, and output limits.
 - Sender retention and same-channel tagged replies.
 - Duplicate suppression and persistent request state.
-- AQI, traffic, river, UV, flood-alert, and snowpack formatting with sample source responses.
+- AQI, traffic, river, UV, heat, lightning, flood-alert, and snowpack formatting with sample source responses.
+- Shared reply timezone, DST boundaries, and preserved timezone configuration.
+- Local GIS aliases, ambiguity, spatial relationships, snapshot integrity, and subprocess replies.
+- Complete-download verification for manual GeoJSON refresh, using offline fixtures.
 - A real loopback MQTT broker with simulated radio events.
 - Flood-alarm timing, expiry, renewal, background workers, and restart persistence.
 - Installed service configuration and unattended startup behavior.
@@ -285,7 +324,7 @@ for installation checks.
 
 ## Dependencies
 
-The service packages use MeshCore CLI, MeshCore, Paho MQTT, pyserial, and aMQTT.
+The service packages use MeshCore CLI, MeshCore, Paho MQTT, pyserial, aMQTT, tzdata for configurable IANA timezones, and Shapely/pyproj for local GIS calculations.
 Dependency pins are maintained in the [Linux requirements](meshcore_mqtt_service/requirements.txt)
 and [Windows requirements](meshcore_mqtt_service_windows/requirements.txt).
 
@@ -310,7 +349,10 @@ Missing/stale data is shown as `unavailable`, and a valid zero is `0in`.
 See the [Linux snowpack details](meshcore_mqtt_service/README.md#snowpack-snowpack)
 or [Windows snowpack details](meshcore_mqtt_service_windows/README.md#snowpack-snowpack)
 for sources, freshness rules, and limitations.
-The Windows and Linux ZIP archives under `dist/` are built from the current service folders.
+The Windows and Linux ZIP archives under `dist/` are generated snapshots of the service folders.
+The October 11, 2026 rebuild includes the GIS subcommands and dedicated command programs.
+The service ZIPs do not include shared datasets; supply `data/ebmud` separately
+and set `gis_settings.json`, or use a complete workspace installer.
 They contain source, launchers, setup scripts, tests, and documentation; local Python
 environments, runtime databases, and bytecode caches are excluded. Run the included
 setup/launcher after extraction to install the pinned dependencies.
@@ -333,3 +375,30 @@ not extend the deadline. The service must be running to check and send.
 See the [Linux code guide](meshcore_mqtt_service/README.md#where-to-adjust-the-algorithm)
 or [Windows code guide](meshcore_mqtt_service_windows/README.md#where-to-adjust-the-algorithm)
 for the commented algorithm, timing constants, database fields, and error behavior.
+
+## Local GIS commands
+
+The five local GIS commands are implemented in both platform source folders.
+Use `NAME ATTRIBUTE` for focused information or `NAME info` for the full summary.
+Use `[ATTRIBUTE] near LAT LON [MILES]` for proximity searches. Omitting miles
+returns exactly one closest matching feature, without a default radius. Explicit
+miles lists qualifying features within that radius, nearest first, subject to
+the result limit. Policy/amenity filters are applied before distance ranking.
+Boundary categories support parks, watersheds, reservoirs, and recreation areas.
+See the [subcommand reference](meshcore_mqtt_service/README.md#gis-subcommands).
+Settings are in each folder's `gis_settings.json`; source URLs and file paths
+remain in `data/ebmud/sources.json`. GIS commands operate offline. Full syntax,
+installation steps, geometry interpretation, and test commands appear in the
+[Linux GIS guide](meshcore_mqtt_service/README.md#local-gis-commands) and
+[Windows GIS guide](meshcore_mqtt_service_windows/README.md#local-gis-commands).
+Existing service settings require the five command registrations, dependency
+installation, an accessible data path, and a service restart. The rebuilt installers
+and service ZIPs contain the current command programs and settings templates.
+On upgrades, existing command definitions remain unchanged and newly added
+commands require explicit channel assignments when a channel registry exists.
+
+Current reply examples for all five GIS commands appear in the
+[Linux response examples](meshcore_mqtt_service/README.md#gis-response-examples)
+and [Windows response examples](meshcore_mqtt_service_windows/README.md#gis-response-examples).
+The examples show the reply bodies without the snapshot footer; the responder
+adds sender tags and splits long messages for radio transmission.

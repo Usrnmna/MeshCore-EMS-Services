@@ -20,6 +20,7 @@ import time
 
 from flood_alarm import ACKNOWLEDGMENT, FloodAlarms
 from channels import validate_channels, channel_config, migrate_config
+from scripts.time_settings import DEFAULT_TIMEZONE, display_timezone
 
 LOG = logging.getLogger("responder")
 
@@ -31,6 +32,9 @@ def validate_config(config, root):
         if config.get("channels") or config.get("channel_name"):
             validate_channels(config)
         return
+    if "timezone" in config and not isinstance(config["timezone"], str):
+        raise ValueError("responder.timezone must be an IANA timezone name")
+    display_timezone(config.get("timezone", DEFAULT_TIMEZONE))
     validate_channels(config)
     program_directory = config.get("program_directory")
     if program_directory is not None and (
@@ -64,9 +68,9 @@ def validate_config(config, root):
             isinstance(x, str) for x in spec.get("args", [])
         ):
             raise ValueError("Script args must be a list of fixed strings")
-        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location"}:
-            raise ValueError("Command input must be none, coordinates, route_number or location")
-        if spec.get("input") in {"coordinates", "route_number", "location"} and any(
+        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query"}:
+            raise ValueError("Command input must be none, coordinates, route_number, location or gis_query")
+        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query"} and any(
             c.isspace() for c in phrase
         ):
             raise ValueError("Commands with arguments must be a single token")
@@ -90,6 +94,15 @@ def match_command(phrase, commands):
     spec = commands.get(key)
     if spec is None or (spec.get("input", "none") == "none" and phrase != key):
         return None
+    if spec.get("input") == "gis_query":
+        from scripts.gis_data import parse_query
+
+        query = phrase[len(key):].strip() or "help"
+        try:
+            parse_query(query)
+        except ValueError as exc:
+            return key, [], str(exc)
+        return key, [query], None
     if spec.get("input") == "location":
         from scripts.uv_index import parse_location
 
@@ -235,6 +248,7 @@ async def run_script(root, spec, request, config):
         MESHCORE_CHANNEL_INDEX=str(request["channel_index"]),
         MESHCORE_REQUEST_ID=request["id"],
         MESHCORE_PHRASE=request["phrase"],
+        MESHCORE_TIMEZONE=display_timezone(config.get("timezone", DEFAULT_TIMEZONE)).key,
         PYTHONIOENCODING="utf-8",
     )
     proc = await asyncio.create_subprocess_exec(
@@ -493,7 +507,7 @@ class Responder:
             id="flood-alarm-check",
             phrase="!floodalarm " + location,
         )
-        spec = dict(script="scripts/flood_warn.py", args=["--snapshot"], timeout=45)
+        spec = dict(script="scripts/floodalarm.py", args=[], timeout=45)
         output, detail = await run_script(self.root, spec, request, self.config)
         try:
             data = json.loads(output)

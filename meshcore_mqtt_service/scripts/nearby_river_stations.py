@@ -3,7 +3,7 @@
 
 The public CDEC RR8 report supplies the fixed-width river-stage rows. NOAA's
 NWPS API supplies coordinates for the same five-character station identifiers.
-Only the Python standard library is required.
+Timezone display uses the shared reply setting and tzdata where the OS lacks it.
 """
 
 from __future__ import annotations
@@ -17,6 +17,12 @@ import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 from typing import Any
+from datetime import datetime, timedelta, timezone
+
+try:
+    from scripts.time_settings import display_timezone, format_timestamp
+except ModuleNotFoundError:
+    from time_settings import display_timezone, format_timestamp
 
 
 # USER SETTINGS AND SOURCES: distances are miles; timeouts are seconds.
@@ -123,7 +129,7 @@ def parse_cdec_report(report_text: str) -> dict[str, Any]:
                 time_labels = candidates
         if report_issued is None:
             issued_match = re.search(
-                r":\s*(\d{1,4}\s+[AP]M\s+P[DS]T\s+\w{3}\s+\w{3}\s+\d{2}\s+\d{4})",
+                r":\s*(\d{1,4}\s+[AP]M\s+P[DS]T\s+\w{3}\s+\w{3}\s+\d{1,2}\s+\d{4})",
                 line,
             )
             if issued_match:
@@ -263,6 +269,43 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def parse_report_time(value):
+    """Parse a dated CDEC issuance using its explicit PST/PDT offset; return None if unknown."""
+    match = re.fullmatch(r'(\d{1,4})\s+([AP]M)\s+(P[DS]T)\s+(.+)', value or '')
+    if not match:
+        return None
+    clock, ampm, zone, date = match.groups()
+    clock = clock.zfill(2) + '00' if len(clock) <= 2 else clock.zfill(4)
+    try:
+        parsed = datetime.strptime(f'{clock} {ampm} {date}', '%I%M %p %a %b %d %Y')
+    except ValueError:
+        return None
+    return parsed.replace(tzinfo=timezone(timedelta(hours=-7 if zone == 'PDT' else -8)))
+
+
+def reading_time(label, issued):
+    """Resolve an hourly CDEC label to its latest Pacific occurrence before issuance, including DST."""
+    if issued is None or not label:
+        return None
+    try:
+        hour = datetime.strptime(label, '%I%p').hour
+    except ValueError:
+        return None
+    pacific = display_timezone('America/Los_Angeles')
+    issued_utc = issued.astimezone(timezone.utc)
+    day = issued.astimezone(pacific).date()
+    candidates = []
+    for days_back in (0, 1):
+        for fold in (0, 1):
+            local = datetime.combine(day-timedelta(days=days_back), datetime.min.time()).replace(
+                hour=hour, tzinfo=pacific, fold=fold)
+            utc = local.astimezone(timezone.utc)
+            # Skip nonexistent spring-forward wall times and choose the latest fall-back occurrence.
+            if utc.astimezone(pacific).hour == hour and utc <= issued_utc:
+                candidates.append(utc)
+    return max(candidates) if candidates else None
+
+
 def format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str:
     """Summarize nearest-first station readings without inventing missing values."""
     if not stations:
@@ -270,11 +313,14 @@ def format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str:
     def stage(value):
         """Format a stage as feet or N/A without converting missing readings to zero."""
         return "N/A" if value is None else f"{value:g} ft"
-    issued = stations[0].get("report_issued") or "unknown report time"
-    lines = [f"CDEC report: {issued}. Within {radius:g} mi:"]
+    zone = display_timezone()
+    issued = parse_report_time(stations[0].get("report_issued"))
+    issued_text = format_timestamp(issued, zone) if issued else 'unknown report time'
+    lines = [f"CDEC report: {issued_text}. Within {radius:g} mi:"]
     for station in stations:
         latest_time = next((entry.get("time") for entry in reversed(station.get("river_stage_history", []))), None)
-        when = f" at {latest_time}" if latest_time else ""
+        observed = reading_time(latest_time, parse_report_time(station.get('report_issued')))
+        when = f" at {format_timestamp(observed, zone)}" if observed else ""
         lines.append(
             f"{station['station_id']} {station['station_name']} ({station['distance_miles']:g} mi): "
             f"stage {stage(station.get('river_stage_feet'))}{when}; "

@@ -70,12 +70,13 @@ def get_json(url, params=None):
         raise RuntimeError(UNAVAILABLE) from exc
 
 
-def resolve_location(parsed):
-    """Return GPS directly or an exact US city/ZIP match; enforce the requested state."""
+def resolve_location(parsed, fetch=None):
+    """Return GPS or an exact US city/ZIP match; optionally use a caller's JSON fetcher."""
+    fetch = fetch or get_json
     kind, value, state = parsed
     if kind == 'coordinates':
         return value
-    data = get_json(GEOCODING_URL, {
+    data = fetch(GEOCODING_URL, {
         'name': f'{value}, {state}' if state else value,
         'count': GEOCODING_RESULT_LIMIT, 'language': 'en', 'format': 'json',
         'countryCode': 'US',

@@ -1,10 +1,48 @@
 # Linux service release notes
 
-## Current source and rebuilt distributions
+## v0.9.0-beta - October 11, 2026
+
+- Adds focused GIS attributes and an explicit `info` mode. Policy and amenity
+  filters run before proximity ranking; no-radius queries return only the
+  closest matching feature. Explicit radii retain bounded result lists.
+- Adds boundary category selection and command help. The old default radius
+  setting is ignored; source snapshots and dedicated entry points are retained.
+
+- Gives every bundled command its own Python entry point under `scripts/`,
+  including `trail.py`, `rec.py`, `peak.py`, `park.py`, `boundary.py`, and
+  `floodalarm.py`. Shared helpers remain reusable; alarm scheduling is unchanged.
+- Retains the generic GIS CLI for compatibility and adds a regression check
+  against missing or shared command programs. GIS settings are included in
+  both service ZIPs and all three installer targets.
+
+- Adds `!trail`, `!rec`, `!peak`, `!park`, and `!boundary` using local EBMUD data.
+- Adds adjustable GIS settings, Shapely/pyproj dependencies, bounded replies,
+  snapshot integrity checks, spatial relationships, and regression tests.
+- Documents the manual deployment sequence while preserving transport, channel, credential, and timezone configuration.
+- Provides a manual twelve-dataset refresh with independent counts/ID coverage, manifest checksums, README count updates, and failure recovery.
+- Repairs six invalid polygons in three local datasets; preserves original response bytes and per-feature provenance. Raw refresh can reintroduce upstream defects.
+- Rebuilds the Windows x64 installer, Linux x86_64 and Raspberry Pi ARM64
+  installers, both service ZIPs, and the combined installer bundle from current
+  source. Version filenames use `v0.9.0-beta`; SHA-256 files identify the rebuild.
+- Complete installers include shared datasets and repair originals. Service ZIPs
+  require the shared data directory separately. Existing installed definitions
+  are preserved; older registrations and channel assignments require review.
+
+
+## October 8, 2026 source and distribution snapshot
+
+- Adds `!lightning` with eleven bundled commands in total: NWS thunderstorm and
+  dry-lightning potential over the next 24 hours, preserving even slight chances
+  and stated probabilities. Pacific time defaults to PST/PDT; the installed
+  shared `responder.timezone` is manually adjustable without rebuilding and
+  persists across upgrades for every MeshCore reply program.
+- Adds pinned `tzdata` for reliable IANA timezone support on Windows. Rebuilt
+  ZIPs/installers include source, configuration, tests, and function documentation.
+  Existing configurations need explicit command/channel assignment and a restart.
 
 - Added `!heatadv` for GPS coordinates, US ZIP codes, and city/state input, with
   California as the city default. Reports each active NWS heat warning, watch,
-  and advisory using the requested wording and supplied location text.
+  and advisory using the defined reply format and supplied location text.
 - Confirms NWS coverage before reporting no advisories; unavailable or invalid
   data produces an error. Includes paired command registration, offline tests,
   and usage documentation. Rebuilt ZIPs and installers include this change;
@@ -104,7 +142,7 @@ See the [project release notes](../RELEASE_NOTES.md) for shared implementation
 details, the standalone satellite catalog, EBMUD reference data, workspace cleanup,
 and validation limits. Those reference tools/data are separate from the service ZIP.
 
-## v0.1.1-alpha — September 20, 2026
+## v0.1.1-alpha â€” September 20, 2026
 
 Compared with `v0.1.0-alpha`, this Linux service adds:
 
@@ -124,7 +162,7 @@ requires `AIRNOW_API_KEY`.
 ### Upgrade
 
 Stop the service, back up custom settings, copy the new folder contents, and merge
-your MQTT/channel changes into the new `config.json`. Preserve the new `!uv` and
+existing MQTT/channel settings into the new `config.json`. Preserve the new `!uv` and
 `!floodwarn` command entries. Then run:
 
 ```bash

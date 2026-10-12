@@ -1,8 +1,31 @@
+# Dedicated command programs and shared helpers in scripts/ remain trackable.
+# Retain tests/test_command_programs.py, GIS tests, config.json, gis_settings.json,
+# requirements.txt, and documentation in standalone service repositories.
+
 .venv/
-.venv-linux/
+.venv-*/
 runtime/
 __pycache__/
 *.py[cod]
+
+# Generated dependency metadata, pip caches, and local test reports
+*.egg-info/
+pip-wheel-metadata/
+.pip-cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Keep local environment settings out of standalone package repositories
+.env
+.env.*
+!.env.example
 
 # Local service credentials, including private channel keys
 environment.json
@@ -16,3 +39,26 @@ backups/
 *.sqlite3-wal
 *.sqlite3-shm
 *.sqlite3-journal
+
+# Local builds and extracted distributions in standalone service copies
+.build/
+dist/
+# dist/ covers every release version, including installers, bundles, and checksums.
+# Already tracked distribution files remain tracked until explicitly removed.
+
+# Conventional Python build output and interrupted archive publication
+build/
+*.zip.tmp
+
+# Transient GIS maintenance state; retain snapshots, manifests, and originals/.
+.refresh.lock
+.refresh-*/
+.test-refresh-*/
+gis_settings.json.tmp
+
+# Local operating-system metadata and editor swap files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo

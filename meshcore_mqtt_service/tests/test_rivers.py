@@ -56,6 +56,7 @@ class RiversTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             shutil.copyfile(service.ROOT / 'scripts/nearby_river_stations.py', root / 'nearby_river_stations.py')
+            shutil.copyfile(service.ROOT / 'scripts/time_settings.py', root / 'time_settings.py')
             source = '''import nearby_river_stations as r
 REPORT = '<pre>: 500 PM PDT Thu Sep 17 2026\\n01PM 02PM 03PM 04PM 05PM\\nNEAR1 : Near River 10 / 20 : 1 / 2 / 3 / 4 / 5\\nNEAR2 : Other River / 41.3 : 1 / 2 / 3 / 4 / +\\nFAR01 : Far River 50 / 60 : 1 / 2 / 3 / 4 / 5</pre>'
 def get_text(url, timeout):
@@ -100,9 +101,9 @@ raise SystemExit(r.main())
     async def test_real_script_tagged_nearest_stations_and_missing_readings(self):
         text = await self.fixture_reply()
         self.assertIn('NEAR1 Near River', text)
-        self.assertIn('stage 5 ft at 05PM; AS 10 ft, FS 20 ft', text)
-        self.assertIn('stage N/A at 05PM; AS N/A, FS 41.3 ft', text)
-        self.assertIn('500 PM PDT Thu Sep 17 2026', text)
+        self.assertIn('stage 5 ft at 2026-09-17 17:00 PDT; AS 10 ft, FS 20 ft', text)
+        self.assertIn('stage N/A at 2026-09-17 17:00 PDT; AS N/A, FS 41.3 ft', text)
+        self.assertIn('CDEC report: 2026-09-17 17:00 PDT', text)
         self.assertNotIn('Far River', text)
         self.assertLess(text.index('NEAR1'), text.index('NEAR2'))
 

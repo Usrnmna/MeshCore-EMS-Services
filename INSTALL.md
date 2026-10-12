@@ -1,4 +1,4 @@
-# Install MeshCore EMS v0.3.0-beta as an OS service
+# Install MeshCore EMS v0.9.0-beta as an OS service
 
 These **online installers** include the complete maintained workspace: both
 platform source packages, bundled responder commands, tests and documentation,
@@ -6,58 +6,23 @@ the standalone satellite catalog, EBMUD GeoJSON, and the supplied satellite
 database/source snapshots. They automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
-ZIPs are excluded. The catalog and GIS data remain reference tools, not new radio
-commands or automatically scheduled refresh jobs.
-
-## Heat command source update
-
-Current source contains ten commands, including `!heatadv`. Rebuilt installers
-and service ZIPs include this command and the component function references. Older
-copies with the same version name can predate these additions; verify the supplied
-checksums and payload manifest when distributing a build. No new Python dependency
-or API key is required.
-
-For an existing installation, stop the service, back up its active configuration,
-and copy `scripts/heat_adv.py` from the appropriate platform source into the active
-service package's `scripts/` directory, beside `uv_index.py`. Merge the `!heatadv`
-entry from the source `config.json` into the active `responder.commands` object:
-
-```json
-"!heatadv": {
-  "script": "scripts/heat_adv.py",
-  "args": [],
-  "input": "location",
-  "timeout": 45,
-  "max_reply_parts": 12,
-  "error_reply": "Heat alert lookup unavailable. Please try again later.",
-  "channels": ["default"]
-}
-```
-
-Replace `default` with the intended existing channel IDs if your registry differs;
-do not replace the entire configuration. Restart after the change. The platform
-heat guides describe [Linux usage](meshcore_mqtt_service/README.md#heat-alerts-heatadv)
-and [Windows usage](meshcore_mqtt_service_windows/README.md#heat-alerts-heatadv).
-Installer upgrades preserve existing program assignments and disable newly added
-programs when an existing channel registry is retained, until channels are
-explicitly assigned. Rebuilding an installer alone does not enable a new command
-on an existing custom registry.
-
-The [Python function reference](tools/FUNCTION_REFERENCE.md) explains installer
-configuration, migration, and build functions. It distinguishes disk writes,
-backups, and validation from radio/service operations.
+ZIPs are excluded. The satellite catalog remains a standalone reference tool.
+The October 11, 2026 rebuild includes all sixteen commands, five local GIS
+commands with focused subcommands, and repaired local GeoJSON snapshots. See
+[GIS source deployment](#gis-source-deployment) for external settings and manual
+updates. Neither GIS nor satellite refresh is scheduled automatically.
 
 ## Choose an installer
 
 | File | Target |
 | --- | --- |
-| `MeshCore-EMS-v0.3.0-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.3.0-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
-| `MeshCore-EMS-v0.3.0-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
+| `MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
+| `MeshCore-EMS-v0.9.0-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
+| `MeshCore-EMS-v0.9.0-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
-Outputs are under `dist/v0.3.0-beta/`, alongside `SHA256SUMS.txt`.
+Outputs are under `dist/v0.9.0-beta/`, alongside `SHA256SUMS.txt`.
 All three installers and the guides are also in
-`dist/MeshCore-EMS-v0.3.0-beta-installers.zip`, with a separate bundle checksum.
+`dist/MeshCore-EMS-v0.9.0-beta-installers.zip`, with a separate bundle checksum.
 The Linux packages are executable, self-extracting online installers; they install
 the OS's native Python and dependency wheels for the target architecture. They
 are not precompiled/frozen Python applications. Other Linux distributions and
@@ -99,7 +64,7 @@ publisher release.
 For unattended installation from an administrator terminal:
 
 ```bat
-MeshCore-EMS-v0.3.0-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
+MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
 ```
 
 Add `/NOSTART=1` to register without starting now (automatic startup remains enabled).
@@ -111,7 +76,7 @@ before starting. The linked multi-channel guide supplies the exact import format
 Use Windows Services to stop/start **MeshCore EMS Services**, or use administrator
 PowerShell: `Restart-Service MeshCoreEMS`. Logs are `runtime\service.log` and
 `runtime\wrapper.log` under ProgramData. Installation diagnostics are in
-`ProgramData\MeshCore-EMS\install.log` and the Inno Setup log in your temp folder.
+`ProgramData\MeshCore-EMS\install.log` and the Inno Setup log in the Windows temporary directory.
 If dependency download/setup fails, fix the reported error and rerun the installer;
 setup does not claim success for a failed dependency or service step.
 
@@ -133,8 +98,8 @@ Windows wizard: select **Wi-Fi / TCP**, then enter the node IP and port; or sele
 preserves the installed connection. Unattended examples:
 
 ```bat
-MeshCore-EMS-v0.3.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
-MeshCore-EMS-v0.3.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
+MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
+MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
 ```
 
 Direct PowerShell setup exposes `-Transport`, `-SerialPort`, `-TcpHost`, `-TcpPort`,
@@ -145,8 +110,8 @@ under that account before relying on unattended BLE operation.
 Linux (use the ARM64 filename on Raspberry Pi):
 
 ```bash
-sudo bash MeshCore-EMS-v0.3.0-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
-sudo bash MeshCore-EMS-v0.3.0-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
+sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
+sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
 ```
 
 For BLE, the Linux installer installs BlueZ and enables its service. Pair/trust
@@ -167,9 +132,9 @@ it cannot verify pairing, service-account Bluetooth access, or TCP reachability.
 Run the matching installer with Bash. Automatic USB serial detection is the default:
 
 ```bash
-sudo bash MeshCore-EMS-v0.3.0-beta-raspberry-pi-arm64.run --port auto
+sudo bash MeshCore-EMS-v0.9.0-beta-raspberry-pi-arm64.run --port auto
 # Intel/AMD:
-sudo bash MeshCore-EMS-v0.3.0-beta-linux-x86_64.run --port auto
+sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --port auto
 ```
 
 Use `--port auto` to rescan USB serial devices at each start. A new installation
@@ -232,7 +197,7 @@ for a commented program, exact paths, permissions, and check commands.
 Edit `environment.json` in the installed configuration directory as administrator:
 
 ```json
-{"AIRNOW_API_KEY": "your-key"}
+{"AIRNOW_API_KEY": "REPLACE_WITH_AIRNOW_KEY"}
 ```
 
 Among the lookup programs, only AirNow requires a key. Private MeshCore channels
@@ -279,6 +244,136 @@ On Windows, use an administrator terminal:
 Refreshing the satellite catalog is an explicit operation. Existing snapshots are
 not overwritten during an upgrade. Installed snapshot age and source coverage
 still limit their usefulness; inclusion is not proof of current RF reception.
+
+## GIS source deployment
+
+Current source contains sixteen commands. The five GIS commands are `!trail`,
+`!rec`, `!peak`, `!park`, and `!boundary`. Rebuilt installers include their
+programs, dependencies, settings templates, twelve datasets, and preserved
+polygon-repair originals. Service ZIPs include programs and settings but require
+the shared datasets separately. Manual source updates must update the deployed
+application and its active configuration together.
+
+A fresh installer deployment uses the bundled `gis_settings.json` and its
+`../data/ebmud` path in the installed application tree. The installer also copies
+missing reference files to writable state storage, but GIS queries use that copy
+only after external settings select it. Existing command definitions are preserved
+on upgrade; merge any older GIS dispatcher definitions and the dedicated
+`floodalarm.py` registration as described below. Commands newly added to an
+existing channel registry start without channel assignments and require explicit
+assignment before use. External GIS settings survive application replacement;
+manual edits to the bundled settings template can be overwritten.
+
+1. Stop the service and retain a recoverable copy of its program files, active
+   configuration, GIS settings, and data before replacing them.
+2. Deploy the matching platform's current `responder.py`, `scripts/gis_data.py`,
+   `scripts/gis_spatial.py`, `scripts/gis_lookup.py`, the five dedicated programs
+   `scripts/trail.py`, `rec.py`, `peak.py`, `park.py`, `boundary.py`,
+   `scripts/floodalarm.py` for the alarm monitor, `gis_settings.json`, and
+   `requirements.txt`. The updated responder recognizes `gis_query`; copying only
+   the lookup scripts into an old release is insufficient.
+3. Install the current platform requirements using the service interpreter below.
+   Shapely and pyproj are required in that interpreter, including for name searches.
+4. Supply the complete `data/ebmud` directory, including `sources.json`, its twelve
+   referenced datasets, and preserved originals/repair metadata when using repaired
+   snapshots. Keep maintenance scripts and the data README alongside it for manual
+   refresh and repair. Stop maintenance during deployment; do not copy active locks
+   or unresolved recovery directories into the destination.
+5. Set `data_directory` in `gis_settings.json` to the deployed data directory.
+   The default `../data/ebmud` is relative to the settings file, not to the runner's
+   external `config.json`. An absolute path is recommended for installed services.
+6. Merge the five definitions from the matching source `config.json` into the active
+   `responder.commands`. For `!floodalarm`, set `script` to `scripts/floodalarm.py`
+   with an empty `args` list; its subscription settings remain unchanged.
+   Preserve existing connection, MQTT, credentials, timezone,
+   and command settings. Assign explicit IDs from the installed channel registry.
+7. Run the runner's offline configuration check from the
+   [multi-channel guide](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md#add-python-programs-after-installation),
+   then exercise the GIS CLI below with the same settings and service account.
+   The runner check alone does not establish dataset integrity or spatial results.
+   Restart and verify replies on the permitted channels.
+
+| Item | Linux installed default | Windows installed default |
+| --- | --- | --- |
+| Service folder | `/opt/meshcore-ems/current/meshcore_mqtt_service` | `C:\Program Files\MeshCore-EMS\meshcore_mqtt_service_windows` |
+| Interpreter | `/opt/meshcore-ems/current/.venv/bin/python` | `C:\Program Files\MeshCore-EMS\python\python.exe` |
+| Active config | `/etc/meshcore-ems/config.json` | `C:\ProgramData\MeshCore-EMS\config.json` |
+| External GIS settings (manual setup) | `/etc/meshcore-ems/gis_settings.json` | `C:\ProgramData\MeshCore-EMS\gis_settings.json` |
+| Writable GIS data | `/var/lib/meshcore-ems/data/ebmud` | `C:\ProgramData\MeshCore-EMS\data\ebmud` |
+
+The current installer configuration utility does not create, relocate, or merge
+`gis_settings.json`. For external GIS settings, copy the source template to the
+chosen path and add `--settings` and that absolute path to **each** dedicated GIS
+command's `args`. Point each registration to its own `scripts/COMMAND.py` file. For example:
+
+```json
+["--settings", "/etc/meshcore-ems/gis_settings.json"]
+```
+
+The equivalent Windows path in JSON is
+`"C:\\ProgramData\\MeshCore-EMS\\gis_settings.json"`.
+Keep settings readable by the service account and writable only by administrators.
+The service needs read access to the datasets; the maintenance account needs write
+access. Installer upgrades replace bundled application files. Retain external settings
+and verify deployed command definitions and channel assignments after an upgrade.
+
+Linux dependency installation and offline example, after copying files/settings:
+
+```bash
+sudo /opt/meshcore-ems/current/.venv/bin/python -m pip install -r /opt/meshcore-ems/current/meshcore_mqtt_service/requirements.txt
+sudo -u meshcore-ems /opt/meshcore-ems/current/.venv/bin/python /opt/meshcore-ems/current/meshcore_mqtt_service/scripts/trail.py --settings /etc/meshcore-ems/gis_settings.json "Bear Creek"
+```
+
+Windows dependency installation and offline example, from administrator PowerShell:
+
+```powershell
+& 'C:\Program Files\MeshCore-EMS\python\python.exe' -m pip install -r 'C:\Program Files\MeshCore-EMS\meshcore_mqtt_service_windows\requirements.txt'
+& 'C:\Program Files\MeshCore-EMS\python\python.exe' 'C:\Program Files\MeshCore-EMS\meshcore_mqtt_service_windows\scripts\trail.py' --settings 'C:\ProgramData\MeshCore-EMS\gis_settings.json' 'Bear Creek'
+```
+
+An administrator CLI result does not prove LocalService file access. Verify that
+account's permissions before relying on unattended operation. Source-folder
+deployments use their `.venv-linux` or `.venv` interpreter instead. See the
+[Linux](meshcore_mqtt_service/README.md#local-gis-commands) and
+[Windows](meshcore_mqtt_service_windows/README.md#local-gis-commands) guides for
+syntax, tuning limits, snapshot checks, and interpretation. GIS subcommands
+require the updated `gis_data.py`, `gis_lookup.py`, and `gis_spatial.py` helpers
+in both source packages, plus the current responder for argument-free help.
+Dedicated command registrations remain unchanged. Older `default_radius_miles`
+settings are ignored and can be removed; no-radius queries now return only the
+closest match. Explicit radii still use `maximum_radius_miles`. Data maintenance is
+manual; [refresh and repair instructions](data/ebmud/README.md#manual-refresh)
+apply to the deployed copy of the data directory. They do not rebuild artifacts.
+
+## Lightning command and timezone
+
+`!lightning` uses NWS point alerts and thunderstorm/dry-lightning forecasts for the
+next 24 hours. It reports stated probabilities, including slight chance, rather
+than observations of individual strikes. Coverage and complete usable input are
+required for a no-lightning result. See the
+[command guide](meshcore_mqtt_service/README.md#lightning-potential-lightning).
+
+Set the one `responder.timezone` value in the active configuration to an IANA name,
+such as `America/Los_Angeles`, and restart. The responder exports `MESHCORE_TIMEZONE`
+to all programs; clock, AQI, river, and lightning output use that setting. The
+installed configuration merger preserves it on upgrade. Provider text with its
+own timezone is labeled separately. Install the current `requirements.txt` for
+the pinned `tzdata` dependency. No per-command timezone setting is required.
+
+## Heat command source update
+
+`!heatadv` accepts US GPS, ZIP, or city/state locations, preserves supplied
+location wording, and reports every active NWS extreme heat warning, watch, or
+heat advisory. Failed or incomplete requests are not reported as no advisories.
+The [heat guide](meshcore_mqtt_service/README.md#heat-alerts-heatadv) gives exact
+responses, standalone usage, and coverage limitations.
+
+The recorded October 8 build includes heat, lightning, and shared timezone support.
+For an older deployment, deploy the matching current service source and requirements,
+merge the corresponding command definitions, and restart after offline checks.
+Existing registries leave newly merged installer commands disabled until channel IDs
+are assigned. Preserve existing settings; replacing the active configuration with
+the source template would discard deployment-specific values.
 
 ## Build and validation
 

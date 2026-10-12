@@ -1,7 +1,10 @@
 # EBMUD local GIS references
 
 These files are shared reference data for programs within MC-EMS-Services.
-Reading them requires no network connection, account, API key, or GIS library.
+Basic JSON reading requires no network connection, account, API key, or GIS
+library. Service spatial queries require Shapely and pyproj; permanent polygon
+repair requires Shapely. Current counts for the twelve datasets appear below.
+See the [utility function reference](FUNCTION_REFERENCE.md) for maintenance APIs.
 
 | File | Contents |
 | --- | --- |
@@ -10,7 +13,7 @@ Reading them requires no network connection, account, API key, or GIS library.
 | [trail_endpoints.geojson](trail_endpoints.geojson) | 78 trail start/end points from `EBMUDtrails2D_ENDS/MapServer/0`. |
 | [peaks.geojson](peaks.geojson) | 90 peak points from `peaks/MapServer/0`, including unnamed peaks. |
 | [additional_trails.geojson](additional_trails.geojson) | 89 additional trail features from `trailsMoreLight/MapServer/0`. |
-| [boundaries/reservoir_annotations.geojson](boundaries/reservoir_annotations.geojson) | 6 reservoir annotation records from boundary layer 0; one has null geometry. |
+| [boundaries/reservoir_annotations.geojson](boundaries/reservoir_annotations.geojson) | 6 reservoir annotation records from boundary layer 0; null geometry is retained. |
 | [boundaries/reservoirs.geojson](boundaries/reservoirs.geojson) | 6 reservoir polygons from boundary layer 2. |
 | [boundaries/recreation_areas.geojson](boundaries/recreation_areas.geojson) | 2 recreation-area polygons from boundary layer 3. |
 | [boundaries/watershed_boundary.geojson](boundaries/watershed_boundary.geojson) | 5 watershed-boundary features from boundary layer 4. |
@@ -20,8 +23,9 @@ Reading them requires no network connection, account, API key, or GIS library.
 | [boundaries/service_metadata.json](boundaries/service_metadata.json) | Raw boundary service metadata, including layer names, IDs, and default visibility. This is ArcGIS metadata, not GeoJSON. |
 | [sources.json](sources.json) | Original download URLs, retrieval times in UTC, feature counts, byte counts, and SHA-256 checksums. Dataset paths are relative to this directory. |
 
-All GeoJSON files preserve the raw response bytes from EBMUD. They have not
-been reformatted, simplified, or filtered. Coordinates use WGS 84 (EPSG:4326)
+Unrepaired GeoJSON files preserve the raw response bytes from EBMUD. Three
+polygon datasets have local geometry repairs documented below; their original
+raw responses are preserved separately. No features or attributes were removed. Coordinates use WGS 84 (EPSG:4326)
 in **longitude, latitude** order. Feature counts describe this snapshot and
 may change when refreshed; trail features are not necessarily unique named trails.
 
@@ -29,10 +33,10 @@ The boundary service is a collection of layers, so each queryable layer is
 saved separately. Layers 6 and 7 are included even though the webapp hides them
 by default. Boundary layer 1 (`Default`) is a map-only annotation sublayer;
 its parent, layer 0, supplies the queryable annotation records. There is no
-separate layer-1 GeoJSON file. The repeated trail-endpoints URL is stored once.
+separate layer-1 GeoJSON file. Each dataset has one local reference file.
 
-One reservoir annotation feature has `geometry: null` in EBMUD's response.
-It is retained unchanged. Programs doing spatial calculations should skip
+Reservoir annotation features may have `geometry: null` in EBMUD responses.
+Such records are retained unchanged; current counts appear in the manifest. Programs doing spatial calculations should skip
 features with null geometry. Annotation GeoJSON does not reproduce the full
 ArcGIS label rendering.
 
@@ -79,7 +83,7 @@ def load_dataset(dataset_name):
     return json.loads(local_file.read_text(encoding="utf-8"))
 
 
-# Load only the datasets your program needs; no network calls are made.
+# Only datasets required by the program need to be loaded; no network calls are made.
 trails = load_dataset("trails")
 recreation_points = load_dataset("recreation_points")
 trail_endpoints = load_dataset("trail_endpoints")
@@ -108,9 +112,15 @@ For a program inside either platform package's `scripts/` directory, set
 `PROJECT_ROOT = Path(__file__).resolve().parents[2]` instead. For a program
 directly inside either platform package, use `parents[1]`.
 
-The MeshCore commands do not read these datasets. Local programs can access the
-shared directory from either platform package inside this project. Complete
-workspace installers include the reference data; standalone service source ZIPs
+The `!trail`, `!rec`, `!peak`, `!park`, and `!boundary` commands read these
+datasets through each platform package's local GIS modules. The data directory
+is configured in that package's `gis_settings.json`. Named attributes return
+focused information; `info` requests full details. Filtered `near` queries select
+qualifying features before distance ranking, and an omitted radius returns only
+the closest match. These query changes do not modify the reference files. Complete
+workspace installers rebuilt on October 11, 2026 include these datasets, the
+GIS commands, polygon repairs, and preserved originals. Rebuilding does not refresh
+remote data; retrieval dates remain in the manifest. Standalone service source ZIPs
 exclude this shared directory. A program using these files needs a data path
 that matches its installation layout.
 
@@ -132,7 +142,7 @@ that matches its installation layout.
   features use `COUNTY`; adjacent local parks use `SITE_NAME` and `AGNCY_NAME`.
 
 Each feature contains `properties` (attributes) and `geometry` (coordinates,
-or null for the annotation record noted above).
+or null for annotation records without geometry).
 Photos and trail-profile images are not embedded in these GeoJSON files.
 
 ## Sources and freshness
@@ -153,12 +163,140 @@ These are manually downloaded snapshots, not live trail-condition or closure
 feeds. `sources.json` records download time, not the date EBMUD last updated
 each feature. Local reads never refresh the data automatically.
 
-To refresh, retrieve each `datasets` entry's `source_url` in `sources.json`, check that it returns
-a GeoJSON `FeatureCollection`, and compare the downloaded feature count with
-the layer's `/query?where=1%3D1&returnCountOnly=true&f=json` result. Do not replace
-a complete snapshot with a truncated response; fetch all pages if the service's
-record limit is exceeded. Update the manifest's timestamps, counts, byte sizes,
-and checksums and the counts in this README when replacing the files.
-Refresh `service_resources.boundaries.source_url` separately as ordinary JSON
-metadata, updating its retrieval time, byte count, and checksum. Check its layer
-list for changes in available layers or query capabilities.
+## Manual refresh
+
+Python 3.11 or newer is sufficient; no third-party packages are required.
+From the project root:
+
+```text
+python data/ebmud/refresh_geojson.py
+```
+
+The script resolves its data directory relative to its own location and can
+also be invoked by absolute path from another working directory. It is never
+run automatically by service startup or by importing the module.
+
+Download and verify without replacing the reference files:
+
+```text
+python data/ebmud/refresh_geojson.py --check
+```
+
+Sources and local filenames are configured in `sources.json` under `datasets`.
+All 12 current entries are processed. Network settings are grouped at the top of
+[refresh_geojson.py](refresh_geojson.py):
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `REQUEST_TIMEOUT_SECONDS` | 60 | Timeout per HTTP request. |
+| `REQUEST_ATTEMPTS` | 3 | Maximum attempts for network failures. |
+| `RETRY_DELAY_SECONDS` | 2 | Delay between failed network attempts. |
+| `MAX_RESPONSE_BYTES` | 104857600 (100 MiB) | Upper bound per response. |
+| `DATA_DIRECTORY` | Script directory | Manifest, datasets, README, lock, and recovery directory root. |
+
+Source URLs must request all fields, all records (`where=1%3D1`), geometry,
+WGS 84 (`outSR=4326`), and GeoJSON. New dataset entries require an existing
+local GeoJSON file and exactly one matching count row in the table above.
+
+For each dataset, the script verifies the returned feature count against an
+independent count query and compares unique feature IDs with the complete
+object-ID lists retrieved before and after the download. ArcGIS errors,
+truncation, duplicate or missing IDs, and changing record membership cause
+failure before local replacement. Truncated responses are rejected rather
+than merged, preserving the raw-response format; exceeding the server record
+limit requires a future pagination change. These checks cannot rule out remote
+attribute changes that occur without changing record membership.
+
+After all downloads pass, the script stages the raw responses, updated manifest,
+and README count rows. The manifest records retrieval times, counts, sizes,
+SHA-256 checksums, geometry types, and null-geometry counts. Unrelated manifest
+fields remain unchanged. Boundary `service_resources` metadata is not refreshed;
+its existing retrieval time and checksum continue to describe its saved file.
+
+Replacement errors trigger restoration of previously replaced files. An abrupt
+process termination or power loss can leave a mixed generation: `.refresh-*`
+directories retain previous files under `previous/` for manual recovery. A
+`.refresh.lock` file prevents overlapping runs. After interruption, confirm that
+no refresh process is running, inspect any recovery directory, restore previous
+files if necessary, and remove the stale lock before retrying. Programs should
+avoid reading the datasets during replacement because the multi-file update is
+not atomic. Failed runs return a nonzero exit status.
+
+The script does not build or modify installers.
+
+Offline verification:
+
+```text
+python -m unittest discover -s data/ebmud -p test_refresh_geojson.py -v
+```
+
+## Local polygon repairs
+
+The following repair record describes the locally repaired snapshot; after a
+refresh, `sources.json` is authoritative for whether those repairs are still applied.
+
+Six invalid polygon geometries were repaired with `shapely.make_valid`:
+
+| Dataset | Feature IDs |
+| --- | --- |
+| `watershed_boundary` | 1 |
+| `ebrpd` | 249, 178, 190, 72 |
+| `ebrpd_display_2_jan_14` | 10 |
+
+The original affected responses are stored in `originals/`, keyed by SHA-256.
+Each affected manifest entry contains `geometry_repair` with original path,
+checksum, byte count, per-feature validity reasons, method/library versions,
+and processing timestamp. Retrieval timestamps retain their original meaning.
+Only invalid geometry was changed; feature IDs, counts, properties, valid
+geometries, and nulls were preserved. File checksums and byte counts describe the
+current repaired files. All repaired results remained polygonal and nonempty.
+This verifies geometric validity, not surveyed or legal boundary accuracy.
+
+The repair can be repeated manually with the service interpreter after installing
+its requirements (`shapely==2.1.1`). Run from the workspace root:
+
+```text
+python data/ebmud/repair_geojson.py
+```
+
+A raw refresh may reintroduce invalid upstream polygons. It clears obsolete
+`geometry_repair` metadata for replaced snapshots and retains archived originals.
+Run the repair again afterward when permanent local repairs are required. GIS
+queries also repair invalid shapes in memory, without writing source files.
+
+Repair verifies manifest byte counts/checksums before processing. Invalid
+non-polygon geometry, an empty result, or a non-polygon repair result stops the
+operation for manual review. Valid geometries and nulls are unchanged. The tool
+uses the same `.refresh.lock` and staged replacement/recovery mechanism as refresh.
+A second run against valid snapshots makes no replacements. The CLI has no
+dataset-selection or tuning flags; the Python `repair(directory=...)` function
+supports an explicit data directory. Refresh sources remain in `sources.json`.
+
+## Maintenance workflow and provenance
+
+1. Use the deployed data directory, not an unrelated workspace copy. Allow GIS
+   requests to finish or stop the service during maintenance.
+2. Run `refresh_geojson.py --check` when download verification alone is needed;
+   run `refresh_geojson.py` to replace all snapshots after complete verification.
+3. Run `repair_geojson.py` with Shapely installed when permanent valid polygon
+   snapshots are required. Refresh validation checks completeness and structure;
+   it does not validate polygon topology.
+4. Inspect manifest counts, timestamps, checksums, and any `geometry_repair`
+   records. Run a local GIS command using the intended settings before resuming
+   service operation. Keep archived originals with the repaired datasets.
+
+| Manifest field | Meaning |
+| --- | --- |
+| `source_url`, `path` | Upstream raw query and local path relative to this directory. |
+| `retrieved_at_utc` | Download time, independent of source feature-edit or repair time. |
+| `feature_count`, `geometry_types`, `null_geometry_count` | Current dataset inventory. |
+| `byte_count`, `sha256` | Integrity of the currently referenced local file, including any explicit repairs. |
+| `geometry_repair` | Repair time, algorithm/library versions, original path/hash/size, and repaired feature IDs/reasons/types. Present only for explicitly repaired snapshots. |
+| `service_resources` | Separately retained boundary metadata and map-only layer information; not refreshed by the GeoJSON utility. |
+
+The basic loader above demonstrates direct JSON access. Applications requiring
+the service's integrity and refresh checks should use its `Snapshot` loader and
+call `verify_unchanged()` before returning a result; its supported layer mapping
+excludes annotation-only records. See the
+[Linux GIS functions](../../meshcore_mqtt_service/FUNCTION_REFERENCE.md#scripts-gis-data-py)
+or [Windows GIS functions](../../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md#scripts-gis-data-py).

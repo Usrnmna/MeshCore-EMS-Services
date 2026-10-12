@@ -1,5 +1,5 @@
 {
-  "description": "Raw EBMUD trail map GeoJSON snapshots for local project use.",
+  "description": "EBMUD local GIS snapshots; geometry repairs, if present, are recorded per dataset.",
   "frontend_url": "https://webapps.ebmud.com/trailmap/",
   "path_base": "Directory containing this manifest.",
   "coordinate_reference_system": "WGS 84 (EPSG:4326)",
@@ -118,8 +118,8 @@
       "path": "boundaries/watershed_boundary.geojson",
       "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/4/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
       "retrieved_at_utc": "2026-09-24T23:10:36.689315+00:00",
-      "byte_count": 262514,
-      "sha256": "dee7a3a112a3706690acd9b29f6d81084cf38e65ddc549c30cbb57c74c06b452",
+      "byte_count": 257819,
+      "sha256": "ee69807a0a4da35985fb99d3cede09a3d5440c45ff595f91ba1381211e77fa62",
       "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/4",
       "layer_id": 4,
       "feature_count": 5,
@@ -127,28 +127,80 @@
         "MultiPolygon",
         "Polygon"
       ],
-      "null_geometry_count": 0
+      "null_geometry_count": 0,
+      "geometry_repair": {
+        "processed_at_utc": "2026-10-12T02:27:01.647776+00:00",
+        "method": "shapely.make_valid (default linework)",
+        "shapely_version": "2.1.1",
+        "geos_version": "3.13.1",
+        "original_path": "originals/dee7a3a112a3706690acd9b29f6d81084cf38e65ddc549c30cbb57c74c06b452.geojson",
+        "original_sha256": "dee7a3a112a3706690acd9b29f6d81084cf38e65ddc549c30cbb57c74c06b452",
+        "original_byte_count": 262514,
+        "features": [
+          {
+            "feature_id": 1,
+            "reason": "Ring Self-intersection[-122.170444891596 37.8345560611704]",
+            "before_type": "MultiPolygon",
+            "after_type": "MultiPolygon"
+          }
+        ]
+      }
     },
     "ebrpd": {
       "path": "boundaries/ebrpd.geojson",
       "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/5/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
       "retrieved_at_utc": "2026-09-24T23:10:37.046550+00:00",
-      "byte_count": 2173292,
-      "sha256": "3581563512dd9f59bc8e098f311ddcebe05b0455800e3a6198e9c7669ed7e45f",
+      "byte_count": 2134478,
+      "sha256": "78759a66b8e39c3b7c302e94cead454f341a1cefc9b67324033c0680cf408da9",
       "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/5",
       "layer_id": 5,
       "feature_count": 324,
       "geometry_types": [
         "Polygon"
       ],
-      "null_geometry_count": 0
+      "null_geometry_count": 0,
+      "geometry_repair": {
+        "processed_at_utc": "2026-10-12T02:27:01.801764+00:00",
+        "method": "shapely.make_valid (default linework)",
+        "shapely_version": "2.1.1",
+        "geos_version": "3.13.1",
+        "original_path": "originals/3581563512dd9f59bc8e098f311ddcebe05b0455800e3a6198e9c7669ed7e45f.geojson",
+        "original_sha256": "3581563512dd9f59bc8e098f311ddcebe05b0455800e3a6198e9c7669ed7e45f",
+        "original_byte_count": 2173292,
+        "features": [
+          {
+            "feature_id": 249,
+            "reason": "Ring Self-intersection[-122.380165054946 37.9843153520305]",
+            "before_type": "Polygon",
+            "after_type": "Polygon"
+          },
+          {
+            "feature_id": 178,
+            "reason": "Ring Self-intersection[-122.07752087652 37.8526482332415]",
+            "before_type": "Polygon",
+            "after_type": "Polygon"
+          },
+          {
+            "feature_id": 190,
+            "reason": "Ring Self-intersection[-122.305193219276 37.8655857781149]",
+            "before_type": "Polygon",
+            "after_type": "Polygon"
+          },
+          {
+            "feature_id": 72,
+            "reason": "Ring Self-intersection[-122.173753798199 38.031058660243]",
+            "before_type": "Polygon",
+            "after_type": "Polygon"
+          }
+        ]
+      }
     },
     "ebrpd_display_2_jan_14": {
       "path": "boundaries/ebrpd_display_2_jan_14.geojson",
       "source_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/6/query?where=1%3D1&outFields=*&returnGeometry=true&outSR=4326&f=geojson",
       "retrieved_at_utc": "2026-09-24T23:10:36.871909+00:00",
-      "byte_count": 743877,
-      "sha256": "76efda540f84f18ea67b554631f2c9e71842853f86b852f5cb309205882ba17a",
+      "byte_count": 730633,
+      "sha256": "510926b4433336571037223acfe19c106aae4193eb831600da4a6c37e1f8e9d3",
       "layer_url": "https://gis.ebmud.com/arcgiswa/rest/services/FWEBW/EBMUDTrails_Boundary/MapServer/6",
       "layer_id": 6,
       "feature_count": 16,
@@ -156,7 +208,24 @@
         "MultiPolygon",
         "Polygon"
       ],
-      "null_geometry_count": 0
+      "null_geometry_count": 0,
+      "geometry_repair": {
+        "processed_at_utc": "2026-10-12T02:27:01.860148+00:00",
+        "method": "shapely.make_valid (default linework)",
+        "shapely_version": "2.1.1",
+        "geos_version": "3.13.1",
+        "original_path": "originals/76efda540f84f18ea67b554631f2c9e71842853f86b852f5cb309205882ba17a.geojson",
+        "original_sha256": "76efda540f84f18ea67b554631f2c9e71842853f86b852f5cb309205882ba17a",
+        "original_byte_count": 743877,
+        "features": [
+          {
+            "feature_id": 10,
+            "reason": "Ring Self-intersection[-122.07752087652 37.8526482332415]",
+            "before_type": "MultiPolygon",
+            "after_type": "MultiPolygon"
+          }
+        ]
+      }
     },
     "adjacent_local_parks_jan_14": {
       "path": "boundaries/adjacent_local_parks_jan_14.geojson",

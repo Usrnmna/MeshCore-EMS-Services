@@ -15,6 +15,7 @@
   "command_interval": 15,
   "responder": {
     "enabled": true,
+    "timezone": "America/Los_Angeles",
     "script_timeout": 20,
     "max_output_bytes": 65536,
     "max_reply_parts": 4,
@@ -114,10 +115,76 @@
         ]
       },
       "!floodalarm": {
-        "script": "scripts/flood_warn.py",
+        "script": "scripts/floodalarm.py",
         "args": [],
         "input": "location",
         "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!lightning": {
+        "script": "scripts/lightning.py",
+        "args": [],
+        "input": "location",
+        "timeout": 60,
+        "max_reply_parts": 64,
+        "error_reply": "Lightning lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!trail": {
+        "script": "scripts/trail.py",
+        "args": [],
+        "input": "gis_query",
+        "timeout": 30,
+        "max_reply_parts": 6,
+        "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!rec": {
+        "script": "scripts/rec.py",
+        "args": [],
+        "input": "gis_query",
+        "timeout": 30,
+        "max_reply_parts": 6,
+        "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!peak": {
+        "script": "scripts/peak.py",
+        "args": [],
+        "input": "gis_query",
+        "timeout": 30,
+        "max_reply_parts": 6,
+        "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!park": {
+        "script": "scripts/park.py",
+        "args": [],
+        "input": "gis_query",
+        "timeout": 30,
+        "max_reply_parts": 6,
+        "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!boundary": {
+        "script": "scripts/boundary.py",
+        "args": [],
+        "input": "gis_query",
+        "timeout": 30,
+        "max_reply_parts": 6,
+        "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
         ]

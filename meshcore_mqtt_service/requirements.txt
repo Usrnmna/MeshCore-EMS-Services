@@ -3,3 +3,6 @@ meshcore==2.3.11
 paho-mqtt==2.1.0
 pyserial==3.5
 amqtt==0.12.1
+tzdata==2026.5
+shapely==2.1.1
+pyproj==3.7.2

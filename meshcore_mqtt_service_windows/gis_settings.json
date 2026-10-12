@@ -1,0 +1,15 @@
+{
+  "data_directory": "../data/ebmud",
+  "maximum_radius_miles": 25.0,
+  "max_results": 3,
+  "max_reply_bytes": 480,
+  "description_characters": 100,
+  "include_unnamed_peaks": false,
+  "projected_crs": "EPSG:32610",
+  "search_bounds": [
+    -126.0,
+    0.0,
+    -120.0,
+    84.0
+  ]
+}

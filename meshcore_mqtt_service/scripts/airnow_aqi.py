@@ -20,6 +20,11 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
+try:
+    from scripts.time_settings import format_utc_observation
+except ModuleNotFoundError:
+    from time_settings import format_utc_observation
+
 
 # USER SETTINGS AND SOURCES: see ../README.md for units and time budgets.
 # Keep the API key in the launching environment; do not paste it into this file.
@@ -205,7 +210,7 @@ def main() -> int:
         print(f"Station: {observation.site_name}")
         
         print(f"Distance: {observation.distance_km:.2f} km")
-        print(f"Observed (UTC): {observation.observed_at_utc}")
+        print(f"Observed: {format_utc_observation(observation.observed_at_utc)}")
         print("Data status: Preliminary")
         return 0
     except (ValueError, RuntimeError) as exc:

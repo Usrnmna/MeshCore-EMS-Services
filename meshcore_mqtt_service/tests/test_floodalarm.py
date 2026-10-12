@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, patch
 from flood_alarm import ACKNOWLEDGMENT, CHECK_INTERVAL, MAX_AGE, FloodAlarms
 import responder
 import flood_alarm
-from scripts import flood_warn
+from scripts import flood_warn, floodalarm
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -323,7 +323,18 @@ class AlarmIntegrationTests(unittest.IsolatedAsyncioTestCase):
                 await self.bot.read_flood_status('Sacramento')
         with patch.object(responder, 'run_script', return_value=('{"events":[]}', '')) as run:
             self.assertEqual(await self.bot.read_flood_status('Sacramento'), status())
-            self.assertEqual(run.call_args.args[1]['args'], ['--snapshot'])
+            self.assertEqual(run.call_args.args[1]['script'], 'scripts/floodalarm.py')
+            self.assertEqual(run.call_args.args[1]['args'], [])
+
+    async def test_dedicated_alarm_program_returns_snapshot_or_error(self):
+        for reading in (status('Flood Watch'), RuntimeError('Offline')):
+            with self.subTest(reading=reading):
+                kwargs = {'side_effect': reading} if isinstance(reading, Exception) else {'return_value': reading}
+                with patch.object(flood_warn, 'snapshot', **kwargs), \
+                        patch('sys.stdout', new_callable=io.StringIO) as output:
+                    self.assertEqual(floodalarm.main(['Sacramento']), 0)
+                    expected = {'error': 'Offline'} if isinstance(reading, Exception) else reading
+                    self.assertEqual(json.loads(output.getvalue()), expected)
 
     async def test_snapshot_cli_contract(self):
         with patch.object(flood_warn, 'snapshot', return_value=status('Flood Watch')), \
@@ -366,11 +377,12 @@ class AlarmIntegrationTests(unittest.IsolatedAsyncioTestCase):
             scripts.mkdir()
             shutil.copyfile(ROOT / 'scripts/flood_warn.py', scripts / 'flood_data.py')
             shutil.copyfile(ROOT / 'scripts/uv_index.py', scripts / 'uv_index.py')
+            shutil.copyfile(ROOT / 'scripts/floodalarm.py', scripts / 'floodalarm.py')
             fixtures = [COVERAGE, collection(alert('Flood Watch', effective='2000-01-01T00:00:00Z',
                                                     expires='2099-01-01T00:00:00Z'))]
             (scripts / 'flood_warn.py').write_text(
                 'import flood_data as f\n' + f'responses=iter({fixtures!r})\n'
-                'f.get_json=lambda *args: next(responses)\nf.main()\n', encoding='utf-8')
+                'f.get_json=lambda *args: next(responses)\nmain=f.main\n', encoding='utf-8')
             self.bot.root = root
             result = await self.bot.read_flood_status('38 -121')
             self.assertEqual(result['events'], ['Flood Watch'])

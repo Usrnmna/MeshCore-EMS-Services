@@ -246,7 +246,7 @@ async def bridge_loop(mc, cli, config, port):
     async def get_message():
         """Put SDK background fetches under the same lock as verification and sends.
 
-        MeshCore 2.3.11 otherwise issues get_msg outside our command lock. Its
+        MeshCore 2.3.11 otherwise issues get_msg outside the service command lock. Its
         global ERROR replies cannot identify which concurrent command failed.
         """
         async with command_lock:

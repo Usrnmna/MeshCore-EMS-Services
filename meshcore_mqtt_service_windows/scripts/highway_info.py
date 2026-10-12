@@ -294,7 +294,11 @@ def fetch_highway_info(number: int) -> str:
     report = parser.text()
     if not report:
         raise RuntimeError("the highway information section was not found on the page")
-    return compact_and_wrap(traffic_conditions_only(report))
+    result = compact_and_wrap(traffic_conditions_only(report))
+    # Undated/recurring source schedules cannot be converted reliably across DST.
+    if re.search(r'\b\d{1,2}(?::\d{2})?[AP]\b', result):
+        result += '\nCaltrans schedule times: Pacific.'
+    return result
 
 
 def main() -> int:

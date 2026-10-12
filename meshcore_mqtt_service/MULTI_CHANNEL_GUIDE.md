@@ -45,14 +45,18 @@ the old `responder.channel_name` with a `responder.channels` object and add
 Every command's `channels` value must be a list of unique registered IDs. There is
 no wildcard or implicit assignment. Adding a channel does not enable any commands
 there. Assignments attach to command phrases, so `!floodwarn` and `!floodalarm` can
-use different channels even though they share the flood lookup script.
+use different channels. Their dedicated programs reuse the same NWS lookup
+functions; flood-alarm scheduling remains in the service.
 
 ### Example: Public, community, and private operations
 
 The following is a complete **installer import file**, for example
 `channels.json`. It is an overlay, not a replacement for the service's entire
-`config.json`. It supplies assignments for all ten bundled commands and preserves
+`config.json`. It supplies assignments for all sixteen current-source commands and preserves
 their scripts, arguments, input validation, timeouts, and reply settings.
+The October 11, 2026 installer rebuild supports all listed commands. Earlier
+installer builds without GIS reject those names as unknown; upgrade the
+application before using this complete import. See [GIS source deployment](../INSTALL.md#gis-source-deployment).
 
 ```json
 {
@@ -73,10 +77,16 @@ their scripts, arguments, input validation, timeouts, and reply settings.
     "!traffic": ["community", "operations"],
     "!rivers": ["community", "operations"],
     "!uv": ["community", "operations"],
+    "!lightning": ["community", "operations"],
     "!heatadv": ["community", "operations"],
     "!floodwarn": ["community", "operations"],
     "!floodalarm": ["operations"],
-    "!snowpack": []
+    "!snowpack": [],
+    "!trail": ["community", "operations"],
+    "!rec": ["community", "operations"],
+    "!peak": ["community", "operations"],
+    "!park": ["community", "operations"],
+    "!boundary": ["community", "operations"]
   }
 }
 ```
@@ -173,14 +183,14 @@ correct channels, provisioning is unnecessary.
 Linux import example:
 
 ```bash
-sudo bash MeshCore-EMS-v0.3.0-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
+sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
 ```
 
 Use the corresponding ARM64 installer on Raspberry Pi. Windows setup provides an
 optional channels-JSON path field. An administrator can also use:
 
 ```bat
-MeshCore-EMS-v0.3.0-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
+MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
 ```
 
 The old `--channel` / `/CHANNEL` option is only for a single-channel configuration;
@@ -367,7 +377,7 @@ destination by changing that text or context.
 
 ## Add Python programs after installation
 
-You can add new Python functions or programs to an installed service without
+Additional Python functions or programs can be added to an installed service without
 recompiling, rebuilding, or rerunning the installer. Put the functions in a `.py`
 file with an entry point, then register that file as a command. The service runs
 the program in its existing Python runtime when an allowed channel requests it.
@@ -390,7 +400,7 @@ their own absolute `responder.program_directory` and equivalent permissions.
 2. As administrator/root, save this example as `channel_note.py` inside the
    operator program directory. Give it the ownership and permissions above.
 3. Add the command definition below to the active `responder.commands` object,
-   using channel IDs from your registry.
+   using channel IDs from the configured registry.
 4. Run the installed runner's offline check, then start the service and test the
    command from a permitted channel.
 
@@ -439,7 +449,7 @@ The script prints only its reply body. The responder supplies the sender's
 the originating channel. A script that only defines functions and never calls
 them produces no reply body; the entry point above demonstrates how to call a
 new function. Scripts use the service folder as their working directory, so use
-`Path(__file__).resolve().parent` when loading a file kept beside your program.
+`Path(__file__).resolve().parent` when loading a file kept beside the program.
 
 Linux offline check:
 
@@ -491,3 +501,49 @@ then verify with separate receiving radios:
 Automated tests and successful local radio transmission do not establish recipient
 delivery, native Linux installation, physical radio behavior, or uninterrupted
 four-hour alarm operation. Record those observations separately when performed.
+
+## Shared reply timezone
+
+Set `responder.timezone` in the active `config.json` to an IANA name (default
+`America/Los_Angeles`) and restart. This one setting applies across channels and
+programs and survives installer upgrades. Every external program receives it as
+`MESHCORE_TIMEZONE`; use that value with `zoneinfo.ZoneInfo` to format output.
+Do not hard-code a separate timezone for each function or command. Internal UTC
+timestamps and elapsed timers are independent of display timezone.
+
+## Local GIS command registration
+
+The five commands use `scripts/trail.py`, `rec.py`, `peak.py`, `park.py`, and
+`boundary.py`, respectively. Shared GIS helpers keep calculation and validation
+consistent. Their `input: "gis_query"` parser passes one validated positional query
+after optional fixed arguments. No `--kind` or `--query` argument is needed. Attribute queries such as
+`Bear Creek dogs` and `dogs near 37.90 -122.20 5` are passed as one argument.
+No radius means one closest matching feature; explicit miles allow multiple
+results. The lookup validates subcommand syntax and configured spatial limits.
+The [subcommand reference](README.md#gis-subcommands) lists fields and filters.
+The current `responder.py` is required; adding scripts alone to an older
+responder does not enable this input mode.
+
+Merge this entry into `responder.commands`, using registered channel IDs:
+
+```json
+"!trail": {
+  "script": "scripts/trail.py",
+  "args": [],
+  "input": "gis_query",
+  "timeout": 30,
+  "max_reply_parts": 6,
+  "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
+  "channels": ["community", "operations"]
+}
+```
+
+Use the corresponding command name and dedicated script for the other four entries.
+All five complete definitions are in [config.json](config.json). The
+[GIS guide](README.md#local-gis-commands) documents syntax and `gis_settings.json`.
+An external settings file can be selected with fixed arguments such as
+`["--settings", "/etc/meshcore-ems/gis_settings.json"]`.
+Use a Windows absolute path on Windows. Settings and data are shared by GIS
+commands using that file; assigning different channels does not select different
+datasets. Reply routing, sender tags, cooldowns, and MQTT export policy remain
+channel-specific. GIS commands never create flood-monitor subscriptions.

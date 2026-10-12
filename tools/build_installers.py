@@ -20,7 +20,7 @@ import zipfile
 from package_services import package_files, PACKAGES
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.3.0-beta"
+VERSION = "v0.9.0-beta"
 
 
 def sha(data):
@@ -86,14 +86,14 @@ set -euo pipefail
 expected_arch="@ARCH@"
 expected_sha="@SHA@"
 case "${1:-}" in
-    --help) echo 'MeshCore EMS v0.3.0-beta online installer (@ARCH@)'
+    --help) echo 'MeshCore EMS v0.9.0-beta online installer (@ARCH@)'
         echo 'sudo bash installer.run [--transport serial|tcp|ble] [--port auto|DEVICE] [--tcp-host IP --tcp-port 5000] [--ble-address ADDRESS] [--channel NAME | --channels-config FILE] [--no-start]'
         echo 'Inspection: bash installer.run --check | --extract EMPTY_DIRECTORY'; exit 0 ;;
 esac
 line=$(awk '/^__MESHCORE_PAYLOAD__$/{print NR+1; exit}' "$0")
 actual_sha=$(tail -n +"$line" "$0" | sha256sum | cut -d ' ' -f1)
 [[ $actual_sha == "$expected_sha" ]] || { echo 'Installer payload checksum mismatch.' >&2; exit 1; }
-if [[ ${1:-} == --check ]]; then echo 'v0.3.0-beta @ARCH@: payload checksum verified'; exit 0; fi
+if [[ ${1:-} == --check ]]; then echo 'v0.9.0-beta @ARCH@: payload checksum verified'; exit 0; fi
 if [[ ${1:-} == --extract ]]; then
     destination=${2:?Specify an empty destination directory}
     mkdir -p -- "$destination"

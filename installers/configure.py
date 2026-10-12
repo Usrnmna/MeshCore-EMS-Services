@@ -144,6 +144,8 @@ def configure(
     )
     migrate, validate = channel_settings(package)
     responder = current["responder"]
+    # One saved display timezone applies to every responder program; retain operator edits.
+    responder.setdefault("timezone", defaults["responder"].get("timezone", "America/Los_Angeles"))
     # Operator programs live beside installed settings so application upgrades
     # never replace them. A custom absolute location remains operator-managed.
     programs = config_dir / "programs"

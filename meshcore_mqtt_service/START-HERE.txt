@@ -13,7 +13,7 @@ This does not install an automatic boot service. Detection runs again on each st
 If no USB device or multiple candidates are found, startup reports an error. Set
 serial_port to the intended fixed device when several USB serial devices are used.
 
-If your file copy preserves executable permission, you may also run:
+If the copied files retain executable permission, the following command is also supported:
 
     ./Start-Service.sh
 
@@ -24,7 +24,7 @@ Run bash verify.sh after setup to run the tests in tests/.
 AQI: Set AIRNOW_API_KEY in the launching environment (see README), then send
 !aqi LATITUDE LONGITUDE or !aqi LATITUDE, LONGITUDE on #autatestbot.
 
-See README.md for all commands, including traffic, rivers, UV, heat advisories, flood warnings,
+See README.md for all commands, including traffic, rivers, UV, heat advisories, lightning potential, flood warnings,
 flood alarms, and snowpack. Restart the service after changing config.json.
 
 See MULTI_CHANNEL_GUIDE.md to add Public, hashtag, or private channels, assign
@@ -41,3 +41,50 @@ See README.md for firmware, Bluetooth access, timeout, and service-account detai
 USB detection settings apply only when connection.type is serial.
 
 FUNCTION_REFERENCE.md explains every maintained service Python function.
+
+SHARED REPLY TIMEZONE
+All MeshCore reply timestamps use responder.timezone in the active config.json:
+    "timezone": "America/Los_Angeles"
+Edit this one IANA zone and restart. Pacific time is the default (PST/PDT).
+Installer upgrades preserve it. All programs receive MESHCORE_TIMEZONE.
+See README.md for provider-text limits and standalone usage.
+
+LOCAL GIS COMMANDS
+The current source includes sixteen commands. Local GIS examples:
+    !trail Bear Creek
+    !rec near 37.90 -122.20
+    !peak Wildcat Peak
+    !park Pleasanton Ridge
+    !boundary 37.90 -122.20
+    !boundary trail Bear Creek
+Use NAME ATTRIBUTE for a focused field, such as !trail Bear Creek dogs.
+Use NAME info for the full summary; NAME alone lists available subcommands.
+Use ATTRIBUTE near LATITUDE LONGITUDE [MILES] for focused proximity queries.
+Without miles, only the closest qualifying feature is returned. With miles,
+results within that radius are listed; the explicit maximum is 25 miles.
+Policy/amenity filters run before distance ranking. No API key or network
+is required. These snapshots do not report live conditions or access permission.
+
+gis_settings.json controls the data path, search radius, result limits, and
+projection. The default path is ../data/ebmud relative to that settings file.
+Older default_radius_miles settings are ignored; no radius is assumed.
+!boundary also supports parks, watersheds, reservoirs, and recreation categories
+before coordinates, near coordinates, or trail NAME. Send !COMMAND help for syntax.
+Keep sources.json and all referenced GeoJSON files together at that location.
+Standalone service ZIPs require the shared data directory separately.
+Install the current requirements.txt with this service's Python interpreter.
+See README.md, section Local GIS commands, for syntax, settings, diagnostics,
+and tests. See ../data/ebmud/README.md for manual refresh and polygon repair.
+
+The October 11, 2026 installers and service ZIPs include the GIS subcommands.
+Installers include the shared datasets; service ZIPs require data/ebmud separately.
+Upgrades preserve command definitions; review older registrations and explicitly
+assign newly added commands to permitted channels.
+Each GIS command has its own scripts/trail.py, rec.py, peak.py, park.py, or
+boundary.py program; run it directly with a name or coordinates. All accept
+--settings PATH. The three gis_*.py modules provide reusable implementation.
+The dedicated scripts/floodalarm.py supplies JSON to the existing alarm monitor;
+standalone execution does not create a subscription.
+Updating an older installation requires responder.py, these command programs and GIS helpers,
+settings, dependencies, data, and five command registrations with explicit
+channel assignments. See ../INSTALL.md, section GIS source deployment.

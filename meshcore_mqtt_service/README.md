@@ -18,12 +18,18 @@ serialized, rate-limited command path. Radio events also publish to MQTT.
 
 ## OS service installers
 
+Current distribution version: `v0.9.0-beta`.
+
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
 include the complete workspace and reference data, and connect to the configured companion node
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
-Source-folder launchers support interactive operation.
+Source-folder launchers support interactive operation. The current source has
+sixteen commands, including the five [local GIS commands](#local-gis-commands).
+The October 11, 2026 installers and service ZIPs include these commands.
+Installers include the shared datasets; service ZIPs require them separately.
+See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
 
@@ -40,7 +46,11 @@ or rerunning the installer. Restart after edits.
 - `service.py`, `responder.py`, `flood_alarm.py`: bridge and command handling.
 - `channels.py`, `channel_setup.py`: registry validation, identity checks, and explicit radio setup.
 - `config.json`: this installation's settings; `requirements.txt`: pinned dependencies.
-- `scripts/`: command programs, also runnable directly.
+- `scripts/`: one executable Python program per command, with reusable helper modules.
+- `scripts/floodalarm.py`: structured flood readings for the persistent alarm monitor; standalone use does not enroll a subscription.
+- `gis_settings.json`: local GIS data path, radius, projection, and output limits.
+- `scripts/gis_data.py`, `gis_spatial.py`, `gis_lookup.py`: verified data loading, spatial calculations, and GIS replies.
+- `../data/ebmud/`: shared GeoJSON, source manifest, manual refresh/repair tools, and archived originals; provided separately for standalone packages.
 - `tests/`: offline regression and loopback MQTT integration tests.
 - `radio_connection.py`: connection validation, transport selection, and bounded cleanup.
 - `check_live.py`: optional radio/MQTT diagnostic; run only while the service is stopped.
@@ -120,11 +130,17 @@ command continues to list USB serial devices only.
 | Command | Input | Service |
 | --- | --- | --- |
 | `!status` | None | Local service health |
-| `!time` | None | Current UTC time |
+| `!time` | None | Current time in the shared timezone |
 | `!aqi` | Latitude and longitude | AirNow PM2.5 AQI and nearest monitor |
 | `!traffic` | California route number 1–999 | Active Caltrans highway restrictions |
 | `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
 | `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
+| `!lightning` | Coordinates, US ZIP, or city and state | NWS lightning potential in the next 24h, stated chance, adjustable timezone |
+| `!trail` | Name + attribute, or attribute near coordinates [miles] | Trail details, policy filters, or explicit full info |
+| `!rec` | Name + attribute, or attribute near coordinates [miles] | Recreation details and amenity filters |
+| `!peak` | Name + attribute, or near coordinates [miles] | Peak elevation, location, or explicit full info |
+| `!park` | Name + attribute, or near coordinates [miles] | Park status, agency, trails, and recreation |
+| `!boundary` | Optional category + coordinates, near coordinates [miles], or trail NAME | Mapped containment, nearest areas, or trail overlap |
 | `!heatadv` | Coordinates, US ZIP, or city and state | Active NWS heat warnings, watches, and advisories |
 | `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
 | `!floodalarm` | Coordinates, US ZIP, or city and state | Monitor flood-alert changes for four hours |
@@ -142,7 +158,7 @@ on the node first (default **#autatestbot**); `channel_setup.py` can explicitly
 provision missing channels in empty slots.
 
 ```bash
-cd /your/path/meshcore_mqtt_service
+cd /path/to/meshcore_mqtt_service
 bash setup.sh
 bash run.sh
 ```
@@ -155,7 +171,7 @@ implicitly creates a channel.
 
 Ctrl+C stops the service. Setup creates `.venv-linux` here; a copied Windows `.venv`
 is not reused. Launchers work from any current directory. If serial access is denied,
-configure your Linux user's device permissions, commonly through the distribution's
+configure the Linux service account's device permissions, commonly through the distribution's
 `dialout` group, and sign in again. Use the separate `meshcore_mqtt_service_windows`
 package on Windows. Scripts run on the bridge's host; no SSH is used.
 
@@ -177,9 +193,9 @@ Edit the `responder` section of `config.json`, then restart:
 }
 ```
 
-Included scripts provide status, UTC time, AQI, traffic, river, UV, heat-alert,
+Included scripts provide status, shared-zone time, AQI, traffic, river, UV, heat-alert,
 flood-alert, and snowpack results. Flood monitoring is handled by `!floodalarm`. Extend the map
-with your own phrases/scripts. Matching is exact and case-sensitive after trimming
+with custom phrases/scripts. Matching is exact and case-sensitive after trimming
 outer whitespace.
 Substrings, extra arguments and unknown phrases do not execute anything. Only decoded
 messages received on a channel assigned to that command trigger scripts; direct messages, raw
@@ -194,7 +210,7 @@ run with this folder as their working directory.
 **Print the answer to stdout without the @name prefix.** The service adds the prefix
 and turns newlines into spaces. Long answers become at most four 150-byte messages by
 default, each starting with @name. A command may set a higher limit; `!heatadv`,
-`!floodwarn`, and `!floodalarm` allow 12 parts. Excess output is truncated with `...`. Empty output,
+`!floodwarn`, and `!floodalarm` allow 12 parts; `!lightning` allows 64 for forecast windows. Excess output is truncated with `...`. Empty output,
 script errors and timeouts produce short tagged explanations. Stderr diagnostics
 are saved locally, not broadcast.
 
@@ -209,7 +225,7 @@ print(f"Request from {request['sender']} on {request['channel_name']}.")
 
 Context includes `id`, `sender`, `phrase`, `channel_id`, `channel_name`, `channel_index` and
 `sender_timestamp`. The equivalent environment variables are `MESHCORE_SENDER`,
-`MESHCORE_CHANNEL`, `MESHCORE_CHANNEL_ID`, `MESHCORE_CHANNEL_INDEX`, `MESHCORE_PHRASE` and
+`MESHCORE_CHANNEL`, `MESHCORE_CHANNEL_ID`, `MESHCORE_CHANNEL_INDEX`, `MESHCORE_PHRASE`, `MESHCORE_TIMEZONE` and
 `MESHCORE_REQUEST_ID`. Run configured scripts in the foreground; Linux timeouts
 terminate their process group.
 
@@ -333,7 +349,7 @@ part of the message. The bot executes its own `scripts/airnow_aqi.py` with those
 positional arguments and prefixes every reply part with the saved sender's @name.
 Invalid/missing coordinates produce a tagged usage reply without executing a script.
 
-Set your AirNow key in the launching environment, then start/restart the service:
+Set the AirNow API key in the launching environment, then start/restart the service:
 
 ```bash
 export AIRNOW_API_KEY="YOUR_AIRNOW_API_KEY"
@@ -460,6 +476,118 @@ and [GeoNames](https://www.geonames.org/). The free Open-Meteo endpoint is for
 non-commercial use. Coordinates bypass location lookup.
 
 Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
+
+## Lightning potential: !lightning
+
+Send `!lightning Sacramento`, `!lightning 95814`, `!lightning 38.5816, -121.4944`,
+or `!lightning Reno NV` on an assigned channel. Decimal GPS accepts comma or space
+separation; ZIP+4 uses its first five digits. Cities without a state default to
+California; other states require an abbreviation or full name after the city.
+Replies preserve the supplied location, with whitespace normalized. Cities/ZIPs
+resolve to a representative point, not their whole boundary.
+
+The reply bodies are:
+
+```text
+Lightning Strike Warning for <location> at <time window> (<stated chance/level>)
+No Lightning expected for <location> in the next 24h
+```
+
+Illustrative reply: `Lightning Strike Warning for Sacramento at 2026-10-08 13:00 PDT-16:00 PDT (slight chance thunderstorms)`.
+Multiple windows retain their individual chance levels. Every stated chance counts,
+including slight chance and a numeric thunderstorm probability as low as 1%.
+Qualitative coverage and numeric probability are both shown when NWS supplies both.
+If an alert states no chance level, the reply says `chance not stated`; it does not
+invent a percentage. Rain probability is not lightning probability.
+
+The lookup covers exactly 24 elapsed hours from the original responder request
+timestamp (or invocation time for standalone use), even across daylight-saving
+changes. Ongoing intervals start at the request time; later intervals keep their
+NWS start time, and intervals are clipped at the 24-hour endpoint. Time windows
+are forecast/alert periods, not predicted times of individual strikes.
+
+### Shared persistent reply timezone
+
+All MeshCore service programs receive the same saved timezone. In the active
+`config.json`, set the single `responder.timezone` variable:
+
+```json
+"timezone": "America/Los_Angeles"
+```
+
+Pacific is the default, with PST/PDT labels and automatic daylight-saving handling.
+Change the value to an IANA zone such as `America/Denver` or `America/New_York`,
+then restart the service. No rebuild or reinstall is needed. The setting survives
+restarts and installer upgrades. It applies to `!time`, AQI observation timestamps,
+river issuance/reading timestamps, and lightning windows. GIS retrieval dates remain in the source manifest and are not appended to replies.
+Caltrans's undated or recurring schedules retain an
+explicit Pacific source-time label because they lack dates for reliable conversion.
+
+Installed configuration is `/etc/meshcore-ems/config.json` on Linux or
+`C:\ProgramData\MeshCore-EMS\config.json` on Windows. Source-folder operation uses
+this folder's `config.json`. Existing settings without the field default to Pacific;
+the installer saves the field during upgrade without replacing an operator's value.
+The service validates the zone at startup and exports it as `MESHCORE_TIMEZONE` to
+every child program, including external programs. Custom programs can read that
+environment variable and use `zoneinfo.ZoneInfo` when formatting their timestamps.
+
+[`scripts/time_settings.py`](scripts/time_settings.py) supplies the shared display
+helpers and fallback `DEFAULT_TIMEZONE`. A standalone program uses `MESHCORE_TIMEZONE`
+when set, otherwise Pacific; standalone lightning also accepts `--timezone`.
+Bot requests always use the shared saved setting, even if old command args contain
+a timezone override. UTC storage, MQTT timestamps, source timestamp interpretation,
+and elapsed-time calculations stay unchanged. The separate satellite tools are
+outside this MeshCore reply setting.
+
+### NWS inputs and limits
+
+[NWS does not issue standalone lightning warnings](https://www.weather.gov/gsp/gspPrepare_8).
+`Lightning Strike Warning` is this program's summary label. It combines actual
+point alerts with the [NWS forecast grid](https://weather-gov.github.io/api/gridpoints):
+thunderstorm weather/coverage, dry-thunderstorm attributes, positive
+`probabilityOfThunder`, and [lightning activity levels](https://forecast.weather.gov/glossary.php?word=LALs)
+2-6. Level 6 includes dry lightning. Severe thunderstorm/tornado watches and
+warnings count; other alerts, including fire-weather and special-weather products,
+count when hazard text mentions lightning/thunderstorms. Wind/dryness alone does
+not make a fire-weather alert qualify. Common negations and separate preparedness
+instructions are excluded; free-text recognition is limited to the wording in the
+source and cannot interpret every possible phrase.
+
+`/points` verifies coverage and supplies the grid URL. `/alerts/active?point=...`
+lets NWS match its polygons/zones. These endpoints do not require a radius, so no
+five-mile circle is imposed. GPS is the most precise input. City/ZIP geocoding
+uses Open-Meteo/GeoNames through the heat command's shared resolver.
+
+The no-lightning reply requires valid alerts and a weather grid covering the full
+24 hours, updated within 12 hours. Expired/cancelled/test alerts are excluded;
+future-onset hazards within the window are included. Missing optional numeric
+layers are normal, but missing weather coverage, stale/malformed data, network
+failures, and unsupported locations cannot produce a clear reply. If one valid
+source reports a hazard while the other fails, the warning is retained with
+`additional NWS data unavailable`; an empty partial result produces an error.
+This is a one-shot forecast lookup, not strike detection or continuous monitoring.
+
+### Running and maintaining the command
+
+```console
+python -m pip install -r requirements.txt
+python scripts/lightning.py Sacramento
+python scripts/lightning.py --timezone America/Denver "Reno NV"
+python -m unittest discover -s tests -p "test_lightning.py"
+```
+
+Internet access is required; no API key is needed. `tzdata` supplies IANA timezone
+data on Windows and systems without it. Keep `lightning.py`, the current
+`heat_adv.py`, `uv_index.py`, and `time_settings.py` together. Network calls allow 12 seconds each,
+with a 60-second command timeout. The responder adds the sender tag, replies on
+the incoming channel, and allows up to 64 parts for changing chances/windows;
+output beyond that limit is visibly truncated by the responder. These tunables
+are in the script and the command's configuration entry.
+
+See the [lightning function reference](FUNCTION_REFERENCE.md#scripts-lightning-py)
+for every function and [installation instructions](../INSTALL.md#lightning-command-and-timezone)
+for adding the command to an existing installation. Assign its channels explicitly
+when preserving a custom channel registry.
 
 ## Heat alerts: !heatadv
 
@@ -742,12 +870,15 @@ channel share one subscription, just as replies use those display names.
 | [`responder.py`](responder.py), `accept()` / `process_one()` / `run()` | Save/renew accepted alarm locations, acknowledge without HTTP, and start independent workers. |
 | `Responder.read_flood_status()` / `send_flood_change()` | Bounded lookup subprocess, structured result validation, tagged notifications. |
 | [`service.py`](service.py), `send_reply()` | Recheck alarm validity after waiting for the radio, before sending. |
+| [`scripts/floodalarm.py`](scripts/floodalarm.py), `main()` | Dedicated JSON-reading subprocess for alarm checks; enrollment and timers remain in the service. |
 | [`scripts/flood_warn.py`](scripts/flood_warn.py), `snapshot()` / `format_status()` | Shared NWS lookup, structured alert types, exact wording and colored squares. |
 
 The source uses visible comments named `TWEAK HERE`, `ENROLLMENT`, `EXPIRY`,
 `CHANGE DETECTION`, `OUTAGE`, and `ALARM EXPIRY` to make these sections easy to find.
-The internal `--snapshot` option outputs JSON for the monitor; normal `!floodwarn`
-and direct CLI output remain text. There is no extra dependency or separate daemon.
+The monitor runs `scripts/floodalarm.py LOCATION` for JSON readings. Direct
+execution reads one snapshot and does not create a subscription or print a false
+enrollment acknowledgment. The compatible `flood_warn.py --snapshot` interface
+remains available; normal `!floodwarn` and its direct CLI output remain text. There is no extra dependency or separate daemon.
 
 Restart the service after updating the Python files and `config.json`.
 Test with `python -m unittest discover -s tests -p "test_floodalarm.py"`, or run the full test suite.
@@ -755,3 +886,267 @@ Test with `python -m unittest discover -s tests -p "test_floodalarm.py"`, or run
 The flood-alarm tests cover simulated timing, restart persistence, background
 workers, and subprocess results. Simulated tests do not establish live four-hour
 monitoring or radio delivery.
+
+## Local GIS commands
+
+The five GIS commands read the shared EBMUD snapshots without network requests.
+Names are searched locally; city/ZIP geocoding and live closure reporting are
+not provided. Coordinates are entered as latitude followed by longitude.
+
+| Command | Example | Result |
+| --- | --- | --- |
+| `!trail` | `!trail Bear Creek dogs` | Only the recorded dog policy; `info` requests the full summary. |
+| `!rec` | `!rec water near 37.90 -122.20` | Only the closest recreation feature with recorded drinking water. |
+| `!peak` | `!peak Wildcat Peak elevation` | Only the stored elevation in feet. |
+| `!park` | `!park Pleasanton Ridge status` | Only the recorded park status. |
+| `!boundary` | `!boundary 37.90 -122.20` | Areas containing the point, including exact-boundary matches. |
+| `!boundary` | `!boundary trail Bear Creek` | Park, recreation-area, reservoir, and watershed polygons intersecting a named trail. |
+
+All five commands support `near LATITUDE LONGITUDE [MILES]`. Without miles,
+exactly one closest matching feature is returned, with no implicit search radius
+and no additional-result count. With miles, matching features within that radius
+are listed nearest first, limited by `max_results`. The configured maximum radius
+applies only to an explicit radius. Equal distances are ordered by name and then
+category. Distances use full mapped geometry; a point inside a polygon has zero
+distance. Null geometry is excluded from spatial searches.
+
+The first four commands also accept bare coordinate pairs for closest-only
+searches. `!boundary LAT LON` retains containment behavior and can return multiple
+containing areas; `!boundary near LAT LON` returns only the nearest area.
+
+Named queries use `!COMMAND NAME ATTRIBUTE`. Omit the attribute for a compact
+identification and subcommand list; use `info` for the full description.
+Proximity queries use `!COMMAND ATTRIBUTE near LAT LON [MILES]` when a field or
+filter is required. A command without arguments, or with `help`, displays syntax.
+Keywords are case-insensitive. The command name remains `!trail`, singular.
+A name search prefers exact matches, ignoring case, punctuation, accents, and a
+trailing `Trail`. Partial matches produce a selection list when ambiguous.
+
+### GIS subcommands
+
+| Command | Subcommands | Information |
+| --- | --- | --- |
+| `!trail` | `dogs`, `horses`, `bikes` | Recorded access policies; these filter proximity searches for permitted use. |
+| `!trail` | `length`, `difficulty`, `gain`, `surface`, `shade`, `time` | Recorded distance, difficulty, elevation gain, surface, exposure, or estimated duration. |
+| `!trail` | `start`, `areas`, `description`, `info` | Mapped start, intersecting areas, bounded description, or full information. |
+| `!rec` | `type`, `location`, `info` | Feature type, coordinates, or full information. |
+| `!rec` | `parking`, `restrooms`, `water`, `picnic`, `fishing`, `boatlaunch`, `boatrental`, `playground`, `horsetrailers` | Recorded amenities; these filter proximity searches for availability. |
+| `!peak` | `elevation`, `location`, `info` | Elevation in feet, coordinates, or full information. |
+| `!park` | `status`, `agency`, `trails`, `recreation`, `info` | Recorded status, agency, intersecting trails/recreation, or full information. |
+| `!boundary` | `parks`, `watersheds`, `reservoirs`, `recreation` | Restrict the searched polygon category; place the category before coordinates, `near`, or `trail NAME`. |
+
+Examples of category selection are `!boundary parks 37.90 -122.20`,
+`!boundary watersheds near 37.90 -122.20`, and
+`!boundary reservoirs trail Bear Creek`. The `parks` category selects regional
+and adjacent local park layers; `recreation` selects recreation-area polygons.
+Without a category, all configured boundary layers are considered.
+
+Policy and amenity filters are applied before ranking distance. Qualifying values
+include `Yes`, the recorded bicycle value `Yes L`, dog access `Limited to Park
+Hours`, parking `Lot`/`Limited`, restrooms `ADA`, and horse-trailer parking `phYes`.
+Qualifications remain visible. Every grouped source record must qualify; negative,
+missing, conflicting, or unrecognized values exclude that group from a filtered
+search. A named attribute lookup still displays its recorded value or `not recorded`.
+No qualifying feature produces an explicit no-match reply.
+
+Other attributes select information without filtering. For example,
+`!peak elevation near LAT LON` returns the nearest peak's elevation, while
+`!rec water near LAT LON` returns the nearest recreation feature with recorded
+drinking water. Adding miles allows multiple qualifying results. Only one
+attribute/category is supported per query.
+
+Distances are map/straight-line distances, not walking routes. Trail/park overlap
+does not establish connectivity, public access, or ownership. Polygon holes are
+excluded from containment. Unnamed peaks remain excluded by default.
+
+Each command has a dedicated executable program in `scripts/`:
+
+| Command | Python program | Standalone example from the service folder |
+| --- | --- | --- |
+| `!trail` | `scripts/trail.py` | `python scripts/trail.py Bear Creek` |
+| `!rec` | `scripts/rec.py` | `python scripts/rec.py near 37.90 -122.20` |
+| `!peak` | `scripts/peak.py` | `python scripts/peak.py Wildcat Peak` |
+| `!park` | `scripts/park.py` | `python scripts/park.py Pleasanton Ridge` |
+| `!boundary` | `scripts/boundary.py` | `python scripts/boundary.py trail Bear Creek` |
+
+Names and coordinates are positional arguments. All five programs accept
+`--settings PATH`. Shared `gis_data.py`, `gis_spatial.py`, and `gis_lookup.py`
+retain data validation, geometry operations, and reply formatting. The older
+`gis_lookup.py --kind KIND --query "QUERY"` interface remains compatible with
+existing registrations, but current defaults use one program per command.
+
+### GIS response examples
+
+The following reply bodies were verified against the bundled datasets on
+October 11, 2026. The responder adds the sender's `@name` and splits long output
+into radio messages on the requesting channel. No snapshot footer is appended.
+Dataset and settings changes can change these results.
+
+**`!trail Bear Creek dogs`**
+
+```text
+Bear Creek: dogs No.
+```
+
+**`!rec Briones Overlook Staging Area parking`**
+
+```text
+Briones Overlook Staging Area: parking Lot.
+```
+
+**`!peak Wildcat Peak elevation`**
+
+```text
+Wildcat Peak: elevation 1200 ft.
+```
+
+**`!park Pleasanton Ridge status`**
+
+```text
+Pleasanton Ridge: status Landbank/Parkland.
+```
+
+**`!boundary trail Bear Creek`**
+
+```text
+Trail overlaps: Watershed: Contra Costa.
+```
+
+**`!trail dogs near 37.90 -122.20`**
+
+```text
+Closest, map distance: Trail: Oursan (0.84 mi); dogs Yes.
+```
+
+**`!trail dogs near 37.90 -122.20 5`**
+
+```text
+Within 5 mi, map distance: Trail: Oursan (0.84 mi); dogs Yes; Trail: Old San Pablo Trail (0.97 mi); dogs Limited to Park Hours; Trail: Hampton (2.65 mi); dogs Yes; +11 more.
+```
+
+**`!rec water near 37.90 -122.20`**
+
+```text
+Closest, map distance: Recreation: Tilden Steam Trains Park Entrance (1.82 mi); water Yes.
+```
+
+**`!boundary parks near 37.90 -122.20`**
+
+```text
+Closest, map distance: Park: Tilden (1.52 mi).
+```
+
+For a full summary, use `!trail Bear Creek info`,
+`!rec Briones Overlook Staging Area info`, `!peak Wildcat Peak info`, or
+`!park Pleasanton Ridge info`. Results stating `none in local data` describe the
+available mapped records, not the absence of facilities in the real world.
+
+### GIS settings and source installation
+
+Edit [gis_settings.json](gis_settings.json):
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `data_directory` | `../data/ebmud` | Shared data directory, relative to this settings file; an absolute path is also supported. |
+| `maximum_radius_miles` | 25 | Maximum explicitly supplied radius; closest-only queries have no radius cutoff. |
+| `max_results` | 3 | Maximum listed results or associations; omitted matches are counted. |
+| `max_reply_bytes` | 480 | UTF-8 output budget before sender prefixes; truncation retains any geometry-repair note. |
+| `description_characters` | 100 | Maximum source description length; zero omits it. |
+| `include_unnamed_peaks` | false | Include unnamed peak records with source-ID labels. |
+| `projected_crs` | EPSG:32610 | Metric UTM zone 10N for spatial calculations. |
+| `search_bounds` | [-126, 0, -120, 84] | Accepted coordinate extent, ordered west/south/east/north. Projection and bounds must be changed together for other regions. |
+
+Command timeout (30 seconds), channel assignments, and reply parts (6) remain in
+`config.json`. Each command uses `input: "gis_query"`, its dedicated Python
+program, and an empty `args` list by default; the query is passed as one argument,
+without a shell. Only explicitly assigned channels can invoke each command.
+The source mapping and checksums remain in the shared `sources.json`.
+
+Query text is limited to 150 printable characters. Explicit radii must be positive and
+cannot exceed `maximum_radius_miles`. Older `default_radius_miles` fields are
+ignored and can be removed; no default radius is used. Accepted integer ranges are 1-20 for
+`max_results`, 200-2000 for `max_reply_bytes`, and 0-500 for
+`description_characters`. A projected CRS with metre units is required.
+Coordinate input uses latitude/longitude; GeoJSON storage uses longitude/latitude.
+
+The default settings file is beside `config.json` in the service source folder,
+even when the runner uses an external configuration. Select another file with
+`--settings /absolute/path/gis_settings.json`. For a dedicated command, set
+`args` to `["--settings", "/absolute/path/gis_settings.json"]`. Each lookup reloads
+the GIS settings; command-registration edits require a service restart.
+
+Install the updated dependencies with the service's Python interpreter:
+
+```text
+python -m pip install -r requirements.txt
+python scripts/trail.py "Bear Creek dogs"
+python scripts/boundary.py 37.90 -122.20
+```
+
+The GIS dependencies are pinned Shapely and pyproj. PROJ network downloads are
+disabled. All commands use local data, including peak and trail-name searches.
+For an existing installation, deploy the updated `responder.py`, all three GIS
+helpers, the five dedicated command programs, `gis_settings.json`, and
+`requirements.txt`; the updated responder
+is required to recognize `gis_query`. Install the dependencies, merge the five
+command registrations into the active configuration, and restart the service.
+The [deployment guide](../INSTALL.md#gis-source-deployment) covers external
+settings paths, service interpreters, and offline checks. Existing connection,
+channel, credential, and timezone settings must be preserved. The configured
+shared data directory must exist; standalone service folders require that data
+to be provided separately. Rebuilt complete-workspace installers include the data.
+Installer upgrades preserve existing command definitions; merge older dispatcher
+registrations and explicitly assign newly added commands to permitted channels.
+
+### GIS data integrity and interpretation
+
+Required dataset hashes and counts are verified before use. The manifest is
+checked again after lookup. Active refresh locks, retained refresh-recovery
+directories, missing/corrupt datasets, or concurrent manifest changes cause an
+unavailable/retry response rather than an empty geographic result. Only layers
+required for the query are loaded. Refresh remains a manual operation.
+
+GIS replies omit the snapshot date and trailing data disclaimer. Download dates
+and provenance remain in `sources.json`; they are not feature-edit dates. The
+local datasets do not represent live conditions or permission to enter. Unknown attributes remain `not recorded`; conditional
+access wording, limited parking, accessible restrooms, and park `Landbank` status
+are preserved. Primary trail attributes take precedence over supplementary
+segments with the same normalized name. Segment lengths are not summed into an
+inferred route. Same-name park polygon records are grouped for presentation;
+all distinct source statuses are retained. The primary trail's stored `HOUR`
+value is displayed as an estimate labeled 3 mph with terrain excluded; it is not
+an independently calculated route duration.
+
+For source-field or layer changes, review `LAYER_FIELDS`, `PARK_LAYERS`, and
+`BOUNDARY_LAYERS` in `scripts/gis_data.py`. The `SUBCOMMANDS` and `BOUNDARY_FILTERS` constants in `gis_data.py` define
+syntax and polygon categories. `ATTRIBUTE_FIELDS` and `FILTER_VALUES` in
+`gis_lookup.py` define source fields and explicit qualifying values; its
+formatting functions define labels and full summaries. Configuring a
+new manifest source alone does not add it to command search categories. The
+[function reference](FUNCTION_REFERENCE.md#scripts-gis-data-py) documents these
+modules; update both platform copies together.
+
+Invalid shapes are repaired only in memory during GIS calculations, with a
+reply note. Explicitly repaired local snapshots retain their original files and
+repair metadata in the shared data directory. Geometric validity does not
+establish surveyed or legal boundary accuracy. Null geometry is skipped for
+spatial operations; annotation label polygons are not treated as park boundaries.
+
+Run `python -m unittest discover -s tests -p "test_gis*.py" -v` for GIS tests,
+including subcommands, filtering, and closest-only behavior. Run
+`python -m unittest discover -s tests -p test_command_programs.py -v` for
+dedicated command-program registrations.
+The full offline suite remains available through the platform verification script.
+See [data maintenance](../data/ebmud/README.md#manual-refresh) for complete-download
+verification and [polygon repair](../data/ebmud/README.md#local-polygon-repairs)
+for preserved originals and repair provenance. Neither operation runs on startup.
+
+| Symptom | Check |
+| --- | --- |
+| Local GIS data unavailable | Verify dependencies in the service interpreter, the data path, and manifest hashes/counts; inspect subprocess diagnostics in service logs. |
+| Refresh or recovery pending | Confirm no maintenance process is running, inspect retained previous files, and complete recovery before removing a stale lock/recovery directory. |
+| No matching feature | Check the mapped name or select from ambiguous matches; city/ZIP lookup is unsupported. |
+| Radius or coordinate error | Review the configured radius limit, latitude/longitude order, and projection bounds. |
+| Reply omits detail | Review `max_results`, `description_characters`, `max_reply_bytes`, and the command's `max_reply_parts` together. |
+
+Software tests do not establish physical radio delivery or native Linux behavior.

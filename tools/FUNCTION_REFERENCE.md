@@ -2,6 +2,9 @@
 
 See [the installation guide](../INSTALL.md) for operator workflows.
 These tools change local configuration or build artifacts only when invoked.
+The shared GeoJSON utilities have a separate [refresh and repair function reference](../data/ebmud/FUNCTION_REFERENCE.md).
+Current GIS source and documentation updates do not imply rebuilt artifacts;
+see [source deployment](../INSTALL.md#gis-source-deployment).
 
 This reference covers functions defined in maintained application files, including
 methods and nested callbacks. Test helpers, imported library functions, and generated
@@ -22,7 +25,7 @@ that a live service, device, or provider was tested.
 
 [Source](../installers/configure.py)
 
-Initialize installed settings/data without replacing operator state on upgrade.
+Initialize installed settings/data without replacing operator state on upgrade. Save a default responder.timezone for legacy installs and preserve an operator's existing shared timezone.
 
 | Function signature | Purpose and behavior |
 | --- | --- |

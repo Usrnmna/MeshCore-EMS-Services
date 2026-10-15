@@ -73,16 +73,6 @@ python tools/package_services.py
 This replaces the two ZIPs under `dist/` and excludes environments, runtime state,
 bytecode, and historical backups. The ZIPs include their own tests and documentation.
 
-## Workspace ignore policy
-
-The root `.gitignore` excludes local environments, service runtime state, Python
-bytecode/tool caches, coverage reports, build/distribution directories, credentials,
-recovery backups, interrupted archive/export writes, and GIS refresh staging/locks.
-The platform and satellite ignore files also protect standalone checkouts. Source Python,
-configuration templates, tests, function references, reference SQLite/JSON/CSV data,
-and retained raw source receipts remain trackable. Ignore rules do not remove
-files that Git already tracks, including previously committed distribution files.
-
 ## California State Parks GIS references
 
 The [California State Parks reference collection](data/california_state_parks/README.md)
@@ -99,7 +89,7 @@ remain unchanged. The previously built v0.9.0-beta artifacts do not contain this
 acquisition; future complete-workspace builds collect the maintained data directory.
 Standalone service ZIPs require shared reference data separately.
 
-## Local GIS reference data
+## Local GIS Reference Data
 
 The project includes EBMUD GeoJSON snapshots (with documented local polygon repairs) in [`data/ebmud/`](data/ebmud/README.md):
 
@@ -127,7 +117,7 @@ run `python data/ebmud/repair_geojson.py` with Shapely installed. Raw refresh ca
 restore upstream defects; repair preserves originals and records provenance in
 the manifest. See [repair instructions](data/ebmud/README.md#local-polygon-repairs).
 
-## Included programs and services
+## Included Programs & Services
 
 Both platform packages contain the same service components:
 
@@ -154,7 +144,7 @@ Both platform packages contain the same service components:
 | Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current time in the shared timezone. |
 | Configuration | `config.json` | Defines MQTT settings, channel registry, program assignments, commands, timeouts, cooldowns, and reply limits. |
 
-## MeshCore commands
+## MeshCore Commands
 
 Start with the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md#start) or [Windows copy](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md#start). The detailed [Linux](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index) and [Windows](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md#command-index) command references cover all 16 commands, subcommands, options, response examples, and failures.
 
@@ -189,7 +179,7 @@ The five GIS commands require neither an API key nor network access.
 
 AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, status, time, UV, heat-alert, lightning, flood-alert, and snowpack commands do not require an API key. Internet access is required for all external data lookups.
 
-## Main features
+## Main Features
 
 - Automatic detection of the single attached USB serial device at each start; an explicit port override supports systems with several USB serial devices.
 - Bundled local MQTT broker for operation without a separate broker installation.
@@ -202,7 +192,7 @@ AQI lookups require an `AIRNOW_API_KEY` environment variable. Traffic, river, st
 - Long replies divided into as many as four 150-byte messages by default; command overrides allow 12 parts for flood alerts, 64 for lightning, and 6 for GIS. GIS also bounds its untagged output to 480 UTF-8 bytes by default.
 - Separate Linux and Windows MQTT ports and topic namespaces, allowing both copies to coexist on one network.
 
-## Quick start
+## Quick Start
 
 ### Linux
 
@@ -232,7 +222,7 @@ Set `AIRNOW_API_KEY` before starting the service if `!aqi` will be used. The def
 
 See the [Windows service README](meshcore_mqtt_service_windows/README.md) for complete setup and diagnostic instructions.
 
-## Default platform settings
+## Default Platform Settings
 
 | Setting | Linux folder | Windows folder |
 | --- | --- | --- |
@@ -249,7 +239,7 @@ See the [Windows service README](meshcore_mqtt_service_windows/README.md) for co
 
 Edit the appropriate folder's `config.json` to change channel definitions, program assignments, broker, topics, timeouts, cooldowns, reply limits, or command definitions. Restart the service after changing its configuration.
 
-## MQTT interface
+## MQTT Interface
 
 The service can be used as a MeshCore-to-MQTT bridge even when the automatic responder is disabled.
 
@@ -272,13 +262,13 @@ Example request:
 
 Use a unique request ID for every intentional command. Restrict publishing access to the command topic when an external broker is used.
 
-## Reliability and message handling
+## Reliability & Message Handling
 
 The service records requests before execution so sender names and request state survive restarts. It ignores duplicate, stale, future-dated, malformed, self-originated, and reply-like messages. Interrupted scripts and failed radio sends are recorded without automatic retransmission because execution or transmission may already have occurred.
 
 A `sent` result means the local Companion Node accepted the message for transmission. It does not confirm reception by a remote node. Weather, air-quality, river, and highway reports are informational source data; the service does not replace official emergency alert delivery. `!floodwarn` summarizes active official NWS alerts at the resolved point.
 
-## Development and verification
+## Development & Verification
 
 Run `bash verify.sh` from the Linux service folder after setup, or `verify.cmd`
 from the Windows service folder. Both discover all tests in `tests/` automatically.
@@ -315,7 +305,7 @@ Do not commit API keys, MQTT passwords, virtual environments, runtime databases,
 
 See the platform READMEs for `!floodwarn` examples, exact reply wording, data sources, and location coverage. Restart the service after configuration changes.
 
-## Snowpack command
+## Snowpack Command
 
 [Snowpack inputs, responses, and missing-data behavior](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-snowpack).
 
@@ -342,7 +332,7 @@ They contain source, launchers, setup scripts, tests, and documentation; local P
 environments, runtime databases, and bytecode caches are excluded. Run the included
 setup/launcher after extraction to install the pinned dependencies.
 
-## Flood alarm subscriptions
+## Flood Alarm Subscriptions
 
 [Quick monitoring instructions](meshcore_mqtt_service/BOT_USER_GUIDE.md#monitoring) | [Detailed subscription reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-floodalarm).
 
@@ -363,7 +353,7 @@ See the [Linux code guide](meshcore_mqtt_service/README.md#where-to-adjust-the-a
 or [Windows code guide](meshcore_mqtt_service_windows/README.md#where-to-adjust-the-algorithm)
 for the commented algorithm, timing constants, database fields, and error behavior.
 
-## Local GIS commands
+## Local GIS Commands
 
 See the [quick GIS examples](meshcore_mqtt_service/BOT_USER_GUIDE.md#gis), [full GIS syntax](meshcore_mqtt_service/COMMAND_REFERENCE.md#gis-syntax), and [response/error reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#gis-responses). Attribute sections: [trail](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-trail), [recreation](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-rec), [peak](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-peak), [park](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-park), and [boundary](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-boundary). Both platform guides describe the same command behavior.
 

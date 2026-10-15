@@ -13,35 +13,9 @@ under Windows Services or systemd. See the [installation guide](INSTALL.md).
 
 Source-folder launchers support interactive operation.
 
-## Radio connections
-
-Select `serial`, `ble`, or `tcp` in `config.json`'s `connection.type`.
-USB serial auto detection remains the default, including for older configuration
-files. For TCP, use `"connection": {"type": "tcp", "host": "192.168.1.50", "port": 5000}`.
-For BLE, pair the node in the OS and use
-`"connection": {"type": "ble", "address": "AA:BB:CC:DD:EE:FF"}`.
-The node must expose the selected MeshCore companion interface. One connection
-is active at a time; MQTT settings and channel/program assignments stay the same.
-
-See the [Linux connection guide](meshcore_mqtt_service/README.md#radio-connection-settings)
-or [Windows connection guide](meshcore_mqtt_service_windows/README.md#radio-connection-settings)
-for timeouts, Bluetooth/service-account setup, metadata, and recovery behavior.
-The [installation guide](INSTALL.md) covers setup options and upgrade preservation.
-
 ## About
 
 MC-EMS-Services turns a MeshCore channel into a small command-driven information service. A user sends a supported command on a channel assigned to that program, the attached computer runs the matching Python lookup, and the result is returned to the same channel with the sender's name.
-
-```text
-MeshCore user
-    â†“ command over LoRa
-Companion Node
-    â†“ USB serial, BLE, or TCP connection
-Linux or Windows service
-    â”œâ”€ runs the requested local Python program
-    â”œâ”€ publishes radio events and commands through MQTT
-    â””â”€ sends a concise reply back to the same MeshCore channel
-```
 
 The default channel is `#autatestbot`. Add Public, hashtag, or private channels and assign each program to one or more of them using the [multi-channel changes and usage guide](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md). Configure channels on the radio before starting; the setup utility can explicitly provision empty slots. The guide also explains how to add Python programs after installation without rebuilding or rerunning the installer.
 
@@ -79,15 +53,6 @@ is described in the component references. Test helpers are excluded.
 | [`tools/package_services.py`](tools/package_services.py) | Builds both distribution ZIPs from current source and checks shared-code parity. |
 | `dist/` | Generated installation ZIPs; rebuild after source changes. |
 | [`archive/`](archive/README.md) | Local historical recovery backups, excluded from version control. |
-
-The service folders are the maintained installation sources. Shared command code
-is deliberately present in both so either package can run independently. Update
-both copies together; retain platform-specific serial selection and MQTT defaults.
-Every shipped command has its own executable Python program in `scripts/`;
-shared helper modules are permitted. The rule is recorded in [AGENTS.md](AGENTS.md)
-and checked by each package's `tests/test_command_programs.py`.
-When copies differ, compare contents and modification history and reconcile the
-newer implementation before packaging. The packager rejects divergent shared code.
 
 The highway lookup runs directly from either service package without starting
 MQTT or the radio:

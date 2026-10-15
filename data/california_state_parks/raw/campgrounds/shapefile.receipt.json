@@ -1,0 +1,20 @@
+{
+  "dataset": "campgrounds",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:57.920343+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7623/Campgrounds_6830642917718385296.zip?sv=2025-05-05&st=2026-10-12T04%3A33%3A58Z&se=2026-10-12T05%3A38%3A58Z&sr=b&sp=r&sig=VTr2cGNT7pDrm2iAywlH9kGyWU5P4RjSNnrtUbbByyg%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "Campgrounds.cpg",
+    "Campgrounds.dbf",
+    "Campgrounds.prj",
+    "Campgrounds.shp",
+    "Campgrounds.shx"
+  ],
+  "path": "raw/campgrounds/shapefile.zip",
+  "byte_count": 47802,
+  "sha256": "ee80ce35a27701c307d2148a85ee096a025499573c2868f4c784e8fde4767e0c",
+  "status": "downloaded"
+}

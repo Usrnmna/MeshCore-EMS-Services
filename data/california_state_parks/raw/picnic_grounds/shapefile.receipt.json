@@ -1,0 +1,21 @@
+{
+  "dataset": "picnic_grounds",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:53.417211+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7620/PicnicGrounds_4407887985877459003.zip?sv=2025-05-05&st=2026-10-12T04%3A33%3A53Z&se=2026-10-12T05%3A38%3A53Z&sr=b&sp=r&sig=Dyx40MEX1%2BQyrzYqJQlGirLByrFd0Le70hpj%2Fw5peaQ%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "PicnicGrounds.cpg",
+    "PicnicGrounds.dbf",
+    "PicnicGrounds.prj",
+    "PicnicGrounds.shp",
+    "PicnicGrounds.shp.xml",
+    "PicnicGrounds.shx"
+  ],
+  "path": "raw/picnic_grounds/shapefile.zip",
+  "byte_count": 101838,
+  "sha256": "4282c0f2c64b2bd215dbdf5d39d967feceb474e89ef58c6568b016643a519311",
+  "status": "downloaded"
+}

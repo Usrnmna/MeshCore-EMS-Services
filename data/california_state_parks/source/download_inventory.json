@@ -1,0 +1,167 @@
+[
+  {
+    "dataset": "park_boundaries",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/0fea4fa1db734794bdb3b5410bb3eed9/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "park_boundaries",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/0fea4fa1db734794bdb3b5410bb3eed9/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "park_boundaries",
+    "format": "kml",
+    "url": "https://csparks.maps.arcgis.com/sharing/rest/content/items/8b2ae11e35ff46718fd3db51f0a3c620/data"
+  },
+  {
+    "dataset": "routes",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "routes",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "routes",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "buildings",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "buildings",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "buildings",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "structures",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "structures",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "structures",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "picnic_grounds",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "picnic_grounds",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "picnic_grounds",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "campgrounds",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "campgrounds",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "campgrounds",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "parking",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/shapefile?redirect=true&layers=0"
+  },
+  {
+    "dataset": "parking",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/filegdb?redirect=true&layers=0"
+  },
+  {
+    "dataset": "parking",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/kml?redirect=true&layers=0"
+  },
+  {
+    "dataset": "park_entry_points",
+    "format": "shapefile",
+    "url": "https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/shapefile?redirect=true&layers=2"
+  },
+  {
+    "dataset": "park_entry_points",
+    "format": "filegdb",
+    "url": "https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/filegdb?redirect=true&layers=2"
+  },
+  {
+    "dataset": "park_entry_points",
+    "format": "kml",
+    "url": "https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/kml?redirect=true&layers=2"
+  },
+  {
+    "dataset": "field_divisions",
+    "format": "shapefile",
+    "url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.zip"
+  },
+  {
+    "dataset": "field_divisions",
+    "format": "filegdb",
+    "url": "https://www.parks.ca.gov/pages/862/files/AdministrativeBoundaries.gdb.zip"
+  },
+  {
+    "dataset": "field_divisions",
+    "format": "kml",
+    "url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.kmz.zip"
+  },
+  {
+    "dataset": "districts",
+    "format": "shapefile",
+    "url": "https://www.parks.ca.gov/pages/862/files/Districts.zip"
+  },
+  {
+    "dataset": "districts",
+    "format": "filegdb",
+    "url": "https://www.parks.ca.gov/pages/862/files/AdministrativeBoundaries.gdb.zip"
+  },
+  {
+    "dataset": "districts",
+    "format": "kml",
+    "url": "https://www.parks.ca.gov/pages/862/files/Districts.kmz.zip"
+  },
+  {
+    "dataset": "sectors",
+    "format": "shapefile",
+    "url": "https://www.parks.ca.gov/pages/862/files/Sectors.zip"
+  },
+  {
+    "dataset": "sectors",
+    "format": "filegdb",
+    "url": "https://www.parks.ca.gov/pages/862/files/AdministrativeBoundaries.gdb.zip"
+  },
+  {
+    "dataset": "sectors",
+    "format": "kml",
+    "url": "https://www.parks.ca.gov/pages/862/files/Sectors.kmz.zip"
+  }
+]

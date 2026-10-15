@@ -1,0 +1,35 @@
+{
+  "raw/buildings/kml.zip": {
+    "placemark_count": 3240
+  },
+  "raw/campgrounds/kml.zip": {
+    "placemark_count": 531
+  },
+  "raw/districts/kml.zip": {
+    "placemark_count": 21
+  },
+  "raw/field_divisions/kml.zip": {
+    "placemark_count": 4
+  },
+  "raw/parking/kml.zip": {
+    "placemark_count": 2359
+  },
+  "raw/park_boundaries/kml.kmz": {
+    "placemark_count": 462
+  },
+  "raw/park_entry_points/kml.zip": {
+    "placemark_count": 288
+  },
+  "raw/picnic_grounds/kml.zip": {
+    "placemark_count": 1457
+  },
+  "raw/routes/kml.zip": {
+    "placemark_count": 13139
+  },
+  "raw/sectors/kml.zip": {
+    "placemark_count": 67
+  },
+  "raw/structures/kml.zip": {
+    "placemark_count": 34993
+  }
+}

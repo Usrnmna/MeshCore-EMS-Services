@@ -1,0 +1,16 @@
+{
+  "dataset": "districts",
+  "format": "kml",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Districts.kmz.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:01.221205+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Districts.kmz.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Districts.kmz"
+  ],
+  "path": "raw/districts/kml.zip",
+  "byte_count": 1313601,
+  "sha256": "f4b1d111c5c1a0cdecd93b8b53118985e872de7f00ccd52c8ec6d68a107fb7b8",
+  "status": "downloaded"
+}

@@ -92,3 +92,8 @@ standalone execution does not create a subscription.
 Updating an older installation requires responder.py, these command programs and GIS helpers,
 settings, dependencies, data, and five command registrations with explicit
 channel assignments. See ../INSTALL.md, section GIS source deployment.
+
+COMMAND DOCUMENTATION
+BOT_USER_GUIDE.md: concise MeshCore channel examples and reply guidance.
+COMMAND_REFERENCE.md: linked command, subcommand, option, and response reference.
+README.md: installation, configuration, and provider details.

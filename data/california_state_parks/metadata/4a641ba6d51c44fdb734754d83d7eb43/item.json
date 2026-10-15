@@ -1,0 +1,77 @@
+{
+  "id": "4a641ba6d51c44fdb734754d83d7eb43",
+  "owner": "Seth.Paine",
+  "ownerId": "5e15b4288236485484c1f289688fc663",
+  "orgId": "AhxrK3F6WM8ECvDi",
+  "created": 1555969772000,
+  "modified": 1779833601000,
+  "guid": null,
+  "name": "ParkEntryPoints",
+  "title": "Park Entry Points",
+  "type": "Feature Service",
+  "typeKeywords": [
+    "ArcGIS Server",
+    "Data",
+    "Feature Access",
+    "Feature Service",
+    "Metadata",
+    "Service",
+    "Hosted Service"
+  ],
+  "description": "<div style='text-align:Left;'><div><div><p>This hosted feature layer contains a simplified point-based representation of California State Parks entry locations. Each point identifies a park access or entry location and may include associated attributes such as park unit name, street address, related links, and other reference information useful for mapping, navigation, planning, and public information products.<\/p><p>The layer is intended to support California State Parks web maps, applications, dashboards, and other GIS products that require a consistent statewide reference for park entry locations. It may be used for general orientation, visitor access mapping, operational planning, and integration with other California State Parks GIS datasets.<\/p><p>This dataset is maintained as an authoritative California State Parks GIS resource. Users should review the attribute information and source details before using the layer for project-specific analysis, field navigation, or public-facing products requiring site-level confirmation.<\/p><p><strong>Data updated:<\/strong> May 6, 2026<br /><strong>Hosted by:<\/strong> California State Parks<br /><strong>Item type:<\/strong> Hosted Feature Layer<br /><strong>Recommended use:<\/strong> Statewide park access mapping, web maps, visitor information products, planning maps, dashboards, and reference applications.<\/p><\/div><\/div><\/div>",
+  "tags": [
+    "California State Parks",
+    "Entry",
+    "CAOpenData",
+    "Department of Parks and Recreation",
+    "California Natural Resources Agency"
+  ],
+  "snippet": "Authoritative hosted feature layer representing California State Parks park entry point locations, including basic access, park unit, address, and related reference information. This layer supports public-facing maps, internal planning, visitor orientation, and statewide park access mapping.",
+  "thumbnail": "thumbnail/thumbnail1706561972906.png",
+  "documentation": null,
+  "extent": [
+    [
+      -124.21729544270912,
+      32.54345474318369
+    ],
+    [
+      -114.60989646901002,
+      41.99157994846297
+    ]
+  ],
+  "categories": ["/Categories/Infrastructure/Transportation"],
+  "spatialReference": "102100",
+  "accessInformation": "California State Parks: Enterprise Geographic Information Systems",
+  "classification": null,
+  "licenseInfo": "<div style='text-align:Left;'><div><div><p style='margin:0 0 11;'><span><strong>COPYRIGHT 2026 CALIFORNIA STATE PARKS, ALL RIGHTS RESERVED<\/strong><\/span><\/p><p style='margin:0 0 11;'><span>These datasets and materials (\u201cMaterials\u201d) have been developed by the State of California, Department of Parks and Recreation (\u201cDPR\u201d) for uses beneficial to DPR and as a public service to enhance open government, transparency and accountability. DPR is also known as California State Parks (\u201cCSP\u201d).<\/span><\/p><p style='margin:0 0 11;'><span>All Materials are made available on an \u201cas is\u201d basis, on the express condition that users who view, download, transfer or otherwise access or use the Materials expressly accept these Terms of Use and Disclaimers<\/span><\/p><p style='margin:0 0 11;'><span><strong>TERMS OF USE<\/strong><\/span><\/p><p style='margin:0 0 11;'><span>All materials contained herein are protected by the United States Copyright Law, may not be sold or altered, and must be attributed to CSP. These Materials are intended for free distribution for personal or public sector use. Commercial uses of these Materials must be approved by CSP in advance; contact <\/span><a href='mailto:geodata@parks.ca.gov' rel='nofollow ugc'><span>geodata@parks.ca.gov<\/span><\/a><span>for permission.<\/span><\/p><p style='margin:0 0 11;'><span><strong>DATA WARRANTY DISCLAIMER<\/strong><\/span><\/p><p style='margin:0 0 11;'><span>CSP strives to ensure that published Materials are accurate, but makes no warranty, representation or guaranty of any type as to the content, accuracy, timeliness, completeness or fitness for any particular purpose or use, nor shall any such warranty be implied, including, without limitation, the implied warranties of merchantability and fitness for a particular purpose. All warranties are specifically disclaimed.<\/span><\/p><p style='margin:0 0 11;'><span><strong>DATA CURRENCY DISCLAIMER<\/strong><\/span><\/p><p style='margin:0 0 11;'><span>These Materials may be updated at irregular intervals. All users should check for updates regularly and ensure the most current version of the Materials is being used.<\/span><\/p><p style='margin:0 0 11;'><span><strong>LIABILITY DISCLAIMER<\/strong><\/span><\/p><p style='margin:0 0 11;'><span>CSP disclaims any responsibility or legal liability to users for damages of any kind, including lost profits, lost savings, business interruption, or any other incidental or consequential damages relating to the providing of the Materials or the use of it. CSP expressly disclaims any responsibility to defend or indemnify users against claims of others based on users\u2019 copying, reliance, distribution, or other use of any of the Materials. Users assume the risk of using these Materials and shall have no remedy at law or equity against CSP in case the Materials provided are inaccurate, incomplete or otherwise defective.<\/span><\/p><\/div><\/div><\/div>",
+  "culture": "en-us",
+  "properties": {
+    "indexJobId": "",
+    "indexJobUrl": ""
+  },
+  "advancedSettings": null,
+  "url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/ParkEntryPoints/FeatureServer",
+  "proxyFilter": null,
+  "access": "public",
+  "size": 11264000,
+  "subInfo": 0,
+  "appCategories": [],
+  "industries": [],
+  "languages": [],
+  "largeThumbnail": null,
+  "banner": null,
+  "screenshots": [],
+  "listed": false,
+  "commentsEnabled": true,
+  "numComments": 0,
+  "numRatings": 0,
+  "avgRating": 0,
+  "numViews": 1836336,
+  "contentStatus": "public_authoritative",
+  "scoreCompleteness": 100,
+  "groupDesignations": null,
+  "apiToken1ExpirationDate": -1,
+  "apiToken2ExpirationDate": -1,
+  "contentOrigin": "self",
+  "lastViewed": 1791777600000
+}

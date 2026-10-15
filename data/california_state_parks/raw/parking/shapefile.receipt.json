@@ -1,0 +1,21 @@
+{
+  "dataset": "parking",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:39:00.285289+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7622/ParkingPoints_367974060962434170.zip?sv=2025-05-05&st=2026-10-12T04%3A34%3A00Z&se=2026-10-12T05%3A39%3A00Z&sr=b&sp=r&sig=Hkx26bEbwFWsGnC%2BHEvQvp%2BTfN2ouJgIq0I8PxBSssw%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "ParkingPoints.cpg",
+    "ParkingPoints.dbf",
+    "ParkingPoints.prj",
+    "ParkingPoints.shp",
+    "ParkingPoints.shp.xml",
+    "ParkingPoints.shx"
+  ],
+  "path": "raw/parking/shapefile.zip",
+  "byte_count": 155212,
+  "sha256": "83e458d11115d59c97d12cc4ab3ee87138fcfdef5763360c2c2b2b51cb06b004",
+  "status": "downloaded"
+}

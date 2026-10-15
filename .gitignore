@@ -1,5 +1,6 @@
 # Repository source, command programs, tests, configuration templates, AGENTS.md,
 # documentation, GIS snapshots/originals, and satellite reference data remain trackable.
+# Retain COMMAND_REFERENCE.md, BOT_USER_GUIDE.md, and native GIS source archives.
 # Ignore only generated or machine-local state; do not blanket-ignore scripts/ or data/.
 
 # Installed dependencies and local service state
@@ -69,6 +70,8 @@ satellite-settings.json.tmp
 .refresh-*/
 .test-refresh-*/
 gis_settings.json.tmp
+/data/**/*.download
+/data/**/*.geojson.tmp
 
 # Local operating-system metadata and editor swap files
 .DS_Store

@@ -1,0 +1,21 @@
+{
+  "dataset": "park_boundaries",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/0fea4fa1db734794bdb3b5410bb3eed9/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:46.357977+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7627/ParkBoundaries_-871079189372660624.zip?sv=2025-05-05&st=2026-10-12T04%3A33%3A46Z&se=2026-10-12T05%3A38%3A46Z&sr=b&sp=r&sig=DLCi7pCM56efSN7iJT%2Fkbh%2FH3BJufzwzofNaKx0R%2F0I%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "ParkBoundaries.cpg",
+    "ParkBoundaries.dbf",
+    "ParkBoundaries.prj",
+    "ParkBoundaries.shp",
+    "ParkBoundaries.shp.xml",
+    "ParkBoundaries.shx"
+  ],
+  "path": "raw/park_boundaries/shapefile.zip",
+  "byte_count": 4692591,
+  "sha256": "4f0f0d8b6e0f21eb9686af91ad8ac353f7121599c5309376e4af5a3132fc1697",
+  "status": "downloaded"
+}

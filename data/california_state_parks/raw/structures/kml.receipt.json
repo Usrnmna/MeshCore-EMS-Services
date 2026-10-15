@@ -1,0 +1,17 @@
+{
+  "dataset": "structures",
+  "format": "kml",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/kml?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:41:17.570582+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7625/Structures_-2689214541316577764.kmz?sv=2025-05-05&st=2026-10-12T04%3A36%3A17Z&se=2026-10-12T05%3A41%3A17Z&sr=b&sp=r&sig=ymFCnFplDUjy%2Bz1AEpfwlMzeCLP5hb9GAOMq0QTzR%2FU%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "765c6d32-5aba-4b35-817f-79cfa5b2e3fc.png",
+    "doc.kml"
+  ],
+  "path": "raw/structures/kml.zip",
+  "byte_count": 2393204,
+  "sha256": "3f906dee86b6d0a0e37094abe04ec73b6ee0b22f0db2304eeb629ef1760dcbfa",
+  "status": "downloaded"
+}

@@ -1,0 +1,17 @@
+{
+  "dataset": "campgrounds",
+  "format": "kml",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/kml?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:57.874401+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7623/Campgrounds_5888322420997501814.kmz?sv=2025-05-05&st=2026-10-12T04%3A33%3A58Z&se=2026-10-12T05%3A38%3A58Z&sr=b&sp=r&sig=ORyFkBNN8m9JUpd8Xn7sUxe5ms1%2FLlOzjfC3VULHySQ%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "2e6067d5-f92f-4b92-9aac-5654be30bdd9.png",
+    "doc.kml"
+  ],
+  "path": "raw/campgrounds/kml.zip",
+  "byte_count": 56648,
+  "sha256": "cbff0de527ac41e195aae54023c7f63c51685d59c04216f190735fc8ed8c485e",
+  "status": "downloaded"
+}

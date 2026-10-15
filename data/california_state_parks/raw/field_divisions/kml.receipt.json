@@ -1,0 +1,16 @@
+{
+  "dataset": "field_divisions",
+  "format": "kml",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.kmz.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:00.732289+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.kmz.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Field_Divisions.kmz"
+  ],
+  "path": "raw/field_divisions/kml.zip",
+  "byte_count": 1299298,
+  "sha256": "77596d91ba34311feb12d9cabd433b1d56d259719081cb2499808a6d0519ea17",
+  "status": "downloaded"
+}

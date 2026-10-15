@@ -1,0 +1,38 @@
+{
+  "item_id": "37b51eac76344963bce2e0d84fef847c",
+  "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/1",
+  "metadata_path": "metadata/districts/layer.json",
+  "count": 21,
+  "path": "geojson/districts.geojson",
+  "feature_count": 21,
+  "byte_count": 3320721,
+  "sha256": "cf9fb7df770ce780eeb56a7edbf08ce931c0e061ace1c7f6d62a9f368084e8a2",
+  "geometry_types": {
+    "Polygon": 21
+  },
+  "object_id_field": "OBJECTID",
+  "properties": [
+    "GlobalID",
+    "OBJECTID",
+    "Shape__Area",
+    "Shape__Length",
+    "created_date",
+    "created_user",
+    "district",
+    "field_division",
+    "last_edited_date",
+    "last_edited_user"
+  ],
+  "pages": [
+    {
+      "path": "raw_geojson/districts/0001.geojson",
+      "source_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/1/query?objectIds=1%2C2%2C3%2C4%2C5%2C6%2C7%2C8%2C9%2C10%2C11%2C12%2C13%2C14%2C15%2C16%2C17%2C18%2C19%2C20%2C21&outFields=%2A&returnGeometry=true&outSR=4326&f=geojson",
+      "feature_count": 21,
+      "byte_count": 3320796,
+      "sha256": "49bafd7c79ee72726658ae1d406163666275c0ede2e5cd32605358378b2655f8",
+      "retrieved_at_utc": "2026-10-12T04:40:58.546435+00:00"
+    }
+  ],
+  "checked_at_utc": "2026-10-12T04:40:59.067835+00:00",
+  "verification": "Exact object-ID set per page and complete export; before/after IDs, counts, and editing metadata agree."
+}

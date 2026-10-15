@@ -1,5 +1,7 @@
 # MeshCore channel command service
 
+Documentation: [MeshCore user guide](BOT_USER_GUIDE.md) | [Detailed command reference](COMMAND_REFERENCE.md) | [Function implementation reference](FUNCTION_REFERENCE.md).
+
 Messages on **#autatestbot** run preset local Python scripts and automatically return
 stdout to the same channel, starting with **@SENDERSUSERNAME**.
 
@@ -126,6 +128,8 @@ MQTT event `device` metadata includes `type`. Serial keeps the original string
 command continues to list USB serial devices only.
 
 ## Included commands
+
+[Quick user guide](BOT_USER_GUIDE.md#start) | [Complete command, option, and response reference](COMMAND_REFERENCE.md#command-index).
 
 | Command | Input | Service |
 | --- | --- | --- |
@@ -336,6 +340,8 @@ in this folder. Installed services use the paths in the [installation guide](../
 
 ## AirNow AQI command
 
+[Inputs and response formats](COMMAND_REFERENCE.md#cmd-aqi).
+
 Send either of these on **#autatestbot**:
 
 ```text
@@ -375,6 +381,8 @@ the configured tagged-message splitting and length limits.
 
 ## Caltrans traffic command
 
+[Inputs and response formats](COMMAND_REFERENCE.md#cmd-traffic).
+
 On **#autatestbot**, send a highway/route number:
 
 ```text
@@ -402,6 +410,8 @@ Configured cooldowns, duplicate suppression, maximum reply length and part limit
 long reports may be truncated with `...`.
 
 ## Nearby river stations command
+
+[Inputs, radius, and response formats](COMMAND_REFERENCE.md#cmd-rivers).
 
 Send either form on **#autatestbot**:
 
@@ -445,6 +455,8 @@ mesh format is enabled only through this command's configured --mesh-text argume
 
 ## Current UV index: !uv
 
+[Location syntax and response formats](COMMAND_REFERENCE.md#cmd-uv).
+
 Send on a channel assigned to this command (default #autatestbot):
 
 ```text
@@ -478,6 +490,8 @@ non-commercial use. Coordinates bypass location lookup.
 Offline checks: `python -m unittest discover -s tests -p "test_uv.py"`.
 
 ## Lightning potential: !lightning
+
+[Forecast responses and uncertainty](COMMAND_REFERENCE.md#cmd-lightning).
 
 Send `!lightning Sacramento`, `!lightning 95814`, `!lightning 38.5816, -121.4944`,
 or `!lightning Reno NV` on an assigned channel. Decimal GPS accepts comma or space
@@ -591,6 +605,8 @@ when preserving a custom channel registry.
 
 ## Heat alerts: !heatadv
 
+[Alert responses and error handling](COMMAND_REFERENCE.md#cmd-heatadv).
+
 The [heat function reference](FUNCTION_REFERENCE.md#scripts-heat-adv-py) explains
 all seven lookup functions, their inputs, outputs, and failure behavior. The
 [complete service function reference](FUNCTION_REFERENCE.md) also covers the
@@ -669,6 +685,8 @@ editing this source folder does not update an already installed service.
 
 ## Flood alerts: !floodwarn
 
+[One-time flood-alert responses](COMMAND_REFERENCE.md#cmd-floodwarn).
+
 Send on a channel assigned to this command (default `#autatestbot`):
 
 ```text
@@ -740,6 +758,8 @@ uses its location parser.
 
 ## Snowpack: !snowpack
 
+[Snow responses and missing data](COMMAND_REFERENCE.md#cmd-snowpack).
+
 Send on a MeshCore channel assigned to this command (default `#autatestbot`):
 
 ```text
@@ -804,6 +824,8 @@ After extraction, follow the setup/launcher instructions above to install the
 pinned dependencies. Existing local runtime files are not included in the ZIP.
 
 ## Flood monitoring: !floodalarm
+
+[Quick monitoring instructions](BOT_USER_GUIDE.md#monitoring) | [Subscription behavior and responses](COMMAND_REFERENCE.md#cmd-floodalarm).
 
 ```text
 !floodalarm 38.5816, -121.4944
@@ -889,6 +911,8 @@ monitoring or radio delivery.
 
 ## Local GIS commands
 
+[Quick GIS examples](BOT_USER_GUIDE.md#gis) | [Complete GIS query grammar](COMMAND_REFERENCE.md#gis-syntax).
+
 The five GIS commands read the shared EBMUD snapshots without network requests.
 Names are searched locally; city/ZIP geocoding and live closure reporting are
 not provided. Coordinates are entered as latitude followed by longitude.
@@ -923,6 +947,8 @@ A name search prefers exact matches, ignoring case, punctuation, accents, and a
 trailing `Trail`. Partial matches produce a selection list when ambiguous.
 
 ### GIS subcommands
+
+Attribute references: [trail](COMMAND_REFERENCE.md#cmd-trail), [recreation](COMMAND_REFERENCE.md#cmd-rec), [peak](COMMAND_REFERENCE.md#cmd-peak), [park](COMMAND_REFERENCE.md#cmd-park), and [boundary categories](COMMAND_REFERENCE.md#cmd-boundary).
 
 | Command | Subcommands | Information |
 | --- | --- | --- |
@@ -976,6 +1002,8 @@ retain data validation, geometry operations, and reply formatting. The older
 existing registrations, but current defaults use one program per command.
 
 ### GIS response examples
+
+[Per-attribute examples](COMMAND_REFERENCE.md#cmd-trail) | [GIS result and error reference](COMMAND_REFERENCE.md#gis-responses).
 
 The following reply bodies were verified against the bundled datasets on
 October 11, 2026. The responder adds the sender's `@name` and splits long output
@@ -1042,6 +1070,8 @@ For a full summary, use `!trail Bear Creek info`,
 available mapped records, not the absence of facilities in the real world.
 
 ### GIS settings and source installation
+
+[Settings and limits](COMMAND_REFERENCE.md#settings) | [Direct Python invocation](COMMAND_REFERENCE.md#python-programs).
 
 Edit [gis_settings.json](gis_settings.json):
 

@@ -1,0 +1,21 @@
+{
+  "dataset": "sectors",
+  "format": "shapefile",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Sectors.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:01.343941+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Sectors.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Sectors.cpg",
+    "Sectors.dbf",
+    "Sectors.prj",
+    "Sectors.shp",
+    "Sectors.shp.xml",
+    "Sectors.shx"
+  ],
+  "path": "raw/sectors/shapefile.zip",
+  "byte_count": 1121794,
+  "sha256": "5aef65e7ec7ab94f2660e9419efb3544badc533c16925a88f272291494451e81",
+  "status": "downloaded"
+}

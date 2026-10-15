@@ -1,0 +1,68 @@
+{
+  "park_boundaries": {
+    "item_id": "0fea4fa1db734794bdb3b5410bb3eed9",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/ParkBoundaries/FeatureServer/0",
+    "metadata_path": "metadata/park_boundaries/layer.json",
+    "count": 461
+  },
+  "routes": {
+    "item_id": "45fa4fba9dde4a8dbb23cdd56da40703",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/RecreationalRoutes/FeatureServer/0",
+    "metadata_path": "metadata/routes/layer.json",
+    "count": 13139
+  },
+  "buildings": {
+    "item_id": "dfbb7fb9aa6941b8997f062385734bfe",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/Buildings/FeatureServer/0",
+    "metadata_path": "metadata/buildings/layer.json",
+    "count": 3246
+  },
+  "structures": {
+    "item_id": "b8d29ac555af4840a7b2fe4b8b858f86",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/Structures/FeatureServer/0",
+    "metadata_path": "metadata/structures/layer.json",
+    "count": 35067
+  },
+  "picnic_grounds": {
+    "item_id": "d4a0a22eb5e5486d9902ae7decde256a",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/PicnicGrounds/FeatureServer/0",
+    "metadata_path": "metadata/picnic_grounds/layer.json",
+    "count": 1466
+  },
+  "campgrounds": {
+    "item_id": "81c47beefff143ecb6c21bfd3ed6a933",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/Campgrounds/FeatureServer/0",
+    "metadata_path": "metadata/campgrounds/layer.json",
+    "count": 531
+  },
+  "parking": {
+    "item_id": "211fdbb1d2074e87bf5e73fe2fe9ca89",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/ParkingPoints/FeatureServer/0",
+    "metadata_path": "metadata/parking/layer.json",
+    "count": 2359
+  },
+  "park_entry_points": {
+    "item_id": "4a641ba6d51c44fdb734754d83d7eb43",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/ParkEntryPoints/FeatureServer/2",
+    "metadata_path": "metadata/park_entry_points/layer.json",
+    "count": 288
+  },
+  "sectors": {
+    "item_id": "37b51eac76344963bce2e0d84fef847c",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/0",
+    "metadata_path": "metadata/sectors/layer.json",
+    "count": 68
+  },
+  "districts": {
+    "item_id": "37b51eac76344963bce2e0d84fef847c",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/1",
+    "metadata_path": "metadata/districts/layer.json",
+    "count": 21
+  },
+  "field_divisions": {
+    "item_id": "37b51eac76344963bce2e0d84fef847c",
+    "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/2",
+    "metadata_path": "metadata/field_divisions/layer.json",
+    "count": 4
+  }
+}

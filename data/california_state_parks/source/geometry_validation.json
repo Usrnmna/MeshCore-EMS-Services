@@ -1,0 +1,272 @@
+{
+  "park_boundaries": {
+    "feature_count": 461,
+    "invalid_geometry_count": 48,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": [
+      {
+        "object_id": 9317,
+        "reason": "Nested shells[-117.00014019995 34.0180773691101]"
+      },
+      {
+        "object_id": 9324,
+        "reason": "Nested shells[-123.028456270369 38.5831081073972]"
+      },
+      {
+        "object_id": 9330,
+        "reason": "Ring Self-intersection[-119.008407026423 38.1958281928825]"
+      },
+      {
+        "object_id": 9345,
+        "reason": "Nested shells[-117.820454493065 33.5677048917575]"
+      },
+      {
+        "object_id": 9346,
+        "reason": "Nested shells[-116.59171025946 32.9961307279098]"
+      },
+      {
+        "object_id": 9351,
+        "reason": "Nested shells[-120.230420173721 39.31689865669]"
+      },
+      {
+        "object_id": 9354,
+        "reason": "Nested shells[-121.047862862792 39.2085362313203]"
+      },
+      {
+        "object_id": 9359,
+        "reason": "Nested shells[-121.911389862556 36.4854827403801]"
+      },
+      {
+        "object_id": 9367,
+        "reason": "Nested shells[-121.5283911532 37.2062346774396]"
+      },
+      {
+        "object_id": 9373,
+        "reason": "Nested shells[-116.281531029804 33.8585169739373]"
+      },
+      {
+        "object_id": 9377,
+        "reason": "Nested shells[-121.684044691287 36.167756153862]"
+      },
+      {
+        "object_id": 9379,
+        "reason": "Nested shells[-120.423980738421 34.697911297482]"
+      },
+      {
+        "object_id": 9380,
+        "reason": "Nested shells[-121.547134610299 39.5336683639133]"
+      },
+      {
+        "object_id": 9388,
+        "reason": "Nested shells[-120.90766623515 39.3636121504736]"
+      },
+      {
+        "object_id": 9389,
+        "reason": "Ring Self-intersection[-118.769621598906 34.0984518021628]"
+      },
+      {
+        "object_id": 9398,
+        "reason": "Nested shells[-119.582259030638 37.0648618490517]"
+      },
+      {
+        "object_id": 9404,
+        "reason": "Nested shells[-120.702481051161 35.2966935847404]"
+      },
+      {
+        "object_id": 9406,
+        "reason": "Nested shells[-122.62171520753 37.9106281114321]"
+      },
+      {
+        "object_id": 9408,
+        "reason": "Nested shells[-123.646156029054 39.1658185224812]"
+      },
+      {
+        "object_id": 9435,
+        "reason": "Nested shells[-122.631951306275 38.6736823358882]"
+      },
+      {
+        "object_id": 9461,
+        "reason": "Ring Self-intersection[-124.219454335984 41.7836133251429]"
+      },
+      {
+        "object_id": 9463,
+        "reason": "Nested shells[-118.514278745669 34.0691219924238]"
+      },
+      {
+        "object_id": 9478,
+        "reason": "Ring Self-intersection[-122.181875262601 37.0012508030549]"
+      },
+      {
+        "object_id": 9483,
+        "reason": "Nested shells[-118.994838666657 38.2246571684113]"
+      },
+      {
+        "object_id": 9511,
+        "reason": "Nested shells[-120.231463207598 34.5070476452776]"
+      },
+      {
+        "object_id": 9512,
+        "reason": "Nested shells[-121.910126247362 37.0631387598362]"
+      },
+      {
+        "object_id": 9534,
+        "reason": "Nested shells[-123.696542858531 39.2747336572303]"
+      },
+      {
+        "object_id": 9535,
+        "reason": "Ring Self-intersection[-121.800465037873 39.2589149059017]"
+      },
+      {
+        "object_id": 9536,
+        "reason": "Nested shells[-122.873166752991 38.0919851765262]"
+      },
+      {
+        "object_id": 9599,
+        "reason": "Nested shells[-121.885929644585 37.9036125715325]"
+      },
+      {
+        "object_id": 9645,
+        "reason": "Nested shells[-123.098950620856 38.416847642017]"
+      },
+      {
+        "object_id": 9666,
+        "reason": "Ring Self-intersection[-116.103163916745 33.0342618684573]"
+      },
+      {
+        "object_id": 9670,
+        "reason": "Nested shells[-118.075002285172 35.3716115156343]"
+      },
+      {
+        "object_id": 9673,
+        "reason": "Ring Self-intersection[-120.900182336382 38.9598320155749]"
+      },
+      {
+        "object_id": 9702,
+        "reason": "Ring Self-intersection[-121.607362678648 37.7802306678218]"
+      },
+      {
+        "object_id": 9708,
+        "reason": "Nested shells[-123.913602047607 40.4813826339839]"
+      },
+      {
+        "object_id": 9750,
+        "reason": "Nested shells[-121.50506480683 38.584738761714]"
+      },
+      {
+        "object_id": 9754,
+        "reason": "Nested shells[-118.598494326725 34.5195125538395]"
+      },
+      {
+        "object_id": 9755,
+        "reason": "Ring Self-intersection[-116.031236178458 33.2216673082765]"
+      },
+      {
+        "object_id": 9757,
+        "reason": "Nested shells[-118.363931197538 34.007743366764]"
+      },
+      {
+        "object_id": 9759,
+        "reason": "Ring Self-intersection[-123.876367518681 40.2705107555449]"
+      },
+      {
+        "object_id": 9763,
+        "reason": "Nested shells[-121.758614024481 37.8960531445939]"
+      },
+      {
+        "object_id": 9767,
+        "reason": "Nested shells[-124.145956690228 41.7507817903979]"
+      },
+      {
+        "object_id": 9768,
+        "reason": "Nested shells[-120.696022786801 39.7590044112298]"
+      },
+      {
+        "object_id": 9769,
+        "reason": "Nested shells[-122.209582995344 37.1610073923287]"
+      },
+      {
+        "object_id": 9770,
+        "reason": "Nested shells[-121.219897410053 38.6349156605062]"
+      },
+      {
+        "object_id": 9775,
+        "reason": "Nested shells[-117.71914454887 33.9292397918654]"
+      },
+      {
+        "object_id": 9776,
+        "reason": "Nested shells[-121.188714180816 39.2981178280031]"
+      }
+    ]
+  },
+  "routes": {
+    "feature_count": 13139,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "buildings": {
+    "feature_count": 3246,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "structures": {
+    "feature_count": 35067,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "picnic_grounds": {
+    "feature_count": 1466,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "campgrounds": {
+    "feature_count": 531,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "parking": {
+    "feature_count": 2359,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "park_entry_points": {
+    "feature_count": 288,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "sectors": {
+    "feature_count": 68,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "districts": {
+    "feature_count": 21,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  },
+  "field_divisions": {
+    "feature_count": 4,
+    "invalid_geometry_count": 0,
+    "empty_geometry_count": 0,
+    "null_geometry_count": 0,
+    "invalid_features": []
+  }
+}

@@ -1,0 +1,1891 @@
+{
+  "currentVersion" : 12, 
+  "id" : 0, 
+  "name" : "Sectors", 
+  "type" : "Feature Layer", 
+  "serviceItemId" : "37b51eac76344963bce2e0d84fef847c", 
+  "cacheMaxAge" : 30, 
+  "displayField" : "sector", 
+  "description" : "", 
+  "copyrightText" : "", 
+  "defaultVisibility" : true, 
+  "editFieldsInfo" : {
+    "creationDateField" : "created_date", 
+    "creatorField" : "created_user", 
+    "editDateField" : "last_edited_date", 
+    "editorField" : "last_edited_user"
+  }, 
+  "editingInfo" : {
+    "lastEditDate" : 1772063054682, 
+    "schemaLastEditDate" : 1772063054682, 
+    "dataLastEditDate" : 1772063054682
+  }, 
+  "relationships" : [], 
+  "isDataVersioned" : false, 
+  "hasContingentValuesDefinition" : false, 
+  "supportsAppend" : true, 
+  "supportsCalculate" : true, 
+  "supportsASyncCalculate" : true, 
+  "supportsTruncate" : true, 
+  "supportsAttachmentsByUploadId" : true, 
+  "supportsAttachmentsResizing" : true, 
+  "supportsRollbackOnFailureParameter" : true, 
+  "supportsStatistics" : true, 
+  "supportsExceedsLimitStatistics" : true, 
+  "supportsAdvancedQueries" : true, 
+  "supportsValidateSql" : true, 
+  "supportsCoordinatesQuantization" : true, 
+  "supportsLayerOverrides" : true, 
+  "supportsTilesAndBasicQueriesMode" : true, 
+  "supportsFieldDescriptionProperty" : true, 
+  "supportsQuantizationEditMode" : true, 
+  "supportsColumnStoreIndex" : true, 
+  "supportsApplyEditsWithGlobalIds" : true, 
+  "supportsMultiScaleGeometry" : true, 
+  "supportsReturningQueryGeometry" : true, 
+  "enableNullGeometry" : false, 
+  "hasGeometryProperties" : true, 
+  "geometryProperties" : 
+  {
+    "shapeAreaFieldName" : "Shape__Area", 
+    "shapeLengthFieldName" : "Shape__Length", 
+    "units" : "esriMeters"
+  }, 
+  "advancedQueryCapabilities" : {
+    "supportsPagination" : true, 
+    "supportsPaginationOnAggregatedQueries" : true, 
+    "supportsQueryRelatedPagination" : true, 
+    "supportsQueryWithDistance" : true, 
+    "supportsOutDistance" : true, 
+    "supportsReturningQueryExtent" : true, 
+    "supportsStatistics" : true, 
+    "supportsOrderBy" : true, 
+    "supportsDistinct" : true, 
+    "supportsQueryWithResultType" : true, 
+    "supportsSqlExpression" : true, 
+    "supportsTimeRelation" : true, 
+    "supportsAdvancedQueryRelated" : true, 
+    "supportsCountDistinct" : true, 
+    "supportsPercentileStatistics" : true, 
+    "supportsApproxPercentileStatistics" : true, 
+    "supportsSpatialAggregationStatistics" : true, 
+    "supportsTrueCurve" : true, 
+    "supportedSpatialAggregationStatistics" : [
+      "EnvelopeAggregate", 
+      "CentroidAggregate", 
+      "ConvexHullAggregate"
+    ], 
+    "supportsLod" : true, 
+    "supportsQueryWithLodSR" : false, 
+    "supportedLodTypes" : [
+      "geohash"
+    ], 
+    "supportsReturningGeometryCentroid" : true, 
+    "supportsReturningGeometryEnvelope" : true, 
+    "supportsReturningGeometryProperties" : true, 
+    "supportsQueryWithDatumTransformation" : true, 
+    "supportsCurrentUserQueries" : true, 
+    "supportsHavingClause" : true, 
+    "supportsOutFieldSQLExpression" : true, 
+    "supportsMaxRecordCountFactor" : true, 
+    "supportsTopFeaturesQuery" : true, 
+    "supportsDisjointSpatialRel" : true, 
+    "supportsQueryWithCacheHint" : true, 
+    "supportedOperationsWithCacheHint" : [
+      "query", 
+      "queryTopFilter", 
+      "queryAnalytics", 
+      "queryAttachments", 
+      "queryRelated", 
+      "queryBins", 
+      "queryPivot"
+    ], 
+    "supportsQueryAnalytic" : true, 
+    "supportsQueryPivot" : true, 
+    "supportsQueryBins" : true, 
+    "supportsDefaultSR" : true, 
+    "supportsTranslations" : false, 
+    "supportsAggIds" : true, 
+    "supportsQueryWithCollation" : true, 
+    "supportsISODOW" : true, 
+    "supportsISOWeek" : true, 
+    "supportsFullTextSearch" : true, 
+    "fullTextSearchCapabilities" : {
+      "supportsAccentSensitivity" : true, 
+      "supportsStopWords" : true, 
+      "supportsSearchOperator" : true, 
+      "supportsOperator" : true
+    }, 
+    "fullTextSearchableFields" : [
+      "sector"
+    ]
+  }, 
+  "advancedQueryAnalyticCapabilities" : {
+    "supportsLinearRegression" : true, 
+    "supportsTrendlineRegression" : true, 
+    "supportsAsync" : true, 
+    "supportsPercentileAnalytic" : true
+  }, 
+  "queryBinsCapabilities" : {
+    "supportsAsync" : true, 
+    "supportsAutoIntervalBin" : true, 
+    "supportsFixedIntervalBin" : true, 
+    "supportsFixedBoundariesBin" : true, 
+    "supportsDateBin" : true, 
+    "supportsClassificationBin" : true, 
+    "supportsStackBy" : true, 
+    "supportsSplitBy" : true, 
+    "supportsFirstDayOfWeek" : true, 
+    "supportsSnapToData" : true, 
+    "supportsReturnFullIntervalBin" : true, 
+    "supportsReturnStackValueRange" : true, 
+    "supportsNormalization" : true, 
+    "supportedStatisticTypes" : [
+      "COUNT", 
+      "SUM", 
+      "AVG", 
+      "VAR", 
+      "STDDEV", 
+      "MIN", 
+      "MAX", 
+      "PERCENTILE_CONT", 
+      "PERCENTILE_DISC", 
+      "APPROX_PERCENTILE_CONT", 
+      "APPROX_PERCENTILE_DISC", 
+      "CentroidAggregate", 
+      "EnvelopeAggregate", 
+      "ConvexHullAggregate"
+    ], 
+    "supportedNormalizationTypes" : [
+      "boxCox", 
+      "field", 
+      "inverse", 
+      "log", 
+      "naturalLog", 
+      "percentOfTotal", 
+      "squareRoot"
+    ]
+  }, 
+  "supportedOperationsWithCollation" : "query,addField,updateField", 
+  "advancedEditingCapabilities" : {
+    "supportedSqlFormatsInCalculate" : [
+      "standard"
+    ], 
+    "supportsAsyncApplyEdits" : true, 
+    "supportsReturnEditResults" : true, 
+    "supportsApplyEditsbyUploadID" : true, 
+    "supportedApplyEditsUploadIDFormats" : "JSON,PBF", 
+    "supportsTranslation" : false, 
+    "supportsMaxTranslations" : 10
+  }, 
+  "infoInEstimates" : [
+    "extent", 
+    "count"
+  ], 
+  "useStandardizedQueries" : true, 
+  "geometryType" : "esriGeometryPolygon", 
+  "minScale" : 0, 
+  "maxScale" : 0, 
+  "extent" : {
+    "xmin" : -414794.17930457438, 
+    "ymin" : -608607.30868284777, 
+    "xmax" : 551929.81699549, 
+    "ymax" : 458555.94235934969, 
+    "spatialReference" : {
+      "wkid" : 3310, 
+      "latestWkid" : 3310
+    }
+  }, 
+  "spatialReference" : {
+    "wkid" : 3310, 
+    "latestWkid" : 3310
+  }, 
+  "drawingInfo":{"renderer":{"type":"uniqueValue","field1":"sector","uniqueValueGroups":[{"heading":"","classes":[{"label":"San Mateo Coast Sector","description":"San Mateo Coast Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[233,196,138,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["San Mateo Coast Sector"]]},{"label":"Santa Cruz Mountains Sector","description":"Santa Cruz Mountains Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[234,207,159,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Santa Cruz Mountains Sector"]]},{"label":"Pajaro Coast Sector","description":"Pajaro Coast Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[239,217,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Pajaro Coast Sector"]]},{"label":"Big Sur Sector","description":"Big Sur Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,189,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Big Sur Sector"]]},{"label":"Asilomar Sector","description":"Asilomar Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,213,239,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Asilomar Sector"]]},{"label":"Monterey Sector","description":"Monterey Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[251,165,221,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Monterey Sector"]]},{"label":"Museum Sector","description":"Museum Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[185,255,150,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Museum Sector"]]},{"label":"Coastal Sector","description":"Coastal Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[212,255,191,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Coastal Sector"]]},{"label":"Pismo SB Sector","description":"Pismo SB Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,230,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Pismo SB Sector"]]},{"label":"Oceano Dunes Sector","description":"Oceano Dunes Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[154,222,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Oceano Dunes Sector"]]},{"label":"Santa Barbara Sector","description":"Santa Barbara Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Santa Barbara Sector"]]},{"label":"La Purisima Sector","description":"La Purisima Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,233,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["La Purisima Sector"]]},{"label":"Carpinteria Sector","description":"Carpinteria Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,228,160,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Carpinteria Sector"]]},{"label":"Ventura Sector","description":"Ventura Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,234,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Ventura Sector"]]},{"label":"Los Angeles Sector","description":"Los Angeles Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[230,196,138,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Los Angeles Sector"]]},{"label":"Malibu Sector","description":"Malibu Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[234,207,159,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Malibu Sector"]]},{"label":"Topanga Sector","description":"Topanga Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[239,217,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Topanga Sector"]]},{"label":"Orange Coast Central Sector","description":"Orange Coast Central Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[209,252,189,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Orange Coast Central Sector"]]},{"label":"Orange Coast North Sector","description":"Orange Coast North Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[192,251,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Orange Coast North Sector"]]},{"label":"Orange Coast South Sector","description":"Orange Coast South Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[175,250,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Orange Coast South Sector"]]},{"label":"Tijuana Estuary Sector","description":"Tijuana Estuary Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Tijuana Estuary Sector"]]},{"label":"San Diego North Sector","description":"San Diego North Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["San Diego North Sector"]]},{"label":"Del Sur Sector","description":"Del Sur Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,184,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Del Sur Sector"]]},{"label":"Montane Sector","description":"Montane Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Montane Sector"]]},{"label":"Anza-Borrego Sector","description":"Anza-Borrego Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,223,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Anza-Borrego Sector"]]},{"label":"Ocotillo Wells South Sector","description":"Ocotillo Wells South Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Ocotillo Wells South Sector"]]},{"label":"Heber Dunes Sector","description":"Heber Dunes Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Heber Dunes Sector"]]},{"label":"Salton Sea Sector","description":"Salton Sea Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,167,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Salton Sea Sector"]]},{"label":"Perris Sector","description":"Perris Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[148,217,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Perris Sector"]]},{"label":"Silverwood Sector","description":"Silverwood Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[169,224,235,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Silverwood Sector"]]},{"label":"Chino Sector","description":"Chino Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[189,232,240,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Chino Sector"]]},{"label":"San Jacinto Sector","description":"San Jacinto Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[127,210,225,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["San Jacinto Sector"]]},{"label":"Onyx Ranch Sector","description":"Onyx Ranch Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[166,255,223,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Onyx Ranch Sector"]]},{"label":"Tejon Sector","description":"Tejon Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[191,255,232,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Tejon Sector"]]},{"label":"Hungry Valley Sector","description":"Hungry Valley Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[217,255,241,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Hungry Valley Sector"]]},{"label":"Mojave Sector","description":"Mojave Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[141,255,214,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Mojave Sector"]]},{"label":"Jamestown Sector","description":"Jamestown Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[217,165,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Jamestown Sector"]]},{"label":"San Joaquin Sector","description":"San Joaquin Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[229,194,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["San Joaquin Sector"]]},{"label":"Calaveras Sector","description":"Calaveras Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[224,182,250,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Calaveras Sector"]]},{"label":"Four Rivers Sector","description":"Four Rivers Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[237,213,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Four Rivers Sector"]]},{"label":"Folsom Sector","description":"Folsom Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,137,55,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Folsom Sector"]]},{"label":"Prairie City Sector","description":"Prairie City Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[202,162,83,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Prairie City Sector"]]},{"label":"Marshall Gold Sector","description":"Marshall Gold Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[159,122,49,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Marshall Gold Sector"]]},{"label":"Auburn Sector","description":"Auburn Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,151,63,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Auburn Sector"]]},{"label":"Old Sacramento Sector","description":"Old Sacramento Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Old Sacramento Sector"]]},{"label":"Capitol Museum and Mansion Sector","description":"Capitol Museum and Mansion Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Capitol Museum and Mansion Sector"]]},{"label":"History Sector","description":"History Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,184,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["History Sector"]]},{"label":"Delta Sector","description":"Delta Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[135,211,100,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Delta Sector"]]},{"label":"Gavilan Sector","description":"Gavilan Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Gavilan Sector"]]},{"label":"Altamont Sector","description":"Altamont Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,223,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Altamont Sector"]]},{"label":"Contra Solano Sector","description":"Contra Solano Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,228,160,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Contra Solano Sector"]]},{"label":"Hollister Hills Sector","description":"Hollister Hills Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,234,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Hollister Hills Sector"]]},{"label":"Sonoma Sector","description":"Sonoma Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[148,217,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Sonoma Sector"]]},{"label":"Marin Sector","description":"Marin Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[169,224,235,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Marin Sector"]]},{"label":"SF Bay Sector","description":"SF Bay Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[189,232,240,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["SF Bay Sector"]]},{"label":"Mendocino Sector","description":"Mendocino Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Mendocino Sector"]]},{"label":"Russian River Sector","description":"Russian River Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Russian River Sector"]]},{"label":"Redwood Coast Sector","description":"Redwood Coast Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Redwood Coast Sector"]]},{"label":"Eel River Sector","description":"Eel River Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Eel River Sector"]]},{"label":"Alpine Mono Sector","description":"Alpine Mono Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Alpine Mono Sector"]]},{"label":"Lake Tahoe Sector","description":"Lake Tahoe Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,167,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Lake Tahoe Sector"]]},{"label":"Sierra Gold Sector","description":"Sierra Gold Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Sierra Gold Sector"]]},{"label":"Cascade Sector","description":"Cascade Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,245,179,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Cascade Sector"]]},{"label":"Clay Pit Sector","description":"Clay Pit Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,250,196,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Clay Pit Sector"]]},{"label":"Clear Lake Sector","description":"Clear Lake Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[251,242,154,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Clear Lake Sector"]]},{"label":"Lake Oroville Sector","description":"Lake Oroville Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,245,179,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Lake Oroville Sector"]]},{"label":"Valley Sector","description":"Valley Sector","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[250,239,130,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"values":[["Valley Sector"]]}]}],"uniqueValueInfos":[{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[233,196,138,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"San Mateo Coast Sector","label":"San Mateo Coast Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[234,207,159,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Santa Cruz Mountains Sector","label":"Santa Cruz Mountains Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[239,217,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Pajaro Coast Sector","label":"Pajaro Coast Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,189,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Big Sur Sector","label":"Big Sur Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,213,239,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Asilomar Sector","label":"Asilomar Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[251,165,221,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Monterey Sector","label":"Monterey Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[185,255,150,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Museum Sector","label":"Museum Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[212,255,191,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Coastal Sector","label":"Coastal Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,230,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Pismo SB Sector","label":"Pismo SB Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[154,222,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Oceano Dunes Sector","label":"Oceano Dunes Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Santa Barbara Sector","label":"Santa Barbara Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,233,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"La Purisima Sector","label":"La Purisima Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,228,160,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Carpinteria Sector","label":"Carpinteria Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,234,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Ventura Sector","label":"Ventura Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[230,196,138,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Los Angeles Sector","label":"Los Angeles Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[234,207,159,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Malibu Sector","label":"Malibu Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[239,217,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Topanga Sector","label":"Topanga Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[209,252,189,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Orange Coast Central Sector","label":"Orange Coast Central Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[192,251,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Orange Coast North Sector","label":"Orange Coast North Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[175,250,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Orange Coast South Sector","label":"Orange Coast South Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Tijuana Estuary Sector","label":"Tijuana Estuary Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"San Diego North Sector","label":"San Diego North Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,184,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Del Sur Sector","label":"Del Sur Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Montane Sector","label":"Montane Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,223,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Anza-Borrego Sector","label":"Anza-Borrego Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Ocotillo Wells South Sector","label":"Ocotillo Wells South Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Heber Dunes Sector","label":"Heber Dunes Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,167,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Salton Sea Sector","label":"Salton Sea Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[148,217,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Perris Sector","label":"Perris Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[169,224,235,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Silverwood Sector","label":"Silverwood Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[189,232,240,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Chino Sector","label":"Chino Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[127,210,225,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"San Jacinto Sector","label":"San Jacinto Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[166,255,223,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Onyx Ranch Sector","label":"Onyx Ranch Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[191,255,232,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Tejon Sector","label":"Tejon Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[217,255,241,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Hungry Valley Sector","label":"Hungry Valley Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[141,255,214,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Mojave Sector","label":"Mojave Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[217,165,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Jamestown Sector","label":"Jamestown Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[229,194,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"San Joaquin Sector","label":"San Joaquin Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[224,182,250,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Calaveras Sector","label":"Calaveras Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[237,213,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Four Rivers Sector","label":"Four Rivers Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,137,55,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Folsom Sector","label":"Folsom Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[202,162,83,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Prairie City Sector","label":"Prairie City Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[159,122,49,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Marshall Gold Sector","label":"Marshall Gold Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,151,63,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Auburn Sector","label":"Auburn Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Old Sacramento Sector","label":"Old Sacramento Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Capitol Museum and Mansion Sector","label":"Capitol Museum and Mansion Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,184,165,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"History Sector","label":"History Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[135,211,100,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Delta Sector","label":"Delta Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[150,217,120,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Gavilan Sector","label":"Gavilan Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[165,223,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Altamont Sector","label":"Altamont Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,228,160,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Contra Solano Sector","label":"Contra Solano Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[196,234,180,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Hollister Hills Sector","label":"Hollister Hills Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[148,217,230,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Sonoma Sector","label":"Sonoma Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[169,224,235,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Marin Sector","label":"Marin Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[189,232,240,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"SF Bay Sector","label":"SF Bay Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[253,165,140,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Mendocino Sector","label":"Mendocino Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,145,115,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Russian River Sector","label":"Russian River Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Redwood Coast Sector","label":"Redwood Coast Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Eel River Sector","label":"Eel River Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[181,189,252,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Alpine Mono Sector","label":"Alpine Mono Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,167,251,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Lake Tahoe Sector","label":"Lake Tahoe Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[206,211,253,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Sierra Gold Sector","label":"Sierra Gold Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,245,179,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Cascade Sector","label":"Cascade Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,250,196,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Clay Pit Sector","label":"Clay Pit Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[251,242,154,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Clear Lake Sector","label":"Clear Lake Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[252,245,179,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Lake Oroville Sector","label":"Lake Oroville Sector"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[250,239,130,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[255,255,255,255],"width":0.5}},"value":"Valley Sector","label":"Valley Sector"}],"fieldDelimiter":","},"scaleSymbols":true,"transparency":37,"labelingInfo":null}, 
+  "allowGeometryUpdates" : true, 
+  "trueCurveSupportMode" : "OGC", 
+  "supportedCurveTypes" : [
+    "esriGeometryCircularArc"
+  ], 
+  "supportedTrueCurvePbfFeatureEncodings" : [
+    "esriCompressedShapeBuffer", 
+    "esriDefault"
+  ], 
+  "allowTrueCurvesUpdates" : true, 
+  "onlyAllowTrueCurveUpdatesByTrueCurveClients" : false, 
+  "hasAttachments" : false, 
+  "htmlPopupType" : "esriServerHTMLPopupTypeAsHTMLText", 
+  "hasMetadata" : true, 
+  "hasM" : false, 
+  "hasZ" : false, 
+  "objectIdField" : "OBJECTID", 
+  "uniqueIdField" : 
+  {
+    "name" : "OBJECTID", 
+    "isSystemMaintained" : true
+  }, 
+  "globalIdField" : "GlobalID", 
+  "typeIdField" : "sector", 
+  "collation" : {
+    "locale" : "neutral", 
+    "caseSensitive" : false, 
+    "accentSensitive" : true
+  }, 
+  "fields" : [
+    {
+      "name" : "OBJECTID", 
+      "type" : "esriFieldTypeOID", 
+      "alias" : "OBJECTID", 
+      "sqlType" : "sqlTypeOther", 
+      "nullable" : false, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "field_division", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "Field Divison", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 250, 
+      "nullable" : true, 
+      "editable" : true, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "district", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "District", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 200, 
+      "nullable" : true, 
+      "editable" : true, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "sector", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "Sector", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 200, 
+      "nullable" : true, 
+      "editable" : true, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "GlobalID", 
+      "type" : "esriFieldTypeGlobalID", 
+      "alias" : "GlobalID", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 38, 
+      "nullable" : false, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "created_user", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "created_user", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 255, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "created_date", 
+      "type" : "esriFieldTypeDate", 
+      "alias" : "created_date", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 8, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null, 
+      "precision" : 1
+    }, 
+    {
+      "name" : "last_edited_user", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "last_edited_user", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 255, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "last_edited_date", 
+      "type" : "esriFieldTypeDate", 
+      "alias" : "last_edited_date", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 8, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null, 
+      "precision" : 1
+    }, 
+    {
+      "name" : "Shape__Area", 
+      "type" : "esriFieldTypeDouble", 
+      "alias" : "Shape__Area", 
+      "sqlType" : "sqlTypeDouble", 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "Shape__Length", 
+      "type" : "esriFieldTypeDouble", 
+      "alias" : "Shape__Length", 
+      "sqlType" : "sqlTypeDouble", 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }
+  ], 
+  "indexes" : [
+    {
+      "name" : "PK__CSP_ADMI__F4B70D85C2C4A78D", 
+      "fields" : "OBJECTID", 
+      "isAscending" : true, 
+      "isUnique" : true, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "user_36166.CSP_ADMINBOUNDARIES_SECTORS_Shape_sidx", 
+      "fields" : "SHAPE", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Spatial"
+    }, 
+    {
+      "name" : "FDO_GlobalID", 
+      "fields" : "GlobalID", 
+      "isAscending" : true, 
+      "isUnique" : true, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "Shape__Area_Index", 
+      "fields" : "Shape__Area", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "Shape__Length_Index", 
+      "fields" : "Shape__Length", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "created_dateIndex", 
+      "fields" : "created_date", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "created_date Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "created_userIndex", 
+      "fields" : "created_user", 
+      "isAscending" : false, 
+      "isUnique" : false, 
+      "description" : "created_user Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "last_edited_dateIndex", 
+      "fields" : "last_edited_date", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "last_edited_date Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "last_edited_userIndex", 
+      "fields" : "last_edited_user", 
+      "isAscending" : false, 
+      "isUnique" : false, 
+      "description" : "last_edited_user Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "exb_sector", 
+      "fields" : "sector", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "exb_sector_total", 
+      "fields" : "sector", 
+      "description" : "", 
+      "indexType" : "FullText"
+    }
+  ], 
+  "dateFieldsTimeReference" : {
+    "timeZone" : "UTC", 
+    "timeZoneIANA" : "Etc/UTC", 
+    "respectsDaylightSaving" : false
+  }, 
+  "preferredTimeReference" : null, 
+  "types" : [
+    {
+      "id" : "San Mateo Coast Sector", 
+      "name" : "San Mateo Coast Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Mateo Coast Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "San Mateo Coast Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Santa Cruz Mountains Sector", 
+      "name" : "Santa Cruz Mountains Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Santa Cruz Mountains Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Santa Cruz Mountains Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Pajaro Coast Sector", 
+      "name" : "Pajaro Coast Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Pajaro Coast Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Pajaro Coast Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Big Sur Sector", 
+      "name" : "Big Sur Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Big Sur Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Big Sur Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Asilomar Sector", 
+      "name" : "Asilomar Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Asilomar Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Asilomar Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Monterey Sector", 
+      "name" : "Monterey Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Monterey Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Monterey Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Museum Sector", 
+      "name" : "Museum Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Museum Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Museum Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Coastal Sector", 
+      "name" : "Coastal Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Coastal Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Coastal Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Pismo SB Sector", 
+      "name" : "Pismo SB Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Pismo SB Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Pismo SB Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Oceano Dunes Sector", 
+      "name" : "Oceano Dunes Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Oceano Dunes Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Oceano Dunes Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Santa Barbara Sector", 
+      "name" : "Santa Barbara Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Santa Barbara Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Santa Barbara Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "La Purisima Sector", 
+      "name" : "La Purisima Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "La Purisima Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "La Purisima Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Carpinteria Sector", 
+      "name" : "Carpinteria Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Carpinteria Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Carpinteria Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Ventura Sector", 
+      "name" : "Ventura Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Ventura Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Ventura Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Los Angeles Sector", 
+      "name" : "Los Angeles Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Los Angeles Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Los Angeles Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Malibu Sector", 
+      "name" : "Malibu Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Malibu Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Malibu Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Topanga Sector", 
+      "name" : "Topanga Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Topanga Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Topanga Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Orange Coast Central Sector", 
+      "name" : "Orange Coast Central Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Orange Coast Central Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Orange Coast Central Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Orange Coast North Sector", 
+      "name" : "Orange Coast North Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Orange Coast North Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Orange Coast North Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Orange Coast South Sector", 
+      "name" : "Orange Coast South Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Orange Coast South Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Orange Coast South Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Tijuana Estuary Sector", 
+      "name" : "Tijuana Estuary Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Tijuana Estuary Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Tijuana Estuary Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "San Diego North Sector", 
+      "name" : "San Diego North Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Diego North Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "San Diego North Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Del Sur Sector", 
+      "name" : "Del Sur Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Del Sur Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Del Sur Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Montane Sector", 
+      "name" : "Montane Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Montane Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Montane Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Anza-Borrego Sector", 
+      "name" : "Anza-Borrego Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Anza-Borrego Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Anza-Borrego Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Ocotillo Wells South Sector", 
+      "name" : "Ocotillo Wells South Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Ocotillo Wells South Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Ocotillo Wells South Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Heber Dunes Sector", 
+      "name" : "Heber Dunes Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Heber Dunes Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Heber Dunes Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Salton Sea Sector", 
+      "name" : "Salton Sea Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Salton Sea Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Salton Sea Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Perris Sector", 
+      "name" : "Perris Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Perris Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Perris Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Silverwood Sector", 
+      "name" : "Silverwood Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Silverwood Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Silverwood Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Chino Sector", 
+      "name" : "Chino Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Chino Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Chino Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "San Jacinto Sector", 
+      "name" : "San Jacinto Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Jacinto Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "San Jacinto Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Onyx Ranch Sector", 
+      "name" : "Onyx Ranch Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Onyx Ranch Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Onyx Ranch Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Tejon Sector", 
+      "name" : "Tejon Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Tejon Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Tejon Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Hungry Valley Sector", 
+      "name" : "Hungry Valley Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Hungry Valley Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Hungry Valley Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Mojave Sector", 
+      "name" : "Mojave Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Mojave Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Mojave Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Jamestown Sector", 
+      "name" : "Jamestown Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Jamestown Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Jamestown Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "San Joaquin Sector", 
+      "name" : "San Joaquin Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Joaquin Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "San Joaquin Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Calaveras Sector", 
+      "name" : "Calaveras Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Calaveras Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Calaveras Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Four Rivers Sector", 
+      "name" : "Four Rivers Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Four Rivers Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Four Rivers Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Folsom Sector", 
+      "name" : "Folsom Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Folsom Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Folsom Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Prairie City Sector", 
+      "name" : "Prairie City Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Prairie City Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Prairie City Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Marshall Gold Sector", 
+      "name" : "Marshall Gold Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Marshall Gold Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Marshall Gold Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Auburn Sector", 
+      "name" : "Auburn Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Auburn Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Auburn Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Old Sacramento Sector", 
+      "name" : "Old Sacramento Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Old Sacramento Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Old Sacramento Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Capitol Museum and Mansion Sector", 
+      "name" : "Capitol Museum and Mansion Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Capitol Museum and Mansion Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Capitol Museum and Mansion Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "History Sector", 
+      "name" : "History Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "History Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "History Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Delta Sector", 
+      "name" : "Delta Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Delta Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Delta Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Gavilan Sector", 
+      "name" : "Gavilan Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Gavilan Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Gavilan Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Altamont Sector", 
+      "name" : "Altamont Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Altamont Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Altamont Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Contra Solano Sector", 
+      "name" : "Contra Solano Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Contra Solano Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Contra Solano Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Hollister Hills Sector", 
+      "name" : "Hollister Hills Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Hollister Hills Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Hollister Hills Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Sonoma Sector", 
+      "name" : "Sonoma Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Sonoma Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Sonoma Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Marin Sector", 
+      "name" : "Marin Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Marin Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Marin Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "SF Bay Sector", 
+      "name" : "SF Bay Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "SF Bay Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "SF Bay Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Mendocino Sector", 
+      "name" : "Mendocino Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Mendocino Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Mendocino Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Russian River Sector", 
+      "name" : "Russian River Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Russian River Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Russian River Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Redwood Coast Sector", 
+      "name" : "Redwood Coast Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Redwood Coast Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Redwood Coast Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Eel River Sector", 
+      "name" : "Eel River Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Eel River Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Eel River Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Alpine Mono Sector", 
+      "name" : "Alpine Mono Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Alpine Mono Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Alpine Mono Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Lake Tahoe Sector", 
+      "name" : "Lake Tahoe Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Lake Tahoe Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Lake Tahoe Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Sierra Gold Sector", 
+      "name" : "Sierra Gold Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Sierra Gold Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Sierra Gold Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Cascade Sector", 
+      "name" : "Cascade Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Cascade Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Cascade Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Clay Pit Sector", 
+      "name" : "Clay Pit Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Clay Pit Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Clay Pit Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Clear Lake Sector", 
+      "name" : "Clear Lake Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Clear Lake Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Clear Lake Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Lake Oroville Sector", 
+      "name" : "Lake Oroville Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Lake Oroville Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Lake Oroville Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Valley Sector", 
+      "name" : "Valley Sector", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Valley Sector", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "sector" : "Valley Sector", 
+              "district" : null, 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }
+  ], 
+  "templates" : [], 
+  "supportedQueryFormats" : "JSON, geoJSON, PBF", 
+  "supportedAppendFormats" : "sqlite,geoPackage,shapefile,filegdb,featureCollection,geojson,csv,excel,jsonl,featureService,pbf", 
+  "supportedAppendSourceFilterFormats" : "sqlite,geoPackage,shapefile,filegdb,featureService", 
+  "supportedExportFormats" : "csv,shapefile,sqlite,geoPackage,filegdb,featureCollection,geojson,kml,excel,parquet", 
+  "supportedConvertFileFormats" : "JSON,PBF,Parquet", 
+  "supportedConvertContentFormats" : "LayerEditCollection,FeatureCollection", 
+  "supportedSpatialRelationships" : [
+    "esriSpatialRelIntersects", 
+    "esriSpatialRelContains", 
+    "esriSpatialRelCrosses", 
+    "esriSpatialRelEnvelopeIntersects", 
+    "esriSpatialRelIndexIntersects", 
+    "esriSpatialRelOverlaps", 
+    "esriSpatialRelTouches", 
+    "esriSpatialRelWithin", 
+    "esriSpatialRelDisjoint", 
+    "esriSpatialRelRelation"
+  ], 
+  "guidFormat" : "", 
+  "supportsContingentValues" : true, 
+  "supportsEditingContingentValues" : true, 
+  "supportedContingentValuesFormats" : "JSON, PBF", 
+  "supportsFieldGroups" : true, 
+  "supportedSyncDataOptions" : 260, 
+  "hasStaticData" : false, 
+  "maxRecordCount" : 2000, 
+  "standardMaxRecordCount" : 2000, 
+  "maxIdsCount" : 1000000, 
+  "standardMaxRecordCountNoGeometry" : 32000, 
+  "tileMaxRecordCount" : 4000, 
+  "maxRecordCountFactor" : 1, 
+  "capabilities" : "Query"
+}

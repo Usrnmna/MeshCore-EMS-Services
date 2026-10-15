@@ -1,6 +1,7 @@
 # Dedicated command programs and shared helpers in scripts/ remain trackable.
 # Retain tests/test_command_programs.py, GIS tests, config.json, gis_settings.json,
 # requirements.txt, and documentation in standalone service repositories.
+# COMMAND_REFERENCE.md and BOT_USER_GUIDE.md are maintained package sources.
 
 .venv/
 .venv-*/
@@ -55,6 +56,7 @@ build/
 .refresh-*/
 .test-refresh-*/
 gis_settings.json.tmp
+*.geojson.tmp
 
 # Local operating-system metadata and editor swap files
 .DS_Store

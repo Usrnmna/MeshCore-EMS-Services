@@ -1,0 +1,21 @@
+{
+  "dataset": "buildings",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:48.263372+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7626/Buildings_-1815453011701404130.zip?sv=2025-05-05&st=2026-10-12T04%3A33%3A48Z&se=2026-10-12T05%3A38%3A48Z&sr=b&sp=r&sig=x6oX7GWU47B6ZzOSZYEpVbe1TmzPLEhBTVHJBXMQvj8%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "Buildings.cpg",
+    "Buildings.dbf",
+    "Buildings.prj",
+    "Buildings.shp",
+    "Buildings.shp.xml",
+    "Buildings.shx"
+  ],
+  "path": "raw/buildings/shapefile.zip",
+  "byte_count": 223263,
+  "sha256": "65447d6968f54f3f92a49555c761856cfb72be38f53d8e66f946c1cb30f6dbcb",
+  "status": "downloaded"
+}

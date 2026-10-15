@@ -1,0 +1,17 @@
+{
+  "dataset": "parking",
+  "format": "kml",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/kml?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:39:03.306479+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7622/ParkingPoints_1216464610813264977.kmz?sv=2025-05-05&st=2026-10-12T04%3A34%3A03Z&se=2026-10-12T05%3A39%3A03Z&sr=b&sp=r&sig=hc%2Bp0DPQOUTmunAozkmYTUlz6tPAs%2F%2B6iuoc0yynFaY%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "doc.kml",
+    "e08ba0ea-0b50-440a-b99c-f1ca444e1375.png"
+  ],
+  "path": "raw/parking/kml.zip",
+  "byte_count": 186696,
+  "sha256": "5d4545aee68043f68176ef5c8a499203064c9d21c79b91c317dfe2fc3a500f5f",
+  "status": "downloaded"
+}

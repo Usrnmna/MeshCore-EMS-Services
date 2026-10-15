@@ -1,0 +1,17 @@
+{
+  "dataset": "buildings",
+  "format": "kml",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/kml?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:50.331252+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7626/Buildings_9044554716170654556.kmz?sv=2025-05-05&st=2026-10-12T04%3A33%3A50Z&se=2026-10-12T05%3A38%3A50Z&sr=b&sp=r&sig=nhjfy7Q3lNADt7dA560QO5VZdjE6iSZ8rR27mj5ynWU%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "4f4879fe-9b6f-4125-8688-b43c1e6d4fc4.png",
+    "doc.kml"
+  ],
+  "path": "raw/buildings/kml.zip",
+  "byte_count": 275375,
+  "sha256": "b63156ef025da32dc25c728d071442ce3b24ae4a44c2668d7fa9b45f88e9755d",
+  "status": "downloaded"
+}

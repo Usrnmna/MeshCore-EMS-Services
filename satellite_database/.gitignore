@@ -1,5 +1,6 @@
 # Retain catalog programs, tests, settings.json, operator_overrides.json, schema,
 # documentation, reference databases, exports, and original source receipts.
+# Retain Markdown guides and source archives; no blanket document/archive exclusion.
 # Temporary output rules below must not exclude the corresponding final files.
 
 # Installed dependencies, bytecode, and temporary test workspaces

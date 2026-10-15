@@ -15,6 +15,8 @@ COMMON = {
     ".gitignore",
     "README.md",
     "FUNCTION_REFERENCE.md",
+    "COMMAND_REFERENCE.md",
+    "BOT_USER_GUIDE.md",
     "RELEASE_NOTES.md",
     "START-HERE.txt",
     "config.json",
@@ -77,6 +79,8 @@ def main():
         "channel_setup.py",
     "radio_connection.py",
         "MULTI_CHANNEL_GUIDE.md",
+        "COMMAND_REFERENCE.md",
+        "BOT_USER_GUIDE.md",
     }
     shared |= {
         p.relative_to(ROOT / name).as_posix()

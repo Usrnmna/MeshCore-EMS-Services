@@ -1,0 +1,21 @@
+{
+  "dataset": "districts",
+  "format": "shapefile",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Districts.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:01.074773+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Districts.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Districts.cpg",
+    "Districts.dbf",
+    "Districts.prj",
+    "Districts.shp",
+    "Districts.shp.xml",
+    "Districts.shx"
+  ],
+  "path": "raw/districts/shapefile.zip",
+  "byte_count": 1119171,
+  "sha256": "1aaccc624abe72cfdb9665c1cb5203d7aa97534f6410fcfc8faf389e28fe0445",
+  "status": "downloaded"
+}

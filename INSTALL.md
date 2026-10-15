@@ -1,5 +1,7 @@
 # Install MeshCore EMS v0.9.0-beta as an OS service
 
+After installation, use the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) for channel commands and the [detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#settings) for command settings, limits, and response formats. Equivalent [Windows user](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) and [command](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) guides are included in the Windows source package.
+
 These **online installers** include the complete maintained workspace: both
 platform source packages, bundled responder commands, tests and documentation,
 the standalone satellite catalog, EBMUD GeoJSON, and the supplied satellite

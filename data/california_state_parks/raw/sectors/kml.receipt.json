@@ -1,0 +1,16 @@
+{
+  "dataset": "sectors",
+  "format": "kml",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Sectors.kmz.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:01.503827+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Sectors.kmz.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Sectors.kmz"
+  ],
+  "path": "raw/sectors/kml.zip",
+  "byte_count": 1326127,
+  "sha256": "08f02883202d8136afaa7cce6cebf1c751545027f817a15833d05bc8236c660a",
+  "status": "downloaded"
+}

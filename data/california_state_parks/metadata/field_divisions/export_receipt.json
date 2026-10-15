@@ -1,0 +1,37 @@
+{
+  "item_id": "37b51eac76344963bce2e0d84fef847c",
+  "layer_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/2",
+  "metadata_path": "metadata/field_divisions/layer.json",
+  "count": 4,
+  "path": "geojson/field_divisions.geojson",
+  "feature_count": 4,
+  "byte_count": 3297089,
+  "sha256": "55e2cc383f0746f7da54ff566b97c95f428b20521b1eb5e57a86b657aad89ab1",
+  "geometry_types": {
+    "Polygon": 4
+  },
+  "object_id_field": "OBJECTID",
+  "properties": [
+    "GlobalID",
+    "OBJECTID",
+    "Shape__Area",
+    "Shape__Length",
+    "created_date",
+    "created_user",
+    "field_division",
+    "last_edited_date",
+    "last_edited_user"
+  ],
+  "pages": [
+    {
+      "path": "raw_geojson/field_divisions/0001.geojson",
+      "source_url": "https://services2.arcgis.com/AhxrK3F6WM8ECvDi/arcgis/rest/services/CSP_AdminBoundaries/FeatureServer/2/query?objectIds=1%2C2%2C3%2C4&outFields=%2A&returnGeometry=true&outSR=4326&f=geojson",
+      "feature_count": 4,
+      "byte_count": 3297146,
+      "sha256": "62375bb48e6288b66fbf9679b4c17d4977a7ba20d12e2adc7e5c6f21831d53e7",
+      "retrieved_at_utc": "2026-10-12T04:40:59.417984+00:00"
+    }
+  ],
+  "checked_at_utc": "2026-10-12T04:40:59.823181+00:00",
+  "verification": "Exact object-ID set per page and complete export; before/after IDs, counts, and editing metadata agree."
+}

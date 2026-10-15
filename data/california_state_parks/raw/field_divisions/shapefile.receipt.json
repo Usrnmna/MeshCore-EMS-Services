@@ -1,0 +1,21 @@
+{
+  "dataset": "field_divisions",
+  "format": "shapefile",
+  "source_url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.zip",
+  "retrieved_at_utc": "2026-10-12T04:39:00.415649+00:00",
+  "effective_url": "https://www.parks.ca.gov/pages/862/files/Field_Divisions.zip",
+  "http_status": 200,
+  "content_type": "application/x-zip-compressed",
+  "archive_members": [
+    "Field_Divisions.cpg",
+    "Field_Divisions.dbf",
+    "Field_Divisions.prj",
+    "Field_Divisions.shp",
+    "Field_Divisions.shp.xml",
+    "Field_Divisions.shx"
+  ],
+  "path": "raw/field_divisions/shapefile.zip",
+  "byte_count": 1111825,
+  "sha256": "16434326f1452af341d7c0a56ef994f3ce1282398a3334550984ebdd207ffcdf",
+  "status": "downloaded"
+}

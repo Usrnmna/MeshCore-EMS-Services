@@ -1,0 +1,17 @@
+{
+  "dataset": "picnic_grounds",
+  "format": "kml",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/kml?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:55.752402+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7620/PicnicGrounds_-2284289230161131772.kmz?sv=2025-05-05&st=2026-10-12T04%3A33%3A56Z&se=2026-10-12T05%3A38%3A56Z&sr=b&sp=r&sig=Lbh3c6wWrxVmTuLsb%2B%2BWZ%2BxuMBG%2BFRa04p3Y1rRfQL8%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "8f467d93-2601-4c66-ade7-d23ee9029d77.png",
+    "doc.kml"
+  ],
+  "path": "raw/picnic_grounds/kml.zip",
+  "byte_count": 116404,
+  "sha256": "498f49cbd9e4ecfb905b2a642ca550228b474deb5be3593f4ff088d5a8fdbb55",
+  "status": "downloaded"
+}

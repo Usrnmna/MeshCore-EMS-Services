@@ -1,0 +1,21 @@
+{
+  "dataset": "structures",
+  "format": "shapefile",
+  "source_url": "https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/shapefile?redirect=true&layers=0",
+  "retrieved_at_utc": "2026-10-12T04:38:50.162464+00:00",
+  "effective_url": "https://stg-arcgisazurecdataprod2.az.arcgis.com/exportfiles-36166-7625/Structures_9139647249142362477.zip?sv=2025-05-05&st=2026-10-12T04%3A33%3A50Z&se=2026-10-12T05%3A38%3A50Z&sr=b&sp=r&sig=r3Ew5OAOOo47yrHX13X8WDlW8Dz5wel22phUcZLZbRU%3D",
+  "http_status": 200,
+  "content_type": "application/octet-stream",
+  "archive_members": [
+    "Structures.cpg",
+    "Structures.dbf",
+    "Structures.prj",
+    "Structures.shp",
+    "Structures.shp.xml",
+    "Structures.shx"
+  ],
+  "path": "raw/structures/shapefile.zip",
+  "byte_count": 1795932,
+  "sha256": "f296a25df8050d35245003b7c7840ef8bc700cfa89f47c36663f4d0f570ca2a3",
+  "status": "downloaded"
+}

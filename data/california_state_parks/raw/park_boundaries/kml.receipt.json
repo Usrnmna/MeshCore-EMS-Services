@@ -1,0 +1,16 @@
+{
+  "dataset": "park_boundaries",
+  "format": "kml",
+  "source_url": "https://csparks.maps.arcgis.com/sharing/rest/content/items/8b2ae11e35ff46718fd3db51f0a3c620/data",
+  "retrieved_at_utc": "2026-10-12T04:38:45.600495+00:00",
+  "effective_url": "https://csparks.maps.arcgis.com/sharing/rest/content/items/8b2ae11e35ff46718fd3db51f0a3c620/data",
+  "http_status": 200,
+  "content_type": "application/zip",
+  "archive_members": [
+    "ParkBoundaries_0.kmz"
+  ],
+  "path": "raw/park_boundaries/kml.kmz",
+  "byte_count": 6326889,
+  "sha256": "c70b394628ee29f164f4ba3852a91d0f7aab2c92a2c521776ae27c27188ce42b",
+  "status": "downloaded"
+}

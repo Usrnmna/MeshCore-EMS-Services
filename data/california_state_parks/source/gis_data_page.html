@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>California State Parks GIS Data | California State Parks</title>
+    <meta name="keywords" content="California State Parks" />
+    <meta name="description" content="California State Parks">
+    <meta name="author" content="California State Parks">
+    <meta property="fb:app_id" content="191332300884034" />
+    <meta property="og:image" content="https://www.parks.ca.gov/img/content/ParksLogo.png" />
+    <meta property="og:site_name" content="California State Parks" />
+    <meta name="facebook-domain-verification" content="kzz601gpcxtpdfof3f5u8672b107qn" />
+    
+    <meta property="og:title" content="California State Parks GIS Data" />
+    <meta property="og:url" content="https://www.parks.ca.gov/?page_id=29682" />
+
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/img/content/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/Images/Icons/touch-icon-ipad-retina.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/Images/Icons/touch-icon-iphone-retina.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/Images/Icons/touch-icon-ipad.png">
+    <link rel="apple-touch-icon" href="/Images/Icons/touch-icon-iphone.png">
+
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
+
+    <!-- Web Fonts  -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800%7CShadows+Into+Light%7CPlayfair+Display:400" rel="stylesheet" type="text/css">
+
+    <!-- Vendor CSS -->
+    <link rel="stylesheet" href="/vendor/select2/css/select2.css" />
+    <link rel="stylesheet" href="/vendor/select2-bootstrap-theme/select2-bootstrap.min.css" />
+    <link rel="stylesheet" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="/vendor/animate/animate.compat.css">
+    <link rel="stylesheet" href="/vendor/simple-line-icons/css/simple-line-icons.min.css">
+    <link rel="stylesheet" href="/vendor/owl.carousel/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="/vendor/owl.carousel/assets/owl.theme.default.min.css">
+    <link rel="stylesheet" href="/vendor/magnific-popup/magnific-popup.min.css">
+
+    <!-- Revolution Slider CSS -->
+    <link rel="stylesheet" href="/vendor/rs-plugin/css/settings.css">
+    <link rel="stylesheet" href="/vendor/rs-plugin/css/layers.css">
+    <link rel="stylesheet" href="/vendor/rs-plugin/css/navigation.css">
+
+    <!-- Video Player-->
+    <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" />
+    <!-- support IE8 (for Video.js versions prior to v7) -->
+    <!-- <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script> -->
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <link rel="stylesheet" href="/css/theme-blog.css">
+
+    <!-- PARKS CSS -->
+    <link rel="stylesheet" href="/css/cagov.font-only.css">
+    <link rel="stylesheet" href="/css/skins/default.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap4.css" />
+
+    <!-- Video Player Fix-->
+    <style type="text/css">
+        .video-js .vjs-tech {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    </style>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+
+    <!-- Meta Pixel Code -->
+    <script>!function (f, b, e, v, n, t, s) {
+            if (f.fbq) return; n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+            n.queue = []; t = b.createElement(e); t.async = !0;
+            t.src = v; s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1532130818214838');
+        fbq('track', 'PageView');</script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+             src="https://www.facebook.com/tr?id=1532130818214838&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+
+</head>
+
+<body data-plugin-page-transition>
+    <div class="body">
+        <!--Header and Nav-->
+        <header id="header" class="header-effect-shrink" data-plugin-options="{'stickyEnabled': true, 'stickyEffect': 'shrink', 'stickyEnableOnBoxed': true, 'stickyEnableOnMobile': true, 'stickyChangeLogo': true, 'stickyStartAt': 120, 'stickyHeaderContainerHeight': 70}">
+    <div id="skip-to-content">
+        <a href="#main-content">Skip to Main Content</a>
+    </div>
+    <div class="header-body border-color-primary header-body-bottom-border">
+        <div class="header-top header-top-default border-bottom-0">
+            <div class="container">
+                <div class="header-row py-2">
+                    <div class="header-column justify-content-start">
+                        <div class="header-row">
+                            <nav class="header-nav-top" aria-label="Utility">
+                                <ul class="nav nav-pills">
+                                    <li><a href="https://www.ca.gov/" target="_blank" rel="noopener"><span class="ca-gov-icon-logo font-size-30" aria-hidden="true"></span><span class="sr-only">CA.gov (opens in new tab)</span></a></li>
+                                    <li class="nav-item nav-item-anim-icon d-none d-md-block">
+                                        <a class="nav-link pl-0" href="/?page_id=91"><i class="fas fa-angle-right" aria-hidden="true"></i> About Us</a>
+                                    </li>
+                                    <li class="nav-item nav-item-anim-icon d-none d-md-block">
+                                        <a class="nav-link" href="/Contact-Us"><i class="fas fa-angle-right" aria-hidden="true"></i> Contact Us</a>
+                                    </li>
+                                    <li class="nav-item nav-item-anim-icon d-none d-md-block">
+                                        <a class="nav-link" href="/?page_id=937"><i class="fas fa-angle-right" aria-hidden="true"></i> FAQs</a>
+                                    </li>
+                                    <li class="nav-item nav-item-anim-icon d-none d-md-block">
+                                        <a class="nav-link" href="/GoogleTranslate"><i class="fas fa-angle-right"></i><span class="ca-gov-icon-globe"></span> Translate</a>
+                                    </li>
+                                   
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="header-column justify-content-end">
+                        <div class="header-row">
+                            <ul class="header-social-icons social-icons d-none d-sm-block">
+                                <li class="social-icons-facebook"><a href="https://www.facebook.com/CaliforniaStateParks" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook (opens in new tab)"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
+                                <li class="social-icons-twitter"><a href="https://twitter.com/CAStateParks" target="_blank" rel="noopener" title="X (Twitter)" aria-label="X, formerly Twitter (opens in new tab)"><i class="fab fa-x-twitter" aria-hidden="true"></i></a></li>
+                                <li class="social-icons-youtube"><a href="https://www.youtube.com/user/CaliforniaStateParks" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube (opens in new tab)"><i class="fab fa-youtube" aria-hidden="true"></i></a></li>
+                                <li class="social-icons-instagram"><a href="https://www.instagram.com/castateparks/?hl=en" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram (opens in new tab)"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
+                                <li class="social-icons-wordpress"><a href="https://castateparks.wordpress.com/" target="_blank" rel="noopener" title="Parks Blog" aria-label="Parks Blog (opens in new tab)"><i class="fab fa-wordpress" aria-hidden="true"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-container container">
+            <div class="header-row">
+                <div class="header-column">
+                    <div class="header-row">
+                        <div class="header-logo">
+                            <a href="/">
+                                <img alt="California State Parks home" width="100" height="100" data-sticky-width="60" data-sticky-height="60" src="/img/content/ParksLogo.png">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-column justify-content-end">
+                    <div class="header-row">
+                        <div class="header-nav header-nav-links header-nav-icons">
+                            <button type="button" class="btn header-btn-collapse-nav" data-bs-toggle="collapse" data-bs-target="#mainNavCollapse" aria-controls="mainNavCollapse" aria-expanded="false" aria-label="Toggle main navigation">
+                                <i class="fas fa-bars" aria-hidden="true"></i>
+                            </button>
+                            <div class="header-nav-main header-nav-main-square header-nav-main-effect-2 header-nav-main-sub-effect-1">
+                                <nav class="collapse" id="mainNavCollapse" aria-label="Main">
+                                    <ul class="nav nav-pills" id="mainNav">
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-12" href="/" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-bear font-size-40 pb-3" aria-hidden="true"></i>
+                                                Home
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=91">About Us</a></li>
+                                                                    <li><a class="dropdown-item" href="/Contact-Us">Contact Us</a></li>
+                                                                    <li><a class="dropdown-item" href="/Publications">Publications</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=24482">PRA Request</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=27972">Parks Director</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=29860">Public Notices</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=21944">Accessibility and Parks</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=29225">Organizational Structure Opportunities</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://ohv.parks.ca.gov/" target="_blank" rel="noopener">Off-Highway Motor Vehicle Recreation Division<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://ohp.parks.ca.gov/" target="_blank" rel="noopener">Office of Historic Preservation<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://dbw.parks.ca.gov/" target="_blank" rel="noopener">Division of Boating and Waterways<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="/commission">Commissions</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/Find-a-Park" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-ca-state font-size-40 pb-3" aria-hidden="true"></i>
+                                                Find a Park
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/events">Park Events</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=29142">Safety Tips</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=21300">Rules and Regulations</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=25543">Historic Sites</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/Dogs">Dogs in Parks</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=862">Maps</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=24317">Travel Tips</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=29480">Live Video Gallery</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=23428">Weddings at State Parks</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=1019">Filming &amp; Photography</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="https://www.reservecalifornia.com" target="_blank" rel="noopener" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-tent font-size-40 pb-3" aria-hidden="true"></i>
+                                                Reservations<span class="sr-only"> (opens in new tab)</span>
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=737">Reservations and Fees</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=1051">Sales Dates</a></li>
+                                                                    <li><a class="dropdown-item" href="/AvailabilityInfo">Availability Search</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=1029">Camping Information</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://www.reservecalifornia.com/Customers/CustomerReservations" target="_blank" rel="noopener">Manage Reservations<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://www.reservecalifornia.com/Activities/ProgramsAndTours" target="_blank" rel="noopener">Guided Tours<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://www.reservecalifornia.com/Activities/HearstCastleTours" target="_blank" rel="noopener">Hearst Castle Tours<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/?page_id=1049" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-passes font-size-40 pb-3" aria-hidden="true"></i>
+                                                Passes
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/4thGrade">Free Fourth Grade Pass</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=30366">Discount and Annual In-Person Pass Sale Locations</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=1049">Annual and Discount Pass Programs</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://store.parks.ca.gov/collections/park-passes" target="_blank" rel="noopener">California State Parks Store (Annual Passes Only)<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://reservecalifornia.com/Customers/Application" target="_blank" rel="noopener">Reserve California Online Application<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/what-is-new" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-megaphone font-size-40 pb-3" aria-hidden="true"></i>
+                                                What's New
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/Newsroom">Parks Newsroom</a></li>
+                                                                    <li><a class="dropdown-item" href="https://castateparks.wordpress.com/" target="_blank" rel="noopener">Parks Blog<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-6">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=30009">Significant Incidents Updates</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=937">Frequently Asked Questions</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/jobs" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-searching font-size-40 pb-3" aria-hidden="true"></i>
+                                                Jobs
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://jobs.ca.gov/CalHRPublic/Search/JobSearchResults.aspx#depid=21" target="_blank" rel="noopener">Job Postings<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="https://calcareers.ca.gov/CalHRPublic/Search/ExamSearchResults.aspx#depid=21" target="_blank" rel="noopener">Exam Announcements<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=26503">Careers</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://joincsp.parks.ca.gov/?page_id=31526">Now Recruiting</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=847">Seasonal and Part Time</a></li>
+                                                                    <li><a class="dropdown-item" href="https://joincsp.parks.ca.gov/" target="_blank" rel="noopener">Law Enforcement Careers<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=886">Volunteers</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=911">Camp/Park Hosts</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=848">Students</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/Programs" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-desktop-checklist font-size-40 pb-3" aria-hidden="true"></i>
+                                                Programs
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=30068">Grants</a></li>
+                                                                    <li><a class="dropdown-item" href="/commission">Commissions</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=24689">Park Management</a></li>
+                                                                    <li><a class="dropdown-item" href="https://artsincaliforniaparks.org/" target="_blank" rel="noopener">Arts in California Parks<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=30641">Outdoors for All</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=31316">Planning for a Changing Landscape</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=24511">Outdoor Youth Connection</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=23759">Parks Junior Lifeguard Program</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=28711">Boating Safety</a></li>
+                                                                    <li><a class="dropdown-item" href="https://learning.parks.ca.gov/youth-family/">Kids Outdoors</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=30920">EV Charging</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown dropdown-mega px-1">
+                                            <a class="dropdown-item dropdown-toggle nav-link d-lg-flex flex-lg-column align-items-lg-center justify-content-lg-center font-size-13" href="/Explore" aria-haspopup="true" aria-expanded="false">
+                                                <i class="ca-gov-icon-compass font-size-40 pb-3" aria-hidden="true"></i>
+                                                Explore
+                                            </a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <div class="dropdown-mega-content">
+                                                        <div class="row">
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="https://ports.parks.ca.gov/" target="_blank" rel="noopener">PORTS<span class="sr-only"> (opens in new tab)</span></a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=22491">Cultural Resources</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=734">Natural Resources</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=21699">Interpretive Programs</a></li>
+                                                                    <li><a class="dropdown-item" href="https://learning.parks.ca.gov/">Summer for Kids</a></li>
+                                                                    <li><a class="dropdown-item" href="/?page_id=21696">Educators</a></li>
+                                                                </ul>
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                <ul class="dropdown-mega-sub-nav">
+                                                                    <li><a class="dropdown-item" href="/?page_id=24510">Community Involvement</a></li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                        <!-- Search -->
+                        <div class="header-nav-features header-nav-features-no-border header-nav-features-lg-show-border order-1 order-lg-2">
+                            <div class="header-nav-feature header-nav-features-search d-inline-flex">
+                                <button type="button" class="btn p-0 border-0 bg-transparent header-nav-features-toggle" aria-label="Search" aria-expanded="false" aria-controls="headerTopSearchDropdown" data-focus="headerSearch">
+                                    <i class="fas fa-search header-nav-top-icon text-color-light font-size-20" aria-hidden="true"></i>
+                                </button>
+                                <div class="header-nav-features-dropdown" id="headerTopSearchDropdown">
+                                    <div class="gcse-searchbox-only" data-resultsUrl="/SearchResults"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <main id="main-content" class="main" tabindex="-1">
+            <section class="page-header page-header-classic">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 order-2 order-md-1 align-self-center p-static">
+                <h1 data-title-border>California State Parks GIS Data</h1>
+            </div>
+        </div>
+    </div>
+</section>
+<div class="container py-5">
+    <!--<div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong><i class="fas fa-exclamation-triangle"></i>Alert</strong> Something is happening and people are freaking out.
+        <ul>
+            <li>Fix it</li>
+
+        </ul>
+    </div>-->
+    <div id="main-content" class="row">
+        <div class="col-md-12">
+                        <p><p>California State Parks generates eight GIS datasets for public use. These datasets include: Park Boundaries, Routes, Buildings, Structures, Day Use Areas, Camping Areas, Parking Areas, and Park Entry Points. These datasets are available in two versions:</p>
+<ul style="list-style: disc;">
+<li>Spatial files for download</li>
+<li>Live feature services for export and download or integration in mapping applications</li>
+</ul>
+<p>For any questions about the data provided or the allowed uses please contact the California State Parks&nbsp;Statewide Geospatial Information Services at: <a href="mailto:geodata@parks.ca.gov">geodata@parks.ca.gov</a>.</p></p>
+                        <p><div class="container">
+<div class="row">
+<div class="col-sm" style="display: flex; justify-content: center;">
+<div class="card" style="width: 20rem;">
+<div class="card-body">
+<div class="thumbnail" style="text-align: center;"><a class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#collapseOne"><img src="../../pages/862/images/database.png" alt="database" width="200" /></a>
+<div class="caption" style="text-align: center;">
+<h3><a class="accordion-toggle" style="text-decoration: none !important;" data-bs-toggle="collapse" data-bs-target="#collapseOne">GIS Data Files</a></h3>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-sm" style="display: flex; justify-content: center;">
+<div class="card" style="width: 20rem;">
+<div class="card-body">
+<div class="thumbnail" style="text-align: center;"><a class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#collapseTwo"><img src="../../pages/862/images/cloud.png" alt="cloud" width="200" /></a>
+<div class="caption" style="text-align: center;">
+<h3><a class="accordion-toggle" style="text-decoration: none !important;" data-bs-toggle="collapse" data-bs-target="#collapseTwo">GIS Data Services</a></h3>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+<div id="accordionExample" class="accordion">
+<div class="card">
+<div id="collapseOne" class="collapse show" data-bs-parent="#accordionExample">
+<div class="card-body">
+<p>California State Parks generates eight GIS datasets for public use. These datasets include: Park Boundaries, Routes, Buildings, Structures, Day Use Areas, Camping Areas, Parking Areas, and Park Entry Points. These layers are available below in three formats: ESRI Shapefile (.shp), ESRI File Geodatabse (.gdb), and Google KML (.kml).</p>
+<table class="table table-hover">
+<tbody>
+<tr><th>Dataset Name</th><th>Shapefile</th><th>File Geodatabse</th><th>KML</th><th>Last Updated</th></tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="polygon" src="../../pages/862/images/polygon.png" alt="polygon" />&nbsp;&nbsp;&nbsp;Park Boundaries</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/0fea4fa1db734794bdb3b5410bb3eed9/shapefile?redirect=true&amp;layers=0" target="_blank">ParkBoundaries.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/0fea4fa1db734794bdb3b5410bb3eed9/filegdb?redirect=true&amp;layers=0" target="_blank">ParkBoundaries.gdb</a></td>
+<td><a href="https://csparks.maps.arcgis.com/sharing/rest/content/items/8b2ae11e35ff46718fd3db51f0a3c620/data" target="_blank">ParkBoundaries.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="line" src="../../pages/862/images/line.png" alt="line" />&nbsp;&nbsp;&nbsp;Park Routes</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/shapefile?redirect=true&amp;layers=0" target="_blank">RecreationalRoutes.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/filegdb?redirect=true&amp;layers=0" target="_blank">RecreationalRoutes.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/45fa4fba9dde4a8dbb23cdd56da40703/kml?redirect=true&amp;layers=0" target="_blank">RecreationalRoutes.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;Buildings</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/shapefile?redirect=true&amp;layers=0" target="_blank">Buildings.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/filegdb?redirect=true&amp;layers=0" target="_blank">Buildings.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/dfbb7fb9aa6941b8997f062385734bfe/kml?redirect=true&amp;layers=0" target="_blank">Buildings.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;Structures</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/shapefile?redirect=true&amp;layers=0" target="_blank">Structures.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/filegdb?redirect=true&amp;layers=0" target="_blank">Structures.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/b8d29ac555af4840a7b2fe4b8b858f86/kml?redirect=true&amp;layers=0" target="_blank">Structures.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;PicnicGrounds</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/shapefile?redirect=true&amp;layers=0" target="_blank">PicnicGrounds.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/filegdb?redirect=true&amp;layers=0" target="_blank">PicnicGrounds.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/d4a0a22eb5e5486d9902ae7decde256a/kml?redirect=true&amp;layers=0" target="_blank">PicnicGrounds.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;Campgrounds</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/shapefile?redirect=true&amp;layers=0" target="_blank">Campgrounds.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/filegdb?redirect=true&amp;layers=0" target="_blank">Campgrounds.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/81c47beefff143ecb6c21bfd3ed6a933/kml?redirect=true&amp;layers=0" target="_blank">Campgrounds.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;Parking</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/shapefile?redirect=true&amp;layers=0" target="_blank">ParkingPoints.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/filegdb?redirect=true&amp;layers=0" target="_blank">ParkingPoints.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/211fdbb1d2074e87bf5e73fe2fe9ca89/kml?redirect=true&amp;layers=0" target="_blank">ParkingPoints.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/points.png" alt="points" />&nbsp;&nbsp;&nbsp;Park Entry Points</td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/shapefile?redirect=true&amp;layers=2" target="_blank">ParkEntryPoints.zip</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/filegdb?redirect=true&amp;layers=2" target="_blank">ParkEntryPoints.gdb</a></td>
+<td><a href="https://hub.arcgis.com/api/download/v1/items/4a641ba6d51c44fdb734754d83d7eb43/kml?redirect=true&amp;layers=2" target="_blank">ParkEntryPoints.kml</a></td>
+<td><em>October 2026</em></td>
+</tr>
+</tbody>
+</table>
+<h4>Adminstrative Boundary Data</h4>
+<p>As part of California State Parks' Public Data are the deparment's administrative boundaries. State Park Units are organized into sectors, within districts, within a field divison. There are four field divisions, twenty-one districts, and sixty-seven sectors. These layers are only updated when administrative changes are made.</p>
+<table class="table table-hover">
+<tbody>
+<tr><th>Dataset Name</th><th>ESRI Shapefile</th><th>ESRI File Geodatabse</th><th>Google KML</th><th>Last Updated</th></tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/polygon.png" alt="points" />&nbsp;&nbsp;&nbsp;Field Divisions</td>
+<td><a href="../../pages/862/files/Field_Divisions.zip" target="_blank">Field_Divisions.zip</a></td>
+<td><a href="../../pages/862/files/AdministrativeBoundaries.gdb.zip" target="_blank">AdministrativeBoundaries.gdb.zip</a></td>
+<td><a href="../../pages/862/files/Field_Divisions.kmz.zip" target="_blank">Field_Divisions.kmz.zip</a></td>
+<td><em>February 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/polygon.png" alt="points" />&nbsp;&nbsp;&nbsp;Districts</td>
+<td><a href="../../pages/862/files/Districts.zip" target="_blank">Districts.zip</a></td>
+<td><a href="../../pages/862/files/AdministrativeBoundaries.gdb.zip" target="_blank">AdministrativeBoundaries.gdb.zip</a></td>
+<td><a href="../../pages/862/files/Districts.kmz.zip" target="_blank">Districts.kmz.zip</a></td>
+<td><em>February 2026</em></td>
+</tr>
+<tr>
+<td><img style="float: left; margin: 2px 0px;" title="points" src="../../pages/862/images/polygon.png" alt="points" />&nbsp;&nbsp;&nbsp;Sectors</td>
+<td><a href="../../pages/862/files/Sectors.zip" target="_blank">Sectors.zip</a></td>
+<td><a href="../../pages/862/files/AdministrativeBoundaries.gdb.zip" target="_blank">AdminstrativeBoundaries.gdb.zip</a></td>
+<td><a href="../../pages/862/files/Sectors.kmz.zip" target="_blank">Sectors.kmz.zip</a></td>
+<td><em>February 2026</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>Data License</h3>
+<br />
+<p>COPYRIGHT 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026 CALIFORNIA STATE PARKS, ALL RIGHTS RESERVED<br /> These datasets and materials (&ldquo;Materials&rdquo;) have been developed by the State of California, Department of Parks and Recreation (&ldquo;DPR&rdquo;) for uses beneficial to DPR and as a public service to enhance open government, transparency and accountability. DPR is also known as California State Parks (&ldquo;CSP&rdquo;).<br /> All Materials are made available on an &ldquo;as is&rdquo; basis, on the express condition that users who view, download, transfer or otherwise access or use the Materials expressly accept these Terms of Use and Disclaimers</p>
+<h5>TERMS OF USE</h5>
+<p>All materials contained herein are protected by the United States Copyright Law, may not be sold or altered, and must be attributed to CSP. These Materials are intended for free distribution for personal or public sector use. Commercial uses of these Materials must be approved by CSP in advance, contact <a href="mailto:geodata@parks.ca.gov">geodata@parks.ca.gov</a> for permission.</p>
+<h5>DATA WARRANTY DISCLAIMER</h5>
+<p>CSP strives to ensure that published Materials are accurate, but makes no warranty, representation or guaranty of any type as to the content, accuracy, timeliness, completeness or fitness for any particular purpose or use, nor shall any such warranty be implied, including, without limitation, the implied warranties of merchantability and fitness for a particular purpose. All warranties are specifically disclaimed.</p>
+<h5>DATA CURRENCY DISCLAIMER</h5>
+<p>These Materials may be updated at irregular intervals. All users should check for updates regularly to ensure the most current version of the Materials is being used.</p>
+<h5>LIABILITY DISCLAIMER</h5>
+<p>CSP disclaims any responsibility or legal liability to users for damages of any kind, including lost profits, lost savings, business interruption, or any other incidental or consequential damages relating to the provision or use of the Materials. CSP expressly disclaims any responsibility to defend or indemnify users against claims of others based on users&rsquo; copying, reliance, distribution, or other use of any of the Materials. Users assume the risk of using these Materials and shall have no remedy at law or equity against CSP in case the Materials provided are inaccurate, incomplete or otherwise defective.</p>
+</div>
+</div>
+</div>
+<div class="card">
+<div id="collapseTwo" class="collapse" data-bs-parent="#accordionExample">
+<div class="card-body">
+<p>California State Parks generates eight GIS datasets for public use. These datasets include: Park Boundaries, Routes, Buildings, Structures, Day Use Areas, Camping Areas, Parking Areas, and Park Entry Points, they are updated monthly. These layers are available through ArcGIS Online below and the <a href="https://gis.data.ca.gov/search?groupIds=a4b59a4b80a44c48bbbe44064825bcf5" target="_blank"><img src="https://csparks.maps.arcgis.com/sharing/rest/content/items/cf412a17daaa47bca93c6d6b7e77aff0/resources/CA-State-Geoportal-ColorLogo.png" alt="California State Geoportal" width="200" /></a>.</p>
+<iframe style="border: currentColor; width: 100%; height: 1050px; display: block;" title="arc gis maps" src="https://csparks.maps.arcgis.com/apps/instant/gallery/index.html?appid=b7581e30dcfb415595a372ca94e37d49" width="300" height="350" scrolling="no"></iframe></div>
+</div>
+</div>
+</div></p>
+        </div>
+        <div class="col-lg-3 mt-2 mt-lg-0">
+            <aside class="sidebar">
+            </aside>
+        </div>
+    </div>
+</div>
+        </main>
+        <footer id="footer">
+    <div class="container my-4">
+        <div class="row pt-5 py-lg-5">
+            <div class="col-md-5 mb-5 mb-lg-0">
+                <h2 class="h5 text-6 text-transform-none font-weight-light text-color-light mb-4">Connect with California State Parks</h2>
+                <p class="text-4 mb-4">Sign up to receive the latest news directly to your email.</p>
+                <a href="https://public.govdelivery.com/accounts/CNRA/signup/47136" target="_blank" rel="noopener" class="btn btn-modern btn-rounded btn-light font-weight-bold text-color-dark text-2 btn-px-4" style="min-width: 210px;">Subscribe Now<span class="sr-only"> (opens in new tab)</span></a>
+            </div>
+            <div class="col-md-4 mb-5 mb-lg-0">
+                <h2 class="h5 text-6 text-transform-none font-weight-light text-color-light mb-4" id="footer-links-heading">Important Links</h2>
+                <nav aria-labelledby="footer-links-heading">
+                    <ul class="text-5 list list-icons list-icons-sm mb-0">
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="/?page_id=29142">Safety Tips</a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="/?page_id=30521">E-bikes</a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="/?page_id=30920">EV Charging</a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="/?page_id=30641">Free Passes</a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="https://outerspatial.link/csp" target="_blank" rel="noopener">Parks Mobile App<span class="sr-only"> (opens in new tab)</span></a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="/Dogs">Dogs in Parks</a></li>
+                        <li><i class="fas fa-angle-right top-8" aria-hidden="true"></i> <a class="link-hover-style-1" href="https://www.firewood.ca.gov/" target="_blank" rel="noopener">Buy It Where You Burn It<span class="sr-only"> (opens in new tab)</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="col-md-3">
+                <h2 class="h5 text-6 text-transform-none font-weight-light text-color-light mb-4">Follow Us</h2>
+                <ul class="footer-social-icons social-icons m-0">
+                    <li class="social-icons-facebook"><a href="https://www.facebook.com/CaliforniaStateParks" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook (opens in new tab)"><i class="fab fa-facebook-f" aria-hidden="true"></i></a></li>
+                    <li class="social-icons-twitter"><a href="https://twitter.com/CAStateParks" target="_blank" rel="noopener" title="X (Twitter)" aria-label="X, formerly Twitter (opens in new tab)"><i class="fab fa-x-twitter" aria-hidden="true"></i></a></li>
+                    <li class="social-icons-youtube"><a href="https://www.youtube.com/user/CaliforniaStateParks" target="_blank" rel="noopener" title="YouTube" aria-label="YouTube (opens in new tab)"><i class="fab fa-youtube" aria-hidden="true"></i></a></li>
+                    <li class="social-icons-instagram"><a href="https://www.instagram.com/castateparks/?hl=en" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram (opens in new tab)"><i class="fab fa-instagram" aria-hidden="true"></i></a></li>
+                    <li class="social-icons-wordpress"><a href="https://castateparks.wordpress.com/" target="_blank" rel="noopener" title="Parks Blog" aria-label="Parks Blog (opens in new tab)"><i class="fab fa-wordpress" aria-hidden="true"></i></a></li>
+                </ul>
+                <h2 class="h5 text-6 text-transform-none font-weight-light text-color-light mt-4 mb-4">Contact Us</h2>
+                <p class="text-4 mb-0"><span class="far fa-envelope text-color-primary" aria-hidden="true"></span> <span class="text-color-light"><a href="/Contact-Us">Have a question? Use the Contact Us page.</a></span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-copyright">
+        <div class="container py-2">
+            <div class="row py-3">
+                <div class="col-md-1 d-flex align-items-center justify-content-center justify-content-lg-start mb-2 mb-lg-0">
+                    <a href="/" class="logo pr-0 pr-lg-3">
+                        <img alt="California State Parks home" src="/img/content/small_logo.png" class="opacity-5" height="55">
+                    </a>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center justify-content-lg-start mb-4 mb-lg-0 text-color-light">
+                    <p>&copy; Copyright <span id="footer-year">2026</span>. All Rights Reserved.</p>
+                </div>
+                <div class="col-md-7 d-flex align-items-center justify-content-center justify-content-lg-end">
+                    <nav id="sub-menu" class="text-color-light" aria-label="Legal and site information">
+                        <ul>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/?page_id=937" class="ml-1 text-decoration-none">FAQs</a></li>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/ConditionsOfUse" class="ml-1 text-decoration-none">Conditions of Use</a></li>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/Privacy" class="ml-1 text-decoration-none">Privacy Policy</a></li>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/Accessibility" class="ml-1 text-decoration-none">Accessibility</a></li>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/?page_id=21944" class="ml-1 text-decoration-none">Accessible Parks</a></li>
+                            <li><span class="fas fa-angle-right" aria-hidden="true"></span><a href="/SiteMap" class="ml-1 text-decoration-none">Site Map</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+    </div>
+
+    <!-- Vendor -->
+    <script src="/vendor/plugins/js/plugins.min.js"></script>
+    <script src="/vendor/select2/js/select2.js"></script>
+
+    <!-- Theme Base, Components and Settings -->
+    <script src="/js/theme.js"></script>
+
+
+    <!-- Revolution Slider Scripts -->
+    <script src="/vendor/rs-plugin/js/jquery.themepunch.tools.min.js"></script>
+    <script src="/vendor/rs-plugin/js/jquery.themepunch.revolution.min.js"></script>
+
+    <!-- Theme Custom -->
+
+    <script src="/js/custom.js"></script>
+
+    <!-- Theme Initialization Files -->
+    <script src="/js/theme.init.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap4.js"></script>
+    <!-- Video Player -->
+    <script src="https://vjs.zencdn.net/8.0.4/video.min.js"></script>
+    <script>$(document).on('select2:open select2:select', function (e) {
+            var $src = $(e.target), name = $src.attr('aria-label') || $src.attr('title');
+            if (name) { $src.next('.select2').find('.select2-selection').attr('aria-label', name); }
+        });</script>
+
+
+    <!-- Google Translate -->
+    <script type="text/javascript">function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.VERTICAL }, 'google_translate_element');
+        }</script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script type="text/javascript">// Google Custom Search
+        (function () {
+            var cx = '004922755985061351621:l-sxzpiswla';
+            var gcse = document.createElement('script');
+            gcse.type = 'text/javascript';
+            gcse.async = true;
+            gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(gcse, s);
+        })();</script>
+    <script type="text/javascript">var _gaq = _gaq || [];
+        _gaq.push(['b._setAccount', 'UA-3419582-2']); // statewide analytics - do not remove or change
+        _gaq.push(['b._setDomainName', '.ca.gov']);
+        _gaq.push(['b._trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();</script>
+        <!-- Parks Google G4 Analytics-->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-NQRMQVQ7T5"></script>
+        <script>window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+
+            gtag('config', 'G-NQRMQVQ7T5');</script>
+
+    <!-- SiteImprove Analytics -->
+    <script async src="https://siteimproveanalytics.com/js/siteanalyze_88041.js"></script>
+
+    
+
+
+</body>
+</html>

@@ -1,0 +1,893 @@
+{
+  "currentVersion" : 12, 
+  "id" : 1, 
+  "name" : "Districts", 
+  "type" : "Feature Layer", 
+  "serviceItemId" : "37b51eac76344963bce2e0d84fef847c", 
+  "cacheMaxAge" : 30, 
+  "displayField" : "district", 
+  "description" : "", 
+  "copyrightText" : "", 
+  "defaultVisibility" : true, 
+  "editFieldsInfo" : {
+    "creationDateField" : "created_date", 
+    "creatorField" : "created_user", 
+    "editDateField" : "last_edited_date", 
+    "editorField" : "last_edited_user"
+  }, 
+  "editingInfo" : {
+    "lastEditDate" : 1742493160758, 
+    "schemaLastEditDate" : 1742493160758, 
+    "dataLastEditDate" : 1742493160758
+  }, 
+  "relationships" : [], 
+  "isDataVersioned" : false, 
+  "hasContingentValuesDefinition" : false, 
+  "supportsAppend" : true, 
+  "supportsCalculate" : true, 
+  "supportsASyncCalculate" : true, 
+  "supportsTruncate" : true, 
+  "supportsAttachmentsByUploadId" : true, 
+  "supportsAttachmentsResizing" : true, 
+  "supportsRollbackOnFailureParameter" : true, 
+  "supportsStatistics" : true, 
+  "supportsExceedsLimitStatistics" : true, 
+  "supportsAdvancedQueries" : true, 
+  "supportsValidateSql" : true, 
+  "supportsCoordinatesQuantization" : true, 
+  "supportsLayerOverrides" : true, 
+  "supportsTilesAndBasicQueriesMode" : true, 
+  "supportsFieldDescriptionProperty" : true, 
+  "supportsQuantizationEditMode" : true, 
+  "supportsColumnStoreIndex" : true, 
+  "supportsApplyEditsWithGlobalIds" : true, 
+  "supportsMultiScaleGeometry" : true, 
+  "supportsReturningQueryGeometry" : true, 
+  "enableNullGeometry" : false, 
+  "hasGeometryProperties" : true, 
+  "geometryProperties" : 
+  {
+    "shapeAreaFieldName" : "Shape__Area", 
+    "shapeLengthFieldName" : "Shape__Length", 
+    "units" : "esriMeters"
+  }, 
+  "advancedQueryCapabilities" : {
+    "supportsPagination" : true, 
+    "supportsPaginationOnAggregatedQueries" : true, 
+    "supportsQueryRelatedPagination" : true, 
+    "supportsQueryWithDistance" : true, 
+    "supportsOutDistance" : true, 
+    "supportsReturningQueryExtent" : true, 
+    "supportsStatistics" : true, 
+    "supportsOrderBy" : true, 
+    "supportsDistinct" : true, 
+    "supportsQueryWithResultType" : true, 
+    "supportsSqlExpression" : true, 
+    "supportsTimeRelation" : true, 
+    "supportsAdvancedQueryRelated" : true, 
+    "supportsCountDistinct" : true, 
+    "supportsPercentileStatistics" : true, 
+    "supportsApproxPercentileStatistics" : true, 
+    "supportsSpatialAggregationStatistics" : true, 
+    "supportsTrueCurve" : true, 
+    "supportedSpatialAggregationStatistics" : [
+      "EnvelopeAggregate", 
+      "CentroidAggregate", 
+      "ConvexHullAggregate"
+    ], 
+    "supportsLod" : true, 
+    "supportsQueryWithLodSR" : false, 
+    "supportedLodTypes" : [
+      "geohash"
+    ], 
+    "supportsReturningGeometryCentroid" : true, 
+    "supportsReturningGeometryEnvelope" : true, 
+    "supportsReturningGeometryProperties" : true, 
+    "supportsQueryWithDatumTransformation" : true, 
+    "supportsCurrentUserQueries" : true, 
+    "supportsHavingClause" : true, 
+    "supportsOutFieldSQLExpression" : true, 
+    "supportsMaxRecordCountFactor" : true, 
+    "supportsTopFeaturesQuery" : true, 
+    "supportsDisjointSpatialRel" : true, 
+    "supportsQueryWithCacheHint" : true, 
+    "supportedOperationsWithCacheHint" : [
+      "query", 
+      "queryTopFilter", 
+      "queryAnalytics", 
+      "queryAttachments", 
+      "queryRelated", 
+      "queryBins", 
+      "queryPivot"
+    ], 
+    "supportsQueryAnalytic" : true, 
+    "supportsQueryPivot" : true, 
+    "supportsQueryBins" : true, 
+    "supportsDefaultSR" : true, 
+    "supportsTranslations" : false, 
+    "supportsAggIds" : true, 
+    "supportsQueryWithCollation" : true, 
+    "supportsISODOW" : true, 
+    "supportsISOWeek" : true, 
+    "supportsFullTextSearch" : true, 
+    "fullTextSearchCapabilities" : {
+      "supportsAccentSensitivity" : true, 
+      "supportsStopWords" : true, 
+      "supportsSearchOperator" : true, 
+      "supportsOperator" : true
+    }, 
+    "fullTextSearchableFields" : [
+      "district"
+    ]
+  }, 
+  "advancedQueryAnalyticCapabilities" : {
+    "supportsLinearRegression" : true, 
+    "supportsTrendlineRegression" : true, 
+    "supportsAsync" : true, 
+    "supportsPercentileAnalytic" : true
+  }, 
+  "queryBinsCapabilities" : {
+    "supportsAsync" : true, 
+    "supportsAutoIntervalBin" : true, 
+    "supportsFixedIntervalBin" : true, 
+    "supportsFixedBoundariesBin" : true, 
+    "supportsDateBin" : true, 
+    "supportsClassificationBin" : true, 
+    "supportsStackBy" : true, 
+    "supportsSplitBy" : true, 
+    "supportsFirstDayOfWeek" : true, 
+    "supportsSnapToData" : true, 
+    "supportsReturnFullIntervalBin" : true, 
+    "supportsReturnStackValueRange" : true, 
+    "supportsNormalization" : true, 
+    "supportedStatisticTypes" : [
+      "COUNT", 
+      "SUM", 
+      "AVG", 
+      "VAR", 
+      "STDDEV", 
+      "MIN", 
+      "MAX", 
+      "PERCENTILE_CONT", 
+      "PERCENTILE_DISC", 
+      "APPROX_PERCENTILE_CONT", 
+      "APPROX_PERCENTILE_DISC", 
+      "CentroidAggregate", 
+      "EnvelopeAggregate", 
+      "ConvexHullAggregate"
+    ], 
+    "supportedNormalizationTypes" : [
+      "boxCox", 
+      "field", 
+      "inverse", 
+      "log", 
+      "naturalLog", 
+      "percentOfTotal", 
+      "squareRoot"
+    ]
+  }, 
+  "supportedOperationsWithCollation" : "query,addField,updateField", 
+  "advancedEditingCapabilities" : {
+    "supportedSqlFormatsInCalculate" : [
+      "standard"
+    ], 
+    "supportsAsyncApplyEdits" : true, 
+    "supportsReturnEditResults" : true, 
+    "supportsApplyEditsbyUploadID" : true, 
+    "supportedApplyEditsUploadIDFormats" : "JSON,PBF", 
+    "supportsTranslation" : false, 
+    "supportsMaxTranslations" : 10
+  }, 
+  "infoInEstimates" : [
+    "extent", 
+    "count"
+  ], 
+  "useStandardizedQueries" : true, 
+  "geometryType" : "esriGeometryPolygon", 
+  "minScale" : 0, 
+  "maxScale" : 0, 
+  "extent" : {
+    "xmin" : -414794.17930457438, 
+    "ymin" : -608607.30868284777, 
+    "xmax" : 551929.81699549, 
+    "ymax" : 458555.94235934969, 
+    "spatialReference" : {
+      "wkid" : 3310, 
+      "latestWkid" : 3310
+    }
+  }, 
+  "spatialReference" : {
+    "wkid" : 3310, 
+    "latestWkid" : 3310
+  }, 
+  "drawingInfo":{"renderer":{"type":"uniqueValue","field1":"district","uniqueValueGroups":[{"heading":"","classes":[{"label":"Angeles District","description":"Angeles District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[204,171,112,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Angeles District"]]},{"label":"Bay Area District","description":"Bay Area District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[122,191,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Bay Area District"]]},{"label":"Capital District","description":"Capital District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Capital District"]]},{"label":"Central Valley District","description":"Central Valley District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[201,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Central Valley District"]]},{"label":"Channel Coast District","description":"Channel Coast District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Channel Coast District"]]},{"label":"Colorado Desert District","description":"Colorado Desert District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Colorado Desert District"]]},{"label":"Diablo Range District","description":"Diablo Range District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Diablo Range District"]]},{"label":"Gold Fields District","description":"Gold Fields District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,138,56,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Gold Fields District"]]},{"label":"Great Basin District","description":"Great Basin District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[166,230,207,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Great Basin District"]]},{"label":"Inland Empire District","description":"Inland Empire District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[121,191,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Inland Empire District"]]},{"label":"Monterey District","description":"Monterey District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,163,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Monterey District"]]},{"label":"North Coast Redwoods District","description":"North Coast Redwoods District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["North Coast Redwoods District"]]},{"label":"Northern Buttes District","description":"Northern Buttes District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[201,194,128,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Northern Buttes District"]]},{"label":"Oceano Dunes District","description":"Oceano Dunes District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[153,204,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Oceano Dunes District"]]},{"label":"Ocotillo Wells District","description":"Ocotillo Wells District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Ocotillo Wells District"]]},{"label":"Orange Coast District","description":"Orange Coast District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[184,227,163,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Orange Coast District"]]},{"label":"San Diego Coast District","description":"San Diego Coast District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["San Diego Coast District"]]},{"label":"San Luis Obispo Coast District","description":"San Luis Obispo Coast District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[186,230,166,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["San Luis Obispo Coast District"]]},{"label":"Santa Cruz District","description":"Santa Cruz District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[204,171,112,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Santa Cruz District"]]},{"label":"Sierra District","description":"Sierra District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Sierra District"]]},{"label":"Sonoma-Mendocino Coast District","description":"Sonoma-Mendocino Coast District","symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"values":[["Sonoma-Mendocino Coast District"]]}]}],"uniqueValueInfos":[{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[204,171,112,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Angeles District","label":"Angeles District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[122,191,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Bay Area District","label":"Bay Area District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Capital District","label":"Capital District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[201,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Central Valley District","label":"Central Valley District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Channel Coast District","label":"Channel Coast District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Colorado Desert District","label":"Colorado Desert District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[125,191,94,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Diablo Range District","label":"Diablo Range District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[179,138,56,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Gold Fields District","label":"Gold Fields District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[166,230,207,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Great Basin District","label":"Great Basin District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[121,191,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Inland Empire District","label":"Inland Empire District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,163,204,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Monterey District","label":"Monterey District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"North Coast Redwoods District","label":"North Coast Redwoods District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[201,194,128,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Northern Buttes District","label":"Northern Buttes District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[153,204,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Oceano Dunes District","label":"Oceano Dunes District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Ocotillo Wells District","label":"Ocotillo Wells District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[184,227,163,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Orange Coast District","label":"Orange Coast District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"San Diego Coast District","label":"San Diego Coast District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[186,230,166,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"San Luis Obispo Coast District","label":"San Luis Obispo Coast District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[204,171,112,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Santa Cruz District","label":"Santa Cruz District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[156,163,227,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Sierra District","label":"Sierra District"},{"symbol":{"type":"esriSFS","style":"esriSFSSolid","color":[227,120,89,255],"outline":{"type":"esriSLS","style":"esriSLSSolid","color":[153,153,153,64],"width":0.75}},"value":"Sonoma-Mendocino Coast District","label":"Sonoma-Mendocino Coast District"}],"fieldDelimiter":",","visualVariables":[{"type":"sizeInfo","valueExpressionTitle":"Custom","valueExpression":"$view.scale","stops":[{"size":1.5,"value":3420658},{"size":0.75,"value":10689556},{"size":0.375,"value":42758225},{"size":0,"value":85516450}],"target":"outline","axis":"height","valueUnit":""}]},"scaleSymbols":true,"transparency":38,"labelingInfo":null}, 
+  "allowGeometryUpdates" : true, 
+  "trueCurveSupportMode" : "OGC", 
+  "supportedCurveTypes" : [
+    "esriGeometryCircularArc"
+  ], 
+  "supportedTrueCurvePbfFeatureEncodings" : [
+    "esriCompressedShapeBuffer", 
+    "esriDefault"
+  ], 
+  "allowTrueCurvesUpdates" : true, 
+  "onlyAllowTrueCurveUpdatesByTrueCurveClients" : false, 
+  "hasAttachments" : false, 
+  "htmlPopupType" : "esriServerHTMLPopupTypeAsHTMLText", 
+  "hasMetadata" : true, 
+  "hasM" : false, 
+  "hasZ" : false, 
+  "objectIdField" : "OBJECTID", 
+  "uniqueIdField" : 
+  {
+    "name" : "OBJECTID", 
+    "isSystemMaintained" : true
+  }, 
+  "globalIdField" : "GlobalID", 
+  "typeIdField" : "district", 
+  "collation" : {
+    "locale" : "neutral", 
+    "caseSensitive" : false, 
+    "accentSensitive" : true
+  }, 
+  "fields" : [
+    {
+      "name" : "OBJECTID", 
+      "type" : "esriFieldTypeOID", 
+      "alias" : "OBJECTID", 
+      "sqlType" : "sqlTypeOther", 
+      "nullable" : false, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "field_division", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "Field Divison", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 250, 
+      "nullable" : true, 
+      "editable" : true, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "district", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "District", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 200, 
+      "nullable" : true, 
+      "editable" : true, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "GlobalID", 
+      "type" : "esriFieldTypeGlobalID", 
+      "alias" : "GlobalID", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 38, 
+      "nullable" : false, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "created_user", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "created_user", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 255, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "created_date", 
+      "type" : "esriFieldTypeDate", 
+      "alias" : "created_date", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 8, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null, 
+      "precision" : 1
+    }, 
+    {
+      "name" : "last_edited_user", 
+      "type" : "esriFieldTypeString", 
+      "alias" : "last_edited_user", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 255, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "last_edited_date", 
+      "type" : "esriFieldTypeDate", 
+      "alias" : "last_edited_date", 
+      "sqlType" : "sqlTypeOther", 
+      "length" : 8, 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null, 
+      "precision" : 1
+    }, 
+    {
+      "name" : "Shape__Area", 
+      "type" : "esriFieldTypeDouble", 
+      "alias" : "Shape__Area", 
+      "sqlType" : "sqlTypeDouble", 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }, 
+    {
+      "name" : "Shape__Length", 
+      "type" : "esriFieldTypeDouble", 
+      "alias" : "Shape__Length", 
+      "sqlType" : "sqlTypeDouble", 
+      "nullable" : true, 
+      "editable" : false, 
+      "domain" : null, 
+      "defaultValue" : null
+    }
+  ], 
+  "indexes" : [
+    {
+      "name" : "PK__CSP_ADMI__F4B70D85ECD05B8D", 
+      "fields" : "OBJECTID", 
+      "isAscending" : true, 
+      "isUnique" : true, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "user_36166.CSP_ADMINBOUNDARIES_DISTRICTS_Shape_sidx", 
+      "fields" : "SHAPE", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Spatial"
+    }, 
+    {
+      "name" : "FDO_GlobalID", 
+      "fields" : "GlobalID", 
+      "isAscending" : true, 
+      "isUnique" : true, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "Shape__Area_Index", 
+      "fields" : "Shape__Area", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "Shape__Length_Index", 
+      "fields" : "Shape__Length", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "created_dateIndex", 
+      "fields" : "created_date", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "created_date Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "created_userIndex", 
+      "fields" : "created_user", 
+      "isAscending" : false, 
+      "isUnique" : false, 
+      "description" : "created_user Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "last_edited_dateIndex", 
+      "fields" : "last_edited_date", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "last_edited_date Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "last_edited_userIndex", 
+      "fields" : "last_edited_user", 
+      "isAscending" : false, 
+      "isUnique" : false, 
+      "description" : "last_edited_user Field index", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "exb_district", 
+      "fields" : "district", 
+      "isAscending" : true, 
+      "isUnique" : false, 
+      "description" : "", 
+      "indexType" : "Attribute"
+    }, 
+    {
+      "name" : "exb_district_total", 
+      "fields" : "district", 
+      "description" : "", 
+      "indexType" : "FullText"
+    }
+  ], 
+  "dateFieldsTimeReference" : {
+    "timeZone" : "UTC", 
+    "timeZoneIANA" : "Etc/UTC", 
+    "respectsDaylightSaving" : false
+  }, 
+  "preferredTimeReference" : null, 
+  "types" : [
+    {
+      "id" : "Angeles District", 
+      "name" : "Angeles District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Angeles District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Angeles District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Bay Area District", 
+      "name" : "Bay Area District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Bay Area District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Bay Area District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Capital District", 
+      "name" : "Capital District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Capital District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Capital District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Central Valley District", 
+      "name" : "Central Valley District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Central Valley District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Central Valley District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Channel Coast District", 
+      "name" : "Channel Coast District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Channel Coast District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Channel Coast District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Colorado Desert District", 
+      "name" : "Colorado Desert District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Colorado Desert District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Colorado Desert District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Diablo Range District", 
+      "name" : "Diablo Range District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Diablo Range District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Diablo Range District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Gold Fields District", 
+      "name" : "Gold Fields District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Gold Fields District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Gold Fields District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Great Basin District", 
+      "name" : "Great Basin District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Great Basin District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Great Basin District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Inland Empire District", 
+      "name" : "Inland Empire District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Inland Empire District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Inland Empire District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Monterey District", 
+      "name" : "Monterey District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Monterey District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Monterey District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "North Coast Redwoods District", 
+      "name" : "North Coast Redwoods District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "North Coast Redwoods District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "North Coast Redwoods District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Northern Buttes District", 
+      "name" : "Northern Buttes District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Northern Buttes District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Northern Buttes District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Oceano Dunes District", 
+      "name" : "Oceano Dunes District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Oceano Dunes District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Oceano Dunes District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Ocotillo Wells District", 
+      "name" : "Ocotillo Wells District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Ocotillo Wells District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Ocotillo Wells District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Orange Coast District", 
+      "name" : "Orange Coast District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Orange Coast District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Orange Coast District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "San Diego Coast District", 
+      "name" : "San Diego Coast District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Diego Coast District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "San Diego Coast District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "San Luis Obispo Coast District", 
+      "name" : "San Luis Obispo Coast District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "San Luis Obispo Coast District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "San Luis Obispo Coast District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Santa Cruz District", 
+      "name" : "Santa Cruz District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Santa Cruz District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Santa Cruz District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Sierra District", 
+      "name" : "Sierra District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Sierra District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Sierra District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }, 
+    {
+      "id" : "Sonoma-Mendocino Coast District", 
+      "name" : "Sonoma-Mendocino Coast District", 
+      "domains" : 
+      {
+      }, 
+      "templates" : [
+        {
+          "name" : "Sonoma-Mendocino Coast District", 
+          "description" : "", 
+          "drawingTool" : "esriFeatureEditToolPolygon", 
+          "prototype" : {
+            "attributes" : {
+              "district" : "Sonoma-Mendocino Coast District", 
+              "field_division" : null
+            }
+          }
+        }
+      ]
+    }
+  ], 
+  "templates" : [], 
+  "supportedQueryFormats" : "JSON, geoJSON, PBF", 
+  "supportedAppendFormats" : "sqlite,geoPackage,shapefile,filegdb,featureCollection,geojson,csv,excel,jsonl,featureService,pbf", 
+  "supportedAppendSourceFilterFormats" : "sqlite,geoPackage,shapefile,filegdb,featureService", 
+  "supportedExportFormats" : "csv,shapefile,sqlite,geoPackage,filegdb,featureCollection,geojson,kml,excel,parquet", 
+  "supportedConvertFileFormats" : "JSON,PBF,Parquet", 
+  "supportedConvertContentFormats" : "LayerEditCollection,FeatureCollection", 
+  "supportedSpatialRelationships" : [
+    "esriSpatialRelIntersects", 
+    "esriSpatialRelContains", 
+    "esriSpatialRelCrosses", 
+    "esriSpatialRelEnvelopeIntersects", 
+    "esriSpatialRelIndexIntersects", 
+    "esriSpatialRelOverlaps", 
+    "esriSpatialRelTouches", 
+    "esriSpatialRelWithin", 
+    "esriSpatialRelDisjoint", 
+    "esriSpatialRelRelation"
+  ], 
+  "guidFormat" : "", 
+  "supportsContingentValues" : true, 
+  "supportsEditingContingentValues" : true, 
+  "supportedContingentValuesFormats" : "JSON, PBF", 
+  "supportsFieldGroups" : true, 
+  "supportedSyncDataOptions" : 260, 
+  "hasStaticData" : false, 
+  "maxRecordCount" : 2000, 
+  "standardMaxRecordCount" : 2000, 
+  "maxIdsCount" : 1000000, 
+  "standardMaxRecordCountNoGeometry" : 32000, 
+  "tileMaxRecordCount" : 4000, 
+  "maxRecordCountFactor" : 1, 
+  "capabilities" : "Query"
+}

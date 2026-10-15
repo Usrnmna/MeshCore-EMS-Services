@@ -118,6 +118,22 @@ configuration templates, tests, function references, reference SQLite/JSON/CSV d
 and retained raw source receipts remain trackable. Ignore rules do not remove
 files that Git already tracks, including previously committed distribution files.
 
+## California State Parks GIS references
+
+The [California State Parks reference collection](data/california_state_parks/README.md)
+contains eleven dataset types and 56,650 features: park boundaries, routes,
+buildings, structures, picnic grounds, campgrounds, parking, entry points, field
+divisions, districts, and sectors. Local Python loading uses
+`data/california_state_parks/reference.py`; paths, hashes, schemas, and source
+receipts are recorded in its manifest. The 31 published native downloads remain
+unchanged. Forty-eight invalid park-boundary geometries were repaired in the
+local GeoJSON, with the original preserved and repair provenance recorded.
+
+This collection is a separate local reference. Existing EBMUD command registrations
+remain unchanged. The previously built v0.9.0-beta artifacts do not contain this
+acquisition; future complete-workspace builds collect the maintained data directory.
+Standalone service ZIPs require shared reference data separately.
+
 ## Local GIS reference data
 
 The project includes EBMUD GeoJSON snapshots (with documented local polygon repairs) in [`data/ebmud/`](data/ebmud/README.md):
@@ -174,6 +190,8 @@ Both platform packages contain the same service components:
 | Configuration | `config.json` | Defines MQTT settings, channel registry, program assignments, commands, timeouts, cooldowns, and reply limits. |
 
 ## MeshCore commands
+
+Start with the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md#start) or [Windows copy](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md#start). The detailed [Linux](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index) and [Windows](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md#command-index) command references cover all 16 commands, subcommands, options, response examples, and failures.
 
 Send commands from another MeshCore node on a channel assigned to that command (default `#autatestbot`).
 
@@ -334,6 +352,8 @@ See the platform READMEs for `!floodwarn` examples, exact reply wording, data so
 
 ## Snowpack command
 
+[Snowpack inputs, responses, and missing-data behavior](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-snowpack).
+
 Both packages support `!snowpack`. Examples: `!snowpack 39.3279, -120.1833`,
 `!snowpack 96161`, or `!snowpack Truckee`. The reply format is:
 
@@ -359,6 +379,8 @@ setup/launcher after extraction to install the pinned dependencies.
 
 ## Flood alarm subscriptions
 
+[Quick monitoring instructions](meshcore_mqtt_service/BOT_USER_GUIDE.md#monitoring) | [Detailed subscription reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-floodalarm).
+
 `!floodalarm` accepts the same city, state, ZIP, and GPS inputs as `!floodwarn`.
 Its immediate acknowledgment is `@Alice Flood Alarm is set for requested location.`
 Only `!floodalarm` starts monitoring. The service then saves a silent baseline,
@@ -377,6 +399,8 @@ or [Windows code guide](meshcore_mqtt_service_windows/README.md#where-to-adjust-
 for the commented algorithm, timing constants, database fields, and error behavior.
 
 ## Local GIS commands
+
+See the [quick GIS examples](meshcore_mqtt_service/BOT_USER_GUIDE.md#gis), [full GIS syntax](meshcore_mqtt_service/COMMAND_REFERENCE.md#gis-syntax), and [response/error reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#gis-responses). Attribute sections: [trail](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-trail), [recreation](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-rec), [peak](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-peak), [park](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-park), and [boundary](meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-boundary). Both platform guides describe the same command behavior.
 
 The five local GIS commands are implemented in both platform source folders.
 Use `NAME ATTRIBUTE` for focused information or `NAME info` for the full summary.

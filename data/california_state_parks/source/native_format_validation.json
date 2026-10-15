@@ -1,0 +1,174 @@
+{
+  "raw/administrative_boundaries/filegdb.zip": [
+    {
+      "layer": "Sectors",
+      "feature_count": 68,
+      "crs": "EPSG:3310",
+      "geometry_type": "MultiPolygon"
+    },
+    {
+      "layer": "Districts",
+      "feature_count": 21,
+      "crs": "EPSG:3310",
+      "geometry_type": "MultiPolygon"
+    },
+    {
+      "layer": "Field_Divisions",
+      "feature_count": 4,
+      "crs": "EPSG:3310",
+      "geometry_type": "MultiPolygon"
+    }
+  ],
+  "raw/buildings/filegdb.zip": [
+    {
+      "layer": "Buildings",
+      "feature_count": 3246,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/buildings/shapefile.zip": [
+    {
+      "layer": "Buildings",
+      "feature_count": 3246,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/campgrounds/filegdb.zip": [
+    {
+      "layer": "Campgrounds",
+      "feature_count": 531,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/campgrounds/shapefile.zip": [
+    {
+      "layer": "Campgrounds",
+      "feature_count": 531,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/districts/shapefile.zip": [
+    {
+      "layer": "Districts",
+      "feature_count": 21,
+      "crs": "EPSG:3310",
+      "geometry_type": "Polygon"
+    }
+  ],
+  "raw/field_divisions/shapefile.zip": [
+    {
+      "layer": "Field_Divisions",
+      "feature_count": 4,
+      "crs": "EPSG:3310",
+      "geometry_type": "Polygon"
+    }
+  ],
+  "raw/park_boundaries/filegdb.zip": [
+    {
+      "layer": "ParkBoundaries",
+      "feature_count": 461,
+      "crs": "EPSG:3857",
+      "geometry_type": "MultiPolygon"
+    }
+  ],
+  "raw/park_boundaries/shapefile.zip": [
+    {
+      "layer": "ParkBoundaries",
+      "feature_count": 461,
+      "crs": "EPSG:3857",
+      "geometry_type": "Polygon"
+    }
+  ],
+  "raw/park_entry_points/filegdb.zip": [
+    {
+      "layer": "ParkEntryPoints",
+      "feature_count": 288,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/park_entry_points/shapefile.zip": [
+    {
+      "layer": "ParkEntryPoints",
+      "feature_count": 288,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/parking/filegdb.zip": [
+    {
+      "layer": "ParkingPoints",
+      "feature_count": 2359,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/parking/shapefile.zip": [
+    {
+      "layer": "ParkingPoints",
+      "feature_count": 2359,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/picnic_grounds/filegdb.zip": [
+    {
+      "layer": "PicnicGrounds",
+      "feature_count": 1466,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/picnic_grounds/shapefile.zip": [
+    {
+      "layer": "PicnicGrounds",
+      "feature_count": 1466,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/routes/filegdb.zip": [
+    {
+      "layer": "RecreationalRoutes",
+      "feature_count": 13139,
+      "crs": "EPSG:3857",
+      "geometry_type": "MultiLineString Z"
+    }
+  ],
+  "raw/routes/shapefile.zip": [
+    {
+      "layer": "RecreationalRoutes",
+      "feature_count": 13139,
+      "crs": "EPSG:3857",
+      "geometry_type": "LineString Z"
+    }
+  ],
+  "raw/sectors/shapefile.zip": [
+    {
+      "layer": "Sectors",
+      "feature_count": 68,
+      "crs": "EPSG:3310",
+      "geometry_type": "Polygon"
+    }
+  ],
+  "raw/structures/filegdb.zip": [
+    {
+      "layer": "Structures",
+      "feature_count": 35067,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ],
+  "raw/structures/shapefile.zip": [
+    {
+      "layer": "Structures",
+      "feature_count": 35067,
+      "crs": "EPSG:3857",
+      "geometry_type": "Point"
+    }
+  ]
+}

@@ -29,9 +29,9 @@
 *.pdf -text
 *.sqlite3 -text
 
-# Reference datasets and supplier receipts have manifest-recorded byte hashes.
-/data/** -text
-/data/**/*.py text eol=lf
-/data/**/README.md text eol=lf
-/data/**/FUNCTION_REFERENCE.md text eol=lf
-/data/**/DATA_DICTIONARY.md text eol=lf
+# Reference datasets and supplier receipts retain hashed bytes and source whitespace.
+/data/** -text -whitespace
+/data/**/*.py text eol=lf whitespace
+/data/**/README.md text eol=lf whitespace
+/data/**/FUNCTION_REFERENCE.md text eol=lf whitespace
+/data/**/DATA_DICTIONARY.md text eol=lf whitespace

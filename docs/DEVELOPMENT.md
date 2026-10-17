@@ -55,6 +55,15 @@ configuration templates, tests, function references, reference SQLite/JSON/CSV d
 and retained raw source receipts remain trackable. Ignore rules do not remove
 files that Git already tracks, including previously committed distribution files.
 
+The root [Git attributes](../.gitattributes) define LF endings for maintained
+source and documentation, and CRLF endings for Windows command and PowerShell
+scripts. File encodings remain unchanged. Reference datasets and supplier receipts
+under `data/` bypass line-ending conversion to preserve manifest-recorded bytes;
+authored Python and Markdown files in that directory retain text handling.
+
+Generated `dist/` artifacts remain local build outputs. Removing an artifact from
+Git tracking does not remove its local copy or rewrite historical commits.
+
 ## Python function documentation
 
 Every maintained application function, including methods and nested callbacks,
@@ -135,3 +144,16 @@ Retain technical constraints and evidence boundaries when editing prose. Keep
 paired service guidance aligned, preserve exact response examples, and verify
 relative links and heading anchors after moving material. Archived distributions
 and unmodified supplier receipts retain their historical content.
+
+### README artwork and badges
+
+The [README banner](assets/readme-hero.svg) and local SVG badges are maintained
+under `docs/assets/` and included by the complete-workspace installer inventory.
+The banner's channel exchange is illustrative. Equivalent text examples and
+capability descriptions remain in the README for accessibility.
+
+The version badge follows `VERSION` in `tools/build_installers.py`; the command
+badge follows both platform configurations. The offline-GIS badge identifies
+EBMUD-area coverage. Update these assets when the corresponding facts change.
+These labels describe source capabilities and the distribution version; they do
+not represent live CI results or hardware validation.

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">MC-EMS-Services: local information through MeshCore</title>
+  <desc id="description">Weather, water, roads, and offline local maps on Linux and Windows. An illustrative channel exchange shows !status returning @Alice Local command service is running.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#0b1729"/>
+      <stop offset="1" stop-color="#143747"/>
+    </linearGradient>
+    <linearGradient id="accent">
+      <stop stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="20" fill="url(#background)"/>
+  <g fill="none" stroke="#67c8cd" stroke-width="1.5" opacity="0.12">
+    <path d="M0 310C160 160 180 420 410 260S640 120 810 270 1050 390 1200 210"/>
+    <path d="M0 330C160 180 180 440 410 280S640 140 810 290 1050 410 1200 230"/>
+    <path d="M0 350C160 200 180 460 410 300S640 160 810 310 1050 430 1200 250"/>
+    <circle cx="1160" cy="40" r="80"/>
+    <circle cx="1160" cy="40" r="115"/>
+    <circle cx="1160" cy="40" r="150"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <rect x="44" y="37" width="36" height="5" rx="2.5" fill="url(#accent)"/>
+    <text x="94" y="47" fill="#94d9df" font-size="18" font-weight="700" letter-spacing="2">MC-EMS-SERVICES</text>
+    <text x="44" y="116" fill="#f1f5f9" font-size="48" font-weight="700">Local information.</text>
+    <text x="44" y="174" fill="#5eead4" font-size="48" font-weight="700">Through MeshCore.</text>
+    <text x="46" y="219" fill="#cbd5e1" font-size="21">Weather. Water. Roads. Offline local maps.</text>
+    <text x="46" y="252" fill="#a4bbc9" font-size="19">Linux + Windows  /  USB + BLE + TCP</text>
+    <rect x="695" y="38" width="461" height="224" rx="16" fill="#0b1729" stroke="#355a6a"/>
+    <circle cx="718" cy="62" r="4" fill="#5eead4"/>
+    <text x="732" y="68" fill="#a4bbc9" font-size="13" font-weight="600" letter-spacing="1">ILLUSTRATIVE CHANNEL EXCHANGE</text>
+    <path d="M716 83H1135" stroke="#284757"/>
+    <text x="718" y="114" fill="#a4bbc9" font-size="13" letter-spacing="1">CHANNEL MESSAGE</text>
+    <rect x="716" y="128" width="416" height="42" rx="8" fill="#163e49"/>
+    <text x="732" y="156" fill="#7ff4df" font-family="Consolas, monospace" font-size="23">!status</text>
+    <text x="718" y="197" fill="#a4bbc9" font-size="13" letter-spacing="1">SAME-CHANNEL REPLY</text>
+    <text x="718" y="224" fill="#f1f5f9" font-family="Consolas, monospace" font-size="17">@Alice Local command service is running.</text>
+    <path d="M44 282H1156" stroke="#355a6a"/>
+    <text x="46" y="324" fill="#e2e8f0" font-size="18" font-weight="600">16 commands</text>
+    <circle cx="237" cy="318" r="3" fill="#5eead4"/>
+    <text x="262" y="324" fill="#e2e8f0" font-size="18">Tagged channel replies</text>
+    <circle cx="518" cy="318" r="3" fill="#5eead4"/>
+    <text x="543" y="324" fill="#e2e8f0" font-size="18">Per-channel programs</text>
+    <circle cx="791" cy="318" r="3" fill="#5eead4"/>
+    <text x="816" y="324" fill="#e2e8f0" font-size="18">Offline EBMUD GIS</text>
+  </g>
+</svg>

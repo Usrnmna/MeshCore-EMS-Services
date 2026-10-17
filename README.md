@@ -1,5 +1,11 @@
 # MC-EMS-Services
 
+![MC-EMS-Services highlights: weather, water, roads, and offline local maps through MeshCore, with an illustrative tagged channel reply.](docs/assets/readme-hero.svg)
+
+[![Distribution version v0.9.0-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.0-beta.md)
+[![16 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+[![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
+
 **Local information, delivered through MeshCore channels.**
 
 MC-EMS-Services turns a MeshCore channel into a command-driven information service
@@ -9,17 +15,17 @@ and recreation information. Replies return to the same channel with the sender's
 
 **16 commands | Linux and Windows | USB, Bluetooth LE, or TCP | Offline GIS lookups**
 
-[Get started](#get-started) | [Command guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) | [Installation](INSTALL.md) | [Documentation index](docs/README.md)
+**[Get started](#get-started)** | **[Try the commands](meshcore_mqtt_service/BOT_USER_GUIDE.md)** | [Installation](INSTALL.md) | [All documentation](docs/README.md)
 
 ## What it provides
 
 | Highlight | Practical result | Commands |
 | --- | --- | --- |
-| Weather and environmental conditions | Current UV, PM2.5 air quality, heat alerts, and next-24-hour lightning potential. | `!uv`, `!aqi`, `!heatadv`, `!lightning` |
-| Water and snow information | River stages, active flood alerts, temporary flood monitoring, nearby snow depth, and forecast snowfall. | `!rivers`, `!floodwarn`, `!floodalarm`, `!snowpack` |
-| Highway restrictions | Compact Caltrans reports for California route numbers. | `!traffic` |
-| Offline local maps | Recorded trail policies, recreation amenities, peak elevations, park details, and mapped boundaries in the EBMUD area. | `!trail`, `!rec`, `!peak`, `!park`, `!boundary` |
-| Service checks | Responder availability and the configured local time. | `!status`, `!time` |
+| 🌦️ **Weather and environmental conditions** | Current UV, PM2.5 air quality, heat alerts, and next-24-hour lightning potential. | `!uv`, `!aqi`, `!heatadv`, `!lightning` |
+| 🌊 **Water and snow information** | River stages, active flood alerts, temporary flood monitoring, nearby snow depth, and forecast snowfall. | `!rivers`, `!floodwarn`, `!floodalarm`, `!snowpack` |
+| 🛣️ **Highway restrictions** | Compact Caltrans reports for California route numbers. | `!traffic` |
+| 🗺️ **Offline local maps** | Recorded trail policies, recreation amenities, peak elevations, park details, and mapped boundaries in the EBMUD area. | `!trail`, `!rec`, `!peak`, `!park`, `!boundary` |
+| 🕒 **Service checks** | Responder availability and the configured local time. | `!status`, `!time` |
 
 Multiple Public, hashtag, or private channels can have different command
 assignments. Operators can add Python command programs after installation.

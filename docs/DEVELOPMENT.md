@@ -60,6 +60,8 @@ source and documentation, and CRLF endings for Windows command and PowerShell
 scripts. File encodings remain unchanged. Reference datasets and supplier receipts
 under `data/` bypass line-ending conversion to preserve manifest-recorded bytes;
 authored Python and Markdown files in that directory retain text handling.
+Supplier whitespace is retained and exempt from whitespace linting; authored
+Python and Markdown files continue to receive whitespace checks.
 
 Generated `dist/` artifacts remain local build outputs. Removing an artifact from
 Git tracking does not remove its local copy or rewrite historical commits.

@@ -179,7 +179,7 @@ def main(argv=None):
         args.pop(0)
     if args and args[0] == '!floodwarn':
         args.pop(0)
-    # Preserve the requested emoji when invoked directly on Windows as well as by the bot.
+    # Preserve response emoji during direct Windows invocation and service execution.
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')
     try:

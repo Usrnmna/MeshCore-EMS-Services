@@ -153,8 +153,8 @@ plus standalone reference tools/data and workspace packaging improvements.
 
 ### Validation record
 
-These are previously recorded implementation results, not a new runtime test
-run performed for this release-note update:
+Recorded implementation validation comprises the following historical results;
+no additional runtime test run is represented by this record:
 
 - Service coverage increased from **66 tests in v0.1.1-alpha to 109 tests per
   package**, including 20 snowpack tests and 23 flood-alarm regression tests.
@@ -167,7 +167,8 @@ run performed for this release-note update:
 
 Native Linux operation, a live four-hour alarm run, and physical radio delivery
 were not established by those checks. A local send acceptance does not prove
-remote reception. No service restart or hardware change is part of this update.
+remote reception. No service restart or hardware change was performed during
+release documentation validation.
 
 ### Upgrade from v0.1.1-alpha
 

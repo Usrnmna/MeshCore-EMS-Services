@@ -829,25 +829,44 @@ acknowledgment confirms registration. The subsequent lookup verifies the locatio
 
 ### Monitoring rules
 
-1. **Only `!floodalarm` starts monitoring.** Each sender has one saved location per
-   channel. A repeated `!floodalarm` renews the alarm and replaces its location.
-2. After acknowledgment, take the first reading as a **silent baseline**. Check
-   again every **20 minutes** while the service is running. Due lookups run one at
-   a time; slow requests or a busy service can delay a check.
-3. Compare the set of the four supported alert types. Notify the saved `@sender`
-   on the same channel only when that set changes, including when all alerts clear.
-   Changes to bulletin IDs, issue times, or wording alone do not trigger a reply.
-4. Stop at **four hours since that sender's last accepted `!floodalarm` call**.
-   Each new accepted `!floodalarm` overwrites that user's previous alarm location
-   and resets the full four-hour limit, including when the location is unchanged.
-   Checks and outgoing notifications recheck this deadline. `!floodwarn` remains
-   a one-shot lookup: it never changes the alarm location or renews the timer.
-5. A new location gets a fresh baseline so moving between towns is not interpreted
-   as a change in flood conditions. Repeating the same location retains its baseline
-   and scheduled check. Late messages cannot overwrite a newer call's location.
-6. A failed lookup preserves the last successful reading. Send one availability
-   notice per failure episode, then retry on the next scheduled check. A successful
-   recovery is compared with the last good reading; an error never means no floods.
+Only `!floodalarm` enrolls or renews one saved location per sender and channel.
+The service acknowledges registration before checking the location. The following
+flow describes service-managed checks, with lookups performed one at a time.
+Slow requests, queued work, or radio spacing can delay checks and notifications.
+
+```text
+Accepted !floodalarm --> Save or renew subscription --> Acknowledge
+                                   |
+                                   v
+                    First successful lookup: silent baseline
+                                   |
+                      Scheduled lookup every 20 minutes
+                                   |
+          +------------------------+-------------------------+
+          |                        |                         |
+     Types unchanged          Types changed              Lookup failed
+          |                        |                         |
+     Keep baseline       Tagged same-channel reply    One outage notice;
+          |                        |                  retain last reading
+          +------------------------+-------------------------+
+                                   |
+                      Next check while subscription is current
+
+Four hours after last accepted enrollment/renewal --> Expire; stop checks
+```
+
+Comparison uses the set of four supported alert types, including when all types
+clear. Bulletin IDs, issue times, and wording alone do not trigger notifications.
+Failures retry at the next scheduled check; one availability notice is sent per
+failure episode. Successful recovery is compared with the last good reading.
+An error never establishes that no flood alerts exist.
+
+Each accepted renewal resets the full four-hour deadline. A replacement location
+starts a fresh baseline; renewal of the same active location retains its baseline
+and scheduled check. Late messages cannot overwrite a newer call's location.
+Checks and outgoing notifications recheck expiry and superseded-request validity.
+`!floodwarn` performs one lookup without changing an alarm location or timer;
+other commands do not renew the timer.
 
 Subscriptions survive restarts in **`runtime/bridge.sqlite3`**, table
 **`flood_subscriptions`**, using Python's built-in SQLite library. Stored fields
@@ -859,7 +878,7 @@ the four-hour deadline, and missed checks are not replayed in a burst.
 The service must stay running and connected to perform checks/send notifications.
 Interrupted or failed radio sends are logged and are not automatically replayed.
 Usernames are MeshCore display names; two nodes using the same name on the same
-channel share one subscription, just as replies use those display names.
+channel share one subscription because identity uses the display name and channel.
 
 ### Where to adjust the algorithm
 
@@ -875,8 +894,8 @@ channel share one subscription, just as replies use those display names.
 | [`scripts/floodalarm.py`](scripts/floodalarm.py), `main()` | Dedicated JSON-reading subprocess for alarm checks; enrollment and timers remain in the service. |
 | [`scripts/flood_warn.py`](scripts/flood_warn.py), `snapshot()` / `format_status()` | Shared NWS lookup, structured alert types, exact wording and colored squares. |
 
-The source uses visible comments named `TWEAK HERE`, `ENROLLMENT`, `EXPIRY`,
-`CHANGE DETECTION`, `OUTAGE`, and `ALARM EXPIRY` to make these sections easy to find.
+The source uses visible comments named `TIMING SETTINGS`, `ENROLLMENT`, `EXPIRY`,
+`CHANGE DETECTION`, `OUTAGE`, and `ALARM EXPIRY` to identify the corresponding sections.
 The monitor runs `scripts/floodalarm.py LOCATION` for JSON readings. Direct
 execution reads one snapshot and does not create a subscription or print a false
 enrollment acknowledgment. The compatible `flood_warn.py --snapshot` interface

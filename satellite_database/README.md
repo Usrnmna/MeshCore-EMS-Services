@@ -82,8 +82,23 @@ Do not run two writers against the same database/cache at the same time.
 
 ## Status means the state of an individual capability
 
-The program never creates a matrix of imaginary services for every spacecraft.
-Each operation originates in a real transmitter record or a sourced manual
+The catalog separates spacecraft inclusion from the status of each supported
+operation.
+
+```text
+Source responses --> Preserved cache and checksums --> Catalog normalization
+                                                             |
+                                             Scope and retirement filtering
+                                                             |
+                                      Supported operations for retained satellites
+                                                             |
+                                        Dated evidence per individual operation
+                                                             |
+                                         SQLite catalog --> JSON / CSV exports
+```
+
+The catalog includes only operations supported by source records.
+Each operation originates in a transmitter record or a sourced manual
 addition. A beacon may be active while the same satellite's repeater is inactive.
 
 | Effective status | Required evidence |

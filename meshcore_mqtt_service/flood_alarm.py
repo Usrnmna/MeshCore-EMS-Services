@@ -11,7 +11,7 @@ import time
 
 LOG = logging.getLogger("flood_alarm")
 
-# TWEAK HERE: seconds between readings and maximum time since an accepted !floodalarm.
+# TIMING SETTINGS: seconds between readings and maximum time since an accepted !floodalarm.
 CHECK_INTERVAL = 20 * 60
 MAX_AGE = 4 * 60 * 60
 POLL_SECONDS = 1

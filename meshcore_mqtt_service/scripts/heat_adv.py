@@ -27,7 +27,7 @@ NWS_ALERTS_URL = 'https://api.weather.gov/alerts/active'
 USER_AGENT = 'MC-EMS-Services-HeatAdv/1.0'
 UNAVAILABLE = 'Heat alert lookup unavailable. Please try again later.'
 
-# REPLY TEXT: keep the requested spelling and capitalization, including the clear reply.
+# REPLY TEXT: preserve the response-contract spelling and capitalization, including the clear reply.
 ALERT_REPLIES = {
     'Extreme Heat Warning': 'Advisory: Extreme Heat Warning for {location}',
     'Extreme Heat Watch': 'Advisory: Extreme Heat Watch for {location}',

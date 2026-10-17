@@ -352,6 +352,12 @@ class InstallerTests(unittest.TestCase):
         for required in (
             "LICENSE",
             "INSTALL.md",
+            "docs/README.md",
+            "docs/ARCHITECTURE.md",
+            "docs/DEVELOPMENT.md",
+            "RELEASE_v0.9.0-beta.md",
+            "AGENTS.md",
+            "archive/README.md",
             "data/satellites/satellites.sqlite3",
             "data/ebmud/trails.geojson",
             "satellite_database/satellite_db.py",
@@ -360,6 +366,10 @@ class InstallerTests(unittest.TestCase):
         ):
             self.assertIn(required, paths)
         for path in paths:
+            if path.startswith("archive/"):
+                # Include public recovery guidance without distributing recovery data.
+                self.assertEqual(path, "archive/README.md")
+                continue
             self.assertFalse(
                 set(Path(path).parts)
                 & {

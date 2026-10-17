@@ -61,7 +61,7 @@ Build online Windows x64 and Linux x86_64/ARM64 installers from this workspace. 
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `sha(data)` | Return the SHA-256 digest used by payload manifests and download checks. |
-| `source_files()` | Collect maintained source/data while excluding runtime state and build environments. |
+| `source_files()` | Collect maintained source, documentation, and data without runtime state or environments. Include the linked topic guides, release comparison, repository instructions, and archive guidance; exclude recovery ZIPs. |
 | `stage_payload(destination)` | Create an isolated build snapshot with normalized shell files and an integrity manifest. |
 | `linux_installer(payload, output, arch)` | Write a checksum-protected self-extracting Linux installer for the selected architecture. |
 | `main()` | Build platform installers and checksums locally; never install or publish them. |

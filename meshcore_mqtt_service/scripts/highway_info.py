@@ -23,7 +23,7 @@ NO_RESTRICTIONS_MESSAGE = "No Traffic Restrictions Reported"
 OUTPUT_WIDTH = 120  # Standalone wrapping in characters; mesh reply limits use UTF-8 bytes.
 
 # Familiar short codes for California locations commonly found in Caltrans reports.
-# The explicit codes requested by the user take precedence over airport codes.
+# The configured place abbreviations take precedence over airport codes.
 PLACE_ABBREVIATIONS = (
     ("San Bernardino", "SBD"),
     ("San Francisco", "SF"),

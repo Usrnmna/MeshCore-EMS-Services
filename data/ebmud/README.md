@@ -274,6 +274,26 @@ supports an explicit data directory. Refresh sources remain in `sources.json`.
 
 ## Maintenance workflow and provenance
 
+The maintenance path is manual. A refresh retrieves upstream geometry, while a
+subsequent optional repair derives local polygon geometry and retains its originals.
+
+```text
+ArcGIS sources --> refresh_geojson.py --check --> Verify downloads only
+       |
+       +--> refresh_geojson.py --> Stage and verify complete downloads
+                                           |
+                                  Replace local snapshots and manifest
+                                           |
+                         Optional repair_geojson.py with Shapely
+                                           |
+                       Preserve originals; record repair provenance
+                                           |
+                        GIS commands read verified local snapshots
+```
+
+A later raw refresh can restore upstream geometry defects. Download checks and
+geometric validity do not establish current access or legal boundary accuracy.
+
 1. Use the deployed data directory, not an unrelated workspace copy. Allow GIS
    requests to finish or stop the service during maintenance.
 2. Run `refresh_geojson.py --check` when download verification alone is needed;

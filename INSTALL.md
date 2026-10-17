@@ -379,6 +379,11 @@ the source template would discard deployment-specific values.
 
 ## Build and validation
 
+Repository layout, source packaging, dependency references, and offline checks are
+described in the [development guide](docs/DEVELOPMENT.md). The
+[architecture guide](docs/ARCHITECTURE.md) covers component responsibilities and
+MQTT topics; the [documentation index](docs/README.md) groups the remaining guides.
+
 From the workspace, with Python and Inno Setup 6.7+ available on the Windows build host:
 
 ```console

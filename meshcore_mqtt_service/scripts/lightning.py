@@ -193,7 +193,8 @@ def alert_labels(props):
     """Identify convective alerts or explicit lightning hazard text and stated chance.
 
     Do not treat wind-only fire alerts or generic preparedness instructions as
-    lightning. Text matching handles common negations; it is not a language model.
+    lightning. Regular-expression matching handles common negations; unlisted
+    phrasing can remain ambiguous.
     """
     event = props.get('event')
     if not isinstance(event, str) or not event:

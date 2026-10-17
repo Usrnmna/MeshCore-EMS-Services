@@ -152,7 +152,7 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 | `Responder.update(self, request_id, state, response=None, detail=None)` | Commit request state and diagnostics, retaining the prior response when response is None. |
 | `async Responder.process_one(self, alarm_only=None)` | Process the oldest queued request, expire stale work, run its script and send replies; return False if empty. |
 | `async Responder.read_flood_status(self, location)` | Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status. |
-| `async Responder.send_flood_change(self, reading, output)` | Tag changes just like !floodwarn; guard again after waiting for the radio's send slot. |
+| `async Responder.send_flood_change(self, reading, output)` | Tag changes as !floodwarn replies; recheck subscription validity after waiting for the radio's send slot. |
 | `async Responder.run_requests(self, alarm_only=False)` | Drain this worker's queue without blocking the alarm scheduler or acknowledgment worker. |
 | `async Responder.run(self)` | All workers stop with the service; radio sends still use the existing shared rate limiter. |
 
@@ -286,7 +286,7 @@ NWS lightning potential over 24 elapsed hours. All windows use the configurable 
 | `interval(value)` | Decode NWS start/duration or start/end intervals; reject empty/reversed spans. |
 | `weather_labels(conditions)` | Keep NWS thunder coverage wording, including slight chance and dry attributes. |
 | `forecast_windows(data, now)` | Return (start, end, label) hazards; require fresh weather covering all 24 hours. Missing optional thunder probability/LAL layers are normal. When supplied, positive probabilities and LAL 2-6 also count; rain probability never does. A null weather type inside a condition is NWS's valid no-weather value. |
-| `alert_labels(props)` | Identify convective alerts or explicit lightning hazard text and stated chance. Do not treat wind-only fire alerts or generic preparedness instructions as lightning. Text matching handles common negations; it is not a language model. |
+| `alert_labels(props)` | Identify convective alerts or explicit lightning hazard text and stated chance. Do not treat wind-only fire alerts or generic preparedness instructions as lightning. Regular-expression matching handles common negations; unlisted phrasing can remain ambiguous. |
 | `alert_windows(data, now)` | Select actual lightning-related point alerts overlapping the requested 24h. Onset is the hazard start, effective is its fallback; ends is preferred to product expiration. Point matching covers NWS polygons and zones server-side. |
 | `merge_windows(windows)` | Combine coincident labels and adjacent identical spans without hiding clear gaps. |
 | `format_window(start, end, zone)` | Display source-window bounds in the selected zone, labeling both sides of DST. |

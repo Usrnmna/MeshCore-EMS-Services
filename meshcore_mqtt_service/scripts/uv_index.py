@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 # USER SETTINGS AND SOURCES: seconds for timeouts; see ../README.md.
-# Changing providers also requires adapting the response parser, not just the URL.
+# Provider changes require corresponding response-parser and URL updates.
 DEFAULT_CITY_STATE = 'California'  # Also used by flood_warn and snowpack input parsing.
 HTTP_TIMEOUT_SECONDS = 12  # Per HTTP request, not the entire script.
 GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search'

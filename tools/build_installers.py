@@ -29,11 +29,22 @@ def sha(data):
 
 
 def source_files():
-    """Collect maintained source/data while excluding runtime state and build environments."""
-    files = {ROOT / p for p in ("README.md", "RELEASE_NOTES.md", "INSTALL.md", "LICENSE")}
+    """Collect maintained source, documentation, and data without runtime state or environments."""
+    files = {
+        ROOT / p
+        for p in (
+            "README.md",
+            "RELEASE_NOTES.md",
+            "RELEASE_v0.9.0-beta.md",
+            "INSTALL.md",
+            "LICENSE",
+            "AGENTS.md",
+            "archive/README.md",
+        )
+    }
     for package in PACKAGES:
         files.update(package_files(package))
-    for folder in ("satellite_database", "data", "installers", "tools"):
+    for folder in ("satellite_database", "data", "docs", "installers", "tools"):
         for path in (ROOT / folder).rglob("*"):
             relative = path.relative_to(ROOT)
             if (

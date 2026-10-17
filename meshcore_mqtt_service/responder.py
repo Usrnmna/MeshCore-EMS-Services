@@ -528,7 +528,10 @@ class Responder:
         return {"events": events, "text": format_status(location, events)}
 
     async def send_flood_change(self, reading, output):
-        """Tag changes just like !floodwarn; guard again after waiting for the radio's send slot."""
+        """Tag changes as !floodwarn replies.
+
+        Recheck subscription validity after waiting for the radio's send slot.
+        """
         guard = lambda: self.allowed("!floodalarm") and self.alarms.is_current(reading)
         for part in reply_parts(reading["sender"], output, max_parts=12):
             if not guard():

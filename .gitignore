@@ -15,6 +15,12 @@ __pycache__/
 .tox/
 .nox/
 
+# Local documentation previews and optional JavaScript rendering dependencies
+node_modules/
+.cache/
+playwright-report/
+test-results/
+
 # Generated dependency metadata and optional local pip caches
 *.egg-info/
 pip-wheel-metadata/
@@ -79,3 +85,8 @@ Thumbs.db
 Desktop.ini
 *.swp
 *.swo
+
+# Machine-local IDE state; shared source and editor configuration remain trackable.
+.vs/
+*.suo
+*.user

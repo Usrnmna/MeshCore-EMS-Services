@@ -1,0 +1,37 @@
+# Normalize maintained text without converting file encodings.
+* text=auto
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.sql text eol=lf
+*.svg text eol=lf
+*.sh text eol=lf
+*.service text eol=lf
+*.cs text eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.iss text eol=crlf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Preserve binary distributions and media byte-for-byte.
+*.exe -text
+*.dll -text
+*.zip -text
+*.gz -text
+*.7z -text
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.pdf -text
+*.sqlite3 -text
+
+# Reference datasets and supplier receipts have manifest-recorded byte hashes.
+/data/** -text
+/data/**/*.py text eol=lf
+/data/**/README.md text eol=lf
+/data/**/FUNCTION_REFERENCE.md text eol=lf
+/data/**/DATA_DICTIONARY.md text eol=lf

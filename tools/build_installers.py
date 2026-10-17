@@ -39,6 +39,8 @@ def source_files():
             "INSTALL.md",
             "LICENSE",
             "AGENTS.md",
+            ".gitignore",
+            ".gitattributes",
             "archive/README.md",
         )
     }

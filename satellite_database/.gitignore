@@ -44,6 +44,9 @@ raw/*.tmp
 *.sqlite3-wal
 *.sqlite3-shm
 *.sqlite3-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
 
 # Local operating-system metadata and editor swap files
 .DS_Store

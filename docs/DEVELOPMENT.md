@@ -59,9 +59,26 @@ The root [Git attributes](../.gitattributes) define LF endings for maintained
 source and documentation, and CRLF endings for Windows command and PowerShell
 scripts. File encodings remain unchanged. Reference datasets and supplier receipts
 under `data/` bypass line-ending conversion to preserve manifest-recorded bytes;
-authored Python and Markdown files in that directory retain text handling.
+maintained collection Python and top-level Markdown guides retain text handling.
 Supplier whitespace is retained and exempt from whitespace linting; authored
 Python and Markdown files continue to receive whitespace checks.
+
+Immutable Basin Plan, flood-reference and USGS generation directories override
+the text exceptions, including archived `build_code/*.py` and README copies.
+Every manifest-covered file retains its original bytes. Do not renormalize
+these generations. SQLite routing databases and other binary GIS formats have
+binary attributes; `.sqlite` and `.sqlite3` journal/WAL/SHM files are ignored.
+Pending generations at any depth in these collections are ignored, while
+completed water-data generations, raw receipts, observation snapshots, relationship
+tables, generated catalogs, pointers, source audits and validation reports remain
+local and are excluded from Git. Maintained programs, tests, guides,
+`pilot.json` and `local_review_rules.json` remain eligible for tracking.
+
+The water-data collections use download-on-demand distribution; no Git LFS
+configuration or dataset upload is required. The
+[fresh-clone setup guide](WATER_DATA_SETUP.md) documents acquisition order.
+Ignore rules preserve existing local files and do not rewrite repository history.
+Byte-preserving attributes remain available for local archive handling.
 
 Generated `dist/` artifacts remain local build outputs. Removing an artifact from
 Git tracking does not remove its local copy or rewrite historical commits.

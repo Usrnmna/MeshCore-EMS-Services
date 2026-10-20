@@ -40,6 +40,9 @@ backups/
 *.sqlite3-wal
 *.sqlite3-shm
 *.sqlite3-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
 
 # Local builds and extracted distributions in standalone service copies
 .build/

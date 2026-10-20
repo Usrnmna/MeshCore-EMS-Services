@@ -124,6 +124,9 @@ unattended service operation. Restart after configuration changes.
 | Understand connections and integrations | [Architecture and MQTT](docs/ARCHITECTURE.md) |
 | Maintain, test, or package the source | [Development guide](docs/DEVELOPMENT.md) |
 | Load or maintain local map data | [EBMUD datasets](data/ebmud/README.md) / [California State Parks collection](data/california_state_parks/README.md) |
+| Inspect statewide basin and beneficial-use reference data | [Basin Plan offline collection](data/basin_plans/README.md) / [Download datasets after cloning](docs/WATER_DATA_SETUP.md) |
+| Review gauge links, downstream basins, and flood scenarios | [Offline Russian River flood-reference pilot](data/flood_impacts/README.md) / [Source citations](data/flood_impacts/SOURCES.md) |
+| Inspect statewide USGS stations, current stage/discharge and downstream connections | [California current water data](data/usgs_water/README.md) / [Downstream and tributary relationships](data/usgs_water/ROUTING_METHODS.md) / [Source citations](data/usgs_water/SOURCES.md) |
 | Use the separate satellite catalog | [Satellite database tools](satellite_database/README.md) / [Stored catalog and exports](data/satellites/README.md) |
 | Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.0-Beta highlights](RELEASE_v0.9.0-beta.md) / [Documentation index](docs/README.md) |
 

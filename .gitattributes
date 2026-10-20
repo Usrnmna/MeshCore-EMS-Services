@@ -28,10 +28,37 @@
 *.gif -text
 *.pdf -text
 *.sqlite3 -text
+*.sqlite binary
+*.parquet binary
+*.kmz binary
+*.dbf binary
 
 # Reference datasets and supplier receipts retain hashed bytes and source whitespace.
 /data/** -text -whitespace
-/data/**/*.py text eol=lf whitespace
-/data/**/README.md text eol=lf whitespace
-/data/**/FUNCTION_REFERENCE.md text eol=lf whitespace
-/data/**/DATA_DICTIONARY.md text eol=lf whitespace
+/data/**/*.py text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/**/README.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/**/FUNCTION_REFERENCE.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/**/DATA_DICTIONARY.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+
+# Maintained collection guides and dependency lists are editable source text.
+# Direct-child patterns exclude archived copies in generation subdirectories.
+/data/basin_plans/*.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/flood_impacts/*.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/usgs_water/*.md text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/basin_plans/requirements.txt text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/flood_impacts/requirements.txt text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+/data/usgs_water/requirements.txt text eol=lf whitespace=blank-at-eol,blank-at-eof,space-before-tab
+
+# Immutable generation manifests hash code and documentation as well as data.
+# These rules must follow text exceptions so every archived byte is preserved.
+/data/basin_plans/snapshots/** -text -whitespace
+/data/basin_plans/organized/** -text -whitespace
+/data/flood_impacts/static/** -text -whitespace
+/data/flood_impacts/observations/** -text -whitespace
+/data/usgs_water/inventory/** -text -whitespace
+/data/usgs_water/observations/** -text -whitespace
+/data/usgs_water/network/** -text -whitespace
+/data/usgs_water/routing/** -text -whitespace
+/data/usgs_water/link_review/** -text -whitespace
+/data/usgs_water/agency_review/** -text -whitespace
+/data/usgs_water/local_review/** -text -whitespace

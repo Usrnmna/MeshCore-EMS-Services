@@ -1,7 +1,7 @@
 # Repository source, command programs, tests, configuration templates, AGENTS.md,
-# documentation, GIS snapshots/originals, and satellite reference data remain trackable.
+# documentation, curated configuration and existing reference assets remain trackable.
 # Retain COMMAND_REFERENCE.md, BOT_USER_GUIDE.md, and native GIS source archives.
-# Ignore only generated or machine-local state; do not blanket-ignore scripts/ or data/.
+# Water collection downloads are local-only; do not blanket-ignore scripts/ or data/.
 
 # Installed dependencies and local service state
 .venv/
@@ -52,6 +52,9 @@ archive/*.zip
 *.sqlite3-wal
 *.sqlite3-shm
 *.sqlite3-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
 
 # Local service credentials, including private channel keys
 environment.json
@@ -75,9 +78,16 @@ satellite-settings.json.tmp
 .refresh.lock
 .refresh-*/
 .test-refresh-*/
+# Cover pending generations in current and future collection stages.
+/data/basin_plans/**/.pending-*/
+/data/flood_impacts/**/.pending-*/
+/data/usgs_water/**/.pending-*/
+/data/usgs_water/.dependencies/
+/data/usgs_water/.dependency-temp/
 gis_settings.json.tmp
 /data/**/*.download
 /data/**/*.geojson.tmp
+# Water collection output exclusions are listed below; curated rules remain trackable.
 
 # Local operating-system metadata and editor swap files
 .DS_Store
@@ -90,3 +100,37 @@ Desktop.ini
 .vs/
 *.suo
 *.user
+
+# Download-on-demand water collections: publish tools and curated inputs only.
+# Keep all local datasets and previous generations on disk, outside Git.
+/data/basin_plans/snapshots/
+/data/basin_plans/organized/
+/data/basin_plans/sources.json
+/data/basin_plans/native_inventory.json
+/data/basin_plans/verification.json
+/data/basin_plans/INVENTORY.md
+/data/basin_plans/NATIVE_INVENTORY.md
+/data/basin_plans/REVIEW.md
+/data/flood_impacts/static/
+/data/flood_impacts/observations/
+/data/flood_impacts/static.json
+/data/flood_impacts/observations.json
+/data/flood_impacts/verification.json
+/data/flood_impacts/example_minor_stage_report.json
+/data/flood_impacts/REVIEW.md
+/data/usgs_water/inventory/
+/data/usgs_water/observations/
+/data/usgs_water/network/
+/data/usgs_water/routing/
+/data/usgs_water/link_review/
+/data/usgs_water/agency_review/
+/data/usgs_water/local_review/
+/data/usgs_water/*.json
+!/data/usgs_water/local_review_rules.json
+/data/usgs_water/INVENTORY.md
+/data/usgs_water/OBSERVATIONS.md
+/data/usgs_water/NETWORK.md
+/data/usgs_water/ROUTING.md
+/data/usgs_water/LINK_REVIEW.md
+/data/usgs_water/AGENCY_REVIEW.md
+/data/usgs_water/LOCAL_REVIEW.md

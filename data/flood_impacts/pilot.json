@@ -1,0 +1,14 @@
+{
+  "title": "Russian River flood-impact reference pilot",
+  "region": "01_north_coast",
+  "plan": "North Coast Basin Plan",
+  "stations": [
+    {"lid": "HEAC1", "usgs_id": "11464000"},
+    {"lid": "GUEC1", "usgs_id": "11467002"}
+  ],
+  "downstream_distance_km": 80,
+  "gauge_distance_review_m": 200,
+  "observation_max_age_hours": 6,
+  "forecast_max_age_hours": 24,
+  "metric_crs": "EPSG:3310"
+}

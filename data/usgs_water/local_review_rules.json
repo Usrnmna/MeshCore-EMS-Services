@@ -1,0 +1,1219 @@
+{
+  "schema_version": 1,
+  "interpretation": "Curated metadata only; no hydrography address or flood extent promotion.",
+  "sources": [
+    {
+      "id": "fontana_2025",
+      "url": "https://www.sbvmwd.com/app/uploads/2025/12/2025-Supplemental-Volumes.pdf",
+      "title": "2025 Watermaster supplemental volumes, Table 4, printed page 136",
+      "publisher": "Western-San Bernardino Watermaster / San Bernardino Valley",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "weir2",
+          "text": "WEIR NO. 2 [11062399]",
+          "page": 140
+        },
+        {
+          "id": "weir3",
+          "text": "WEIR NO. 3 [11062400]",
+          "page": 140
+        },
+        {
+          "id": "forebay",
+          "text": "DEDUCT STREAM RETURN OVER 20' WEIR [11062450]",
+          "page": 140
+        },
+        {
+          "id": "powerhouse",
+          "text": "MEASURED FLOW TO LOWER POWERHOUSE [11062700]",
+          "page": 140
+        },
+        {
+          "id": "afterbay",
+          "text": "RETURN FLOW FROM AFTERBAY [11062800]",
+          "page": 140
+        },
+        {
+          "id": "return_role",
+          "text": "WATER RETURNED TO STREAM FROM AFTERBAY AT LOWER POWERHOUSE",
+          "page": 140
+        },
+        {
+          "id": "lytle",
+          "text": "LYTLE CREEK VERIFICATIONS OF EXTRACTIONS",
+          "page": 140
+        }
+      ]
+    },
+    {
+      "id": "fontana_2024",
+      "url": "https://www.sbvmwd.com/app/uploads/2025/12/2024-Appendices.pdf",
+      "title": "2024 Watermaster appendices, column explanation (3), PDF page 117",
+      "publisher": "Western-San Bernardino Watermaster / San Bernardino Valley",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "afterbay_diversion",
+          "text": "United States Geological Survey (11062820) and Fontana Union Water Company records of diversions from Fontana Powerhouse Afterbay, including deliveries to CEMEX.",
+          "page": 117
+        }
+      ]
+    },
+    {
+      "id": "delta_2016",
+      "url": "https://water.ca.gov/-/media/DWR-Website/Web-Pages/Programs/State-Water-Project/Operations-And-Maintenance/Files/Bay-Delta/South-Delta-Temporary-Barriers-Project/Reports/Evaluation-of-Salinity-Patterns-and-Effects-of-Tidal-Flows-and-Temporary-Barriers-in-South-Delta-Cha.pdf",
+      "title": "Evaluation of Salinity Patterns and Effects of Tidal Flows and Temporary Barriers, Attachment B (2016)",
+      "publisher": "California DWR",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "victoria_alias",
+          "text": "Victoria Canal bl CCWD Intake: USGS VCU 11312672",
+          "page": 172
+        },
+        {
+          "id": "grant_legacy",
+          "text": "Grant Line Canal (west end): USGS GLC 11313200",
+          "page": 174
+        }
+      ]
+    },
+    {
+      "id": "cdec_vcu",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=VCU",
+      "title": "CDEC VCU metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID VCU"
+        },
+        {
+          "id": "transfer",
+          "text": "The operator of this station for flow transitioned to USBR on 12/02/2025"
+        }
+      ]
+    },
+    {
+      "id": "cdec_glc",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=GLC",
+      "title": "CDEC GLC metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "current_id",
+          "text": "USGS ID 11313240"
+        },
+        {
+          "id": "move",
+          "text": "This station's location was changed on 11/18/2005 for more accurate readings."
+        }
+      ]
+    },
+    {
+      "id": "cdec_sgg",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=SGG",
+      "title": "CDEC SGG metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID SGG"
+        },
+        {
+          "id": "transfer",
+          "text": "The operator of this station for flow and water quality transitioned to USBR on 11/18/2025"
+        }
+      ]
+    },
+    {
+      "id": "cdec_csg",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=CSG",
+      "title": "CDEC CSG metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID CSG"
+        },
+        {
+          "id": "operator",
+          "text": "Operator USGS/DWR"
+        }
+      ]
+    },
+    {
+      "id": "cdec_bgf",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=BGF",
+      "title": "CDEC BGF metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID BGF"
+        },
+        {
+          "id": "operator",
+          "text": "Operator Madera Irrigation District"
+        }
+      ]
+    },
+    {
+      "id": "cdec_lir",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=LIR",
+      "title": "CDEC LIR metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID LIR"
+        },
+        {
+          "id": "name",
+          "text": "LIBERTY ISLAND - RD2068"
+        }
+      ]
+    },
+    {
+      "id": "cdec_liy",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=LIY",
+      "title": "CDEC LIY metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "id",
+          "text": "Station ID LIY"
+        },
+        {
+          "id": "name",
+          "text": "LIBERTY ISLAND - YOLO BYPASS"
+        }
+      ]
+    },
+    {
+      "id": "cdec_nemeth",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staSearch?sta_chk=on&sta=NEMETH",
+      "title": "CDEC station-name lookup NEMETH",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "no_lookup",
+          "text": "The value NEMETH for the parameter sta could not be found"
+        }
+      ]
+    },
+    {
+      "id": "cdec_woodward",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staSearch?sta_chk=on&sta=WOODWARD",
+      "title": "CDEC station-name lookup WOODWARD",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "other_station",
+          "text": "OWI OLD RIVER AT WOODWARD ISLAND"
+        }
+      ]
+    },
+    {
+      "id": "madera_diversion",
+      "url": "https://www.madera-id.org/history-of-mid",
+      "title": "History: Big Creek diversion",
+      "publisher": "Madera Irrigation District",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "diversion",
+          "text": "where the water is redirected to flow down Lewis Creek, a tributary of the upper Fresno River."
+        }
+      ]
+    },
+    {
+      "id": "modesto_dam",
+      "url": "https://www.mid.org/water/water-resources/la-grange-diversion-dam/",
+      "title": "La Grange Diversion Dam",
+      "publisher": "Modesto Irrigation District",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "canal_heads",
+          "text": "the head of each District’s canal system"
+        }
+      ]
+    },
+    {
+      "id": "brock_reclamation",
+      "url": "https://www.usbr.gov/lc/phoenix/AZ100/2010/topstory.html",
+      "title": "Drop 2 reservoir construction and naming",
+      "publisher": "Bureau of Reclamation Phoenix Area Office",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "outlet",
+          "text": "drains the water from the reservoir through a quarter-mile-long canal/siphon system back into the All-American Canal"
+        }
+      ]
+    },
+    {
+      "id": "brock_iid",
+      "url": "https://www.iid.com/water/water-transportation-system/colorado-river-facilities/brock-reservoir",
+      "title": "Brock Reservoir operations",
+      "publisher": "Imperial Irrigation District",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "outlet",
+          "text": "returns to the All-American Canal below AAC Drop 2."
+        }
+      ]
+    },
+    {
+      "id": "pilot_iid",
+      "url": "https://www.iid.com/water/water-transportation-system/colorado-river-facilities/all-american-canal",
+      "title": "All-American Canal: Pilot Knob bypass",
+      "publisher": "Imperial Irrigation District",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "bypass",
+          "text": "The Pilot Knob Hydro Plant was built on a bypass channel between the All-American Canal and the Colorado River"
+        }
+      ]
+    },
+    {
+      "id": "yuma_reclamation",
+      "url": "https://www.usbr.gov/projects/index.php?id=439",
+      "title": "Colorado River Front Work and Levee System: Yuma Division",
+      "publisher": "Bureau of Reclamation",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "wasteway",
+          "text": "The California Wasteway of the Yuma Main Canal"
+        },
+        {
+          "id": "pilot_return",
+          "text": "It is no longer used for an intake structure but is used as a point of return for the Pilot Knob Powerplant and Wasteway from the All-American Canal."
+        }
+      ]
+    },
+    {
+      "id": "parker_reclamation",
+      "url": "https://www.usbr.gov/projects/index.php?id=207",
+      "title": "Parker Dam facility metadata",
+      "publisher": "Bureau of Reclamation Lower Colorado Dams Office",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "nid",
+          "text": "AZ10312"
+        }
+      ]
+    },
+    {
+      "id": "havasu_rise",
+      "url": "https://data.usbr.gov/location/3515",
+      "title": "RISE location 3515",
+      "publisher": "Bureau of Reclamation",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "name",
+          "text": "Lake Havasu Parker Dam and Powerplant"
+        }
+      ]
+    },
+    {
+      "id": "liberty_wildlands",
+      "url": "https://www.wildlandsinc.com/banks/liberty-island-conservation-bank-salm/",
+      "title": "Liberty Island Conservation Bank",
+      "publisher": "Wildlands",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "location",
+          "text": "The Liberty Island Conservation Bank (Bank) is located in the southern Yolo Bypass in Yolo County, CA."
+        }
+      ]
+    },
+    {
+      "id": "tulare_districts",
+      "url": "https://lafco.tularecounty.ca.gov/lafcoinfo/cities-and-special-district-information/city-and-district-website-information",
+      "title": "City and district website information",
+      "publisher": "Tulare County LAFCO",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "district",
+          "text": "Deer Creek Storm Water District"
+        }
+      ]
+    },
+    {
+      "id": "woodward_bathymetry",
+      "url": "https://gis.water.ca.gov/arcgis/rest/services/Elevation/i06_Singlebeam_Bathymetry/FeatureServer/46?f=pjson",
+      "title": "Woodward Canal and Old/Middle River bathymetry metadata",
+      "publisher": "California DWR",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "area",
+          "text": "Bathymetric survey of Old River, Middle River and Woodward Canal"
+        }
+      ]
+    },
+    {
+      "id": "lake_survey",
+      "url": "https://cleanwater.lakecountyca.gov/DocumentCenter/View/15453/2024-District-Clear-Lake-Hitch-Visual-Spawner-Surveys?bidId=",
+      "title": "2024 Clear Lake hitch surveys, Table 1",
+      "publisher": "Lake County Watershed Protection District",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "survey",
+          "text": "SCH_01",
+          "page": 4
+        }
+      ]
+    },
+    {
+      "id": "brock_reclamation_ea",
+      "url": "https://www.usbr.gov/lc/region/programs/drop2/envdocs/finalea/fea1.pdf",
+      "title": "Drop 2 Storage Reservoir Project Final Environmental Assessment, June 2007, ES-3",
+      "publisher": "Bureau of Reclamation, Yuma Area Office",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "planned_outlet",
+          "page": 14,
+          "text": "conveyed to the AAC downstream of Drop 2 via gravity flow through the outlet canal."
+        }
+      ]
+    },
+    {
+      "id": "pilot_reclamation_project",
+      "url": "https://www.usbr.gov/projects/index.php?id=514",
+      "title": "Boulder Canyon Project - All-American Canal System, Pilot Knob facilities",
+      "publisher": "Bureau of Reclamation",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "facilities",
+          "text": "Pilot Knob facilities include a powerplant and wasteway."
+        },
+        {
+          "id": "river_return",
+          "text": "returned to the Colorado river through Pilot Knob Powerplant"
+        }
+      ]
+    },
+    {
+      "id": "deer_sco_directory",
+      "url": "https://gcc.sco.ca.gov/Reports/SpecialDistricts/SpecialDistrictCounty.aspx?county=Tulare&year=2024",
+      "title": "Government Compensation in California: Tulare County special district classifications, 2024",
+      "publisher": "California State Controller",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "district_activity",
+          "text": "Deer Creek Storm Water District (Tulare) Storm Water Drainage and Maintenance Flood Control and Water Conservation"
+        }
+      ]
+    },
+    {
+      "id": "pixley_water_plan",
+      "url": "https://www.usbr.gov/mp/watershare/docs/2012/pixle-wmp2012.pdf",
+      "title": "Pixley Irrigation District 2012 Water Management Plan, outflow description, PDF page 22",
+      "publisher": "Pixley Irrigation District; hosted by Bureau of Reclamation",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "road88",
+          "page": 22,
+          "text": "Deer Creek at Road 88 Dam"
+        },
+        {
+          "id": "outflow_destination",
+          "page": 22,
+          "text": "Deer Creek flow to Alpaugh or Atwell Island ID"
+        }
+      ]
+    },
+    {
+      "id": "usgs_big_creek_1998",
+      "url": "https://pubs.usgs.gov/wdr/1998/ca-98/WRD-1998-vol3.pdf",
+      "title": "Water Resources Data, California, Water Year 1998, Volume 3; printed page 311 (PDF page 333)",
+      "publisher": "USGS",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "station",
+          "text": "11267350 BIG CREEK DIVERSION NEAR FISH CAMP, CA",
+          "page": 333
+        },
+        {
+          "id": "diversion_role",
+          "text": "Flow is diverted from the left bank of Big Creek, a tributary to South Fork of the Merced River, to Lewis Fork of the Fresno River.",
+          "page": 333
+        }
+      ]
+    },
+    {
+      "id": "usgs_tuolumne_1985",
+      "url": "https://pubs.usgs.gov/of/1985/0401/report.pdf",
+      "title": "Water budgets for major streams in the Central Valley, California, 1961-77; OFR 85-401, schematic printed page 50 and explanation page 52",
+      "publisher": "USGS",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "diversion_key",
+          "text": "1 11289000 Gaged diversion to Modesto Canal. Not used in computations.",
+          "page": 50
+        },
+        {
+          "id": "schematic_title",
+          "text": "TUOLUMNE RIVER Schematic",
+          "page": 48
+        }
+      ]
+    },
+    {
+      "id": "usgs_physics_fish_2023",
+      "url": "https://pubs.usgs.gov/publication/ofr20231087/full",
+      "title": "Physics to fish; OFR 2023-1087, Table 1 and Figure 66",
+      "publisher": "USGS",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "station_columns",
+          "text": "Station name Station identifier U.S. Geological Survey station number"
+        },
+        {
+          "id": "shag_identifier",
+          "text": "Shag Slough at Liberty Island near Courtland SGG 11455276"
+        },
+        {
+          "id": "other_liberty_gauge",
+          "text": "Liberty Island Conservation Bank tidal wetland entrance (U.S. Geological Survey station 382006121401601,"
+        }
+      ]
+    },
+    {
+      "id": "usgs_connection_ds756",
+      "url": "https://pubs.usgs.gov/ds/756/pdf/ds756.pdf",
+      "title": "USGS Data Series 756, station metadata table, PDF page 19",
+      "publisher": "USGS",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "different_connection_station",
+          "text": "CONNECTION SLOUGH NR MIDDLE RIVER CA* 380000121340801",
+          "page": 19
+        }
+      ]
+    },
+    {
+      "id": "brock_operations_2020",
+      "url": "https://www.usbr.gov/lc/region/programs/strategies/agreements/BrockReport.pdf",
+      "title": "Warren H. Brock Reservoir Conservation Summary Report (December 2020), printed page 5 / PDF page 11",
+      "publisher": "Bureau of Reclamation",
+      "format": "pdf",
+      "excerpts": [
+        {
+          "id": "outlet_route",
+          "text": "Water released from Brock Reservoir is returned to the AAC below the Drop 2 Power Plant through two buried pipelines under U.S. Interstate 8.",
+          "page": 11
+        },
+        {
+          "id": "operational_status",
+          "text": "In 2013, Brock Reservoir’s status was updated to operations, maintenance, repair and replacement (OMR&R) status.",
+          "page": 11
+        }
+      ]
+    },
+    {
+      "id": "dwr_deer_creek_reference",
+      "url": "https://sgma.water.ca.gov/portal/gsp/preview/42",
+      "title": "SGMA GSP submission 42, Deer Creek Storm Water District reference",
+      "publisher": "California Department of Water Resources",
+      "format": "html",
+      "excerpts": [
+        {
+          "id": "district_reference",
+          "text": "Deer Creek Storm Water District 2019-01-01 Local Agency Formation Commission"
+        }
+      ]
+    }
+  ],
+  "stations": {
+    "USGS-09427500": {
+      "station_signature": {
+        "name": "LAKE HAVASU NEAR PARKER DAM, AZ-CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.157170161686,
+            34.3161256441171
+          ]
+        }
+      },
+      "source_ids": [
+        "parker_reclamation",
+        "havasu_rise"
+      ],
+      "finding": "Reclamation identifies Lake Havasu/Parker Dam (NID AZ10312; RISE location 3515), without this USGS identifier. Facility context does not resolve the displaced legacy river address or establish dam-outlet routing.",
+      "links": []
+    },
+    "USGS-09525000": {
+      "station_signature": {
+        "name": "YUMA MAIN CANAL WASTEWAY AT YUMA, AZ",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.623008085699,
+            32.7333801210804
+          ]
+        }
+      },
+      "source_ids": [
+        "yuma_reclamation"
+      ],
+      "finding": "Reclamation describes the California Wasteway of Yuma Main Canal returning to the Colorado River, without this station identifier or a representative COMID. The prior USGS rejection remains; no Eleven Mile Wasteway alias is adopted.",
+      "links": []
+    },
+    "USGS-09526900": {
+      "station_signature": {
+        "name": "PILOT KNOB POWERPLANT INLET DIVERSION FROM AAC, CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -114.71468611111112,
+            32.73784722222222
+          ]
+        }
+      },
+      "source_ids": [
+        "pilot_iid",
+        "yuma_reclamation",
+        "pilot_reclamation_project",
+        "yuma_reclamation"
+      ],
+      "finding": "Reclamation describes separate Pilot Knob powerplant and wasteway facilities and a return to the Colorado River. No exact cross-reference for USGS 09526900 was found. Inlet, powerplant and wasteway identities remain separate; the original IID access failure is retained. Reclamation’s Yuma Division record also identifies Rockwood Heading as a return for Pilot Knob powerplant and wasteway; this is unkeyed facility context, not an inlet-gauge match.",
+      "links": []
+    },
+    "USGS-11267350": {
+      "station_signature": {
+        "name": "BIG C DIV NR FISH CAMP CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -119.615151167699,
+            37.4693834867135
+          ]
+        }
+      },
+      "source_ids": [
+        "madera_diversion",
+        "cdec_bgf",
+        "usgs_big_creek_1998"
+      ],
+      "finding": "USGS water-year 1998 station record explicitly keys 11267350 to a diversion from Big Creek (South Fork Merced tributary) to Lewis Fork of the Fresno River. Two dated descriptive roles are supported, not current operations or graph edges. CDEC BGF remains a candidate; the prior USGS rejection of the misconnected NHDPlus diversion remains.",
+      "links": [
+        {
+          "relationship_type": "documents_diversion_from",
+          "target_namespace": "curated_named_waterway",
+          "target_id": "big_creek_south_fork_merced",
+          "target_name": "Big Creek, tributary to South Fork Merced River",
+          "source_id": "usgs_big_creek_1998",
+          "excerpt_ids": [
+            "station",
+            "diversion_role"
+          ],
+          "source_vintage": "1998",
+          "temporal_scope": "historical_documented_role"
+        },
+        {
+          "relationship_type": "documents_diversion_to",
+          "target_namespace": "curated_named_waterway",
+          "target_id": "lewis_fork_fresno_river",
+          "target_name": "Lewis Fork of the Fresno River",
+          "source_id": "usgs_big_creek_1998",
+          "excerpt_ids": [
+            "station",
+            "diversion_role"
+          ],
+          "source_vintage": "1998",
+          "temporal_scope": "historical_documented_role"
+        }
+      ]
+    },
+    "USGS-11289000": {
+      "station_signature": {
+        "name": "MODESTO CN NR LA GRANGE CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -120.47488106254728,
+            37.672408172156
+          ]
+        }
+      },
+      "source_ids": [
+        "modesto_dam",
+        "usgs_tuolumne_1985"
+      ],
+      "finding": "USGS OFR 85-401 keys schematic line 1 to station 11289000, the gaged Modesto Canal diversion. A historical diversion-to role is supported for the 1961-77 study. This does not select between current competing COMIDs 2826002 and 2826006 or establish current gate operation.",
+      "links": [
+        {
+          "relationship_type": "documents_diversion_to",
+          "target_namespace": "curated_named_waterway",
+          "target_id": "modesto_canal",
+          "target_name": "Modesto Canal",
+          "source_id": "usgs_tuolumne_1985",
+          "excerpt_ids": [
+            "diversion_key",
+            "schematic_title"
+          ],
+          "source_vintage": "1985 (1961-77 study)",
+          "temporal_scope": "historical_documented_role"
+        }
+      ]
+    },
+    "USGS-11312672": {
+      "station_signature": {
+        "name": "VICTORIA CANAL NR BYRON CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.53,
+            37.8708333333333
+          ]
+        }
+      },
+      "source_ids": [
+        "delta_2016",
+        "cdec_vcu"
+      ],
+      "finding": "DWR Attachment B explicitly maps USGS 11312672 to CDEC VCU. Current CDEC notes transition of flow operation to USBR on 2025-12-02. This station alias does not resolve the conflicting Old River address.",
+      "links": [
+        {
+          "relationship_type": "published_station_alias",
+          "target_namespace": "CDEC",
+          "target_id": "VCU",
+          "target_name": "Victoria Canal near Byron",
+          "source_id": "delta_2016",
+          "excerpt_ids": [
+            "victoria_alias"
+          ]
+        }
+      ]
+    },
+    "USGS-11313200": {
+      "station_signature": {
+        "name": "GRANT LINE CN A TRACY RD BRIDGE CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.45133591966,
+            37.8207605551555
+          ]
+        }
+      },
+      "source_ids": [
+        "delta_2016",
+        "cdec_glc"
+      ],
+      "finding": "DWR 2016 Attachment B associates GLC with 11313200; current CDEC explicitly identifies 11313240 and records a 2005 relocation. GLC is withheld as a current alias for 11313200. Station equivalence and routing inheritance are not assumed.",
+      "links": []
+    },
+    "USGS-11449950": {
+      "station_signature": {
+        "name": "SCHINDLER C A CLEARLAKE OAKS CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -122.66535,
+            39.02765
+          ]
+        }
+      },
+      "source_ids": [
+        "lake_survey"
+      ],
+      "finding": "Lake County WPD lists Schindler Creek visual-survey site SCH_01. No exact USGS cross-reference or hydrography address is supplied. An ecological survey site is not merged with the streamgage.",
+      "links": []
+    },
+    "USGS-11455276": {
+      "station_signature": {
+        "name": "SHAG SLOUGH A LIBERTY ISLAND NR COURTLAND CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.692427777778,
+            38.3078583333333
+          ]
+        }
+      },
+      "source_ids": [
+        "cdec_sgg",
+        "usgs_physics_fish_2023"
+      ],
+      "finding": "USGS OFR 2023-1087 Table 1 explicitly maps 11455276 to report identifier SGG. This report-scoped alias is supported; the same letters in CDEC do not independently establish cross-system equivalence. No COMID or one-way tidal route is assigned.",
+      "links": [
+        {
+          "relationship_type": "published_report_station_identifier",
+          "target_namespace": "USGS_OFR_2023_1087",
+          "target_id": "SGG",
+          "target_name": "Shag Slough at Liberty Island near Courtland",
+          "source_id": "usgs_physics_fish_2023",
+          "excerpt_ids": [
+            "station_columns",
+            "shag_identifier"
+          ],
+          "source_vintage": "2023",
+          "temporal_scope": "report_station_identifier"
+        }
+      ]
+    },
+    "USGS-355422119223201": {
+      "station_signature": {
+        "name": "DEER C A ROAD 88 NR PIXLEY CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -119.375575,
+            35.90613333333333
+          ]
+        }
+      },
+      "source_ids": [
+        "tulare_districts",
+        "deer_sco_directory",
+        "pixley_water_plan",
+        "dwr_deer_creek_reference"
+      ],
+      "finding": "State Controller records confirm Deer Creek Storm Water District and its flood-control activity. Pixley Irrigation District's 2012 plan describes Road 88 Dam and outflow toward Alpaugh/Atwell Island districts. Neither source identifies USGS 355422119223201; gauge ownership, dam equivalence and downstream station links remain unconfirmed. The original county-directory access failure is retained. DWR GSP submission 42 references Deer Creek Storm Water District and LAFCO; the linked legacy county address redirects to a denied county page. Administrative attribution does not establish gauge ownership or a hydrography address.",
+      "links": []
+    },
+    "USGS-375450121331701": {
+      "station_signature": {
+        "name": "WOODWARD CANAL A OLD R NR BRENTWOOD CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.55475833333333,
+            37.91375277777777
+          ]
+        }
+      },
+      "source_ids": [
+        "cdec_woodward",
+        "woodward_bathymetry"
+      ],
+      "finding": "DWR bathymetry describes the Woodward Canal area. CDEC search returns OWI on Old River, without a USGS cross-reference for this canal station. Survey-area overlap and a shared island name do not support a merge.",
+      "links": []
+    },
+    "USGS-380015121315101": {
+      "station_signature": {
+        "name": "CONNECTION SLOUGH A SWING BR NR ORWOOD CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.530939,
+            38.004122
+          ]
+        }
+      },
+      "source_ids": [
+        "cdec_csg",
+        "usgs_connection_ds756"
+      ],
+      "finding": "CDEC CSG identifies Connection Slough with USGS/DWR operation, without the complete USGS identifier on the checked metadata page. CSG remains a candidate alias, with no directed tidal reach assigned. USGS Data Series 756 lists a different Connection Slough station, 380000121340801; its name cannot authorize a merge with the Swing Bridge gauge.",
+      "links": []
+    },
+    "USGS-381807121413801": {
+      "station_signature": {
+        "name": "NEMETH SLOUGH NR COURTLAND CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.69377777777778,
+            38.302027777777774
+          ]
+        }
+      },
+      "source_ids": [
+        "cdec_nemeth",
+        "liberty_wildlands",
+        "usgs_physics_fish_2023"
+      ],
+      "finding": "CDEC lookup does not recognize NEMETH; this catalog result does not prove physical disconnection. Liberty Island restoration descriptions lack this station identifier. No exact local crosswalk was obtained. USGS OFR 2023-1087 Figure 66 identifies a different Liberty Island Conservation Bank gauge, 382006121401601; that instrument map cannot supply this station address.",
+      "links": []
+    },
+    "USGS-09527630": {
+      "station_signature": {
+        "name": "BROCK RESERVOIR INLET NEAR CALEXICO, CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -115.025442488953,
+            32.7094932106482
+          ]
+        }
+      },
+      "source_ids": [
+        "brock_reclamation",
+        "brock_iid",
+        "brock_reclamation_ea",
+        "brock_operations_2020"
+      ],
+      "finding": "Reclamation’s 2020 report documents completed Brock facilities and an outlet returning below Drop 2 through two pipelines under Interstate 8. This improves on the earlier planning context but supplies no exact USGS station key or representative COMID. Inlet, outlet and downstream canal gauges remain separate. The original IID access failure is retained.",
+      "links": []
+    },
+    "USGS-09527660": {
+      "station_signature": {
+        "name": "BROCK RESERVOIR OUTLET NEAR CALEXICO, CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -115.034330555556,
+            32.7057527777778
+          ]
+        }
+      },
+      "source_ids": [
+        "brock_reclamation",
+        "brock_iid",
+        "brock_reclamation_ea",
+        "brock_operations_2020"
+      ],
+      "finding": "Reclamation’s 2020 report documents completed Brock facilities and an outlet returning below Drop 2 through two pipelines under Interstate 8. This improves on the earlier planning context but supplies no exact USGS station key or representative COMID. Inlet, outlet and downstream canal gauges remain separate. The original IID access failure is retained.",
+      "links": []
+    },
+    "USGS-09527700": {
+      "station_signature": {
+        "name": "ALL-AMERICAN CANAL BELOW DROP 2 RESERVOIR OUTLET",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -115.048113888889,
+            32.70425
+          ]
+        }
+      },
+      "source_ids": [
+        "brock_reclamation",
+        "brock_iid",
+        "brock_reclamation_ea",
+        "brock_operations_2020"
+      ],
+      "finding": "Reclamation’s 2020 report documents completed Brock facilities and an outlet returning below Drop 2 through two pipelines under Interstate 8. This improves on the earlier planning context but supplies no exact USGS station key or representative COMID. Inlet, outlet and downstream canal gauges remain separate. The original IID access failure is retained.",
+      "links": []
+    },
+    "USGS-381934121403201": {
+      "station_signature": {
+        "name": "LIBERTY ISLAND MARSH UP WILDLANDS NR COURTLAND CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.675425,
+            38.3260111111111
+          ]
+        }
+      },
+      "source_ids": [
+        "liberty_wildlands",
+        "cdec_lir",
+        "cdec_liy",
+        "usgs_physics_fish_2023"
+      ],
+      "finding": "Wildlands describes Liberty Island restoration. CDEC LIR/LIY identify RD2068/Yolo Bypass locations without this USGS identifier. The marsh stations remain distinct; project membership, gauge equivalence and one-way tidal drainage are unconfirmed. USGS OFR 2023-1087 Figure 66 identifies a different Liberty Island Conservation Bank gauge, 382006121401601; that instrument map cannot supply this station address.",
+      "links": []
+    },
+    "USGS-381946121402301": {
+      "station_signature": {
+        "name": "LIBERTY ISLAND WILDLANDS TIDAL MARSH NR FIVE POINT",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -121.673155555556,
+            38.329525
+          ]
+        }
+      },
+      "source_ids": [
+        "liberty_wildlands",
+        "cdec_lir",
+        "cdec_liy",
+        "usgs_physics_fish_2023"
+      ],
+      "finding": "Wildlands describes Liberty Island restoration. CDEC LIR/LIY identify RD2068/Yolo Bypass locations without this USGS identifier. The marsh stations remain distinct; project membership, gauge equivalence and one-way tidal drainage are unconfirmed. USGS OFR 2023-1087 Figure 66 identifies a different Liberty Island Conservation Bank gauge, 382006121401601; that instrument map cannot supply this station address.",
+      "links": []
+    },
+    "USGS-11062399": {
+      "station_signature": {
+        "name": "FONTANA WATER CO SURFACE DIV WEIR 2 NR FONTANA CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.449493603279,
+            34.2027856687605
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2025"
+      ],
+      "finding": "Watermaster Table 4 explicitly identifies this USGS station and its Lytle Creek measurement role. Facility metadata is supported; conflicting or missing NHDPlus addresses remain unresolved. No COMID or reach sequence is established.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_weir_2",
+          "target_name": "Fontana Weir 2",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "weir2",
+            "lytle"
+          ]
+        }
+      ]
+    },
+    "USGS-11062400": {
+      "station_signature": {
+        "name": "FONTANA WATER CO SURFACE DIV NR FONTANA CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.449493605109,
+            34.2030634382344
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2025"
+      ],
+      "finding": "Watermaster Table 4 explicitly identifies this USGS station and its Lytle Creek measurement role. Facility metadata is supported; conflicting or missing NHDPlus addresses remain unresolved. No COMID or reach sequence is established.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_weir_3",
+          "target_name": "Fontana Weir 3",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "weir3",
+            "lytle"
+          ]
+        }
+      ]
+    },
+    "USGS-11062450": {
+      "station_signature": {
+        "name": "FONTANA PH FOREBAY SPILLWAY NR FONTANA CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.4492055818303,
+            34.2027871296276
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2025"
+      ],
+      "finding": "Watermaster Table 4 explicitly identifies this USGS station and its Lytle Creek measurement role. Facility metadata is supported; conflicting or missing NHDPlus addresses remain unresolved. No COMID or reach sequence is established.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_intake_return_weir",
+          "target_name": "Fontana intake 20-foot return weir",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "forebay",
+            "lytle"
+          ]
+        },
+        {
+          "relationship_type": "documents_return_to",
+          "target_namespace": "curated_named_waterway",
+          "target_id": "lytle_creek_fontana",
+          "target_name": "Lytle Creek at Fontana intake",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "forebay",
+            "lytle"
+          ]
+        }
+      ]
+    },
+    "USGS-11062700": {
+      "station_signature": {
+        "name": "LYTLE C DIV TO FONTANA PH AVM NR FONTANA CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.397583333333,
+            34.1554722222222
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2025"
+      ],
+      "finding": "Watermaster Table 4 explicitly identifies this USGS station and its Lytle Creek measurement role. Facility metadata is supported; conflicting or missing NHDPlus addresses remain unresolved. No COMID or reach sequence is established.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_lower_powerhouse_inflow",
+          "target_name": "Fontana lower powerhouse inflow",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "powerhouse",
+            "lytle"
+          ]
+        }
+      ]
+    },
+    "USGS-11062800": {
+      "station_signature": {
+        "name": "FONTANA WATER CO SPILL CH FROM AFTERBAY NR FONTANA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.39560253406,
+            34.1555650104728
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2025"
+      ],
+      "finding": "Watermaster Table 4 explicitly identifies this USGS station and its Lytle Creek measurement role. Facility metadata is supported; conflicting or missing NHDPlus addresses remain unresolved. No COMID or reach sequence is established.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_afterbay_return",
+          "target_name": "Fontana afterbay return",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "afterbay",
+            "lytle"
+          ]
+        },
+        {
+          "relationship_type": "documents_return_to",
+          "target_namespace": "curated_named_waterway",
+          "target_id": "lytle_creek_fontana",
+          "target_name": "Lytle Creek below Fontana lower powerhouse",
+          "source_id": "fontana_2025",
+          "excerpt_ids": [
+            "afterbay",
+            "return_role",
+            "lytle"
+          ]
+        }
+      ]
+    },
+    "USGS-11062820": {
+      "station_signature": {
+        "name": "FONTANA WATER CO DIV NR FONTANA CA",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -117.396713678077,
+            34.1547317011855
+          ]
+        }
+      },
+      "source_ids": [
+        "fontana_2024"
+      ],
+      "finding": "Watermaster column explanation (3) explicitly associates USGS 11062820 with diversions from Fontana Powerhouse Afterbay. Facility and diversion-role relationships are supported; no representative NHDPlus address is supplied.",
+      "links": [
+        {
+          "relationship_type": "measures_named_facility",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_afterbay_diversion",
+          "target_name": "Fontana Powerhouse Afterbay diversion",
+          "source_id": "fontana_2024",
+          "excerpt_ids": [
+            "afterbay_diversion"
+          ]
+        },
+        {
+          "relationship_type": "documents_diversion_from",
+          "target_namespace": "curated_local_feature",
+          "target_id": "fontana_powerhouse_afterbay",
+          "target_name": "Fontana Powerhouse Afterbay",
+          "source_id": "fontana_2024",
+          "excerpt_ids": [
+            "afterbay_diversion"
+          ]
+        }
+      ]
+    }
+  },
+  "source_alternatives": [
+    {
+      "original_source_id": "brock_iid",
+      "alternate_source_id": "brock_reclamation_ea",
+      "scope": "Brock/Drop 2 outlet direction in the 2007 proposed action",
+      "limitation": "Planning evidence only; no exact USGS station ID or current hydrography address."
+    },
+    {
+      "original_source_id": "pilot_iid",
+      "alternate_source_id": "pilot_reclamation_project",
+      "scope": "Pilot Knob powerplant and wasteway context and Colorado River return",
+      "limitation": "No exact cross-reference for the inlet gauge; powerplant and wasteway are distinct."
+    },
+    {
+      "original_source_id": "tulare_districts",
+      "alternate_source_id": "deer_sco_directory",
+      "scope": "Deer Creek Storm Water District existence and flood-control activity",
+      "limitation": "Administrative classification does not establish Road 88 station ownership."
+    },
+    {
+      "original_source_id": "tulare_districts",
+      "alternate_source_id": "pixley_water_plan",
+      "scope": "Road 88 Dam and historical district outflow destinations",
+      "limitation": "2012 facility description predates the gauge record; no complete station ID or verified equivalence."
+    },
+    {
+      "original_source_id": "brock_iid",
+      "alternate_source_id": "brock_operations_2020",
+      "scope": "Completed-facility outlet and operating-status description, as documented in December 2020.",
+      "limitation": "No exact keys for USGS 09527630, 09527660 or 09527700; not a current station-to-segment crosswalk."
+    },
+    {
+      "original_source_id": "pilot_iid",
+      "alternate_source_id": "yuma_reclamation",
+      "scope": "Official description of the Pilot Knob powerplant and wasteway return at Rockwood Heading.",
+      "limitation": "No USGS 09526900 key; inlet, powerplant and wasteway gauges remain distinct."
+    },
+    {
+      "original_source_id": "tulare_districts",
+      "alternate_source_id": "dwr_deer_creek_reference",
+      "scope": "DWR-hosted plan reference attributes Deer Creek Storm Water District information to LAFCO.",
+      "limitation": "The underlying legacy county link is inaccessible; no USGS 355422119223201 key, gauge ownership or network address."
+    },
+    {
+      "original_source_id": "havasu_rise",
+      "alternate_source_id": "parker_reclamation",
+      "scope": "Reclamation Parker Dam facility metadata provides a fallback for intermittent RISE access.",
+      "limitation": "NID AZ10312 is a dam identifier, not a crosswalk to USGS 09427500 or a routed outlet."
+    }
+  ]
+}

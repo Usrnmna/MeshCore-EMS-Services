@@ -32,6 +32,9 @@ command guides describe the same command behavior; platform setup and paths diff
 | --- | --- |
 | EBMUD snapshots used by the five GIS commands | [Loading, source freshness, refresh, and polygon repair](../data/ebmud/README.md) · [Maintenance function reference](../data/ebmud/FUNCTION_REFERENCE.md) |
 | California State Parks reference collection | [Collection, acquisition evidence, loading, and reuse terms](../data/california_state_parks/README.md) · [Dataset and attribute dictionary](../data/california_state_parks/DATA_DICTIONARY.md) |
+| California Basin Plan reference collection | [Download datasets after cloning](WATER_DATA_SETUP.md) · [Name search and organization](../data/basin_plans/ORGANIZATION.md) · [Tributary and other relationship tables](../data/basin_plans/RELATIONSHIPS.md) · [Acquisition, offline use, and refresh](../data/basin_plans/README.md) |
+| Offline flood-impact reference pilot | [Setup and refresh](../data/flood_impacts/README.md) · [Regional and CalWater methods](../data/flood_impacts/METHODS.md) · [Methods and relationships](../data/flood_impacts/METHODS.md) · [Source citations](../data/flood_impacts/SOURCES.md) |
+| Statewide USGS current water data | [Inventory, current-only retention and refresh](../data/usgs_water/README.md) · [Regional and CalWater relationships](../data/usgs_water/METHODS.md) · [Statewide downstream and tributary network](../data/usgs_water/ROUTING_METHODS.md) · [Local operating-agency review methods](../data/usgs_water/LOCAL_REVIEW_METHODS.md) · [Source citations](../data/usgs_water/SOURCES.md) |
 | Satellite radio catalog and orbital tools | [Program usage, sources, status rules, and limitations](../satellite_database/README.md) · [Function reference](../satellite_database/FUNCTION_REFERENCE.md) · [Database and exports](../data/satellites/README.md) |
 
 California State Parks and satellite resources are separate reference tools. Their

@@ -188,6 +188,129 @@
         "channels": [
           "default"
         ]
+      },
+      "!firezone": {
+        "script": "scripts/firezone.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!fires": {
+        "script": "scripts/fires.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!fire": {
+        "script": "scripts/fire.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!firewx": {
+        "script": "scripts/firewx.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!firewarn": {
+        "script": "scripts/firewarn.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!firedata": {
+        "script": "scripts/firedata.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!firealarm": {
+        "script": "scripts/firealarm.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!smoke": {
+        "script": "scripts/smoke.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!firedanger": {
+        "script": "scripts/firedanger.py",
+        "args": [],
+        "input": "fire_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "channels": [
+          "default"
+        ]
+      },
+      "!slidewarn": {
+        "script": "scripts/slidewarn.py",
+        "args": [],
+        "input": "slide_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "error_reply": "Landslide lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!slidealarm": {
+        "script": "scripts/slidealarm.py",
+        "args": [],
+        "input": "slide_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "error_reply": "Landslide lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!slideinfo": {
+        "script": "scripts/slideinfo.py",
+        "args": [],
+        "input": "slide_query",
+        "timeout": 45,
+        "max_reply_parts": 12,
+        "error_reply": "Landslide lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
       }
     },
     "channels": {
@@ -197,7 +320,46 @@
         "mqtt_export": true
       }
     },
-    "max_pending_per_channel": 20
+    "max_pending_per_channel": 20,
+    "wildfire": {
+      "enabled": true,
+      "incident_interval": 300,
+      "perimeter_interval": 900,
+      "weather_interval": 900,
+      "alert_interval": 300,
+      "boundary_interval": 86400,
+      "context_interval": 1800,
+      "stale_after": 3600,
+      "history_days": 7,
+      "subscription_hours": 4,
+      "subscription_interval": 300,
+      "containment_change": 10,
+      "acreage_change": 100,
+      "max_results": 3,
+      "maximum_radius_miles": 100,
+      "context_sources": [
+        "raws",
+        "aqi",
+        "smoke",
+        "viirs",
+        "modis",
+        "cameras"
+      ],
+      "smoke_interval": 1800,
+      "danger_interval": 3600,
+      "smoke_max_age": 21600,
+      "air_quality_max_age": 10800,
+      "danger_max_age": 129600,
+      "monitor_radius_miles": 50,
+      "fems_station_ids": []
+    },
+    "landslide": {
+      "enabled": true,
+      "cache_seconds": 300,
+      "subscription_interval": 300,
+      "subscription_hours": 4,
+      "max_alerts": 3
+    }
   },
   "serial_port": "auto",
   "connection": {

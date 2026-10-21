@@ -1,5 +1,31 @@
 # Release notes
 
+## v0.9.5-beta - October 20, 2026
+
+- Adds `!slidewarn`, `!slidealarm`, and `!slideinfo` for California and Nevada,
+  with shared ZIP/city/GPS input, official NWS alert wording, and USGS station links.
+- Includes checksummed California/Nevada boundaries, station metadata, paired
+  tests, and the landslide guide. Both platform packages contain 28 commands.
+- Preserves existing commands, settings, and channel assignments on upgrade.
+  New commands require explicit channel assignment in existing installations.
+- Updates package, installer, manifest, and Windows metadata to `v0.9.5-beta`
+  (`Version 0.9.5 - Beta`; numeric Windows file version `0.9.5.0`).
+
+
+## October 20, 2026 wildfire addition
+
+- Adds nine dedicated wildfire commands with paired Linux/Windows programs.
+- Includes 186 full California-associated NWS fire-weather zones with interstate
+  geometry and checksummed provenance.
+- Adds service-owned atomic source refresh, field provenance, explicit missing
+  data, latest perimeter joins, forecasts, context feeds and temporary alarms.
+- Preserves existing channel assignments on upgrade; new commands require opt-in.
+- Adds `!smoke` point coverage and air-quality reporting with the compact response
+  format, plus `!firedanger` public ERC/BI percentiles and optional FEMS fuel moisture.
+- Adds regression coverage and the focused wildfire guide.
+
+See [wildfire behavior and maintenance](meshcore_mqtt_service/WILDFIRE_GUIDE.md).
+
 ## v0.9.0-beta - October 11, 2026
 
 - Adds focused GIS attributes and an explicit `info` mode. Policy and amenity
@@ -312,3 +338,10 @@ setup script is recommended after moving the folder to another computer.
   an information lookup and does not replace official emergency notification systems.
 - External lookups require internet access and may fail when a provider is unavailable.
 
+## California and Nevada landslide information
+
+The source now contains 28 dedicated commands per platform. `!slidewarn`,
+`!slidealarm`, and `!slideinfo` add California/Nevada alerts, temporary monitoring,
+and USGS research-station information with the existing ZIP/city/GPS inputs.
+Official NWS event names are retained; station data does not generate warnings.
+[Setup, behavior, sources, and limits](meshcore_mqtt_service/LANDSLIDE_GUIDE.md).

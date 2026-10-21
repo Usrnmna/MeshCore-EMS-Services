@@ -7,7 +7,7 @@ packages or runtime databases from the Linux service folder.
 
 ## OS service installers
 
-Current distribution version: `v0.9.0-beta`.
+Current distribution version: `v0.9.5-beta`.
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
@@ -15,9 +15,9 @@ include the complete workspace and reference data, and connect to the configured
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
 Source-folder launchers support interactive operation. The current source has
-sixteen commands, including the five [local GIS commands](#local-gis-commands).
-The October 11, 2026 installers and service ZIPs include these commands.
-Installers include the shared datasets; service ZIPs require them separately.
+28 commands, including the five [local GIS commands](#local-gis-commands).
+The October 20, 2026 rebuild adds nine wildfire commands and their zone seed.
+Installers include shared datasets. Service ZIPs include the wildfire and landslide reference seeds; EBMUD data remains a separate download.
 See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
@@ -132,6 +132,18 @@ command continues to list USB serial devices only.
 | `!peak` | Name + attribute, or near coordinates [miles] | Peak elevation, location, or explicit full info |
 | `!park` | Name + attribute, or near coordinates [miles] | Park status, agency, trails, and recreation |
 | `!boundary` | Optional category + coordinates, near coordinates [miles], or trail NAME | Mapped containment, nearest areas, or trail overlap |
+| `!firezone` | Zone ID, coordinates, ZIP or city/state | Fire-weather zone and current warning/watch status |
+| `!fires` | Zone/location, optional page or near-distance query | Reported incidents and latest mapped perimeter timing |
+| `!fire` | Exact incident ID or unambiguous name | Containment, source attribution and last-known status |
+| `!firewx` | Zone/location, optional page | Zone fire-weather forecast and alerts |
+| `!firewarn` | Zone/location | Red Flag Warnings and Fire Weather Watches |
+| `!firedata` | Category and zone/location | Supporting observations, detections, outlooks and reference features |
+| `!firealarm` | on location, status, off | Temporary wildfire-change monitoring |
+| `!slidewarn` | ZIP, city, GPS | California NWS alerts mentioning landslide/debris-flow hazards |
+| `!slidealarm` | on location, status, off | Temporary California and Nevada landslide-alert monitoring |
+| `!slideinfo` | ZIP, city, GPS | Nearest eligible California USGS monitoring station |
+| `!smoke` | ZIP, city/state, GPS | Point smoke coverage and nearby air quality |
+| `!firedanger` | ZIP, city/state, GPS | Local ERC percentile, fuels and warnings |
 | `!heatadv` | Coordinates, US ZIP, or city and state | Active NWS heat warnings, watches, and advisories |
 | `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
 | `!floodalarm` | Coordinates, US ZIP, or city and state | Monitor flood-alert changes for four hours |
@@ -1179,3 +1191,33 @@ for preserved originals and repair provenance. Neither operation runs on startup
 | Reply omits detail | Review `max_results`, `description_characters`, `max_reply_bytes`, and the command's `max_reply_parts` together. |
 
 Software tests do not establish physical radio delivery or native Linux behavior.
+
+
+## California wildfire information
+
+Seven commands provide whole interstate fire-weather zones, reported fires,
+containment and perimeter timing, zone forecasts, fire-weather alerts, supporting
+observations and temporary monitoring. Start with `!firezone Truckee`,
+`!fires CAZ272` or `!firewx CAZ272`. The service maintains a local cache and
+preserves the last good data on source failure. `!firealarm on CAZ272` enables
+four-hour monitoring; `status` and `off` inspect or cancel it.
+
+See [wildfire commands, datasets, configuration and maintenance](WILDFIRE_GUIDE.md).
+The package includes the complete zone seed; live observations require network
+access. Existing installations must assign the new commands to channels after
+upgrading. Forecast zones are not evacuation zones, and an absent fire record
+is not evidence that a fire has been extinguished.
+
+Point wildfire lookups: !smoke LOCATION and !firedanger LOCATION accept ZIP,
+city/state, or latitude/longitude. Smoke replies begin with Smoke: and omit
+location, Monitor: and PM10: lines. ERC uses local historical percentiles;
+detailed fuel moisture requires optional FEMS access. See the
+[point-command guide](WILDFIRE_GUIDE.md#point-smoke-and-fuel-danger).
+
+## California and Nevada landslide information
+
+`!slidewarn LOCATION`, `!slidealarm on LOCATION` (with `status`/`off` controls),
+and `!slideinfo LOCATION` accept ZIP, city/state, or latitude/longitude using the
+shared location resolver. Resolved points must be inside California or Nevada. NWS alerts
+retain official names; USGS station metadata does not establish current slope
+conditions. [Commands, sources, subscriptions, configuration, and limits](LANDSLIDE_GUIDE.md).

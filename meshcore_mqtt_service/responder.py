@@ -19,6 +19,10 @@ import sys
 import time
 
 from flood_alarm import ACKNOWLEDGMENT, FloodAlarms
+from wildfire_service import WildfireAlarms
+from landslide_service import LandslideAlarms
+from scripts.landslide_settings import validate as validate_landslide
+from scripts.wildfire_settings import validate as validate_wildfire
 from channels import validate_channels, channel_config, migrate_config
 from scripts.time_settings import DEFAULT_TIMEZONE, display_timezone
 
@@ -36,6 +40,8 @@ def validate_config(config, root):
         raise ValueError("responder.timezone must be an IANA timezone name")
     display_timezone(config.get("timezone", DEFAULT_TIMEZONE))
     validate_channels(config)
+    validate_wildfire(config.get("wildfire", {}))
+    validate_landslide(config.get("landslide", {}))
     program_directory = config.get("program_directory")
     if program_directory is not None and (
         not isinstance(program_directory, str) or not Path(program_directory).is_absolute()
@@ -68,9 +74,9 @@ def validate_config(config, root):
             isinstance(x, str) for x in spec.get("args", [])
         ):
             raise ValueError("Script args must be a list of fixed strings")
-        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query"}:
-            raise ValueError("Command input must be none, coordinates, route_number, location or gis_query")
-        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query"} and any(
+        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query"}:
+            raise ValueError("Command input must be none, coordinates, route_number, location, gis_query, fire_query or slide_query")
+        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query"} and any(
             c.isspace() for c in phrase
         ):
             raise ValueError("Commands with arguments must be a single token")
@@ -94,6 +100,22 @@ def match_command(phrase, commands):
     spec = commands.get(key)
     if spec is None or (spec.get("input", "none") == "none" and phrase != key):
         return None
+    if spec.get("input") == "slide_query":
+        from scripts.landslide_lookup import parse_query
+        query = phrase[len(key):].strip() or "help"
+        try:
+            parse_query(key, query)
+        except ValueError as exc:
+            return key, [], str(exc)
+        return key, [query], None
+    if spec.get("input") == "fire_query":
+        from scripts.wildfire_lookup import parse_query
+        query = phrase[len(key):].strip() or "help"
+        try:
+            parse_query(key, query)
+        except ValueError as exc:
+            return key, [], str(exc)
+        return key, [query], None
     if spec.get("input") == "gis_query":
         from scripts.gis_data import parse_query
 
@@ -249,6 +271,9 @@ async def run_script(root, spec, request, config):
         MESHCORE_REQUEST_ID=request["id"],
         MESHCORE_PHRASE=request["phrase"],
         MESHCORE_TIMEZONE=display_timezone(config.get("timezone", DEFAULT_TIMEZONE)).key,
+        MESHCORE_RUNTIME_DIR=str(config.get("_runtime_directory", root / "runtime")),
+        MESHCORE_WILDFIRE_SETTINGS=json.dumps(validate_wildfire(config.get("wildfire", {}))),
+        MESHCORE_LANDSLIDE_SETTINGS=json.dumps(validate_landslide(config.get("landslide", {}))),
         PYTHONIOENCODING="utf-8",
     )
     proc = await asyncio.create_subprocess_exec(
@@ -276,9 +301,15 @@ async def run_script(root, spec, request, config):
 
     async def communicate():
         """Send request JSON on stdin and collect stdout, stderr, and child exit status concurrently."""
-        proc.stdin.write(json.dumps(request).encode("utf-8"))
-        await proc.stdin.drain()
-        proc.stdin.close()
+        try:
+            proc.stdin.write(json.dumps(request).encode("utf-8"))
+            await proc.stdin.drain()
+        except (BrokenPipeError, ConnectionResetError):
+            # Short programs may exit successfully without reading their optional context.
+            # Their exit status and bounded stdout still determine the result.
+            pass
+        finally:
+            proc.stdin.close()
         return await asyncio.gather(
             read_bounded(proc.stdout), read_bounded(proc.stderr), proc.wait()
         )
@@ -347,6 +378,14 @@ class Responder:
             )
             db.commit()
 
+        self.fire_alarms = WildfireAlarms(
+            db, self.channel_id, config.get("channel_identity"), config.get("wildfire", {}),
+            self.read_fire_status, self.send_fire_change, lambda: self.allowed("!firealarm"))
+
+        self.slide_alarms = LandslideAlarms(
+            db, self.channel_id, config.get("channel_identity"), config.get("landslide", {}),
+            self.read_slide_status, self.send_slide_change, lambda: self.allowed("!slidealarm"))
+
     def allowed(self, command):
         """Check this worker's channel against the program's explicit assignment list."""
         return self.channel_id in self.config["channels"] and self.channel_id in self.config[
@@ -396,6 +435,12 @@ class Responder:
         # ENROLLMENT/RENEWAL: only !floodalarm overwrites location and resets the four-hour timer.
         if request["command"] == "!floodalarm" and not request["input_error"]:
             if not self.alarms.remember(request, now):
+                return False
+        if request["command"] == "!firealarm" and not request["input_error"]:
+            if not self.fire_alarms.remember(request, now):
+                return False
+        if request["command"] == "!slidealarm" and not request["input_error"]:
+            if not self.slide_alarms.remember(request, now):
                 return False
         self.db.execute(
             "INSERT INTO bot_requests(id,sender,created,context,state,response,detail,channel_id) VALUES (?,?,?,?,?,?,?,?)",
@@ -463,6 +508,10 @@ class Responder:
                         request["input_error"],
                         "Invalid command arguments; script not executed",
                     )
+                elif request["command"] == "!slidealarm":
+                    output, detail = await self.slide_alarms.control(request)
+                elif request["command"] == "!firealarm":
+                    output, detail = await self.fire_alarms.control(request)
                 elif request["command"] == "!floodalarm":
                     output, detail = ACKNOWLEDGMENT, ""
                 else:
@@ -480,10 +529,25 @@ class Responder:
             for part in parts:
                 if not self.allowed(request["command"]):
                     raise RuntimeError("Program channel assignment changed")
-                await self.send(request["channel_index"], part)
+                if request["command"] == "!slidealarm" and not request.get("input_error"):
+                    guard = lambda: self.slide_alarms.control_current(request)
+                    if not guard():
+                        raise RuntimeError("Landslide control request superseded or expired")
+                    await self.send(request["channel_index"], part, guard=guard)
+                elif request["command"] == "!firealarm" and not request.get("input_error"):
+                    guard = lambda: self.fire_alarms.control_current(request)
+                    if not guard():
+                        raise RuntimeError("Wildfire control request superseded or expired")
+                    await self.send(request["channel_index"], part, guard=guard)
+                else:
+                    await self.send(request["channel_index"], part)
             self.update(request_id, "sent", detail=detail)
             if request["command"] == "!floodalarm" and not request.get("input_error"):
                 self.alarms.acknowledge(request)
+            if request["command"] == "!firealarm" and not request.get("input_error"):
+                self.fire_alarms.acknowledge(request)
+            if request["command"] == "!slidealarm" and not request.get("input_error"):
+                self.slide_alarms.acknowledge(request)
         except asyncio.CancelledError:
             self.update(
                 request_id, "interrupted", detail="Stopped; execution or delivery may be incomplete"
@@ -493,6 +557,64 @@ class Responder:
             LOG.error("Reply failed for %s: %s", request_id, exc)
             self.update(request_id, "failed", detail=str(exc))
         return True
+
+    async def read_slide_status(self, target):
+        """Read a bounded structured point snapshot; subsequent checks reuse enrollment coordinates."""
+        from scripts.landslide_lookup import checked_snapshot
+        request = dict(arguments=["on " + target], sender="Landslide Alarm",
+                       channel_name=self.config["channel_name"], channel_index=self.channel,
+                       channel_id=self.channel_id, id="landslide-check", phrase="!slidealarm")
+        output, detail = await run_script(
+            self.root, dict(script="scripts/slidealarm.py", args=["--snapshot"], timeout=45),
+            request, dict(self.config, max_output_bytes=12 * 1024 * 1024))
+        try:
+            return checked_snapshot(json.loads(output), validate_landslide(self.config.get("landslide", {})))
+        except (ValueError, TypeError, KeyError) as exc:
+            raise ValueError("Landslide alert data unavailable: " + str(exc)) from exc
+
+    async def send_slide_change(self, reading, output):
+        """Route tagged landslide updates through the shared radio queue with a revision guard."""
+        guard = lambda: self.slide_alarms.current(reading)
+        for part in reply_parts(reading["sender"], output, max_parts=12):
+            if not guard():
+                break
+            await self.send(self.channel, part, guard=guard)
+
+    async def read_fire_status(self, target):
+        """Resolve enrollment through a bounded child; subsequent checks use fixed zone IDs."""
+        targets = target if isinstance(target, list) else [target]
+        merged = {"zones": [], "incidents": {}, "alerts": {}}
+        for location in targets:
+            request = dict(arguments=["on " + location], sender="Wildfire Alarm",
+                           channel_name=self.config["channel_name"], channel_index=self.channel,
+                           channel_id=self.channel_id, id="wildfire-check", phrase="!firealarm")
+            output, detail = await run_script(
+                self.root, dict(script="scripts/firealarm.py", args=["--monitor"], timeout=45),
+                request, dict(self.config, max_output_bytes=8 * 1024 * 1024))
+            try:
+                data = json.loads(output)
+            except ValueError as exc:
+                raise ValueError("Wildfire cache unavailable; refresh and check source status.") from exc
+            if data.get("error"):
+                raise ValueError(data["error"])
+            snapshot = data
+            if not isinstance(snapshot.get("zones"), list) or not all(
+                isinstance(snapshot.get(key), dict) for key in ("incidents", "alerts")
+            ):
+                raise ValueError("Invalid wildfire monitor response")
+            merged["zones"] += snapshot["zones"]
+            merged["incidents"].update(snapshot["incidents"])
+            merged["alerts"].update(snapshot["alerts"])
+        merged["zones"] = sorted(set(merged["zones"]))
+        return merged
+
+    async def send_fire_change(self, reading, output):
+        """Recheck subscription validity inside the existing shared radio send queue."""
+        guard = lambda: self.fire_alarms.current(reading)
+        for part in reply_parts(reading["sender"], output, max_parts=12):
+            if not guard():
+                break
+            await self.send(self.channel, part, guard=guard)
 
     async def read_flood_status(self, location):
         """Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status."""
@@ -550,4 +672,9 @@ class Responder:
             workers.create_task(self.run_requests())
             if self.allowed("!floodalarm"):
                 workers.create_task(self.run_requests(alarm_only=True))
+            if self.allowed("!floodalarm"):
                 workers.create_task(self.alarms.run())
+            if self.allowed("!firealarm"):
+                workers.create_task(self.fire_alarms.run())
+            if self.allowed("!slidealarm"):
+                workers.create_task(self.slide_alarms.run())

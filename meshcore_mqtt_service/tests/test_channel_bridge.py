@@ -120,7 +120,9 @@ class ChannelBridgeTests(unittest.IsolatedAsyncioTestCase):
             runtime = Path(folder)
             with patch.object(service, "RUNTIME", runtime), patch.object(
                 service, "make_mqtt", return_value=client
-            ), patch.object(service, "publish_outbox", retain_outbox):
+            ), patch.object(service, "publish_outbox", retain_outbox), patch(
+                "wildfire_service.refresh_loop", side_effect=retain_outbox
+            ) as refresh:
                 task = asyncio.create_task(
                     service.bridge_loop(mc, SimpleNamespace(send_chan_msg=send), cfg, "COM11")
                 )
@@ -137,6 +139,7 @@ class ChannelBridgeTests(unittest.IsolatedAsyncioTestCase):
                     callbacks[0].cancel() if callbacks else None
                     await asyncio.wait_for(asyncio.gather(task, return_exceptions=True), 1)
                     await asyncio.gather(*callbacks, return_exceptions=True)
+                refresh.assert_awaited_once()
             mc.disconnect.assert_awaited_once()
             self.assertIs(mc.commands.get_msg, get_msg)
             self.assertEqual(overlap, [])

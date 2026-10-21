@@ -176,3 +176,37 @@ badge follows both platform configurations. The offline-GIS badge identifies
 EBMUD-area coverage. Update these assets when the corresponding facts change.
 These labels describe source capabilities and the distribution version; they do
 not represent live CI results or hardware validation.
+
+
+## Wildfire maintenance and verification
+
+Run `python tools/prepare_wildfire_data.py` to update and mirror the complete
+NWS boundary seed. Review `data/wildfire/manifest.json` and polygon changes.
+Dynamic observations belong to package runtime directories and are excluded
+from distributions. Both standalone ZIPs include their wildfire seed and guide.
+
+Run `python -m unittest discover -s tests -p test_wildfire.py` and
+`python -m unittest discover -s tests -p test_command_programs.py` from each
+platform package, followed by the complete package suites. Run installer tests
+from the repository root with `python -m unittest discover -s tools -p test_installers.py`.
+Rebuild service ZIPs and installers after final documentation changes. The
+[wildfire guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md) records source and deployment limits.
+
+
+Generated basin-plan, flood-impact and USGS-water downloads follow the existing
+root `.gitignore` download-on-demand policy and are excluded from installer
+payloads. Their maintained tools, documentation and curated inputs remain
+included; locally acquired datasets are retained on disk. See [water-data setup](WATER_DATA_SETUP.md).
+
+For point smoke/fuel-danger changes, run `test_fire_environment.py` in both
+packages. Live public-source checks do not validate authenticated FEMS access.
+See [source and configuration details](../meshcore_mqtt_service/WILDFIRE_GUIDE.md#point-smoke-and-fuel-danger).
+
+## Landslide verification and reference updates
+
+Run `tests/test_landslide.py`, `tests/test_command_programs.py`, and full unittest
+discovery in both platform packages. Preserve byte parity for landslide source,
+tests, guide, and `data/landslide/` references. Review source station coordinates,
+metadata, and California/Nevada boundary changes before updating manifests and hashes.
+Keep the documented Castro Peak coordinate correction and discontinued Highway 50
+exclusion explicit. [Reference provenance and limits](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md#usgs-station-catalog-and-provenance).

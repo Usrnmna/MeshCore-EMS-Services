@@ -128,3 +128,30 @@ The [Linux connection settings](../meshcore_mqtt_service/README.md#radio-connect
 and [Windows connection settings](../meshcore_mqtt_service_windows/README.md#radio-connection-settings)
 cover configuration examples, timeouts, Bluetooth permissions, service-account
 requirements, trusted-network constraints, metadata, and recovery behavior.
+
+
+## Wildfire data flow
+
+The existing service session owns one wildfire refresh worker shared by channel
+responders. Bounded child processes acquire source snapshots into
+`runtime/wildfire.sqlite3`; independent dedicated programs query this cache.
+`wildfire_service.py` stores subscriptions in the existing bridge database and
+uses the shared guarded radio queue. No additional OS deployment unit is created.
+The bundled full-zone seed initializes geographic coverage. The
+[wildfire guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md#refresh-and-storage)
+describes source separation, intervals, provenance, outage handling and the data-flow diagram.
+
+Point commands `smoke.py` and `firedanger.py` use the same worker/cache. Full HMS
+geometry and national NFDRS station summaries are independently refreshed;
+optional FEMS fuel moisture uses service-account credentials and configured
+station IDs. No additional service or subscription owner is introduced.
+
+## California and Nevada landslide commands
+
+Three dedicated programs share California/Nevada boundary and station catalog loading and NWS
+point-alert parsing. `landslide_service.py` runs subscription checks within the
+existing responder; no OS service is added. Point snapshots are cached on demand
+in `runtime/landslide.sqlite3`; subscriptions persist in the existing bridge
+SQLite database. Station metadata is bundled and checksummed. The shared
+ZIP/city/GPS resolver supplies points; wildfire-zone geography is not used.
+[Alert interpretation and lifecycle](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md).

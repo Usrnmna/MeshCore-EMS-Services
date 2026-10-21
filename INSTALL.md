@@ -1,4 +1,4 @@
-# Install MeshCore EMS v0.9.0-beta as an OS service
+# Install MeshCore EMS v0.9.5-beta as an OS service
 
 After installation, use the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) for channel commands and the [detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#settings) for command settings, limits, and response formats. Equivalent [Windows user](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) and [command](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) guides are included in the Windows source package.
 
@@ -9,7 +9,7 @@ database/source snapshots. They automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
 ZIPs are excluded. The satellite catalog remains a standalone reference tool.
-The October 11, 2026 rebuild includes all sixteen commands, five local GIS
+The maintained source includes all 28 commands, five local GIS
 commands with focused subcommands, and repaired local GeoJSON snapshots. See
 [GIS source deployment](#gis-source-deployment) for external settings and manual
 updates. Neither GIS nor satellite refresh is scheduled automatically.
@@ -18,13 +18,13 @@ updates. Neither GIS nor satellite refresh is scheduled automatically.
 
 | File | Target |
 | --- | --- |
-| `MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.9.0-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
-| `MeshCore-EMS-v0.9.0-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
+| `MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
+| `MeshCore-EMS-v0.9.5-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
+| `MeshCore-EMS-v0.9.5-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
-Outputs are under `dist/v0.9.0-beta/`, alongside `SHA256SUMS.txt`.
+Outputs are under `dist/v0.9.5-beta/`, alongside `SHA256SUMS.txt`.
 All three installers and the guides are also in
-`dist/MeshCore-EMS-v0.9.0-beta-installers.zip`, with a separate bundle checksum.
+`dist/MeshCore-EMS-v0.9.5-beta-installers.zip`, with a separate bundle checksum.
 The Linux packages are executable, self-extracting online installers; they install
 the OS's native Python and dependency wheels for the target architecture. They
 are not precompiled/frozen Python applications. Other Linux distributions and
@@ -66,7 +66,7 @@ publisher release.
 For unattended installation from an administrator terminal:
 
 ```bat
-MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
+MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
 ```
 
 Add `/NOSTART=1` to register without starting now (automatic startup remains enabled).
@@ -100,8 +100,8 @@ Windows wizard: select **Wi-Fi / TCP**, then enter the node IP and port; or sele
 preserves the installed connection. Unattended examples:
 
 ```bat
-MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
-MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
+MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
+MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
 ```
 
 Direct PowerShell setup exposes `-Transport`, `-SerialPort`, `-TcpHost`, `-TcpPort`,
@@ -112,8 +112,8 @@ under that account before relying on unattended BLE operation.
 Linux (use the ARM64 filename on Raspberry Pi):
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
-sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
+sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
+sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
 ```
 
 For BLE, the Linux installer installs BlueZ and enables its service. Pair/trust
@@ -134,9 +134,9 @@ it cannot verify pairing, service-account Bluetooth access, or TCP reachability.
 Run the matching installer with Bash. Automatic USB serial detection is the default:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.0-beta-raspberry-pi-arm64.run --port auto
+sudo bash MeshCore-EMS-v0.9.5-beta-raspberry-pi-arm64.run --port auto
 # Intel/AMD:
-sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --port auto
+sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --port auto
 ```
 
 Use `--port auto` to rescan USB serial devices at each start. A new installation
@@ -249,7 +249,7 @@ still limit their usefulness; inclusion is not proof of current RF reception.
 
 ## GIS source deployment
 
-Current source contains sixteen commands. The five GIS commands are `!trail`,
+Current source contains 28 commands. The five GIS commands are `!trail`,
 `!rec`, `!peak`, `!park`, and `!boundary`. Rebuilt installers include their
 programs, dependencies, settings templates, twelve datasets, and preserved
 polygon-repair originals. Service ZIPs include programs and settings but require
@@ -404,3 +404,45 @@ artifacts for the checks actually performed.
 Upstream packaging references: [CPython NuGet packages](https://docs.python.org/3.13/using/windows.html#the-nuget-org-packages),
 [Inno Setup](https://jrsoftware.org/isinfo.php), and
 [systemd service units](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html).
+
+
+## Wildfire deployment
+
+The nine wildfire commands and checksummed full-zone seed are included in
+both standalone ZIPs and complete installers. Fresh configurations assign them
+to the default channel. On upgrades, missing commands are added with empty
+channel assignment lists when a registry already exists; select assignments
+before restarting. Existing `responder.wildfire` values are preserved.
+
+The running service owns background refresh and monitoring. Its writable state
+contains `runtime/wildfire.sqlite3`; subscriptions use `runtime/bridge.sqlite3`.
+No separate scheduler or OS service is required. Provider access uses public
+HTTPS sources. Failed refreshes preserve previous data and report degraded
+freshness; startup may need several passes to initialize every configured feed.
+
+See [wildfire settings, refresh/export commands and sources](meshcore_mqtt_service/WILDFIRE_GUIDE.md).
+Assign `!firealarm` only where monitoring is desired. A standalone execution
+never creates a subscription. Existing flood-monitor behavior is unchanged.
+
+
+Generated basin-plan, flood-impact and USGS-water downloads follow the existing
+root `.gitignore` download-on-demand policy and are excluded from installer
+payloads. Their maintained tools, documentation and curated inputs remain
+included; locally acquired datasets are retained on disk. See [water-data setup](docs/WATER_DATA_SETUP.md).
+
+The point commands `!smoke` and `!firedanger` require channel assignment on
+upgrades. Public smoke/air-quality/ERC data need no new credentials. Optional
+detailed FEMS fuel moisture requires service-account environment credentials
+and configured station IDs; see [FEMS setup](meshcore_mqtt_service/WILDFIRE_GUIDE.md#optional-fems-fuel-moisture).
+
+## Landslide command deployment
+
+Both standalone service packages include `landslide_service.py`, dedicated
+`slidewarn.py`, `slidealarm.py`, and `slideinfo.py` programs, shared helpers,
+and checksummed `data/landslide/` reference files. Deploy the updated responder
+and channel-state handling with these files. Existing installations preserve
+`responder.landslide` settings and existing assignments; new commands are
+unassigned on an existing channel registry. Assign the three commands to the
+desired channel IDs, validate configuration, and restart. No additional API key,
+OS service, or dependency is required beyond the current package requirements.
+[Configuration and command guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md).

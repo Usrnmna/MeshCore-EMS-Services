@@ -3,6 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
+[assembly: AssemblyVersion("0.9.5.0")]
+[assembly: AssemblyFileVersion("0.9.5.0")]
+[assembly: AssemblyInformationalVersion("v0.9.5-beta")]
+
 internal static class StartService
 {
     private static int Main(string[] args)

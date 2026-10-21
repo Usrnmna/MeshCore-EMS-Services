@@ -1,5 +1,28 @@
 # Linux service release notes
 
+## v0.9.5-beta - October 20, 2026
+
+- Adds `!slidewarn`, `!slidealarm`, and `!slideinfo` for California and Nevada,
+  with shared ZIP/city/GPS input, official NWS alert wording, and USGS station links.
+- Includes checksummed California/Nevada boundaries, station metadata, paired
+  tests, and the landslide guide. Both platform packages contain 28 commands.
+- Preserves existing commands, settings, and channel assignments on upgrade.
+  New commands require explicit channel assignment in existing installations.
+- Updates package, installer, manifest, and Windows metadata to `v0.9.5-beta`
+  (`Version 0.9.5 - Beta`; numeric Windows file version `0.9.5.0`).
+
+
+## October 20, 2026 wildfire addition
+
+- Adds seven dedicated wildfire commands with paired Linux/Windows programs.
+- Includes 186 full California-associated NWS fire-weather zones with interstate
+  geometry and checksummed provenance.
+- Adds service-owned atomic source refresh, field provenance, explicit missing
+  data, latest perimeter joins, forecasts, context feeds and temporary alarms.
+- Preserves existing channel assignments on upgrade; new commands require opt-in.
+- Adds regression coverage and the focused wildfire guide.
+
+
 ## v0.9.0-beta - October 11, 2026
 
 - Adds focused GIS attributes and an explicit `info` mode. Policy and amenity
@@ -179,3 +202,12 @@ responses remain unverified.
 See the [project release notes](../RELEASE_NOTES.md) for the full change summary,
 validation details, and known limitations.
 
+
+- Adds dedicated !smoke and !firedanger point commands, NOAA HMS observations, public NFDRS percentiles, optional FEMS fuel moisture, and source-age regression tests. See WILDFIRE_GUIDE.md.
+
+## California and Nevada landslide commands
+
+Added `!slidewarn`, `!slidealarm`, and `!slideinfo` with shared ZIP/city/GPS input,
+California/Nevada boundary enforcement, NWS source-name preservation, temporary
+channel-scoped subscriptions, and a checksummed USGS station catalog.
+[Behavior, configuration, and verification limits](LANDSLIDE_GUIDE.md).

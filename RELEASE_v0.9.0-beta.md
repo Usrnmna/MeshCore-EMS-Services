@@ -1,5 +1,11 @@
 ﻿# Version 0.9.0-Beta
 
+The October 20, 2026 rebuild adds nine wildfire commands (25 total), complete
+interstate fire-weather zones, source caching and temporary monitoring. See
+the [wildfire guide](meshcore_mqtt_service/WILDFIRE_GUIDE.md) for the current
+feature scope and upgrade settings. The version comparison below retains its
+original release context.
+
 Version 0.9.0-Beta expands the Linux and Windows MeshCore EMS services with offline GIS queries, additional weather commands, a shared reply timezone, and dedicated Python programs for every bundled command. Both service packages now provide **16 commands**.
 
 This comparison uses the original documented Version 0.3.0-Beta release as its baseline. Later source and installer snapshots reused the `v0.3.0-beta` version, so some installations may already include the heat-alert, lightning, or timezone features below.
@@ -198,3 +204,11 @@ Recorded validation for this release includes:
 - Documentation checks covered 19 maintained Markdown files, 292 links and anchors, 26 JSON examples, and 501 function entries.
 
 These results do not establish native Linux execution, installed-service operation, or physical radio delivery for the GIS additions. The Windows installer is unsigned. Reference data represents saved source information; valid geometry does not establish current access rules, legal boundary accuracy, or trail conditions. Weather responses remain subject to provider availability and do not replace official emergency notifications.
+
+## California and Nevada landslide information
+
+The source now contains 28 dedicated commands per platform. `!slidewarn`,
+`!slidealarm`, and `!slideinfo` add California/Nevada alerts, temporary monitoring,
+and USGS research-station information with the existing ZIP/city/GPS inputs.
+Official NWS event names are retained; station data does not generate warnings.
+[Setup, behavior, sources, and limits](meshcore_mqtt_service/LANDSLIDE_GUIDE.md).

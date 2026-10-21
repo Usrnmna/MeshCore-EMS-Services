@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-20",
+  "station_count": 13,
+  "index_url": "https://www.usgs.gov/programs/landslide-hazards/science/landslide-monitoring-stations",
+  "station_map_url": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+  "california_source": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/US_State_and_County/FeatureServer/1",
+  "california_filter": "STUSPS='CA'",
+  "sha256": {
+    "stations.json": "15f65c99a077cd300637e7cdbce33831d6b722e66c6eb39f6f9a1e7ab85a9ae9",
+    "california.geojson": "b98b4c50a046fad9a360feffd639b5878fa444e746ed2836360c2bf9d463d211",
+    "nevada.geojson": "7eda6c4d5fa86e2566c4e755d343c2aabaa4db31fbf6ce5c0028843981ca9684"
+  },
+  "notes": [
+    "Highway 50 is discontinued and excluded from nearest-station ranking.",
+    "The national USGS map duplicates Arroyo Seco coordinates for Castro Peak. Castro Peak uses its individual official station map node-349227 instead.",
+    "Catalog metadata is a reviewed snapshot; graph cadence does not establish telemetry freshness."
+  ],
+  "nevada_source": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/US_State_and_County/FeatureServer/1",
+  "nevada_filter": "STUSPS='NV'"
+}

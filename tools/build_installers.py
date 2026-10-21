@@ -11,7 +11,7 @@ import hashlib
 import io
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
 import tarfile
@@ -20,7 +20,28 @@ import zipfile
 from package_services import package_files, PACKAGES
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9.0-beta"
+VERSION = "v0.9.5-beta"
+
+
+def water_download_rules():
+    """Read the existing root-anchored download-only policy without requiring Git."""
+    prefixes = ("/data/basin_plans/", "/data/flood_impacts/", "/data/usgs_water/")
+    return [line.strip() for line in (ROOT / ".gitignore").read_text().splitlines()
+            if line.strip().lstrip("!").startswith(prefixes)]
+
+
+def download_only(relative, rules):
+    """Apply those collection-specific directory/file rules and explicit exceptions."""
+    excluded = False
+    name = relative.as_posix()
+    for rule in rules:
+        include = rule.startswith("!")
+        pattern = rule.lstrip("!").lstrip("/")
+        matches = (name.startswith(pattern) if pattern.endswith("/")
+                   else PurePosixPath(name).match(pattern))
+        if matches:
+            excluded = not include
+    return excluded
 
 
 def sha(data):
@@ -30,12 +51,13 @@ def sha(data):
 
 def source_files():
     """Collect maintained source, documentation, and data without runtime state or environments."""
+    download_rules = water_download_rules()
     files = {
         ROOT / p
         for p in (
             "README.md",
             "RELEASE_NOTES.md",
-            "RELEASE_v0.9.0-beta.md",
+            "RELEASE_v0.9.5-beta.md",
             "INSTALL.md",
             "LICENSE",
             "AGENTS.md",
@@ -54,6 +76,7 @@ def source_files():
                 or any(p.startswith(".") or p in {"__pycache__", "runtime"} for p in relative.parts)
                 or path.suffix in {".pyc", ".pyo"}
                 or path.name.endswith(("-wal", "-shm"))
+                or download_only(relative, download_rules)
             ):
                 continue
             files.add(path)
@@ -99,14 +122,14 @@ set -euo pipefail
 expected_arch="@ARCH@"
 expected_sha="@SHA@"
 case "${1:-}" in
-    --help) echo 'MeshCore EMS v0.9.0-beta online installer (@ARCH@)'
+    --help) echo 'MeshCore EMS v0.9.5-beta online installer (@ARCH@)'
         echo 'sudo bash installer.run [--transport serial|tcp|ble] [--port auto|DEVICE] [--tcp-host IP --tcp-port 5000] [--ble-address ADDRESS] [--channel NAME | --channels-config FILE] [--no-start]'
         echo 'Inspection: bash installer.run --check | --extract EMPTY_DIRECTORY'; exit 0 ;;
 esac
 line=$(awk '/^__MESHCORE_PAYLOAD__$/{print NR+1; exit}' "$0")
 actual_sha=$(tail -n +"$line" "$0" | sha256sum | cut -d ' ' -f1)
 [[ $actual_sha == "$expected_sha" ]] || { echo 'Installer payload checksum mismatch.' >&2; exit 1; }
-if [[ ${1:-} == --check ]]; then echo 'v0.9.0-beta @ARCH@: payload checksum verified'; exit 0; fi
+if [[ ${1:-} == --check ]]; then echo 'v0.9.5-beta @ARCH@: payload checksum verified'; exit 0; fi
 if [[ ${1:-} == --extract ]]; then
     destination=${2:?Specify an empty destination directory}
     mkdir -p -- "$destination"

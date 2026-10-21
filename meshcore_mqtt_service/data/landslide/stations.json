@@ -1,0 +1,271 @@
+[
+  {
+    "id": "CHAMBERS",
+    "name": "2021 Dixie Fire, Chambers Site, near Belden, CA",
+    "coordinates": [
+      -121.31163,
+      39.948911
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-chambers-2021-dixie-fire",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "CHIPS",
+    "name": "2021 Dixie Fire, Chips Site, near Belden, CA",
+    "coordinates": [
+      -121.28357,
+      40.00845399999999
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-chips-2021-dixie-fire-near",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "BALT1",
+    "name": "San Francisco Bay Area - East Bay (BALT1) near Castro Valley, CA",
+    "coordinates": [
+      -122.07797,
+      37.76162899999999
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/san-francisco-bay-area-east-bay-balt1-site-near-castro-valley-ca",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage"
+    ],
+    "graph_minutes": 30
+  },
+  {
+    "id": "BALT2",
+    "name": "San Francisco Bay Area – Marin County (BALT2) Site near San Rafael, CA",
+    "coordinates": [
+      -122.570636,
+      38.041225
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/san-francisco-bay-area-marin-county-balt2-site-near-san-rafael",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage"
+    ],
+    "graph_minutes": 30
+  },
+  {
+    "id": "BALT3",
+    "name": "San Francisco Bay Area – SF Peninsula (BALT3) Site near Brisbane, CA",
+    "coordinates": [
+      -122.412,
+      37.67599999999998
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/san-francisco-bay-area-sf-peninsula-balt3-site-near-brisbane-ca",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage"
+    ],
+    "graph_minutes": 30
+  },
+  {
+    "id": "BALT4",
+    "name": "San Francisco Bay Area – SF Peninsula (BALT4) Site near Pacifica, CA",
+    "coordinates": [
+      -122.447,
+      37.57700000000001
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/san-francisco-bay-area-sf-peninsula-balt4-site-near-pacifica-ca",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage"
+    ],
+    "graph_minutes": 30
+  },
+  {
+    "id": "HWY50",
+    "name": "U.S. Highway 50, CA",
+    "coordinates": [
+      -120.4197308,
+      38.77717659999998
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/us-highway-50-california-monitoring-discontinued",
+    "status": "discontinued",
+    "measurements": [],
+    "graph_minutes": null
+  },
+  {
+    "id": "MARIA-YGNACIO",
+    "name": "\"Maria Ygnacio\" (2019 Cave Fire) near Santa Barbara, CA",
+    "coordinates": [
+      -119.774407,
+      34.50281100000001
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-maria-ygnacio-2019-cave",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "LAS-LOMAS",
+    "name": "\"Las Lomas\" (2016 Fish Fire) near Duarte, CA",
+    "coordinates": [
+      -117.944219,
+      34.15849700000003
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-las-lomas-2016-fish-fire",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater pressure",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "DUNSMORE",
+    "name": "“Dunsmore” (2009 Station Fire) near Crescenta Highlands, CA",
+    "coordinates": [
+      -118.237886,
+      34.265252
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-dunsmore-2009-station-fire",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater level",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "ARROYO-SECO",
+    "name": "“Arroyo Seco” (2009 Station Fire) near La Cañada Flintridge, CA",
+    "coordinates": [
+      -118.196122,
+      34.23713300000001
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-arroyo-seco-2009-station",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater level",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "PASADENA-GLEN",
+    "name": "“Pasadena Glen” (2025 Eaton Fire) near Pasadena Glen, CA",
+    "coordinates": [
+      -118.075972,
+      34.19774200000001
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-43931.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-pasadena-glen-2025-eaton",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater level",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  },
+  {
+    "id": "CASTRO-PEAK",
+    "name": "“Castro Peak” (2018 Woolsey Fire) near Malibu, CA",
+    "coordinates": [
+      -118.786117,
+      34.084791
+    ],
+    "coordinate_source": "https://d9-wret.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/geodata/node-349227.geojson",
+    "url": "https://www.usgs.gov/programs/landslide-hazards/science/postfire-landslide-monitoring-station-castro-peak-2018-woolsey",
+    "status": "listed; telemetry unverified",
+    "measurements": [
+      "rainfall",
+      "soil water content",
+      "groundwater level",
+      "air temperature",
+      "relative humidity",
+      "battery voltage",
+      "soil suction",
+      "soil temperature"
+    ],
+    "graph_minutes": 60
+  }
+]

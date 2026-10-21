@@ -50,10 +50,11 @@ See [installation and migration](INSTALL.md) and the
 | `MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe` | Windows 10/11 x64 online installer |
 | `MeshCore-EMS-v0.9.5-beta-linux-x86_64.run` | Linux x86_64 online installer |
 | `MeshCore-EMS-v0.9.5-beta-raspberry-pi-arm64.run` | Raspberry Pi 64-bit online installer |
-| `MeshCore-EMS-v0.9.5-beta-installers.zip` | All three installers, guides, and checksums |
 
 Standalone packages include `VERSION.txt` containing `v0.9.5-beta`. Installer
-manifests and filenames use the same identifier; Windows assembly/file metadata
+downloads are separate for each operating system and architecture; no combined
+installer archive is produced. Installation guides and checksums are separate files.
+Installer manifests and filenames use the same identifier; Windows assembly/file metadata
 uses `0.9.5.0`. SHA-256 files identify the generated artifacts. Runtime databases,
 credentials, local environments, and generated water downloads are excluded.
 

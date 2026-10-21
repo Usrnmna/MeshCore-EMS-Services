@@ -15,7 +15,6 @@ from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
 import tarfile
-import zipfile
 
 from package_services import package_files, PACKAGES
 
@@ -215,19 +214,9 @@ def main():
     (output / "SHA256SUMS.txt").write_text(
         "".join(f"{sha(path.read_bytes())}  {path.name}\n" for path in artifacts), encoding="utf-8"
     )
-    bundle = output.parent / f"MeshCore-EMS-{VERSION}-installers.zip"
-    with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
-        for path in artifacts + [
-            output / name for name in ("INSTALL.md", "VALIDATION.md", "SHA256SUMS.txt")
-        ]:
-            archive.write(path, path.name)
-    bundle.with_suffix(".zip.sha256").write_text(
-        f"{sha(bundle.read_bytes())}  {bundle.name}\n", encoding="utf-8"
-    )
     print("Payload snapshot:", payload)
     for path in artifacts:
         print(f"{path.relative_to(ROOT)} ({path.stat().st_size:,} bytes)")
-    print("Combined bundle:", bundle.relative_to(ROOT))
 
 
 if __name__ == "__main__":

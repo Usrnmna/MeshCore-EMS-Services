@@ -1,2 +1,2 @@
-shapely>=2.0,<3
+shapely>=2.2.0,<3
 pyproj>=3.6,<4

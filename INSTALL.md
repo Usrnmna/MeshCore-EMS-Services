@@ -23,8 +23,9 @@ updates. Neither GIS nor satellite refresh is scheduled automatically.
 | `MeshCore-EMS-v0.9.5-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
 Outputs are under `dist/v0.9.5-beta/`, alongside `SHA256SUMS.txt`.
-All three installers and the guides are also in
-`dist/MeshCore-EMS-v0.9.5-beta-installers.zip`, with a separate bundle checksum.
+Each operating-system installer is distributed separately. Download only the
+installer matching the target system; installation and validation guides are
+available as separate files alongside the checksums.
 The Linux packages are executable, self-extracting online installers; they install
 the OS's native Python and dependency wheels for the target architecture. They
 are not precompiled/frozen Python applications. Other Linux distributions and

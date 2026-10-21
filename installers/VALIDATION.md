@@ -11,7 +11,7 @@ Each standalone ZIP includes `VERSION.txt` and has a companion SHA-256 file.
   3.13. The 37 landslide tests cover location resolution, both state boundaries,
   NWS alert lifecycle/failure handling, cache retention, subscription persistence,
   Nevada enrollment, and queue guards. Dedicated command registrations are tested.
-- Eighteen installer tests cover metadata consistency, landslide asset inventories,
+- Nineteen installer tests cover separate installer outputs, metadata consistency, landslide asset inventories,
   upgrade settings, channel assignments, credentials, and runtime preservation.
 - Live point lookups succeeded for Reno by city and ZIP, Las Vegas GPS, and the
   Nevada-side Tahoe point. One concurrent request reported the documented SQLite
@@ -28,8 +28,9 @@ extract the proprietary installer archive or perform an installation.
 Both platforms include all landslide entry points/helpers, service integration,
 California and Nevada polygons, the station catalog and hash manifest, tests,
 and maintained user/technical guides. Runtime state, development environments,
-credentials, and generated water downloads remain excluded. The combined ZIP
-is checked against its three installers, copied guides, and checksum list.
+credentials, and generated water downloads remain excluded. Operating-system
+installers are distributed separately and checked against their checksum list;
+copied guides are compared with final source. No combined installer ZIP is produced.
 The machine-readable verification report is generated alongside release artifacts
 as `dist/v0.9.5-beta/VERIFICATION.json` after building from the final source.
 

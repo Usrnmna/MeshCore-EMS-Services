@@ -9,6 +9,7 @@ import sqlite3
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -22,6 +23,22 @@ spec.loader.exec_module(configure)
 
 
 class InstallerTests(unittest.TestCase):
+    def test_build_distributes_os_installers_separately(self):
+        """A release build emits architecture-specific installers without an aggregate archive."""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "installers").mkdir()
+            (root / "INSTALL.md").write_text("Installation guide")
+            (root / "installers/VALIDATION.md").write_text("Validation guide")
+            with patch.object(build_installers, "ROOT", root), \
+                    patch.object(build_installers, "stage_payload", side_effect=lambda path: path.mkdir()), \
+                    patch.object(sys, "argv", ["build_installers.py", "--linux-only"]):
+                build_installers.main()
+            release = root / "dist" / build_installers.VERSION
+            self.assertEqual(len(list(release.glob("*.run"))), 2)
+            self.assertEqual(len((release / "SHA256SUMS.txt").read_text().splitlines()), 2)
+            self.assertEqual(list((root / "dist").rglob("*.zip")), [])
+
     def test_release_versions_agree_across_platforms_and_installers(self):
         """Current release metadata must agree without rewriting historical release notes."""
         version = build_installers.VERSION

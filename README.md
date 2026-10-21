@@ -1,19 +1,20 @@
 # MC-EMS-Services
 
-![MC-EMS-Services highlights: weather, water, roads, and offline local maps through MeshCore, with an illustrative tagged channel reply.](docs/assets/readme-hero.svg)
+![Illustrative same-channel exchanges on #autatestbot: !snowpack Truckee returns an @Alice snow-depth and snowfall report; !floodwarn Sacramento returns an @Alice point-scoped NWS flood-alert report. Values are examples, not live conditions.](docs/assets/readme-hero.svg)
 
 [![Distribution version v0.9.5-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.5-beta.md)
-[![28 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+[![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
 **Local information, delivered through MeshCore channels.**
 
 MC-EMS-Services turns a MeshCore channel into a command-driven information service
 for communities, field teams, and radio operators. Short channel messages retrieve
-weather alerts, air quality, river stages, highway restrictions, and local trail
-and recreation information. Replies return to the same channel with the sender's name.
+weather alerts, water conditions, wildfire and smoke information, landslide-related
+alerts, highway restrictions, and local trail and recreation information.
+Replies return to the same channel with the sender's name.
 
-**28 commands | Linux and Windows | USB, Bluetooth LE, or TCP | Offline GIS lookups**
+**31 commands | Linux and Windows | USB, Bluetooth LE, or TCP | Offline GIS lookups**
 
 **[Get started](#get-started)** | **[Try the commands](meshcore_mqtt_service/BOT_USER_GUIDE.md)** | [Installation](INSTALL.md) | [All documentation](docs/README.md)
 
@@ -22,7 +23,7 @@ and recreation information. Replies return to the same channel with the sender's
 | Highlight | Practical result | Commands |
 | --- | --- | --- |
 | 🌦️ **Weather and environmental conditions** | Current UV, PM2.5 air quality, heat alerts, and next-24-hour lightning potential. | `!uv`, `!aqi`, `!heatadv`, `!lightning` |
-| 🌊 **Water and snow information** | River stages, active flood alerts, temporary flood monitoring, nearby snow depth, and forecast snowfall. | `!rivers`, `!floodwarn`, `!floodalarm`, `!snowpack` |
+| 🌊 **Water and snow information** | Named waterways, basin context, current gauge values, official alerts, temporary point monitoring and snow information. | `!rivers`, `!waterway`, `!basin`, `!floodstatus`, `!floodwarn`, `!floodalarm`, `!snowpack` |
 | 🛣️ **Highway restrictions** | Compact Caltrans reports for California route numbers. | `!traffic` |
 | 🔥 **Wildfire information** | Interstate fire-weather zones, reported fires, containment, forecasts, alerts, context and temporary monitoring. | `!firezone`, `!fires`, `!fire`, `!firewx`, `!firewarn`, `!firedata`, `!firealarm`, `!smoke`, `!firedanger` |
 | **California and Nevada landslide information** | Official alerts mentioning landslide hazards, temporary monitoring, and nearby USGS research stations. | `!slidewarn`, `!slidealarm`, `!slideinfo` |
@@ -59,8 +60,8 @@ Alice: !trail Bear Creek dogs
 Bot:   @Alice Bear Creek: dogs No.
 ```
 
-Commands run only on assigned channels. Replies can arrive in several parts;
-queued requests and radio transmission spacing can delay them. The
+Commands run only on assigned channels. Each request returns at most one tagged
+150-byte reply. Queued requests and radio transmission spacing can delay it. The
 [quick user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) explains location
 formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 
@@ -87,7 +88,7 @@ formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 3. Start the service and send `!status` from another node on an assigned channel.
 4. Try `!uv Sacramento`, `!traffic 80`, or `!trail Bear Creek dogs`.
    Use the [full command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
-   for all 28 commands and their response types.
+   for all 31 commands and their response types.
 
 For interactive source-folder operation, follow the
 [Linux setup guide](meshcore_mqtt_service/README.md#linux-setup) or
@@ -104,9 +105,17 @@ unattended service operation. Restart after configuration changes.
   park or establish current access permission, route accessibility, or live conditions.
   Standalone service ZIPs require `data/ebmud` separately; complete-workspace
   installers include it. See [GIS deployment](INSTALL.md#gis-source-deployment).
-- `!floodalarm` checks for changes in flood-alert types approximately every 20 minutes
-  and expires four hours after the last accepted subscription request. The service
-  must remain running. `!floodwarn` performs one immediate lookup.
+- `!floodalarm` pins the requested location and checks official alerts every five
+  minutes by default for four hours. `conditions` adds supported current-condition
+  changes; `status` and `stop` manage monitoring. `!floodwarn` returns a concise one-time alert in a single tagged message.
+  [Response policy and review inventory](meshcore_mqtt_service/RESPONSE_FORMATTING.md).
+  Flood-alarm notifications send each alert separately in priority order, with a
+  five-second minimum response gap subject to shared radio spacing.
+  [Water setup, subscriptions and sources](meshcore_mqtt_service/WATER_GUIDE.md).
+- Wildfire zone commands cover complete California-associated NWS fire-weather
+  zones, including their interstate portions. They do not identify evacuation
+  zones. Landslide alert queries cover California and Nevada; station information
+  describes the reviewed California USGS catalog rather than live sensor readings.
 - Lightning output summarizes NWS forecasts and alerts; it is not a strike detector
   or a standalone official NWS lightning-warning product. Unavailable data does not
   mean conditions are clear. Reports supplement official emergency information.
@@ -121,6 +130,8 @@ unattended service operation. Restart after configuration changes.
 | Goal | Guide |
 | --- | --- |
 | Send commands and interpret replies | [Quick user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) / [Detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md) |
+| See example replies and understand concise output | [Command and subcommand response examples](meshcore_mqtt_service/RESPONSE_EXAMPLES.md) / [Response format and limits](meshcore_mqtt_service/RESPONSE_FORMATTING.md) |
+| Find every subcommand, filter, category, and alarm control | [Radio subcommand index](meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index) / [Terminal commands and maintenance options](docs/CLI_REFERENCE.md) |
 | Install, upgrade, and configure channels | [Installation](INSTALL.md) / [Channel assignments and custom programs](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md) |
 | Operate a platform package | [Linux operation](meshcore_mqtt_service/README.md) / [Windows operation](meshcore_mqtt_service_windows/README.md) |
 | Understand connections and integrations | [Architecture and MQTT](docs/ARCHITECTURE.md) |
@@ -130,9 +141,15 @@ unattended service operation. Restart after configuration changes.
 | Review gauge links, downstream basins, and flood scenarios | [Offline Russian River flood-reference pilot](data/flood_impacts/README.md) / [Source citations](data/flood_impacts/SOURCES.md) |
 | Inspect statewide USGS stations, current stage/discharge and downstream connections | [California current water data](data/usgs_water/README.md) / [Downstream and tributary relationships](data/usgs_water/ROUTING_METHODS.md) / [Source citations](data/usgs_water/SOURCES.md) |
 | Use or maintain wildfire information | [Wildfire guide](meshcore_mqtt_service/WILDFIRE_GUIDE.md) / [Zone seed](data/wildfire/README.md) |
+| Query water conditions and manage flood subscriptions | [Water command guide](meshcore_mqtt_service/WATER_GUIDE.md) / [Station identity and threshold review](meshcore_mqtt_service/WATER_STATION_REVIEW.md) |
+| Query landslide-related alerts and station metadata | [Landslide guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md) |
 | Use the separate satellite catalog | [Satellite database tools](satellite_database/README.md) / [Stored catalog and exports](data/satellites/README.md) |
 | Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.5 - Beta highlights](RELEASE_v0.9.5-beta.md) / [Documentation index](docs/README.md) |
 
 The California State Parks collection and satellite catalog are separate reference
 resources; they are not registered MeshCore commands. Their guides describe data
 coverage, provenance, refresh procedures, and interpretation limits.
+
+The [NOAA upstream station review](meshcore_mqtt_service/WATER_STATION_REVIEW.md)
+documents supported gauge identifiers, threshold availability and unresolved
+links used by location-based water conditions.

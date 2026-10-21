@@ -19,6 +19,11 @@ if __package__:
 else:
     from uv_index import parse_location as _parse_location
 
+try:
+    from scripts.response_text import compact_fields, short_label
+except ModuleNotFoundError:
+    from response_text import compact_fields, short_label
+
 # USER SETTINGS AND SOURCES: per-request seconds and byte cap.
 # NWS URLs are also validated in lookup(); changing provider requires parser changes.
 HTTP_TIMEOUT_SECONDS = 10
@@ -302,8 +307,8 @@ def lookup(text, now=None):
         snowfall = snowfall_24h(get_json(grid_url), now)
     except (RuntimeError, ValueError):
         snowfall = None
-    return (f'Snowpack: Current: {inches(depth)} | Next 24h: {inches(snowfall)} | '
-            f'Station: {station["name"]} {distance:.1f}mi.')
+    return compact_fields(f'Snow depth at station: {inches(depth)}.',
+                          [f'Next 24h snow: {inches(snowfall)}', f'{short_label(station["name"], 25)} {distance:.1f}mi'])
 
 
 def main(argv=None):

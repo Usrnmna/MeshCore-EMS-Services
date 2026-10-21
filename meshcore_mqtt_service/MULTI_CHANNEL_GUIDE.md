@@ -7,7 +7,7 @@ where the request arrived; selecting several channels does not broadcast a resul
 to all of them. Linux and Windows retain their separate configuration, MQTT
 defaults, Python environments, and runtime state.
 
-## What changed
+## Capabilities
 
 | Change | Operator-visible behavior |
 | --- | --- |
@@ -390,12 +390,14 @@ the channel ID. All channels and MQTT commands share `command_interval` radio
 spacing, so load on one channel can still delay another channel's transmission.
 
 Flood subscriptions belong to a sender and channel ID. The same sender can keep
-independent locations on two channels where `!floodalarm` is enabled. Renewal,
-four-hour expiry, silent baseline, and 20-minute check timing retain their existing
-meaning. Requests and outgoing notifications recheck program assignments; removing
-an assignment prevents later work from being sent on that channel. A restart does
-not extend subscription deadlines. Re-enroll deliberately after changing channel
-identity.
+independent locations on channels where `!floodalarm` is assigned. Enrollment
+verifies and pins one location, establishes a successful official-alert baseline,
+and then acknowledges the saved mode. Checks default to five minutes and expire
+four hours after accepted enrollment. `conditions LOCATION` adds supported
+categorical gauge/model/coverage changes; `status` does not renew and `stop`
+invalidates pending work. A restart never extends expiry. Assignment, channel
+identity, request revision, and expiry are rechecked before transmission.
+[Complete location-water lifecycle](WATER_GUIDE.md#subscription-lifecycle).
 
 The `channel_bindings` table stores each stable ID with the channel's display name
 and a SHA-256 key identity hash, not the key itself. To move the same channel to a
@@ -541,7 +543,7 @@ an exact command with no user arguments, as in this example. Existing supported
 input modes remain available for programs that accept validated arguments.
 
 The script prints only its reply body. The responder supplies the sender's
-`@name`, splits long output, applies timeout/output limits, and replies only to
+`@name`, fits one concise message, applies timeout/output limits, and replies only to
 the originating channel. A script that only defines functions and never calls
 them produces no reply body; the entry point above demonstrates how to call a
 new function. Scripts use the service folder as their working directory, so use
@@ -628,7 +630,7 @@ Merge this entry into `responder.commands`, using registered channel IDs:
   "args": [],
   "input": "gis_query",
   "timeout": 30,
-  "max_reply_parts": 6,
+  "max_reply_parts": 1,
   "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
   "channels": ["community", "operations"]
 }
@@ -661,3 +663,20 @@ Only `!slidealarm` changes subscriptions. State is scoped to sender and stable
 channel identity; assignment removal or identity changes invalidate monitoring.
 Existing-registry upgrades leave new commands unassigned until explicitly enabled.
 See the [landslide lifecycle and settings](LANDSLIDE_GUIDE.md).
+
+## Water command assignments
+
+The water family registers `!waterway`, `!basin`, `!floodstatus`, `!floodwarn`,
+and `!floodalarm`, each with a dedicated program and `water_query` input. The
+current configuration contains 31 commands in total. Assign water commands to
+stable IDs from `responder.channels`; an empty assignment disables the command.
+Existing installations preserve registrations, assignments, and operator settings,
+so deploy the current water helper programs and explicitly merge older flood
+registrations before enabling the new forms.
+
+`!waterway`, `!basin`, and `!floodstatus` need downloaded geometry and a separately
+built static index for local context. `!floodwarn` verifies official point alerts;
+accepted `!floodalarm` enrollment requires a verified official-alert baseline.
+The service owns monitoring; direct Python invocations cannot enroll subscriptions.
+See [deployment, retention, and settings](WATER_GUIDE.md) and the
+[complete command/subcommand index](COMMAND_REFERENCE.md#subcommand-index).

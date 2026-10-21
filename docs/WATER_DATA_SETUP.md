@@ -91,3 +91,75 @@ See the [Basin Plan guide](../data/basin_plans/README.md),
 [flood-reference methods](../data/flood_impacts/METHODS.md), and
 [USGS current-data guide](../data/usgs_water/README.md) for source citations,
 individual commands, interpretation and verification limits.
+
+## Connect downloaded water data to radio commands
+
+After the final successful routing refresh, build the spatial index for each
+platform package that will run the service:
+
+```console
+python meshcore_mqtt_service/scripts/water_refresh.py --index
+python meshcore_mqtt_service_windows/scripts/water_refresh.py --index
+```
+
+Index schema 2 also retains station identities without coordinates for supported
+upstream links. Rerun these commands when upgrading from the earlier index.
+Rebuild after inventory/routing dependencies change. Observation-only refreshes
+are read directly and need no index rebuild. `responder.water.data_directory`
+defaults to `../data` relative to the package; configure an absolute data root
+for standalone service installations. No download schedule is installed. The
+service's source cache refreshes on demand during lookups/subscription checks.
+Original datasets remain unchanged and excluded from publication.
+
+[Water commands, current-only retention, interpretation and NOAA citations](../meshcore_mqtt_service/WATER_GUIDE.md).
+
+The [NOAA station relationship review](../meshcore_mqtt_service/WATER_STATION_REVIEW.md)
+supplements 33 investigated upstream identities without changing the original
+USGS identifier table. Refresh the overlay independently in each installed package:
+
+```console
+python meshcore_mqtt_service/scripts/water_refresh.py --noaa-identifiers
+python meshcore_mqtt_service_windows/scripts/water_refresh.py --noaa-identifiers
+```
+
+The current runtime review replaces earlier review outcomes, including failures
+and unresolved matches. No index rebuild or observation download is required.
+The packaged static evidence table is small; large original datasets remain local.
+
+The identifier refresh also verifies the 17-station agency review, including a
+pinned report and current CDEC/HADS metadata for CDM/YDMC1. USGS series-catalog
+requests retain coverage dates only. Agency-source failures are saved explicitly
+and return exit code 1; no failed review can reuse a previously accepted successor.
+The programs add no observation-history downloads or automatic schedules.
+
+The [NOAA map and operator-record audit](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#further-map-and-operator-record-review)
+retains static evidence for sixteen unresolved stations. Identifier refresh also
+checks current map/candidate metadata; source failures and changed candidate
+identities require review. These auxiliary records cannot authorize a link,
+change routing or add historical readings. Existing exact and agency-successor
+validation remains in effect.
+
+The [source-access retry](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
+recovered the USGS PDFs and OneRain inventory. Identifier refresh now checks the
+public OneRain sites endpoint using transient cookies. Only static metadata is
+retained; PDF evidence remains dated manual-review context, and no additional
+station link or reading history is created.
+
+
+The [additional local agency findings](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#additional-local-operating-agency-records)
+are preserved under `map_record_review.operator_record_review` during identifier
+refresh. Their fixed manual-review dates are separate from current retrieval
+times. They add no accepted links, observation downloads or index rebuilds.
+
+
+WAC/WAS [vertical-reference uncertainty](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#wacwas-elevation-and-logger-offset-review)
+is retained in the two Warm Springs review rows as static metadata. The raw
+logger offset is evidence only; no datum transformation or reading correction
+is authorized. Identifier refresh preserves this manual assessment without
+requesting historical observations.
+
+Identifier refresh also runs [automatic WAC/WAS metadata checks](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#automatic-wacwas-metadata-checks)
+against five official CW3E/CDEC pages. The latest structured source statuses and
+changed fields replace the preceding check, including access failures. Review
+flags produce exit code 1 after saving; unchanged known uncertainty does not.
+Manual evidence dates remain fixed, and no offset or datum conversion is applied.

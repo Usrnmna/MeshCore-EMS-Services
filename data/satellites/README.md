@@ -1,5 +1,7 @@
 # Satellite reference data
 
+[Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
+
 The [satellite catalog program](../../satellite_database/README.md) stores its
 database, exports, and source cache in this directory.
 

@@ -11,6 +11,14 @@ work and important effects. Update this reference and source docstrings together
 when a function changes. These descriptions are source documentation, not evidence
 that a live service, device, or provider was tested.
 
+## Focused implementation references
+
+- [Water and flood source/cache, spatial index, review, and subscription functions](WATER_FUNCTION_REFERENCE.md)
+- [Wildfire, smoke, fuel-danger, refresh, and subscription functions](WILDFIRE_FUNCTION_REFERENCE.md)
+
+These references extend the module summaries below with complete source signatures
+and nested callbacks. Radio syntax belongs to the [command reference](COMMAND_REFERENCE.md#subcommand-index).
+
 ## Modules
 
 - [scripts/trail.py](#scripts-trail-py)
@@ -99,17 +107,17 @@ Read-only end-to-end check. Uses the configured serial, BLE, or TCP connection. 
 
 [Source](flood_alarm.py)
 
-Persistent flood subscriptions. SQLite stays on the event-loop thread. ALGORITHM MAP: remember = enrollment/renewal; check_one = comparison; is_current = stale-result/expiry guard; run = scheduler. No background OS service.
+Persistent flood subscriptions remain on the existing event loop and database.
+[Lifecycle and source contracts](WATER_GUIDE.md).
 
-| Function signature | Purpose and behavior |
+| Function | Purpose and behavior |
 | --- | --- |
-| `FloodAlarms.__init__(self, db, channel, read_status, notify, clock=time.time, allowed=lambda: True)` | Reuse runtime/bridge.sqlite3; callbacks perform bounded lookup and tagged send. |
-| `FloodAlarms.row(self, sender)` | Return one subscription as a dict without changing the shared DB row factory. |
-| `FloodAlarms.remember(self, request, now)` | Start/update one user's alarm; each !floodalarm replaces location and resets expiry. |
-| `FloodAlarms.acknowledge(self, request)` | Allow the first lookup only AFTER the reply was sent; ignore superseded requests. |
-| `FloodAlarms.is_current(self, reading)` | Recheck after HTTP and inside the radio queue: no expired/old-location notifications. |
-| `async FloodAlarms.check_one(self)` | Read one due subscription; silently save baseline, then report type-set changes only. |
-| `async FloodAlarms.run(self)` | One bounded lookup at a time, alongside the independent immediate-reply worker. |
+| `FloodAlarms.__init__(db, channel, identity, config, read, notify, allowed, clock)` | Create current subscription state, migrate legacy deadlines and enforce channel binding. |
+| `remember(request, now)` | Reserve ordered enrollment/stop revisions; invalidate obsolete work. |
+| `control(request)` | Verify and baseline enrollment or return status/stop/help. |
+| `acknowledge(request)` | Enable scheduled checks only after acknowledgment delivery. |
+| `current(reading)`, `control_current(request)` | Recheck assignment, identity, revision and expiry around asynchronous work. |
+| `check_one()`, `run()` | Check pinned locations; compare official fingerprints and categorical conditions without level history. |
 
 <a id="radio-connection-py"></a>
 
@@ -142,7 +150,7 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 | `match_command(phrase, commands)` | Return (command, arguments, input_error), or None for unknown text; validate inputs without running scripts. GIS queries use parse_query and become one subprocess argument; radius/projection settings are checked during lookup. |
 | `script_path(root, relative, program_directory=None)` | Resolve a bundled script or an administrator-installed programs/*.py file. program_directory is a trusted absolute folder from local configuration. Radio messages cannot select file paths. Resolve symlinks before checking containment so neither ../ nor a symlink can escape the selected folder. |
 | `parse_message(payload, channel, own_name, config, now)` | Return validated sender/channel/request context, or None for stale, self, reply, or unrelated messages. |
-| `reply_parts(sender, output, limit=150, max_parts=4)` | Return tagged UTF-8-safe pieces within the byte/part limits; collapse whitespace and mark truncation. |
+| `reply_parts(sender, output, limit=150, max_parts=4)` | Return tagged UTF-8-safe pieces; service delivery selects one whole-field summary. |
 | `async run_script(root, spec, request, config)` | Run the configured Python file with args/context and the shared MESHCORE_TIMEZONE environment, bounded stdout/stderr and timeout; return (reply, diagnostic). |
 | `async run_script.read_bounded(stream)` | Read one child output stream as UTF-8 and raise if its independent byte limit is exceeded. |
 | `async run_script.communicate()` | Send request JSON on stdin and collect stdout, stderr, and child exit status concurrently. |
@@ -152,7 +160,7 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 | `Responder.update(self, request_id, state, response=None, detail=None)` | Commit request state and diagnostics, retaining the prior response when response is None. |
 | `async Responder.process_one(self, alarm_only=None)` | Process the oldest queued request, expire stale work, run its script and send replies; return False if empty. |
 | `async Responder.read_flood_status(self, location)` | Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status. |
-| `async Responder.send_flood_change(self, reading, output)` | Tag changes as !floodwarn replies; recheck subscription validity after waiting for the radio's send slot. |
+| `async Responder.send_flood_change(self, reading, output)` | Send tagged flood subscription changes; recheck subscription validity after waiting for the radio's send slot. |
 | `async Responder.run_requests(self, alarm_only=False)` | Drain this worker's queue without blocking the alarm scheduler or acknowledgment worker. |
 | `async Responder.run(self)` | All workers stop with the service; radio sends still use the existing shared rate limiter. |
 
@@ -238,6 +246,8 @@ Find the nearest AirNow monitoring site and report its PM2.5 AQI. Set AIRNOW_API
 
 [Source](scripts/flood_warn.py)
 
+The command entry point delegates to `water_lookup` for concise alerts; the original parser, fetch and type-summary helpers remain available for existing weather modules. `legacy_main` retains the former compatibility interface.
+
 Flood alerts from the NWS API used by https://www.flashfloodwarn.com/. Uses the standard library; city/ZIP coordinates come from Open-Meteo/GeoNames. Run: python scripts/flood_warn.py Sacramento (or ZIP or LATITUDE LONGITUDE).
 
 | Function signature | Purpose and behavior |
@@ -250,7 +260,8 @@ Flood alerts from the NWS API used by https://www.flashfloodwarn.com/. Uses the 
 | `snapshot(text)` | Return comparable alert types plus reply text; failures raise, never become a clear reading. |
 | `format_status(text, events)` | Return the no-flood-events sentence or location followed by one line per active event, using the configured emoji and descriptions; no I/O. |
 | `lookup(text)` | Perform one location lookup through snapshot(text) and return its reply text; propagate lookup errors without changing alarm subscriptions. |
-| `main(argv=None)` | Print UTF-8 alert/usage/error text for location arguments; return 0 so the responder forwards the text. |
+| `main(argv=None)` | Run concise official alerts through `water_lookup`; optional `--snapshot`/`--json` returns structured current records. |
+| `legacy_main(argv=None)` | Retain the previous type-summary CLI adapter for compatibility tests and existing integrations. |
 
 <a id="scripts-heat-adv-py"></a>
 
@@ -483,7 +494,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 | `field_values(group, *fields)` | Preserve distinct source values and qualifications across grouped records. |
 | `number(value, units)` | Format source numbers without exposing floating-point storage artifacts. |
 | `summary(group)` | Label a result with source category and park status when available. |
-| `short_list(labels, limit)` | Bound result lists while explicitly reporting omitted matches. |
+| `short_list(labels, limit)` | Bound result lists without omission notices. |
 | `trail_groups(snapshot)` | Prefer primary trail records; retain supplementary trails absent from that layer. |
 | `area_groups(snapshot, layers)` | Group named park polygons, preserving all original status and agency fields. |
 | `format_trail_reply(group, snapshot, spatial, settings)` | Describe primary trail attributes and mapped area overlap without routing claims. |
@@ -556,7 +567,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 
 | Function signature | Purpose and behavior |
 | --- | --- |
-| `main(argv=None)` | Print one structured flood snapshot or error for the persistent monitor. Standalone use does not enroll a subscription. |
+| `main(argv=None)` | Print one text snapshot; `--snapshot`/`--json` returns structured output. Standalone use does not enroll a subscription. |
 
 Shared data-maintenance functions are documented in the [EBMUD utility reference](../data/ebmud/FUNCTION_REFERENCE.md).
 
@@ -576,7 +587,7 @@ See the [wildfire behavior and source guide](WILDFIRE_GUIDE.md) for configuratio
 | `scripts/wildfire_spatial.prepare_zones`, `scope`, `point_zones`, `distance_miles` | Whole interstate geometry, collection extent, boundary membership and local distance. |
 | `scripts/fire_weather.parse_fwf`, `ugc_codes`, `fire_alerts` | Forecast sections and periods, compressed zone identifiers and active CAP alerts. |
 | `scripts/wildfire_refresh.seed`, `boundaries`, `refresh`, `main` | Seed verification, acquisition, per-source refresh and GeoJSON/status export. |
-| `scripts/wildfire_lookup.parse_query`, `report`, `format_report` | Radio grammar, joined results with provenance and paged replies. |
+| `scripts/wildfire_lookup.parse_query`, `report`, `format_report` | Radio grammar, joined results with provenance and concise replies. |
 | `scripts/wildfire_lookup.monitor_snapshot`, `historical_incidents` | Stable monitor comparisons and explicitly last-known incident details. |
 | `scripts/wildfire_settings.validate`, `load`, `database_path` | Config bounds, external settings and installed runtime location. |
 | `scripts/firezone.py`, `fires.py`, `fire.py`, `firewx.py`, `firewarn.py`, `firedata.py`, `firealarm.py` | Independent executable entry points selecting their own command. |
@@ -607,7 +618,7 @@ See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
 | `LandslideAlarms.current(self, reading)` | Recheck expiry, identity, revision and assignment after awaits and inside the radio queue. |
 | `LandslideAlarms.control_current(self, request)` | Suppress obsolete control acknowledgments while allowing status/help without enrollment. |
 | `LandslideAlarms.control(self, request)` | Baseline an enrollment before acknowledgment; keep monitoring disabled on lookup failure. |
-| `LandslideAlarms.acknowledge(self, request)` | Permit scheduled checks only after all acknowledgment parts have been sent. |
+| `LandslideAlarms.acknowledge(self, request)` | Permit scheduled checks only after the acknowledgment message has been sent. |
 | `LandslideAlarms.check_one(self)` | Check one due fixed point; retain baselines on failure and report outage/recovery once. |
 | `LandslideAlarms.run(self)` | Poll due subscriptions until the parent service cancels this worker. |
 
@@ -657,3 +668,41 @@ See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
 | --- | --- |
 | `Responder.read_slide_status(self, target)` | Run a bounded structured lookup and validate freshness before changing subscription state. |
 | `Responder.send_slide_change(self, reading, output)` | Send tagged updates on the originating channel with expiry, identity, and revision guards. |
+
+## Location water functions
+
+[Interpretation, configuration and provenance](WATER_GUIDE.md).
+
+| Module/function | Responsibility |
+| --- | --- |
+| `scripts/waterway.py`, `basin.py`, `floodstatus.py` | Dedicated executable command entry points. |
+| `water_lookup.parse_query`, `resolve` | Validate locations and reject ambiguous geocoder matches. |
+| `water_lookup.snapshot`, `checked_snapshot`, `compact` | Evaluate all reliably linked upstream gauges, validate child output and strip measurements from alarm baselines. |
+| `water_lookup.format_status` | Label official, modeled, upstream basin and nearby-only evidence. |
+| `water_local.build_index`, `context`, `readings` | Verify source pins, build static bounds including coordinate-free station identities, resolve all supported paths and read sole latest observations. |
+| `water_sources.cached`, `alerts_at`, `gauge`, `model_at`, `rainfall_at` | Bounded current-only source cache and explicit freshness/coverage checks. |
+| `water_changes.changes` | Compare every gauge; render readable category counts and labelled station IDs without limiting baseline coverage. |
+| `water_lookup.format_floodwarn`, `floodwarn_expiry` | Format concise one-shot alerts with exact standard descriptions or complete current bulletin text and links; shared timezone, explicit uncertainty and unchanged subscription behavior. |
+| `water_notifications.priority`, `official_notifications`, `format_notification` | Create independent CAP-ranked active/lifecycle/source notices, preserve exact standard descriptions and label unknown priority fields. |
+| `FloodAlarms.queue_notices`, `reconcile_pending`, `send_one`, `notification_current` | Maintain a replaceable in-memory queue, guard current source/subscription state, and space completed responses by five seconds while polling continues. |
+| `water_refresh.main` | Operator-run index rebuild and independent `--noaa-identifiers` review refresh; failures remain explicit. |
+| `water_settings.validate`, `load` | Shared service/CLI settings and bounds. |
+| `water_identifiers.review`, `load`, `apply`, `refresh` | Corroborate exact NOAA/USGS IDs, overlay supported matches, withhold conflicts and atomically replace the current static review. See [review evidence](WATER_STATION_REVIEW.md). |
+| `water_agency_review.enrich`, `verify_successor_metadata`, `api_matches` | Check official metadata for the 17 reviewed IDs and enforce the sole documented agency-successor chain without acquiring historical readings. |
+| `water_map_review.enrich`, `parse_sites`, `parse_map`, `candidate_metadata` | Retain non-authorizing map evidence for sixteen unresolved stations; flag source and identity changes without linking candidates or persisting readings. |
+| `water_map_review.parse_onerain`, `onerain_evidence` | Allowlist public site metadata, flag source/alias changes and keep candidate evidence separate from authorized NOAA links. |
+| `water_vertical_review.enrich` | Check five official WAC/WAS metadata pages against the manual baseline during identifier refresh; flag drift, schema failures and access failures without authorizing corrections or links. |
+| `water_operator_records.evidence` | Preserve dated local-agency findings, citations and WAC/WAS vertical-reference uncertainty; never authorize links, adjust readings or renew manual-review dates during refresh. |
+
+## scripts/response_text.py
+
+| Function | Purpose |
+| --- | --- |
+| `clean_text(text)` | Normalize horizontal whitespace while retaining meaningful lines. |
+| `counted(count, singular, plural=None)` | Select singular for one and plural otherwise, with optional irregular plural. |
+| `take_text(text, budget)` | Select a UTF-8 prefix at a line or word boundary when possible. |
+| `split_text(text, budget)` | Produce byte-bounded chunks for explicit local callers. |
+| `tagged_parts(sender, output, limit=MESSAGE_BYTES, max_parts=4)` | Apply exact sender and counter budgets; service calls use one part. |
+| `short_label(value, budget=60)` | Bound variable names without cutting warning/action text. |
+| `split_fields(text, separator="; ")` | Split top-level fields while preserving parenthetical and bracketed qualifiers. |
+| `compact_fields(essential, fields=(), sender=None)` | Retain a primary field and distinct complete optional fields without omission notices. |

@@ -1,5 +1,7 @@
 # Satellite radio reference database
 
+[All satellite subcommands and flags](../docs/CLI_REFERENCE.md#satellite-catalog) | [Documentation index](../docs/README.md).
+
 Build and maintain a local SQLite database of documented satellite radio services.
 The same Python program runs on Windows and Linux. Database creation, lookup,
 status evidence, and JSON/CSV export require only Python 3.11 or newer.

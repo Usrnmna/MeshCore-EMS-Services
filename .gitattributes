@@ -6,6 +6,9 @@
 *.json text eol=lf
 *.sql text eol=lf
 *.svg text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
 *.sh text eol=lf
 *.service text eol=lf
 *.cs text eol=lf
@@ -32,6 +35,12 @@
 *.parquet binary
 *.kmz binary
 *.dbf binary
+*.gpkg binary
+*.shp binary
+*.shx binary
+*.tif binary
+*.tiff binary
+*.xlsx binary
 
 # Reference datasets and supplier receipts retain hashed bytes and source whitespace.
 /data/** -text -whitespace

@@ -1,4 +1,9 @@
-﻿# Version 0.9.0-Beta
+# Version 0.9.0-Beta
+
+This document describes its named release snapshot. The maintained source now
+registers 31 commands; see the [current command/subcommand reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
+and [water command guide](meshcore_mqtt_service/WATER_GUIDE.md). Source updates do
+not retroactively rebuild or validate previously generated release artifacts.
 
 The October 20, 2026 rebuild adds nine wildfire commands (25 total), complete
 interstate fire-weather zones, source caching and temporary monitoring. See

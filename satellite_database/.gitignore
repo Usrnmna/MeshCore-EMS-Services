@@ -36,6 +36,7 @@ build/
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Interrupted exports and SQLite sidecars; retain reference databases and receipts.
 *.json.tmp
@@ -54,3 +55,34 @@ Thumbs.db
 Desktop.ini
 *.swp
 *.swo
+
+# Local verification caches and reports
+.hypothesis/
+.benchmarks/
+junit-results.xml
+node_modules/
+.cache/
+playwright-report/
+test-results/
+
+# SQLite sidecars from optional operator database filenames
+*.db-wal
+*.db-shm
+*.db-journal
+.vs/
+*.suo
+*.user
+
+# Local service credentials in standalone catalog checkouts.
+environment.json
+
+# Local credential copies; distributable templates remain trackable.
+environment.json.*
+!environment.json.example
+!environment.json.template
+
+# Logs created in this checkout's root or its local log directory.
+# Reference receipts and test fixtures in other directories remain trackable.
+/logs/
+/*.log
+/*.log.*

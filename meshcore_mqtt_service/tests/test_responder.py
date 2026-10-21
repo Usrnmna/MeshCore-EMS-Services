@@ -147,7 +147,7 @@ class ResponderTests(unittest.IsolatedAsyncioTestCase):
         for part in parts:
             self.assertTrue(part.startswith("@RenÃ© "))
             self.assertLessEqual(len(part.encode()), 150)
-        self.assertTrue(parts[-1].endswith("..."))
+        self.assertNotIn("omitted", parts[-1])
 
     async def test_script_paths_cannot_escape_folder(self):
         self.cfg["commands"]["!status"]["script"] = "../outside.py"

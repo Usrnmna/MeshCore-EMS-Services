@@ -155,7 +155,10 @@ class InstallerTests(unittest.TestCase):
         shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts/wildfire_settings.py", package / "scripts/wildfire_settings.py")
         for source in (ROOT / "meshcore_mqtt_service/scripts").glob("landslide_*.py"):
             shutil.copyfile(source, package / "scripts" / source.name)
-        for name in ("flood_warn.py", "uv_index.py"):
+        # Configuration imports the flood worker and its water helpers; fixture commands remain isolated.
+        for source in (ROOT / "meshcore_mqtt_service/scripts").glob("water_*.py"):
+            shutil.copyfile(source, package / "scripts" / source.name)
+        for name in ("flood_warn.py", "uv_index.py", "response_text.py"):
             shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts" / name, package / "scripts" / name)
         configure.write_json(package / "config.json", defaults)
         (root / "satellite_database/settings.json").write_text("{}")

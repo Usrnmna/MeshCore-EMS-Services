@@ -13,3 +13,6 @@ python tools/package_services.py
 
 The generated packages are written to `dist/`. For OS service installation,
 follow the [installation guide](../INSTALL.md).
+
+[Current packaging and verification procedures](../docs/DEVELOPMENT.md) describe
+maintained sources and Git exclusions. Recovery ZIPs remain local historical data.

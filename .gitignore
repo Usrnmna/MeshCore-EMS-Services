@@ -36,6 +36,7 @@ htmlcov/
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Rebuilt distribution packages and local recovery snapshots
 dist/
@@ -134,3 +135,24 @@ Desktop.ini
 /data/usgs_water/LINK_REVIEW.md
 /data/usgs_water/AGENCY_REVIEW.md
 /data/usgs_water/LOCAL_REVIEW.md
+
+# Local verification caches and reports
+.hypothesis/
+.benchmarks/
+junit-results.xml
+
+# SQLite sidecars from optional operator database filenames
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Local credential copies; distributable templates remain trackable.
+environment.json.*
+!environment.json.example
+!environment.json.template
+
+# Logs created in this checkout's root or its local log directory.
+# Reference receipts and test fixtures in other directories remain trackable.
+/logs/
+/*.log
+/*.log.*

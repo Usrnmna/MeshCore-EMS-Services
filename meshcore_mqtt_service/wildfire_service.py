@@ -6,6 +6,7 @@ import logging
 import time
 
 from scripts.wildfire_settings import validate
+from scripts.response_text import compact_fields, short_label, counted
 
 LOG = logging.getLogger("wildfire")
 
@@ -39,24 +40,27 @@ def changes(old, new, config):
     messages = []
     before, after = old["incidents"], new["incidents"]
     for key in sorted(after.keys() - before.keys()):
-        messages.append("Newly reported: " + str(after[key]["name"]))
+        messages.append("Newly reported: " + short_label(after[key]["name"], 18))
     for key in sorted(before.keys() - after.keys()):
-        messages.append(str(before[key]["name"]) + " no longer listed; status unconfirmed")
+        messages.append(short_label(before[key]["name"], 18) + " no longer listed; status unconfirmed")
     for key in sorted(before.keys() & after.keys()):
         left, right = before[key], after[key]
-        for field, threshold, unit in (("acres", config["acreage_change"], "ac"),
-                                       ("containment", config["containment_change"], "% contained")):
+        for field, threshold in (("acres", config["acreage_change"]),
+                                 ("containment", config["containment_change"])):
             a, b = left[field], right[field]
             if a != b and (a is None or b is None or abs(b - a) >= threshold or
                            (field == "containment" and b == 100)):
-                messages.append(f"{right['name']}: {field} now " + ("not reported" if b is None else f"{b:g} {unit}"))
+                label = "area" if field == "acres" else "containment"
+                value = f"{b:g} ac" if field == "acres" and b is not None else f"{b:g}%" if b is not None else None
+                messages.append(f"{short_label(right['name'], 18)}: {label} " +
+                                ("not reported." if value is None else f"now {value}."))
         if left["perimeter"] != right["perimeter"]:
-            messages.append(str(right["name"]) + (" mapped perimeter available" if right["perimeter"] else " perimeter unavailable"))
+            messages.append(short_label(right["name"], 18) + (" mapped perimeter available" if right["perimeter"] else " perimeter unavailable"))
     for key in sorted(new["alerts"]):
         if old["alerts"].get(key) != new["alerts"][key]:
             messages.append("New/updated " + new["alerts"][key]["event"])
     for key in sorted(old["alerts"].keys() - new["alerts"].keys()):
-        messages.append(old["alerts"][key]["event"] + " no longer active in current feed")
+        messages.append(old["alerts"][key]["event"] + " unlisted; status unconfirmed")
     return messages
 
 
@@ -117,9 +121,9 @@ class WildfireAlarms:
         if query["action"] == "status":
             if not row or not self.current(row):
                 return "No active wildfire subscription.", ""
-            return (f"Wildfire monitoring {', '.join(json.loads(row['zones']))}; "
-                    f"{max(0, int((row['expires'] - self.clock()) / 60))} minutes remaining."
-                    + (" Data unavailable; retaining previous baseline." if row["error"] else ""), "")
+            return compact_fields("Wildfire monitoring active." + (" Data unavailable." if row["error"] else ""),
+                                  [f"{max(0, int((row['expires']-self.clock())/60))}m left", ", ".join(json.loads(row['zones']))]), ""
+
         if not self.config["enabled"]:
             return "Wildfire monitoring is disabled in configuration.", ""
         if not row or row["revision"] != request["id"]:
@@ -136,9 +140,15 @@ class WildfireAlarms:
             (json.dumps(snapshot["zones"]), json.dumps(snapshot),
              self.clock() + self.config["subscription_interval"], self.channel, request["sender"], request["id"]))
         self.db.commit()
-        return (f"Wildfire monitoring set for {', '.join(snapshot['zones'])}; "
-                f"{self.config['subscription_hours']:g} hours. Baseline: {len(snapshot['incidents'])} incident records, "
-                f"{len(snapshot['alerts'])} fire-weather alerts. Use !fires/!firewarn for details; !firealarm off to stop.", "")
+        alerts = sorted({alert["event"] for alert in snapshot["alerts"].values()},
+                        key=lambda event: ("Warning" not in event, event))
+        essential = (f"NWS {alerts[0]}; monitoring set." if alerts else
+                     f"Wildfire monitoring set; {self.config['subscription_hours']:g}h. Stop: !firealarm off.")
+        controls = [f"{self.config['subscription_hours']:g}h; stop: !firealarm off"] if alerts else []
+        return compact_fields(essential, controls +
+                              [", ".join(snapshot["zones"]),
+                               counted(len(snapshot["incidents"]), "incident") + "; " + counted(len(snapshot["alerts"]), "NWS alert")]), ""
+
 
     def control_current(self, request):
         """Prevent a superseded on/off acknowledgment from leaving the radio queue."""
@@ -180,7 +190,7 @@ class WildfireAlarms:
                                 (str(exc), self.channel, reading["sender"]))
                 self.db.commit()
                 if reading["error"] is None:
-                    await self.notify(reading, "Wildfire monitoring data unavailable; previous status retained. " + str(exc))
+                    await self.notify(reading, "Wildfire monitoring data unavailable; status unknown.")
             return True
         if not self.current(reading):
             return True
@@ -192,8 +202,10 @@ class WildfireAlarms:
             WHERE channel=? AND sender=?""",
             (json.dumps(snapshot) if messages else reading["baseline"], self.channel, reading["sender"]))
         self.db.commit()
-        if messages:
-            await self.notify(reading, "Wildfire " + ", ".join(snapshot["zones"]) + ": " + "; ".join(messages))
+        for message in messages:
+            if not self.current(reading):
+                break
+            await self.notify(reading, compact_fields(message, [", ".join(snapshot["zones"])]))
         return True
 
     async def run(self):

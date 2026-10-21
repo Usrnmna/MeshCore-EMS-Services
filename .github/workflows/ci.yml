@@ -1,0 +1,75 @@
+name: Offline verification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: offline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  services:
+    name: ${{ matrix.package }} / Python ${{ matrix.python }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.13']
+        package: [meshcore_mqtt_service, meshcore_mqtt_service_windows]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: ${{ matrix.package }}/requirements.txt
+      - name: Install service dependencies
+        run: python -m pip install -r ${{ matrix.package }}/requirements.txt
+      - name: Check service dependency compatibility
+        run: python -m pip check
+      - name: Verify every command program and offline service behavior
+        working-directory: ${{ matrix.package }}
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+  documentation-and-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            meshcore_mqtt_service/requirements.txt
+            data/flood_impacts/requirements.txt
+            data/usgs_water/requirements.txt
+            satellite_database/requirements-tracking.txt
+      - name: Install offline verification dependencies
+        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt
+      - name: Check tooling dependency compatibility
+        run: python -m pip check
+      - name: Check documentation, examples, commands, and publication rules
+        run: python tools/check_documentation.py
+      - name: Check installer configuration and inventories
+        run: python -m unittest discover -s tools -p "test_*.py"
+      - name: Check offline data tools and satellite catalog
+        shell: bash
+        run: |
+          for suite in data/basin_plans data/flood_impacts data/usgs_water data/ebmud satellite_database; do
+            python -m unittest discover -s "$suite" -p 'test_*.py' || exit $?
+          done
+
+# Checks use fixtures and loopback MQTT. No acquisition, radio, installation,
+# deployment, release publication, or live-provider validation runs in this workflow.

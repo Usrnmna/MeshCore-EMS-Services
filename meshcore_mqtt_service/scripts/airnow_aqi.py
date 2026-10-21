@@ -26,6 +26,11 @@ except ModuleNotFoundError:
     from time_settings import format_utc_observation
 
 
+try:
+    from scripts.response_text import compact_fields, short_label
+except ModuleNotFoundError:
+    from response_text import compact_fields, short_label
+
 # USER SETTINGS AND SOURCES: see ../README.md for units and time budgets.
 # Keep the API key in the launching environment; do not paste it into this file.
 API_KEY = os.environ.get("AIRNOW_API_KEY", "").strip()
@@ -201,17 +206,11 @@ def main() -> int:
         if not API_KEY or API_KEY == "PASTE_YOUR_API_KEY_HERE":
             raise ValueError("Set the AIRNOW_API_KEY environment variable before starting the service.")
         observation = find_nearest_observation(latitude, longitude)
-        print(f"AQI: {observation.aqi}")
-        if observation.pm25 is None:
-            print("PM2.5: N/A")
-        else:
-            print(f"PM2.5: {observation.pm25:.1f} {observation.unit.replace('UG/M3', 'µg/m³')}")
-        print(f"Rating: {one_word_rating(observation.aqi, observation.category_number)}")
-        print(f"Station: {observation.site_name}")
-        
-        print(f"Distance: {observation.distance_km:.2f} km")
-        print(f"Observed: {format_utc_observation(observation.observed_at_utc)}")
-        print("Data status: Preliminary")
+        rating = one_word_rating(observation.aqi, observation.category_number)
+        essential = f"AQI {observation.aqi} {rating}; preliminary."
+        pm = "PM2.5 unavailable" if observation.pm25 is None else f"PM2.5 {observation.pm25:.1f} {observation.unit.replace('UG/M3', 'ug/m3')}"
+        print(compact_fields(essential, [pm, format_utc_observation(observation.observed_at_utc),
+                                       f"{short_label(observation.site_name, 25)} {observation.distance_km:.1f}km"]))
         return 0
     except (ValueError, RuntimeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

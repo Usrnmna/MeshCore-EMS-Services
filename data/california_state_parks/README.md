@@ -1,5 +1,7 @@
 # California State Parks local GIS references
 
+[Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
+
 Local snapshots from the [California State Parks GIS Data page](https://www.parks.ca.gov/?page_id=29682) are available for Python programs in this project. Attribution: California State Parks, Department of Parks and Recreation.
 
 The collection contains **11 dataset types and 56,650 features**, with 31 distinct published downloads plus 11 assembled GeoJSON collections. Park-boundary geometry repairs are recorded separately; downloaded source archives and raw service-response pages are preserved. No MeshCore command registration or installer artifact was changed for this acquisition.

@@ -55,6 +55,7 @@ class RiversTests(unittest.IsolatedAsyncioTestCase):
     async def fixture_reply(self, empty=False, failure=False, as_json=False):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
+            shutil.copyfile(service.ROOT / 'scripts/response_text.py', root / 'response_text.py')
             shutil.copyfile(service.ROOT / 'scripts/nearby_river_stations.py', root / 'nearby_river_stations.py')
             shutil.copyfile(service.ROOT / 'scripts/time_settings.py', root / 'time_settings.py')
             source = '''import nearby_river_stations as r
@@ -98,14 +99,14 @@ raise SystemExit(r.main())
             db.close()
             return result
 
-    async def test_real_script_tagged_nearest_stations_and_missing_readings(self):
+    async def test_real_script_reports_one_station_and_result_count(self):
         text = await self.fixture_reply()
-        self.assertIn('NEAR1 Near River', text)
-        self.assertIn('stage 5 ft at 2026-09-17 17:00 PDT; AS 10 ft, FS 20 ft', text)
-        self.assertIn('stage N/A at 2026-09-17 17:00 PDT; AS N/A, FS 41.3 ft', text)
-        self.assertIn('CDEC report: 2026-09-17 17:00 PDT', text)
+        self.assertIn('NEAR1: 5ft; gauge; point flooding unknown.', text)
+        self.assertIn('AS 10ft; FS 20ft', text)
+        self.assertIn('2 stations', text)
+        self.assertIn('2026-09-17 17:00 PDT', text)
         self.assertNotIn('Far River', text)
-        self.assertLess(text.index('NEAR1'), text.index('NEAR2'))
+        self.assertLessEqual(len(('@Alice '+text).encode()), 150)
 
     async def test_empty_result_is_explicit(self):
         self.assertEqual(await self.fixture_reply(empty=True), 'No matching river stations found within 15 mi.')

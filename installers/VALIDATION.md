@@ -1,5 +1,76 @@
 # Installer and service validation
 
+## Current-source documentation verification: October 21, 2026
+
+The current source contains **31 registered commands per platform**. The
+[command reference](../meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
+lists every command, GIS field/category, wildfire context category, location
+query form and subscription control. The paired
+[response catalogs](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md) each contain
+**309 offline formatter examples**, including help, closest/radius queries,
+all field/category forms, monitoring controls and triggered notifications.
+Each tagged response is checked against its stated UTF-8 byte count and 150-byte
+limit. Synthetic provider values and fixed timestamps do not describe live conditions.
+
+- Both complete service suites pass **475 tests each** on Windows Python 3.13,
+  including dedicated command registrations, single-message formatting, and
+  source/queue/subscription guards. Documented flood lifecycle responses and
+  triggered flood/fire/landslide examples are compared with service callbacks.
+- Additional offline suites pass: tools **19**, Basin Plan **20**, flood-impact
+  **22**, statewide USGS **88**, EBMUD **5**, and satellite **27**: **1,131 total**.
+- The documentation checker validates all command and terminal inventories,
+  tagged examples, paired-guide parity, local links/fragments, 378 focused
+  function signatures, badges, and publication exclusions. Generated water-data
+  destinations are reported separately and require their documented setup.
+- Current local EBMUD data produced 52 GIS lookup examples; 33 field-response
+  rows and applicable named/proximity examples were refreshed in each command
+  reference. Source reference-data bytes were unchanged.
+- GitHub YAML structure, pinned action references, eight service matrix
+  combinations, maintained dependency paths and 65 ignore/retention cases pass
+  local checks. No tracked files are excluded by the ignore rules.
+
+The CI configuration selects Python 3.11 and 3.13 on Windows and Linux; these
+hosted jobs have not been executed by this documentation update. Local tests used
+Python 3.13 with the declared dependencies and existing system libraries. Native
+Linux/ARM64, local Python 3.11, service installation/reboot, physical radio and
+recipient delivery, continuous four-hour monitoring, and current provider
+availability remain unverified. No acquisition, release rebuild, GitHub push or
+GitBook publication was performed. Earlier entries retain their historical results.
+
+
+
+## Current-source documentation and offline checks: October 20, 2026
+
+The current source registers **31 dedicated command programs per platform**.
+The [complete radio subcommand index](../meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
+and [terminal reference](../docs/CLI_REFERENCE.md) describe the registered
+commands, selectors, alarm controls, collection tools, and satellite subcommands.
+Earlier entries below record the command sets and artifacts checked at those times.
+
+- Both platform service suites pass **392 tests each** on Windows Python 3.13,
+  including command registrations and offline/loopback integration behavior.
+- Additional offline suites pass: installer/configuration tools **19**, Basin Plan
+  tools **20**, flood-impact pilot **22**, statewide USGS tools **88**, EBMUD
+  refresh tools **5**, and satellite catalog **27**: **965 tests in total**.
+- `python tools/check_documentation.py` checks all 31 command registrations,
+  subcommand vocabulary, local Markdown paths/fragments, literal terminal options,
+  346 paired water/wildfire function signatures, badges, guide parity, and Git
+  publication rules. Ignored generated water-data links are reported separately
+  and require the documented acquisition/index setup on a fresh clone.
+- The installer-test fixture includes the existing flood worker's water-helper
+  imports. Standalone package inventories include both focused function references.
+- Existing application source and test changes were preserved. Reference dataset
+  bytes were unchanged. No live provider acquisition was performed by these checks.
+
+The GitHub workflow and Dependabot configuration were checked locally for YAML
+structure, action pins, repository paths, and documented offline test commands.
+GitHub-hosted Windows/Linux jobs have not yet run. Local verification used an
+isolated environment with declared dependencies and access to existing system
+libraries. Native Linux/ARM64, installed-service lifecycle, physical radio or
+recipient delivery, and continuous four-hour monitoring remain unverified.
+Release artifacts were not rebuilt or republished during this documentation pass;
+the historical artifact results below do not validate a new distribution.
+
 ## Version 0.9.5 - Beta: October 20, 2026
 
 The release identifier is `v0.9.5-beta`; Windows assembly/file metadata uses

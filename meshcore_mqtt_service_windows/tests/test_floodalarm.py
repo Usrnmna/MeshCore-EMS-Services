@@ -1,393 +1,560 @@
-"""Simulated-clock tests: no 20-minute waits, live network calls, or radio transmissions."""
+"""Location-pinned flood controls, current-state comparison and responder integration."""
+
 import asyncio
+from copy import deepcopy
 import io
 import json
+import os
 from pathlib import Path
-import shutil
 import sqlite3
-import tempfile
 import time
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from flood_alarm import ACKNOWLEDGMENT, CHECK_INTERVAL, MAX_AGE, FloodAlarms
+from flood_alarm import FloodAlarms
+from scripts import water_lookup, water_sources, water_settings, floodalarm
+from scripts.water_changes import changes
 import responder
-import flood_alarm
-from scripts import flood_warn, floodalarm
 
 ROOT = Path(__file__).resolve().parents[1]
+NOW = 1792500000
+POINT = [38.5, -122.9]
 
 
-def status(*events):
-    return {'events': list(events), 'text': flood_warn.format_status('Sacramento', events)}
+def sample(now=NOW, events=None, state="no_flooding"):
+    alerts = {} if events is None else events
+    return {
+        "point": POINT.copy(),
+        "target": "Test City",
+        "fetched": now,
+        "mode": "conditions",
+        "official": {
+            "status": "available",
+            "data": {"alerts": alerts, "cancelled_ids": [], "fetched": now},
+        },
+        "conditions": {
+            "gauge:A": {
+                "state": state,
+                "label": "Example upstream gauge",
+                "evidence": "derived_graph_plus_basin_overlap",
+            }
+        },
+    }
+
+
+def alert(key="a", fingerprint="first", references=None):
+    return {
+        "id": key,
+        "event": "Flood Watch",
+        "expires": NOW + 7200,
+        "effective": NOW - 60,
+        "references": references or [],
+        "fingerprint": fingerprint,
+        "headline": "Watch",
+        "instruction": "Review NWS guidance",
+        "url": "https://api.weather.gov/alerts/" + key,
+    }
+
+
+class ChangeTests(unittest.TestCase):
+    def test_readable_gauge_labels_keep_categories_uncertainty_and_source_status(self):
+        cases = {'major': 'major flooding', 'moderate': 'moderate flooding',
+                 'minor': 'minor flooding', 'action': 'action stage',
+                 'threshold_unavailable': 'threshold unknown', 'unavailable': 'data unavailable',
+                 'stale': 'data stale', 'invalid': 'data invalid', 'future': 'future-dated reading',
+                 'out_of_service': 'out of service', 'no_flooding': 'below flood stage',
+                 'unrecognized_state': 'status unknown', 'coverage_lost': 'coverage lost'}
+        for state, label in cases.items():
+            for count in (1, 2):
+                previous = sample(state='minor' if state == 'no_flooding' else 'no_flooding')
+                previous['conditions'] = {f'gauge:{i}': dict(previous['conditions']['gauge:A']) for i in range(count)}
+                current = deepcopy(previous)
+                for value in current['conditions'].values():
+                    value.update(state=state, reading_status='unavailable')
+                if state == 'coverage_lost':
+                    current['conditions'] = {}
+                for sender in ('Alice', 'a' * 80, '温' * 26):
+                    with self.subTest(state=state, count=count, sender=sender), patch.dict(os.environ, {'MESHCORE_SENDER': sender}):
+                        _, notices = changes(water_lookup.compact(previous), current, NOW)
+                        self.assertEqual(len(notices), 1)
+                        text = responder.reply_parts(sender, notices[0], max_parts=1)[0]
+                        self.assertIn(f'{count} gauge' + ('s' if count != 1 else '') + ': ' + label, text)
+                        self.assertIn('not an all-clear' if state == 'coverage_lost' else 'not point flooding', text)
+                        self.assertLessEqual(len(text.encode()), 150)
+                        self.assertNotIn('Unable to return', text)
+                        self.assertNotIn('DERIVED gauges', text)
+                        self.assertNotIn('=', text)
+                        if sender == 'Alice':
+                            self.assertIn('Example upstream gauge [ID 0]', text)
+                            if state != 'coverage_lost':
+                                self.assertIn('USGS unavailable', text)
+
+    def test_named_gauge_and_identifier_are_distinct_and_long_names_are_whole(self):
+        previous = sample()
+        for name in ('Example upstream gauge', 'Gauge (' + '温' * 80 + ')'):
+            current = sample(state='major')
+            current['conditions']['gauge:A'].update(label=name, noaa_identity_status='matched_agency_successor', reading_status='stale')
+            text = changes(water_lookup.compact(previous), current, NOW)[1][0]
+            self.assertIn('1 gauge: major flooding; not point flooding.', text)
+            self.assertNotIn('A Example', text)
+            self.assertEqual(text.count('('), text.count(')'))
+            if name == 'Example upstream gauge':
+                self.assertIn('Example upstream gauge [ID A]', text)
+                self.assertIn('USGS stale', text)
+                self.assertIn('agency successor', text)
+            else:
+                self.assertNotIn('温', text)
+
+    def test_large_change_set_keeps_all_baselines_and_prioritizes_remote_hazard(self):
+        previous = sample()
+        previous["conditions"] = {
+            f"gauge:USGS-{i:04d}": dict(
+                state="no_flooding",
+                label=f"Gauge {i}",
+                evidence="derived_graph_plus_basin_overlap",
+                reading_status="available",
+            )
+            for i in range(200)
+        }
+        current = deepcopy(previous)
+        for value in current["conditions"].values():
+            value.update(
+                state="threshold_unavailable", reading_status="stale", value=999999
+            )
+        current["conditions"]["gauge:USGS-0199"]["state"] = "major"
+        baseline, messages = changes(water_lookup.compact(previous), current, NOW)
+        self.assertEqual(len(baseline["conditions"]), 200)
+        self.assertNotIn("999999", json.dumps(baseline))
+        output = " ".join(messages)
+        self.assertIn("1 gauge: major flooding", output)
+        self.assertIn("USGS-0199", output)
+        self.assertLessEqual(len(("@Reader " + output).encode()), 150)
+        self.assertNotIn("more changes", output)
+        self.assertLess(len(output), 800)
+        self.assertEqual(changes(baseline, current, NOW)[1], [])
+        recovered = deepcopy(current)
+        recovered["conditions"]["gauge:USGS-0100"]["reading_status"] = "available"
+        self.assertIn("USGS available", " ".join(changes(baseline, recovered, NOW)[1]))
+
+    def test_lost_links_are_counted_and_not_reported_as_clear(self):
+        previous = sample()
+        previous["conditions"] = {
+            f"gauge:{i}": dict(
+                state="major",
+                label=f"Gauge {i}",
+                evidence="derived_graph_plus_basin_overlap",
+            )
+            for i in range(100)
+        }
+        current = sample()
+        current["conditions"] = {}
+        baseline, messages = changes(water_lookup.compact(previous), current, NOW)
+        self.assertEqual(baseline["conditions"], {})
+        self.assertIn("100 gauges: coverage lost", " ".join(messages))
+        self.assertIn("not an all-clear", " ".join(messages))
+        self.assertLess(len(" ".join(messages)), 800)
+
+    def test_material_update_cancellation_and_expiry(self):
+        old = water_lookup.compact(sample(events={"a": alert()}))
+        new = sample(events={"b": alert("b", references=["a"])})
+        self.assertEqual(changes(old, new, NOW)[1], [])
+        new["official"]["data"]["alerts"]["b"]["fingerprint"] = "changed"
+        self.assertIn("UPDATED", changes(old, new, NOW)[1][0])
+        clear = sample()
+        self.assertIn("cancellation unconfirmed", changes(old, clear, NOW)[1][0])
+        clear["official"]["data"]["cancelled_ids"] = ["a"]
+        self.assertIn("cancelled by NWS", changes(old, clear, NOW)[1][0])
+        clear["official"]["data"]["cancelled_ids"] = []
+        self.assertIn("expired", changes(old, clear, NOW + 7200)[1][0])
+
+    def test_partial_outage_never_clears_alerts_and_recovers(self):
+        before = water_lookup.compact(sample(events={"a": alert()}))
+        failed = sample(state="stale")
+        failed["official"] = {"status": "unavailable", "error": "offline"}
+        after, messages = changes(before, failed, NOW)
+        self.assertEqual(after["alerts"], before["alerts"])
+        self.assertTrue(any("stale" in m for m in messages))
+        self.assertEqual(changes(after, failed, NOW)[1], [])
+        self.assertTrue(
+            any(
+                "restored" in m
+                for m in changes(after, sample(events={"a": alert()}), NOW)[1]
+            )
+        )
+
+    def test_baseline_has_no_measurements_and_unchanged_is_quiet(self):
+        s = sample()
+        s["local"] = {"readings": [{"value": 1234, "time": "old"}]}
+        baseline = water_lookup.compact(s)
+        self.assertNotIn("1234", json.dumps(baseline))
+        self.assertEqual(changes(baseline, s, NOW)[1], [])
+        s["conditions"] = {}
+        self.assertIn("coverage lost", changes(baseline, s, NOW)[1][0])
 
 
 class AlarmTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.now = 1000000.0
-        self.db = sqlite3.connect(':memory:')
+        self.now = NOW
+        self.db = sqlite3.connect(":memory:")
         self.addCleanup(self.db.close)
-        self.read = AsyncMock(return_value=status())
+        self.read = AsyncMock(side_effect=lambda *args: sample(self.now))
         self.notify = AsyncMock()
-        self.alarms = FloodAlarms(self.db, '#test', self.read, self.notify, lambda: self.now)
-        self.sequence = 0
+        self.allowed = True
+        self.alarms = FloodAlarms(
+            self.db,
+            "default",
+            "key",
+            {},
+            self.read,
+            self.notify,
+            lambda: self.allowed,
+            lambda: self.now,
+            monotonic=lambda: self.now,
+        )
+        self.serial = 0
 
-    def remember(self, command='!floodalarm', location='Sacramento', sender='Alice', acknowledge=True):
-        self.sequence += 1
-        request = {'id': str(self.sequence), 'sender': sender, 'arguments': [location],
-                   'command': command, 'sender_timestamp': int(self.now)}
-        self.assertEqual(self.alarms.remember(request, self.now), command == '!floodalarm')
-        if acknowledge and command == '!floodalarm':
-            self.alarms.acknowledge(request)
-        return request
+    def request(self, text="conditions Test City", sender="Alice"):
+        self.serial += 1
+        return {
+            "id": str(self.serial),
+            "command": "!floodalarm",
+            "sender": sender,
+            "sender_timestamp": int(self.now) + self.serial,
+            "arguments": [text],
+        }
 
-    async def test_warn_does_not_create_alarm_record(self):
-        self.remember('!floodwarn')
-        self.assertIsNone(self.alarms.row('Alice'))
+    async def enroll(self, text="conditions Test City", sender="Alice", ack=True):
+        r = self.request(text, sender)
+        self.assertTrue(self.alarms.remember(r, self.now))
+        text, _ = await self.alarms.control(r)
+        if ack:
+            self.alarms.acknowledge(r)
+        return r, text
+
+    async def test_status_summarizes_all_gauges_without_listing_them(self):
+        value = sample(self.now)
+        value["conditions"] = {
+            f"gauge:{i}": dict(
+                state="threshold_unavailable",
+                label=f"Station {i}",
+                evidence="derived_graph_plus_basin_overlap",
+                reading_status="stale",
+                routing_caveats="tidal_reaches",
+            )
+            for i in range(200)
+        }
+        self.read.side_effect = lambda *args: deepcopy(value)
+        await self.enroll()
+        text, _ = await self.alarms.control(self.request("status"))
+        self.assertIn("Data limited", text)
+        self.assertIn("status may be unknown", text)
+        self.assertEqual(len(json.loads(self.alarms.row("Alice")["baseline"])["conditions"]), 200)
+        self.assertNotIn("Station 199", text)
+        self.assertLess(len(text), 650)
+
+    async def test_resolves_before_enrollment_and_waits_for_ack(self):
+        r, text = await self.enroll(ack=False)
+        self.assertIn("Flood monitoring set", text)
         self.assertFalse(await self.alarms.check_one())
-        self.read.assert_not_awaited()
-
-    async def test_baseline_waits_for_ack_and_is_silent(self):
-        request = self.remember(acknowledge=False)
-        self.assertFalse(await self.alarms.check_one())
-        self.alarms.acknowledge(request)
+        self.alarms.acknowledge(r)
+        self.now += 300
         self.assertTrue(await self.alarms.check_one())
-        self.read.assert_awaited_once_with('Sacramento')
-        self.notify.assert_not_awaited()
-        self.assertEqual(self.alarms.row('Alice')['next_check'], self.now + CHECK_INTERVAL)
-
-    async def test_twenty_minute_schedule_changes_and_clear(self):
-        self.remember()
-        await self.alarms.check_one()
-        self.now += CHECK_INTERVAL - 1
-        self.assertFalse(await self.alarms.check_one())
-        self.now += 1
-        self.read.return_value = status('Flood Watch')
-        await self.alarms.check_one()
-        self.assertEqual(self.notify.await_args.args[1], status('Flood Watch')['text'])
-        self.now += CHECK_INTERVAL
-        await self.alarms.check_one()  # Unchanged: quiet.
-        self.assertEqual(self.notify.await_count, 1)
-        self.now += CHECK_INTERVAL
-        self.read.return_value = status()
-        await self.alarms.check_one()
-        self.assertEqual(self.notify.await_count, 2)
-        self.assertEqual(self.notify.await_args.args[1], 'no flooding events declared for Sacramento')
-
-    async def test_order_and_duplicates_are_not_changes(self):
-        self.remember()
-        self.read.return_value = status('Flood Warning', 'Flood Watch')
-        await self.alarms.check_one()
-        self.now += CHECK_INTERVAL
-        self.read.return_value = status('Flood Watch', 'Flood Warning', 'Flood Watch')
-        await self.alarms.check_one()
+        self.read.assert_awaited_with("38.5 -122.9", "conditions")
         self.notify.assert_not_awaited()
 
-    async def test_four_hour_hard_cutoff_and_warn_cannot_restart_expired_alarm(self):
-        self.remember()
-        await self.alarms.check_one()
-        self.now += MAX_AGE
-        self.assertFalse(await self.alarms.check_one())
-        self.assertFalse(self.alarms.row('Alice')['enabled'])
-        self.remember('!floodwarn')
-        self.assertFalse(await self.alarms.check_one())
-        self.remember()
-        self.assertTrue(await self.alarms.check_one())
+    async def test_ambiguous_or_unavailable_enrollment_is_disabled(self):
+        self.read.side_effect = ValueError("Ambiguous location")
+        _, text = await self.enroll()
+        self.assertIn("not started", text)
+        self.assertFalse(self.alarms.row("Alice")["enabled"])
+        self.read.side_effect = lambda *args: dict(
+            sample(self.now), official={"status": "unavailable"}
+        )
+        _, text = await self.enroll()
+        self.assertIn("not started", text)
 
-    async def test_alarm_renews_active_alarm_and_changes_location_without_false_change(self):
-        self.remember()
-        await self.alarms.check_one()
-        self.now += MAX_AGE - 1
-        self.remember('!floodalarm', 'Reno NV')
-        row = self.alarms.row('Alice')
-        self.assertEqual(row['last_heard'], self.now)
-        self.assertEqual(row['location'], 'Reno NV')
-        self.assertIsNone(row['baseline'])
-        self.read.return_value = status('Flood Watch')
-        await self.alarms.check_one()
-        self.notify.assert_not_awaited()
-        self.read.assert_awaited_with('Reno NV')
-        self.now += MAX_AGE
-        self.assertFalse(await self.alarms.check_one())
-
-    async def test_repeat_alarm_renews_one_row(self):
-        self.remember()
-        await self.alarms.check_one()
+    async def test_status_stop_renewal_expiry_and_one_shot(self):
+        r, _ = await self.enroll()
+        row = self.alarms.row("Alice")
+        status = self.request("status")
+        self.alarms.remember(status, self.now)
+        self.assertIn("conditions", (await self.alarms.control(status))[0])
+        self.assertEqual(row, self.alarms.row("Alice"))
+        self.assertFalse(self.alarms.remember(dict(r, command="!floodwarn"), self.now))
         self.now += 60
-        self.remember()
-        self.assertEqual(self.alarms.row('Alice')['last_heard'], self.now)
-        self.assertEqual(self.db.execute('SELECT COUNT(*) FROM flood_subscriptions').fetchone()[0], 1)
-        self.assertEqual(self.alarms.row('Alice')['baseline'], '[]')
+        await self.enroll("Test City")
+        self.assertEqual(self.alarms.row("Alice")["mode"], "alerts")
+        self.now += 4 * 3600
         self.assertFalse(await self.alarms.check_one())
+        await self.enroll()
+        stop = self.request("stop")
+        self.alarms.remember(stop, self.now)
+        self.assertFalse(self.alarms.current(self.alarms.row("Alice")))
+        self.assertIn("stopped", (await self.alarms.control(stop))[0])
 
-    async def test_warn_leaves_running_alarm_and_deadline_unchanged(self):
-        self.remember()
+    async def test_threshold_change_outage_recovery_no_numeric_history(self):
+        await self.enroll()
+        await self.alarms.send_one()  # Separate initial no-alert notification.
+        self.notify.reset_mock()
+        self.now += 300
+        self.read.side_effect = lambda *args: sample(self.now, state="action")
         await self.alarms.check_one()
-        before = self.alarms.row('Alice')
-        self.now += MAX_AGE - 1
-        self.remember('!floodwarn', 'Reno NV')
-        self.assertEqual(self.alarms.row('Alice'), before)
-        self.now += 1
-        self.assertFalse(await self.alarms.check_one())
-        self.assertFalse(self.alarms.row('Alice')['enabled'])
-
-    async def test_outage_keeps_good_baseline_and_reports_once_then_recovers(self):
-        self.remember()
-        self.read.return_value = status('Flood Warning')
+        await self.alarms.send_one()
+        self.assertIn("1 gauge: action stage; not point flooding.", self.notify.await_args.args[1])
+        self.now += 300
         await self.alarms.check_one()
-        self.read.side_effect = RuntimeError('Unavailable')
-        for _ in range(2):
-            self.now += CHECK_INTERVAL
-            await self.alarms.check_one()
+        await self.alarms.send_one()
         self.assertEqual(self.notify.await_count, 1)
-        self.assertEqual(json.loads(self.alarms.row('Alice')['baseline']), ['Flood Warning'])
-        self.assertNotIn('no flooding', self.notify.await_args.args[1])
-        self.now += CHECK_INTERVAL
-        self.read.side_effect = None
-        self.read.return_value = status()
-        await self.alarms.check_one()
-        self.assertEqual(self.notify.await_count, 2)
-        self.assertIsNone(self.alarms.row('Alice')['error'])
-
-    async def test_initial_failure_is_not_a_clear_baseline(self):
-        self.remember()
-        self.read.side_effect = RuntimeError('Unknown location')
-        await self.alarms.check_one()
-        self.assertIsNone(self.alarms.row('Alice')['baseline'])
-        self.now += CHECK_INTERVAL
-        self.read.side_effect = None
-        self.read.return_value = status('Flood Warning')
-        await self.alarms.check_one()
-        self.assertEqual(self.notify.await_count, 1)  # Error only; first valid reading is baseline.
-
-    async def test_inflight_result_discarded_on_expiry_or_new_location(self):
-        for change_location in (False, True):
-            self.remember()
-            async def delayed(_):
-                if change_location:
-                    self.now += 1
-                    self.remember(location='Reno NV')
-                else:
-                    self.now += MAX_AGE
-                return status('Flood Watch')
-            self.read.side_effect = delayed
+        self.read.side_effect = ValueError("offline")
+        for i in range(2):
+            self.now += 300
             await self.alarms.check_one()
-            self.assertIsNone(self.alarms.row('Alice')['baseline'])
-            self.notify.assert_not_awaited()
-
-    async def test_multiple_senders_and_channels_are_independent(self):
-        self.remember(sender='Alice')
-        self.remember(location='Reno NV', sender='Bob')
-        other = FloodAlarms(self.db, '#other', self.read, self.notify, lambda: self.now)
-        self.assertIsNone(other.row('Alice'))
+            await self.alarms.send_one()
+        self.assertEqual(self.notify.await_count, 2)
+        self.read.side_effect = lambda *args: sample(self.now, state="action")
+        self.now += 300
         await self.alarms.check_one()
+        await self.alarms.send_one()
+        self.assertIn("restored", self.notify.await_args.args[1])
+        self.assertNotIn("readings", self.alarms.row("Alice")["baseline"])
+
+    async def test_inflight_cancel_and_changed_point_suppress_output(self):
+        await self.enroll()
+        self.now += 300
+
+        async def delayed(*args):
+            self.alarms.remember(self.request("stop"), self.now)
+            return sample(self.now, state="major")
+
+        self.read.side_effect = delayed
         await self.alarms.check_one()
-        self.assertEqual([call.args[0] for call in self.read.await_args_list], ['Sacramento', 'Reno NV'])
+        self.notify.assert_not_awaited()
+        self.read.side_effect = lambda *args: sample(self.now)
+        await self.enroll()
+        self.now += 300
+        self.read.side_effect = lambda *args: dict(sample(self.now), point=[39, -121])
+        await self.alarms.check_one()
+        self.assertIn("location changed", self.alarms.row("Alice")["error"])
 
-    async def test_restart_preserves_expiry_baseline_and_schedule(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / 'bridge.sqlite3'
-            db = sqlite3.connect(path)
-            original = FloodAlarms(db, '#test', self.read, self.notify, lambda: self.now)
-            request = {'id': 'r', 'sender': 'Alice', 'arguments': ['Sacramento'],
-                       'command': '!floodalarm', 'sender_timestamp': int(self.now)}
-            original.remember(request, self.now)
-            original.acknowledge(request)
-            await original.check_one()
-            db.close()
-            db = sqlite3.connect(path)
-            try:
-                restarted = FloodAlarms(db, '#test', self.read, self.notify, lambda: self.now)
-                self.assertFalse(await restarted.check_one())
-                self.now += CHECK_INTERVAL
-                self.read.return_value = status('Flood Watch')
-                await restarted.check_one()
-                self.notify.assert_awaited_once()
-                self.now += MAX_AGE
-                self.assertFalse(await restarted.check_one())
-            finally:
-                db.close()
+    async def test_sender_channel_identity_and_restart(self):
+        await self.enroll()
+        await self.enroll(sender="Bob")
+        before = self.alarms.row("Alice")
+        restarted = FloodAlarms(
+            self.db,
+            "default",
+            "key",
+            {},
+            self.read,
+            self.notify,
+            lambda: True,
+            lambda: self.now,
+        )
+        self.assertEqual(restarted.row("Alice"), before)
+        other = FloodAlarms(
+            self.db,
+            "other",
+            "other",
+            {},
+            self.read,
+            self.notify,
+            lambda: True,
+            lambda: self.now,
+        )
+        self.assertIsNone(other.row("Alice"))
+        changed = FloodAlarms(
+            self.db,
+            "default",
+            "changed",
+            {},
+            self.read,
+            self.notify,
+            lambda: True,
+            lambda: self.now,
+        )
+        self.assertFalse(changed.row("Alice")["enabled"])
 
-    async def test_older_radio_call_does_not_replace_latest_location(self):
-        old = self.remember()
-        self.now += 60
-        self.remember(location='Reno NV')
-        self.assertFalse(self.alarms.remember(old, self.now))
-        self.assertEqual(self.alarms.row('Alice')['location'], 'Reno NV')
+    async def test_legacy_migration_preserves_deadline_and_pins_once(self):
+        self.db.execute(
+            "CREATE TABLE flood_subscriptions(channel TEXT,sender TEXT,location TEXT,last_heard REAL,sender_timestamp INTEGER,revision TEXT,enabled INTEGER,ready INTEGER,next_check REAL,baseline TEXT,checked_at REAL,error TEXT)"
+        )
+        self.db.execute(
+            "INSERT INTO flood_subscriptions VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                "default",
+                "Legacy",
+                "Test City",
+                NOW - 100,
+                1,
+                "old",
+                1,
+                1,
+                NOW,
+                "[]",
+                None,
+                None,
+            ),
+        )
+        migrated = FloodAlarms(
+            self.db,
+            "default",
+            "key",
+            {},
+            self.read,
+            self.notify,
+            lambda: True,
+            lambda: self.now,
+        )
+        self.assertEqual(migrated.row("Legacy")["expires"], NOW - 100 + 14400)
+        await migrated.check_one()
+        self.assertEqual(json.loads(migrated.row("Legacy")["point"]), POINT)
+        self.assertEqual(
+            self.db.execute("SELECT enabled FROM flood_subscriptions").fetchone()[0], 0
+        )
 
 
-class AlarmIntegrationTests(unittest.IsolatedAsyncioTestCase):
+class IntegrationTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.cfg = json.loads((ROOT / 'config.json').read_text())['responder']
-        self.db = sqlite3.connect(':memory:')
+        self.cfg = json.loads((ROOT / "config.json").read_bytes())["responder"]
+        self.db = sqlite3.connect(":memory:")
         self.addCleanup(self.db.close)
         self.send = AsyncMock()
-        self.bot = responder.Responder(ROOT, self.db, self.cfg, 3, 'Bot', self.send)
+        self.bot = responder.Responder(ROOT, self.db, self.cfg, 3, "Bot", self.send)
 
-    def packet(self, phrase='!floodalarm Sacramento', sender='Alice'):
-        return {'channel_idx': 3, 'txt_type': 0, 'sender_timestamp': int(time.time()),
-                'text': f'{sender}: {phrase}'}
-
-    async def test_exact_ack_without_weather_lookup_and_input_forms(self):
-        responder.validate_config(self.cfg, ROOT)
-        for location in ('38, -121', '95814', 'Sacramento', 'Reno NV', 'Reno Nevada'):
-            matched = responder.match_command('!floodalarm ' + location, self.cfg['commands'])
-            self.assertEqual(matched, ('!floodalarm', [location], None))
-        with patch.object(responder, 'run_script', new_callable=AsyncMock) as run:
-            self.assertTrue(self.bot.accept(self.packet()))
-            await self.bot.process_one()
-            run.assert_not_awaited()
-        self.send.assert_awaited_once_with(3, '@Alice ' + ACKNOWLEDGMENT)
-        self.assertTrue(self.bot.alarms.row('Alice')['ready'])
-
-    async def test_only_alarm_command_replaces_location_and_resets_timer(self):
-        """Exercise received commands, including ordinary !floodwarn replies, through the responder."""
+    async def test_control_guard_and_no_retained_values(self):
         now = time.time()
-        with patch.object(responder.time, 'time', return_value=now) as clock, \
-                patch.object(responder, 'run_script', return_value=('One-shot flood reply', '')):
-            self.assertTrue(self.bot.accept(self.packet('!floodwarn Sacramento')))
+        packet = {
+            "channel_idx": 3,
+            "txt_type": 0,
+            "sender_timestamp": int(now),
+            "text": "Alice: !floodalarm conditions 38.5 -122.9",
+        }
+        with patch.object(self.bot.alarms, "read", return_value=sample(now)):
+            self.assertTrue(self.bot.accept(packet))
             await self.bot.process_one()
-            self.assertIsNone(self.bot.alarms.row('Alice'))
+        self.assertTrue(self.bot.alarms.row("Alice")["ready"])
+        self.assertTrue(
+            all(call.kwargs["guard"]() for call in self.send.await_args_list)
+        )
+        self.assertEqual(
+            self.db.execute("SELECT response FROM bot_requests").fetchone()[0], "[]"
+        )
+        self.bot.alarms.remember(
+            {
+                "id": "stop",
+                "command": "!floodalarm",
+                "sender": "Alice",
+                "sender_timestamp": int(now) + 1,
+                "arguments": ["stop"],
+            },
+            now,
+        )
+        self.assertFalse(self.send.await_args.kwargs["guard"]())
 
-            clock.return_value = now + 60
-            self.assertTrue(self.bot.accept(self.packet('!floodalarm Sacramento')))
+    async def test_new_commands_and_subprocess_snapshot_validation(self):
+        responder.validate_config(self.cfg, ROOT)
+        for command in (
+            "!waterway",
+            "!basin",
+            "!floodstatus",
+            "!floodwarn",
+            "!floodalarm",
+        ):
+            self.assertEqual(
+                responder.match_command(command + " 38 -121", self.cfg["commands"]),
+                (command, ["38 -121"], None),
+            )
+        for output in ("{}", "not JSON", '{"error":"offline"}'):
+            with patch.object(
+                responder, "run_script", return_value=(output, "")
+            ), self.assertRaises(RuntimeError):
+                await self.bot.read_flood_status("38 -121")
+        with patch.object(
+            responder, "run_script", return_value=(json.dumps(sample(time.time())), "")
+        ) as run:
+            await self.bot.read_flood_status("38 -121", "conditions")
+            self.assertEqual(run.call_args.args[1]["args"], ["--snapshot"])
+            self.assertEqual(run.call_args.args[2]["arguments"], ["conditions 38 -121"])
+
+    async def test_standalone_alarm_does_not_subscribe(self):
+        with patch.object(water_lookup, "snapshot", return_value=sample()), patch(
+            "sys.stdout", new_callable=io.StringIO
+        ) as out:
+            floodalarm.main(["Test City"])
+        self.assertIn("no subscription", out.getvalue())
+
+    async def test_independent_notifications_use_tagged_chunks_and_guard_after_radio_wait(
+        self,
+    ):
+        now = time.time()
+        tick = [100.0]
+        self.bot.alarms.monotonic = lambda: tick[0]
+        first = dict(
+            alert("a"),
+            effective=now - 60,
+            expires=now + 7200,
+            urgency="Immediate",
+            severity="Extreme",
+            certainty="Observed",
+            event="Flash Flood Warning",
+        )
+        second = dict(
+            alert("b"),
+            effective=now - 60,
+            expires=now + 7200,
+            urgency="Future",
+            severity="Severe",
+            certainty="Possible",
+        )
+        packet = dict(
+            channel_idx=3,
+            txt_type=0,
+            sender_timestamp=int(now),
+            text="Alice: !floodalarm Test City",
+        )
+        with patch.object(
+            self.bot.alarms,
+            "read",
+            return_value=sample(now, events={"a": first, "b": second}),
+        ):
+            self.assertTrue(self.bot.accept(packet))
             await self.bot.process_one()
-            original = self.bot.alarms.row('Alice')
+        self.send.reset_mock()
+        await self.bot.alarms.send_one()
+        first_calls = list(self.send.await_args_list)
+        self.assertEqual(len(first_calls), 1)
+        joined = "".join(call.args[1][len("@Alice ") :] for call in first_calls)
+        self.assertIn("NWS FLASH FLOOD WARNING", joined)
+        self.assertIn("Move to higher ground now", joined)
+        self.assertNotIn("Flood Watch", joined)
+        self.assertTrue(
+            all(
+                call.args[0] == 3 and len(call.args[1].encode()) <= 150
+                for call in first_calls
+            )
+        )
+        self.assertFalse(await self.bot.alarms.send_one())
+        tick[0] += 5
+        accepted = []
 
-            clock.return_value = now + 120
-            self.assertTrue(self.bot.accept(self.packet('!floodwarn Reno NV')))
-            await self.bot.process_one()
-            self.assertEqual(self.bot.alarms.row('Alice'), original)
-            self.send.assert_awaited_with(3, '@Alice One-shot flood reply')
-
-            clock.return_value = now + 180
-            self.assertTrue(self.bot.accept(self.packet('!floodalarm Reno NV')))
-            await self.bot.process_one()
-            updated = self.bot.alarms.row('Alice')
-            self.assertEqual(updated['location'], 'Reno NV')
-            self.assertEqual(updated['last_heard'], now + 180)
-            self.assertTrue(updated['ready'])
-            self.assertTrue(updated['enabled'])
-            self.assertEqual(self.db.execute('SELECT COUNT(*) FROM flood_subscriptions').fetchone()[0], 1)
-            self.send.assert_awaited_with(3, '@Alice ' + ACKNOWLEDGMENT)
-
-    async def test_invalid_duplicate_wrong_channel_and_cooldown_do_not_renew(self):
-        p = self.packet()
-        self.bot.accept(p)
-        before = self.bot.alarms.row('Alice')
-        self.assertFalse(self.bot.accept(p))
-        self.assertFalse(self.bot.accept(self.packet('!floodalarm Reno NV')))
-        self.assertFalse(self.bot.accept({**self.packet(sender='Bob'), 'channel_idx': 4}))
-        self.bot.accept(self.packet('!floodalarm 999 999', sender='Bob'))
-        self.assertEqual(self.bot.alarms.row('Alice'), before)
-        self.assertIsNone(self.bot.alarms.row('Bob'))
-        await self.bot.process_one()
-        await self.bot.process_one()
-        self.assertNotIn(ACKNOWLEDGMENT, self.send.await_args.args[1])
-
-    async def test_ack_worker_does_not_wait_for_slow_ordinary_lookup(self):
-        started = asyncio.Event()
-        release = asyncio.Event()
-        async def slow(*_):
-            started.set()
-            await release.wait()
-            return ('result', '')
-        with patch.object(responder, 'run_script', side_effect=slow):
-            self.bot.accept(self.packet('!uv Sacramento', sender='Bob'))
-            work = asyncio.create_task(self.bot.process_one(alarm_only=False))
-            try:
-                await asyncio.wait_for(started.wait(), 1)
-                self.bot.accept(self.packet())
-                await asyncio.wait_for(self.bot.process_one(alarm_only=True), 1)
-                self.send.assert_awaited_once_with(3, '@Alice ' + ACKNOWLEDGMENT)
-            finally:
-                release.set()
-                await work
-
-    async def test_guard_drops_expired_message_after_radio_wait(self):
-        self.bot.accept(self.packet())
-        await self.bot.process_one()
-        reading = self.bot.alarms.row('Alice')
-        sent = []
-        async def delayed_send(channel, text, *, guard):
-            self.bot.alarms.clock = lambda: reading['last_heard'] + MAX_AGE
+        async def stop_during_radio_wait(channel, text, *, guard=None):
+            self.bot.alarms.remember(
+                dict(
+                    id="stop",
+                    command="!floodalarm",
+                    sender="Alice",
+                    sender_timestamp=int(now) + 1,
+                    arguments=["stop"],
+                ),
+                now,
+            )
             if guard():
-                sent.append(text)
-        self.bot.send = delayed_send
-        await self.bot.send_flood_change(reading, 'Flood Watch')
-        self.assertEqual(sent, [])
+                accepted.append(text)
 
-    async def test_structured_response_validation_and_no_false_clears(self):
-        for output in ('not JSON', '{}', '{"error":"Offline"}', '{"events":null}', '{"events":["Unknown"]}'):
-            with patch.object(responder, 'run_script', return_value=(output, '')), self.assertRaises(RuntimeError):
-                await self.bot.read_flood_status('Sacramento')
-        with patch.object(responder, 'run_script', return_value=('{"events":[]}', '')) as run:
-            self.assertEqual(await self.bot.read_flood_status('Sacramento'), status())
-            self.assertEqual(run.call_args.args[1]['script'], 'scripts/floodalarm.py')
-            self.assertEqual(run.call_args.args[1]['args'], [])
-
-    async def test_dedicated_alarm_program_returns_snapshot_or_error(self):
-        for reading in (status('Flood Watch'), RuntimeError('Offline')):
-            with self.subTest(reading=reading):
-                kwargs = {'side_effect': reading} if isinstance(reading, Exception) else {'return_value': reading}
-                with patch.object(flood_warn, 'snapshot', **kwargs), \
-                        patch('sys.stdout', new_callable=io.StringIO) as output:
-                    self.assertEqual(floodalarm.main(['Sacramento']), 0)
-                    expected = {'error': 'Offline'} if isinstance(reading, Exception) else reading
-                    self.assertEqual(json.loads(output.getvalue()), expected)
-
-    async def test_snapshot_cli_contract(self):
-        with patch.object(flood_warn, 'snapshot', return_value=status('Flood Watch')), \
-                patch('sys.stdout', new_callable=io.StringIO) as output:
-            flood_warn.main(['--snapshot', 'Sacramento'])
-            self.assertEqual(json.loads(output.getvalue())['events'], ['Flood Watch'])
-        with patch.object(flood_warn, 'snapshot', side_effect=RuntimeError('Offline')), \
-                patch('sys.stdout', new_callable=io.StringIO) as output:
-            flood_warn.main(['--snapshot', 'Sacramento'])
-            self.assertEqual(json.loads(output.getvalue()), {'error': 'Offline'})
-
-    async def test_running_service_ack_baseline_change_and_clean_shutdown(self):
-        received_change = asyncio.Event()
-        order = []
-        async def send(channel, text, **kwargs):
-            order.append('ack' if ACKNOWLEDGMENT in text else 'change')
-            if 'Flood Watch' in text:
-                received_change.set()
-        async def read(location):
-            order.append('read')
-            return status() if order.count('read') == 1 else status('Flood Watch')
-        self.bot.send = send
-        self.bot.alarms.read_status = read
-        self.bot.accept(self.packet())
-        with patch.object(flood_alarm, 'CHECK_INTERVAL', .02), patch.object(flood_alarm, 'POLL_SECONDS', .01):
-            task = asyncio.create_task(self.bot.run())
-            try:
-                await asyncio.wait_for(received_change.wait(), 2)
-                self.assertEqual(order[:4], ['ack', 'read', 'read', 'change'])
-            finally:
-                task.cancel()
-                await asyncio.gather(task, return_exceptions=True)
-            self.assertTrue(task.cancelled())
-
-    async def test_real_snapshot_subprocess(self):
-        from test_floodwarn import COVERAGE, alert, collection
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            scripts = root / 'scripts'
-            scripts.mkdir()
-            shutil.copyfile(ROOT / 'scripts/flood_warn.py', scripts / 'flood_data.py')
-            shutil.copyfile(ROOT / 'scripts/uv_index.py', scripts / 'uv_index.py')
-            shutil.copyfile(ROOT / 'scripts/floodalarm.py', scripts / 'floodalarm.py')
-            fixtures = [COVERAGE, collection(alert('Flood Watch', effective='2000-01-01T00:00:00Z',
-                                                    expires='2099-01-01T00:00:00Z'))]
-            (scripts / 'flood_warn.py').write_text(
-                'import flood_data as f\n' + f'responses=iter({fixtures!r})\n'
-                'f.get_json=lambda *args: next(responses)\nmain=f.main\n', encoding='utf-8')
-            self.bot.root = root
-            result = await self.bot.read_flood_status('38 -121')
-            self.assertEqual(result['events'], ['Flood Watch'])
-            self.assertIn('🟦', result['text'])
+        self.send.side_effect = stop_during_radio_wait
+        await self.bot.alarms.send_one()
+        self.assertFalse(accepted)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

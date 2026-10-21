@@ -1,5 +1,7 @@
 # California Basin Plan offline data
 
+[Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
+
 This repository distributes the download programs, curated configuration, tests
 and documentation. Downloaded datasets, generation pointers, generated catalogs
 and validation reports are local outputs excluded from Git. Follow the

@@ -12,7 +12,7 @@ MQTT topics, use the [architecture guide](ARCHITECTURE.md). The
 | `meshcore_mqtt_service/` | Linux service, shell launchers, command scripts, and `tests/`. |
 | `meshcore_mqtt_service_windows/` | Windows service, Windows launchers, command scripts, and `tests/`. |
 | `satellite_database/` | Independent satellite catalog program, settings, schema, and tests. |
-| `data/` | EBMUD reference layers and satellite database, exports, and offline source cache. |
+| `data/` | Maintained EBMUD/State Parks references, satellite exports, wildfire seed, and download-on-demand water collection tools; water generations remain local. |
 | [`tools/package_services.py`](../tools/package_services.py) | Builds both distribution ZIPs from current source and checks shared-code parity. |
 | `dist/` | Generated installation ZIPs; rebuild after source changes. |
 | [`archive/`](../archive/README.md) | Local historical recovery backups, excluded from version control. |
@@ -210,3 +210,66 @@ tests, guide, and `data/landslide/` references. Review source station coordinate
 metadata, and California/Nevada boundary changes before updating manifests and hashes.
 Keep the documented Castro Peak coordinate correction and discontinued Highway 50
 exclusion explicit. [Reference provenance and limits](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md#usgs-station-catalog-and-provenance).
+
+## Water maintenance and offline checks
+
+The [terminal command reference](CLI_REFERENCE.md) lists every executable collection
+program, refresh mode, validator, satellite subcommand, and command-program option.
+The [water setup guide](WATER_DATA_SETUP.md) defines acquisition order, current-only
+USGS retention, static index rebuilds, independent NOAA identifier review, and source
+failure handling. Runtime caches, review overlays, sidecars, and downloaded
+collections are local state; curated review rules and small source evidence tables
+remain maintained inputs.
+
+From the repository root, run these offline gates with the declared dependencies:
+
+```console
+python tools/check_documentation.py
+python -m unittest discover -s tools -p "test_*.py"
+python -m unittest discover -s data/basin_plans -p "test_*.py"
+python -m unittest discover -s data/flood_impacts -p "test_*.py"
+python -m unittest discover -s data/usgs_water -p "test_*.py"
+python -m unittest discover -s data/ebmud -p "test_*.py"
+python -m unittest discover -s satellite_database -p "test_*.py"
+```
+
+Run full `tests/` discovery separately in each service package. The documentation
+checker compares registrations, GIS fields, wildfire categories, subscription
+controls, terminal flags, local links, paired guides, source-derived function
+indexes, badge counts, and Git publication rules. It also verifies all 309 tagged
+[response examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md) per package,
+including exact UTF-8 byte counts and command/field/category/control coverage. Links to deliberately ignored
+water catalogs are recognized as generated destinations, not asserted to be
+present after a fresh clone. Their setup instructions remain linked.
+
+## GitHub configuration and dependency review
+
+`.github/workflows/ci.yml` defines offline Linux/Windows checks for both packages,
+plus documentation, installer configuration, data-tool, and satellite tests on
+Linux. The service matrix selects Python 3.11 and 3.13 on both operating systems;
+the documentation/tools job uses Python 3.13. Actions are pinned to verified commit
+SHAs, checkout credentials are not persisted, and permissions are read-only.
+Checks run on pushes, pull requests, and manual dispatch. This workflow performs
+no provider acquisition, radio operation, OS-service installation, deployment,
+or release publication. Adding its configuration does not establish a successful
+hosted run; its first published execution must be checked independently.
+
+`.github/dependabot.yml` covers GitHub Actions and all maintained pip requirement
+directories. Cross-directory dependency grouping keeps paired requirement changes
+in review together when constraints permit. Updates require review and verification;
+no automatic merge or release process is configured.
+
+Official references: [checkout](https://github.com/actions/checkout),
+[Python setup](https://github.com/actions/setup-python), and
+[Dependabot options](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).
+
+GitBook can import the maintained Markdown through an explicitly configured Git
+Sync. No hosted site or synchronization is configured by these local updates.
+Existing content must be imported from Git into an empty target; applying a
+starter template or choosing the reverse initial synchronization can replace
+repository documentation. [Documentation index](README.md).
+
+Local `.env.example` and `.env.*.example` templates remain trackable. Credential
+backups matching `environment.json.*` are excluded except named distributable
+examples/templates. Root-level logs and all rotated `*.log.*` variants remain
+local; nested reference receipts and test fixtures are not blanket-ignored.

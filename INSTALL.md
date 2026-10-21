@@ -9,7 +9,7 @@ database/source snapshots. They automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
 ZIPs are excluded. The satellite catalog remains a standalone reference tool.
-The maintained source includes all 28 commands, five local GIS
+The maintained source includes all 31 commands, five local GIS
 commands with focused subcommands, and repaired local GeoJSON snapshots. See
 [GIS source deployment](#gis-source-deployment) for external settings and manual
 updates. Neither GIS nor satellite refresh is scheduled automatically.
@@ -250,7 +250,7 @@ still limit their usefulness; inclusion is not proof of current RF reception.
 
 ## GIS source deployment
 
-Current source contains 28 commands. The five GIS commands are `!trail`,
+Current source contains 31 commands. The five GIS commands are `!trail`,
 `!rec`, `!peak`, `!park`, and `!boundary`. Rebuilt installers include their
 programs, dependencies, settings templates, twelve datasets, and preserved
 polygon-repair originals. Service ZIPs include programs and settings but require
@@ -447,3 +447,37 @@ unassigned on an existing channel registry. Assign the three commands to the
 desired channel IDs, validate configuration, and restart. No additional API key,
 OS service, or dependency is required beyond the current package requirements.
 [Configuration and command guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md).
+
+## Location water and flood command deployment
+
+The maintained source registers 31 commands. Water additions are `!waterway`,
+`!basin`, and `!floodstatus`; `!floodwarn` and `!floodalarm` use the same
+location-pinned source helpers. Deploy the matching platform responder, flood
+worker, all `scripts/water_*.py` helpers, dedicated command programs, curated
+`WATER_STATION_REVIEW.json`, and the current requirements together. Keep channel
+and transport settings and runtime state recoverable before replacing files.
+
+Older installed registrations remain operator-managed. Merge current water
+registrations from the matching source `config.json`, including `input: water_query`,
+a dedicated script, the 90-second timeout, and one reply part. The responder enforces one
+150-byte tagged response even if an older installed configuration specifies more parts. Preserve
+existing assignments; commands added to an existing registry require explicit
+permitted channel IDs. Configure the documented `responder.water` settings when
+custom values are required, validate offline, and restart after changes.
+
+For local geographic and gauge context, follow [water-data acquisition and index
+setup](docs/WATER_DATA_SETUP.md). Downloaded water collections and runtime indexes
+are excluded from installation payloads. Set an absolute
+`responder.water.data_directory` for separately deployed data, then build schema-2
+`runtime/water_index.sqlite3` with the service interpreter and account. The default
+`../data` is relative to the package, not the active external configuration file.
+Identifier review can be refreshed independently and does not rebuild geometry.
+
+`!floodalarm LOCATION` enrolls official-alert monitoring; `conditions LOCATION`
+adds supported categorical conditions, `status` inspects, and `stop` cancels.
+Default checks occur every five minutes for four hours. Accepted enrollment pins
+one resolved point and requires a successful official-alert baseline before
+acknowledgment. Source availability, permissions, deadlines, and recipient delivery
+remain separate validation boundaries. See [complete water behavior, retention,
+and sources](meshcore_mqtt_service/WATER_GUIDE.md) and the
+[terminal option index](docs/CLI_REFERENCE.md).

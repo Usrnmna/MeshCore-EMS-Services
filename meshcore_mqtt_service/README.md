@@ -1,5 +1,12 @@
 # MeshCore channel command service
 
+Radio replies use one tagged message, with no details or paging. See the
+[response policy and manual review inventory](RESPONSE_FORMATTING.md).
+
+Detailed guides: [Water and flood](WATER_GUIDE.md) | [Wildfire and smoke](WILDFIRE_GUIDE.md) | [Landslides](LANDSLIDE_GUIDE.md).
+
+Reply examples: [All commands and subcommands](RESPONSE_EXAMPLES.md) � [Response policy and conditional fields](RESPONSE_FORMATTING.md).
+
 Documentation: [MeshCore user guide](BOT_USER_GUIDE.md) | [Detailed command reference](COMMAND_REFERENCE.md) | [Function implementation reference](FUNCTION_REFERENCE.md).
 
 Messages on **#autatestbot** run preset local Python scripts and automatically return
@@ -28,14 +35,16 @@ include the complete workspace and reference data, and connect to the configured
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
 Source-folder launchers support interactive operation. The current source has
-28 commands, including the five [local GIS commands](#local-gis-commands).
-The October 20, 2026 rebuild adds nine wildfire commands and their zone seed.
+31 commands, including the five [local GIS commands](#local-gis-commands).
+The source includes nine wildfire commands, three landslide commands, and the
+location-based water commands. Existing release artifacts retain the command set
+recorded in their validation; rebuild from this source to include later changes.
 Installers include shared datasets. Service ZIPs include the wildfire and landslide reference seeds; EBMUD data remains a separate download.
 See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
 
-Use [MULTI_CHANNEL_GUIDE.md](MULTI_CHANNEL_GUIDE.md) for the complete change list,
+Use [MULTI_CHANNEL_GUIDE.md](MULTI_CHANNEL_GUIDE.md) for the configuration procedures,
 Public/hashtag/private channel examples, per-program assignments, private keys,
 radio setup commands, MQTT export controls, migration, and file/function guide.
 Every command has an explicit `channels` list; replies stay on its incoming channel.
@@ -146,9 +155,9 @@ command continues to list USB serial devices only.
 | `!park` | Name + attribute, or near coordinates [miles] | Park status, agency, trails, and recreation |
 | `!boundary` | Optional category + coordinates, near coordinates [miles], or trail NAME | Mapped containment, nearest areas, or trail overlap |
 | `!firezone` | Zone ID, coordinates, ZIP or city/state | Fire-weather zone and current warning/watch status |
-| `!fires` | Zone/location, optional page or near-distance query | Reported incidents and latest mapped perimeter timing |
+| `!fires` | Zone/location or near-distance query | Reported incidents and latest mapped perimeter timing |
 | `!fire` | Exact incident ID or unambiguous name | Containment, source attribution and last-known status |
-| `!firewx` | Zone/location, optional page | Zone fire-weather forecast and alerts |
+| `!firewx` | Zone/location | Zone fire-weather forecast and alerts |
 | `!firewarn` | Zone/location | Red Flag Warnings and Fire Weather Watches |
 | `!firedata` | Category and zone/location | Supporting observations, detections, outlooks and reference features |
 | `!firealarm` | on location, status, off | Temporary wildfire-change monitoring |
@@ -158,8 +167,11 @@ command continues to list USB serial devices only.
 | `!smoke` | ZIP, city/state, GPS | Point smoke coverage and nearby air quality |
 | `!firedanger` | ZIP, city/state, GPS | Local ERC percentile, fuels and warnings |
 | `!heatadv` | Coordinates, US ZIP, or city and state | Active NWS heat warnings, watches, and advisories |
-| `!floodwarn` | Coordinates, US ZIP, or city and state | Active NWS flood alerts |
-| `!floodalarm` | Coordinates, US ZIP, or city and state | Monitor flood-alert changes for four hours |
+| `!floodwarn` | LOCATION | Highest-priority NWS flood alert |
+| `!floodalarm` | Location, conditions location, status, stop | Temporary point alerts and current-condition monitoring |
+| `!waterway` | Coordinates, US ZIP, or city and state | Named waterways and selected current gauge values |
+| `!basin` | Coordinates, US ZIP, or city and state | Containing CalWater categories and gauge context |
+| `!floodstatus` | Coordinates, US ZIP, or city and state | Official and derived current point conditions |
 | `!snowpack` | California coordinates, ZIP, or city | Nearest-station snow depth and next-24h snowfall |
 
 `!aqi` requires `AIRNOW_API_KEY`. The other included commands require no API
@@ -223,12 +235,11 @@ configured external `program_directory`, including after symlink resolution. Use
 a shell command or executable path. Scripts use the local virtual environment and
 run with this folder as their working directory.
 
-**Print the answer to stdout without the @name prefix.** The service adds the prefix
-and turns newlines into spaces. Long answers become at most four 150-byte messages by
-default, each starting with @name. A command may set a higher limit; `!heatadv`,
-`!floodwarn`, and `!floodalarm` allow 12 parts; `!lightning` allows 64 for forecast windows. Excess output is truncated with `...`. Empty output,
-script errors and timeouts produce short tagged explanations. Stderr diagnostics
-are saved locally, not broadcast.
+**Print the answer to stdout without the @name prefix.** The service adds the
+prefix and fits one complete primary field plus optional whole fields within
+150 UTF-8 bytes. Newlines remain meaningful whitespace. Replies have no paging,
+continuation prompts or omission notices. Script errors and timeouts produce
+short tagged explanations; stderr diagnostics are saved locally.
 
 Scripts may read JSON context from stdin:
 
@@ -311,7 +322,7 @@ Example MQTT request:
 Supported MQTT commands: infos, ver, contacts, self_telemetry, clock, msg and chan.
 Use a distinct request ID for each intentional command. Stored IDs prevent repeated
 execution after redelivery/restart. Retained commands are ignored. `command_interval`
-spaces commands and automatic reply parts by 15 seconds by default. Restrict access
+spaces commands and automatic replies by 5 seconds by default. Restrict access
 to the command topic to trusted broker users.
 
 Events use a durable SQLite outbox and QoS 1; MQTT reconnects automatically. Consumers
@@ -389,7 +400,7 @@ per-sender cooldown applies, including after a malformed request.
 The result reports nearest-monitor PM2.5 AQI, concentration when available, rating,
 station, distance, observation time and preliminary-data status. It is a monitoring
 station observation, not a measurement at the submitted GPS point. Long output uses
-the configured tagged-message splitting and length limits.
+the shared single-message field budget.
 
 ## Caltrans traffic command
 
@@ -419,7 +430,8 @@ invalid arguments produce a tagged usage reply without running the script. Fetch
 failures produce a tagged availability message, never a clear-road assertion.
 The command uses `input: "route_number"` and a 30-second subprocess timeout.
 Configured cooldowns, duplicate suppression, maximum reply length and part limits apply;
-long reports may be truncated with `...`.
+radio output retains priority fields within one tagged message. Full provider and
+structured data remain available through the documented local interfaces.
 
 ## Nearby river stations command
 
@@ -449,11 +461,10 @@ stage (AS) and minor flood stage (FS). Missing readings/thresholds show N/A. An 
 match produces an explicit no-matching-stations message; source/network errors
 produce an availability message instead. This is a report lookup, not a prediction.
 
-Every reply part starts with the saved sender's @name and goes to the same channel.
-Configured cooldowns, duplicate suppression and reply limits apply: at most four
-150-byte parts by default, with excess output truncated using `...`. Long results
-therefore favor the nearest stations. Increase max_reply_parts in config.json if
-needed, accounting for the configured 15-second spacing between transmissions.
+One tagged reply selects the nearest station in the highest reported threshold
+category, or the nearest station when no threshold is exceeded. Issuance time,
+thresholds and station name are optional fields. This describes a gauge report,
+not flooding at the query point. Full station records remain in JSON output.
 
 The `coordinate_style: "options"` configuration maps validated coordinates to
 --latitude and --longitude; !aqi continues using positional arguments. The river
@@ -512,19 +523,11 @@ California; other states require an abbreviation or full name after the city.
 Replies preserve the supplied location, with whitespace normalized. Cities/ZIPs
 resolve to a representative point, not their whole boundary.
 
-The reply bodies are:
-
-```text
-Lightning Strike Warning for <location> at <time window> (<stated chance/level>)
-No Lightning expected for <location> in the next 24h
-```
-
-Illustrative reply: `Lightning Strike Warning for Sacramento at 2026-10-08 13:00 PDT-16:00 PDT (slight chance thunderstorms)`.
-Multiple windows retain their individual chance levels. Every stated chance counts,
-including slight chance and a numeric thunderstorm probability as low as 1%.
-Qualitative coverage and numeric probability are both shown when NWS supplies both.
-If an alert states no chance level, the reply says `chance not stated`; it does not
-invent a percentage. Rain probability is not lightning probability.
+Responses begin with an official NWS event when present, otherwise a forecast
+chance or coverage label such as `NWS: slight chance thunderstorms (24h).` Known
+hazards retain `Data incomplete.` if another input fails. Optional fields include
+the overall span, other chance levels, window count and location. Forecast
+probabilities describe thunder, not rain or individual strike predictions.
 
 The lookup covers exactly 24 elapsed hours from the original responder request
 timestamp (or invocation time for standalone use), even across daylight-saving
@@ -568,7 +571,7 @@ outside this MeshCore reply setting.
 ### NWS inputs and limits
 
 [NWS does not issue standalone lightning warnings](https://www.weather.gov/gsp/gspPrepare_8).
-`Lightning Strike Warning` is this program's summary label. It combines actual
+The formatter distinguishes official events from forecast potential. It combines actual
 point alerts with the [NWS forecast grid](https://weather-gov.github.io/api/gridpoints):
 thunderstorm weather/coverage, dry-thunderstorm attributes, positive
 `probabilityOfThunder`, and [lightning activity levels](https://forecast.weather.gov/glossary.php?word=LALs)
@@ -606,9 +609,7 @@ Internet access is required; no API key is needed. `tzdata` supplies IANA timezo
 data on Windows and systems without it. Keep `lightning.py`, the current
 `heat_adv.py`, `uv_index.py`, and `time_settings.py` together. Network calls allow 12 seconds each,
 with a 60-second command timeout. The responder adds the sender tag, replies on
-the incoming channel, and allows up to 64 parts for changing chances/windows;
-output beyond that limit is visibly truncated by the responder. These tunables
-are in the script and the command's configuration entry.
+the incoming channel, and limits the response to one 150-byte tagged message.
 
 See the [lightning function reference](FUNCTION_REFERENCE.md#scripts-lightning-py)
 for every function and [installation instructions](../INSTALL.md#lightning-command-and-timezone)
@@ -643,20 +644,9 @@ the supplied location spelling and format, apart from collapsing extra whitespac
 A city or ZIP is checked at its representative coordinate; use GPS for a precise
 point rather than a city/ZIP-wide result.
 
-The standalone program prints these exact reply bodies, depending on the result:
-
-```text
-There is no Heat Advisories for <location>
-Advisory: Extreme Heat Warning for <location>
-Advisory: Extreme Heat Watch for <location>
-Heat Advisory for <location>
-```
-
-When multiple types apply, every distinct type is included in the listed order:
-warning, watch, advisory. The script prints one line per type; the responder joins
-lines with spaces, prefixes each message with `@<sender>`, and replies on the
-requesting channel. Up to 12 parts preserve combined results and long location
-names. This command performs one lookup per request.
+The response begins with `NWS Extreme Heat Warning.`, `NWS Extreme Heat Watch.`,
+`NWS Heat Advisory.` or `No active NWS heat alerts.` Additional distinct alert
+types and the location are whole optional fields in the same tagged message.
 
 [`scripts/heat_adv.py`](scripts/heat_adv.py) uses the
 [NWS API](https://www.weather.gov/documentation/services-web-api): first
@@ -695,78 +685,20 @@ active configuration. Set its `channels` list to the intended existing channel I
 other settings. Generated ZIPs/installers need rebuilding to include source edits;
 editing this source folder does not update an already installed service.
 
-## Flood alerts: !floodwarn
+## Location water status and official flood alerts
 
-[One-time flood-alert responses](COMMAND_REFERENCE.md#cmd-floodwarn).
+`!waterway LOCATION`, `!basin LOCATION` and `!floodstatus LOCATION` report named
+waterways, containing CalWater categories and current source conditions. Local
+statewide context requires separately downloaded datasets and a spatial index.
+`!floodwarn LOCATION` returns the highest-priority NWS flood alert, with essential
+action and optional expiration/location. Local `--json` retains current source records.
 
-Send on a channel assigned to this command (default `#autatestbot`):
+Locations accept GPS, US ZIP/ZIP+4 or exact city/state. Bare cities default to
+California. Ambiguous names require coordinates. Representative city/ZIP points
+are not complete area boundaries. Official, modeled and derived basin conditions
+are labeled separately; unavailable data is not an all-clear.
 
-```text
-!floodwarn 38.5816, -121.4944
-!floodwarn 38.5816 -121.4944
-!floodwarn 95814
-!floodwarn Sacramento
-!floodwarn Reno NV
-!floodwarn Reno, Nevada
-!floodwarn Albany New York
-```
-
-Cities default to California; a trailing full state name or two-letter abbreviation
-(case-insensitive, with or without a comma) overrides it. US ZIP and ZIP+4 codes
-work nationwide. Coordinates are latitude first. City/ZIP lookups use a representative
-point, not the entire city or ZIP boundary; use GPS for a precise location. Exact city
-names are required, and the largest same-name settlement in the state is selected.
-
-When none of the four tracked alert types is active, the reply preserves the supplied
-location (apart from extra whitespace):
-
-```text
-@Alice no flooding events declared for Sacramento
-```
-
-When alerts apply, the supplied location precedes one line per active type, with
-repeated alerts of the same type combined. Types are ordered as follows:
-
-- Flash Flood Warning 🟥 - Life-threatening flash flooding is imminent or occurring. Move to higher ground immediately.
-- Flood Warning 🟧 - Flooding is imminent or occurring. Take necessary precautions now.
-- Flood Advisory 🟨 - Minor flooding expected. May cause inconvenience but not typically life-threatening.
-- Flood Watch 🟦 - Conditions favorable for flooding. Stay alert and be ready to take action.
-
-The responder adds the saved sender's `@name` to every part, flattens newlines, and
-returns the result on the same channel. This command allows up to **12 parts of 150
-bytes** so all four descriptions fit even with a long sender name. `!floodalarm`
-also allows 12 parts; other commands use the four-part default. The configured
-15-second send spacing applies.
-
-[FlashFloodWarn](https://www.flashfloodwarn.com/#about) identifies the National
-Weather Service API as its alert source. This script calls that same official
-[NWS API](https://www.weather.gov/documentation/services-web-api) directly using
-`/points/{latitude},{longitude}` to verify coverage, then `/alerts/active?point=...`
-for point/zone matching. It does not scrape FlashFloodWarn's national totals or
-expired-warning archive. It reports the four types above; coastal/lakeshore alerts
-and general flood statements are outside this command's scope. Expired, ended,
-cancelled, test, and not-yet-effective messages are excluded. An already issued
-watch is included even if the forecast flooding starts later.
-
-No API key or additional Python dependency is required. City/ZIP resolution uses
-[Open-Meteo](https://open-meteo.com/en/docs/geocoding-api) / GeoNames, as with `!uv`;
-the free geocoder is for non-commercial use. The host needs internet access. Failed,
-malformed, or incomplete responses produce an availability message, never a
-no-events assertion. Coordinates outside NWS coverage produce a coverage error.
-Each HTTP request has a 12-second timeout; the command has a 45-second overall limit.
-
-Run directly from this folder:
-
-```text
-python scripts/flood_warn.py Sacramento
-python scripts/flood_warn.py 95814
-python scripts/flood_warn.py "Reno NV"
-python scripts/flood_warn.py 38.5816 -121.4944
-python -m unittest discover -s tests -p "test_floodwarn.py"
-```
-
-Keep `scripts/uv_index.py` alongside `scripts/flood_warn.py`; the flood lookup
-uses its location parser.
+[Setup, examples, current-only retention, configuration and source citations](WATER_GUIDE.md).
 
 ## Snowpack: !snowpack
 
@@ -788,7 +720,7 @@ California county coverage. No API key or additional Python dependency is needed
 Example format (illustrative values):
 
 ```text
-@Alice Snowpack: Current: 12in | Next 24h: 4in | Station: Snow Creek 2.3mi.
+@Alice Snow depth at station: 12in. | Next 24h snow: 4in | Snow Creek 2.3mi
 ```
 
 The responder supplies the requesting sender's `@name` and sends the result to the
@@ -818,7 +750,7 @@ same channel. The standalone `scripts/snowpack.py` prints the body only.
 
 City/ZIP coordinates come from [Open-Meteo/GeoNames](https://open-meteo.com/en/docs/geocoding-api).
 Internet access is required. Each request has a 10-second network timeout, with a
-65-second overall script timeout. Configured cooldowns and message splitting apply.
+65-second overall script timeout. Configured cooldowns and the single-message limit apply.
 
 ```text
 python scripts/snowpack.py "39.3279, -120.1833"
@@ -837,108 +769,30 @@ pinned dependencies. Existing local runtime files are not included in the ZIP.
 
 ## Flood monitoring: !floodalarm
 
-[Quick monitoring instructions](BOT_USER_GUIDE.md#monitoring) | [Subscription behavior and responses](COMMAND_REFERENCE.md#cmd-floodalarm).
-
 ```text
-!floodalarm 38.5816, -121.4944
-!floodalarm 95814
-!floodalarm Sacramento
-!floodalarm Reno NV
-!floodalarm Reno Nevada
+!floodalarm Sacramento CA
+!floodalarm conditions 38.61324 -122.83638
+!floodalarm status
+!floodalarm stop
 ```
 
-Uses the same location rules as `!floodwarn`, including the California default.
-An accepted, syntactically valid request immediately queues this exact reply:
+The running service verifies and pins the location before confirming enrollment.
+Official alerts are monitored by default; `conditions` adds all reliably linked upstream
+gauge categories, current modeled footprint changes and data availability.
+Default checks run every five minutes for four hours. Unchanged conditions are
+quiet; material alert updates, expiry, outage and recovery remain distinct.
+Renewal replaces the baseline and deadline; `stop` cancels the subscription.
+Each active alert is a separate priority-ordered notification with its standard
+description. Completed responses are separated by at least five seconds; the
+shared radio interval also defaults to five seconds. Contention can extend gaps. Unknown source
+states remain explicit, and pending obsolete alerts are suppressed.
 
-```text
-@Alice Flood Alarm is set for requested location.
-```
+Subscriptions persist across restarts without extending expiry. They are scoped
+to sender display name and channel; identically named nodes share that scope.
+Standalone Python calls cannot enroll subscriptions. The service and radio must
+remain available; local send acceptance does not establish remote delivery.
 
-The acknowledgment has its own worker and does not wait for a weather lookup.
-Configured sender cooldowns, duplicate/stale-message checks, channel selection, and
-radio spacing apply; a busy radio can delay actual transmission. The
-acknowledgment confirms registration. The subsequent lookup verifies the location.
-
-### Monitoring rules
-
-Only `!floodalarm` enrolls or renews one saved location per sender and channel.
-The service acknowledges registration before checking the location. The following
-flow describes service-managed checks, with lookups performed one at a time.
-Slow requests, queued work, or radio spacing can delay checks and notifications.
-
-```text
-Accepted !floodalarm --> Save or renew subscription --> Acknowledge
-                                   |
-                                   v
-                    First successful lookup: silent baseline
-                                   |
-                      Scheduled lookup every 20 minutes
-                                   |
-          +------------------------+-------------------------+
-          |                        |                         |
-     Types unchanged          Types changed              Lookup failed
-          |                        |                         |
-     Keep baseline       Tagged same-channel reply    One outage notice;
-          |                        |                  retain last reading
-          +------------------------+-------------------------+
-                                   |
-                      Next check while subscription is current
-
-Four hours after last accepted enrollment/renewal --> Expire; stop checks
-```
-
-Comparison uses the set of four supported alert types, including when all types
-clear. Bulletin IDs, issue times, and wording alone do not trigger notifications.
-Failures retry at the next scheduled check; one availability notice is sent per
-failure episode. Successful recovery is compared with the last good reading.
-An error never establishes that no flood alerts exist.
-
-Each accepted renewal resets the full four-hour deadline. A replacement location
-starts a fresh baseline; renewal of the same active location retains its baseline
-and scheduled check. Late messages cannot overwrite a newer call's location.
-Checks and outgoing notifications recheck expiry and superseded-request validity.
-`!floodwarn` performs one lookup without changing an alarm location or timer;
-other commands do not renew the timer.
-
-Subscriptions survive restarts in **`runtime/bridge.sqlite3`**, table
-**`flood_subscriptions`**, using Python's built-in SQLite library. Stored fields
-include channel, username, last requested location, last-heard time, enabled state,
-next-check time, last successful alert types/time, and lookup error. Expired rows
-retain their last location for review but are inactive. Restarting never extends
-the four-hour deadline, and missed checks are not replayed in a burst.
-
-The service must stay running and connected to perform checks/send notifications.
-Interrupted or failed radio sends are logged and are not automatically replayed.
-Usernames are MeshCore display names; two nodes using the same name on the same
-channel share one subscription because identity uses the display name and channel.
-
-### Where to adjust the algorithm
-
-| File / function | What to review or change |
-| --- | --- |
-| [`flood_alarm.py`](flood_alarm.py), top constants | `CHECK_INTERVAL = 20 * 60`, `MAX_AGE = 4 * 60 * 60`, polling interval, acknowledgment text. |
-| `FloodAlarms.remember()` | One row per sender/channel; enrollment, renewal, location replacement, older-message rejection. |
-| `FloodAlarms.check_one()` | Initial baseline, scheduling, alert-type comparison, error handling, four-hour expiry. |
-| `FloodAlarms.is_current()` | Reject an expired subscription or a result from a superseded request. |
-| [`responder.py`](responder.py), `accept()` / `process_one()` / `run()` | Save/renew accepted alarm locations, acknowledge without HTTP, and start independent workers. |
-| `Responder.read_flood_status()` / `send_flood_change()` | Bounded lookup subprocess, structured result validation, tagged notifications. |
-| [`service.py`](service.py), `send_reply()` | Recheck alarm validity after waiting for the radio, before sending. |
-| [`scripts/floodalarm.py`](scripts/floodalarm.py), `main()` | Dedicated JSON-reading subprocess for alarm checks; enrollment and timers remain in the service. |
-| [`scripts/flood_warn.py`](scripts/flood_warn.py), `snapshot()` / `format_status()` | Shared NWS lookup, structured alert types, exact wording and colored squares. |
-
-The source uses visible comments named `TIMING SETTINGS`, `ENROLLMENT`, `EXPIRY`,
-`CHANGE DETECTION`, `OUTAGE`, and `ALARM EXPIRY` to identify the corresponding sections.
-The monitor runs `scripts/floodalarm.py LOCATION` for JSON readings. Direct
-execution reads one snapshot and does not create a subscription or print a false
-enrollment acknowledgment. The compatible `flood_warn.py --snapshot` interface
-remains available; normal `!floodwarn` and its direct CLI output remain text. There is no extra dependency or separate daemon.
-
-Restart the service after updating the Python files and `config.json`.
-Test with `python -m unittest discover -s tests -p "test_floodalarm.py"`, or run the full test suite.
-
-The flood-alarm tests cover simulated timing, restart persistence, background
-workers, and subprocess results. Simulated tests do not establish live four-hour
-monitoring or radio delivery.
+[Subscription lifecycle, migration, limitations and maintenance](WATER_GUIDE.md).
 
 ## Local GIS commands
 
@@ -950,7 +804,7 @@ not provided. Coordinates are entered as latitude followed by longitude.
 
 | Command | Example | Result |
 | --- | --- | --- |
-| `!trail` | `!trail Bear Creek dogs` | Only the recorded dog policy; `info` requests the full summary. |
+| `!trail` | `!trail Bear Creek dogs` | Only the recorded dog policy; `info` requests a concise summary. |
 | `!rec` | `!rec water near 37.90 -122.20` | Only the closest recreation feature with recorded drinking water. |
 | `!peak` | `!peak Wildcat Peak elevation` | Only the stored elevation in feet. |
 | `!park` | `!park Pleasanton Ridge status` | Only the recorded park status. |
@@ -1037,8 +891,7 @@ existing registrations, but current defaults use one program per command.
 [Per-attribute examples](COMMAND_REFERENCE.md#cmd-trail) | [GIS result and error reference](COMMAND_REFERENCE.md#gis-responses).
 
 The following reply bodies were verified against the bundled datasets on
-October 11, 2026. The responder adds the sender's `@name` and splits long output
-into radio messages on the requesting channel. No snapshot footer is appended.
+October 11, 2026. The responder adds the sender's `@name` and fits one 150-byte message.
 Dataset and settings changes can change these results.
 
 **`!trail Bear Creek dogs`**
@@ -1074,28 +927,28 @@ Trail overlaps: Watershed: Contra Costa.
 **`!trail dogs near 37.90 -122.20`**
 
 ```text
-Closest, map distance: Trail: Oursan (0.84 mi); dogs Yes.
+Nearest trail: Oursan (0.84 mi map distance) | dogs Yes.
 ```
 
 **`!trail dogs near 37.90 -122.20 5`**
 
 ```text
-Within 5 mi, map distance: Trail: Oursan (0.84 mi); dogs Yes; Trail: Old San Pablo Trail (0.97 mi); dogs Limited to Park Hours; Trail: Hampton (2.65 mi); dogs Yes; +11 more.
+Trails within 5 mi: Oursan (0.84 mi map distance) | dogs Yes | Old San Pablo Trail (0.97 mi map distance) | dogs Limited to Park Hours
 ```
 
 **`!rec water near 37.90 -122.20`**
 
 ```text
-Closest, map distance: Recreation: Tilden Steam Trains Park Entrance (1.82 mi); water Yes.
+Nearest recreation: Tilden Steam Trains Park Entrance (1.82 mi map distance) | water Yes.
 ```
 
 **`!boundary parks near 37.90 -122.20`**
 
 ```text
-Closest, map distance: Park: Tilden (1.52 mi).
+Nearest park: Tilden (1.52 mi map distance).
 ```
 
-For a full summary, use `!trail Bear Creek info`,
+For a concise summary, use `!trail Bear Creek info`,
 `!rec Briones Overlook Staging Area info`, `!peak Wildcat Peak info`, or
 `!park Pleasanton Ridge info`. Results stating `none in local data` describe the
 available mapped records, not the absence of facilities in the real world.
@@ -1110,14 +963,14 @@ Edit [gis_settings.json](gis_settings.json):
 | --- | --- | --- |
 | `data_directory` | `../data/ebmud` | Shared data directory, relative to this settings file; an absolute path is also supported. |
 | `maximum_radius_miles` | 25 | Maximum explicitly supplied radius; closest-only queries have no radius cutoff. |
-| `max_results` | 3 | Maximum listed results or associations; omitted matches are counted. |
-| `max_reply_bytes` | 480 | UTF-8 output budget before sender prefixes; truncation retains any geometry-repair note. |
+| `max_results` | 3 | Maximum candidate results or associations before radio field selection. |
+| `max_reply_bytes` | 480 | Legacy GIS setting; the shared radio limit is 150 bytes including sender tags. |
 | `description_characters` | 100 | Maximum source description length; zero omits it. |
 | `include_unnamed_peaks` | false | Include unnamed peak records with source-ID labels. |
 | `projected_crs` | EPSG:32610 | Metric UTM zone 10N for spatial calculations. |
 | `search_bounds` | [-126, 0, -120, 84] | Accepted coordinate extent, ordered west/south/east/north. Projection and bounds must be changed together for other regions. |
 
-Command timeout (30 seconds), channel assignments, and reply parts (6) remain in
+Command timeout (30 seconds), channel assignments, and reply parts (1) remain in
 `config.json`. Each command uses `input: "gis_query"`, its dedicated Python
 program, and an empty `args` list by default; the query is passed as one argument,
 without a shell. Only explicitly assigned channels can invoke each command.
@@ -1208,7 +1061,7 @@ for preserved originals and repair provenance. Neither operation runs on startup
 | Refresh or recovery pending | Confirm no maintenance process is running, inspect retained previous files, and complete recovery before removing a stale lock/recovery directory. |
 | No matching feature | Check the mapped name or select from ambiguous matches; city/ZIP lookup is unsupported. |
 | Radius or coordinate error | Review the configured radius limit, latitude/longitude order, and projection bounds. |
-| Reply omits detail | Review `max_results`, `description_characters`, `max_reply_bytes`, and the command's `max_reply_parts` together. |
+| Reply omits detail | Review the [field inventory](RESPONSE_FORMATTING.md); the radio budget is one message. |
 
 Software tests do not establish physical radio delivery or native Linux behavior.
 
@@ -1241,3 +1094,17 @@ and `!slideinfo LOCATION` accept ZIP, city/state, or latitude/longitude using th
 shared location resolver. Resolved points must be inside California or Nevada. NWS alerts
 retain official names; USGS station metadata does not establish current slope
 conditions. [Commands, sources, subscriptions, configuration, and limits](LANDSLIDE_GUIDE.md).
+
+The [NOAA station review](WATER_STATION_REVIEW.md) documents 33 upstream identifier
+checks, supported threshold links and explicit unresolved matches. Refresh the
+review with `python scripts/water_refresh.py --noaa-identifiers`. The agency
+review includes the documented CDM/YDMC1 successor and keeps unresolved
+identities separate from historical USGS coverage metadata.
+
+The [map and operator-record audit](WATER_STATION_REVIEW.md#further-map-and-operator-record-review)
+keeps sixteen station identities unresolved. Refresh retains static candidate
+evidence and flags source or identity changes; map proximity never authorizes a link.
+
+The [source-access retry](WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
+recovered the historical reports and OneRain inventory. Refresh checks static
+operator aliases without retaining historical levels or enabling unsupported links.

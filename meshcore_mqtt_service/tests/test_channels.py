@@ -284,17 +284,10 @@ class StateMigrationTests(unittest.TestCase):
                         "INSERT INTO bot_requests VALUES (?,?,?,?)",
                         (key, json.dumps({"channel_name": name}), "queued", 100),
                     )
-                alarms = FloodAlarms(db, "#Operations", AsyncMock(), AsyncMock())
-                alarms.remember(
-                    {
-                        "command": "!floodalarm",
-                        "sender": "Alice",
-                        "sender_timestamp": 100,
-                        "arguments": ["94501"],
-                        "id": "legacy-alarm",
-                    },
-                    100,
-                )
+                db.execute("CREATE TABLE flood_subscriptions(channel TEXT,sender TEXT,location TEXT,last_heard REAL,sender_timestamp INTEGER,revision TEXT,enabled INTEGER,ready INTEGER,next_check REAL,baseline TEXT,checked_at REAL,error TEXT)")
+                db.execute("INSERT INTO flood_subscriptions VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                           ("#Operations","Alice","94501",100,100,"legacy-alarm",1,1,100,None,None,None))
+                db.commit()
                 channels.bind_state(db, bindings())
                 row = db.execute(
                     "SELECT channel_id,context FROM bot_requests WHERE id='valid'"
@@ -489,17 +482,20 @@ class ChannelIsolationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_same_sender_alarms_are_independent_and_revocation_stops_one(self):
         public, private = self.bots
+        from test_floodalarm import sample
+        for bot in self.bots:
+            bot.alarms.read = AsyncMock(side_effect=lambda *args: sample(time.time()))
         self.assertTrue(public.accept(packet(0, "!floodalarm 94501")))
         self.assertTrue(private.accept(packet(1, "!floodalarm 94502")))
         await public.process_one()
         await private.process_one()
-        self.assertEqual(public.alarms.row("Alice")["location"], "94501")
-        self.assertEqual(private.alarms.row("Alice")["location"], "94502")
+        self.assertEqual(public.alarms.row("Alice")["target"], "94501")
+        self.assertEqual(private.alarms.row("Alice")["target"], "94502")
         self.assertTrue(public.alarms.row("Alice")["ready"])
         self.cfg["commands"]["!floodalarm"]["channels"] = ["ops"]
-        public.alarms.read_status = AsyncMock()
+        public.alarms.read = AsyncMock()
         self.assertFalse(await public.alarms.check_one())
-        public.alarms.read_status.assert_not_awaited()
+        public.alarms.read.assert_not_awaited()
         self.assertFalse(public.alarms.row("Alice")["enabled"])
         self.assertTrue(private.alarms.row("Alice")["enabled"])
 

@@ -3,13 +3,14 @@
 import asyncio
 import copy
 import json
+import os
 from pathlib import Path
 import sqlite3
 import sys
 import tempfile
 import time
 import unittest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -21,7 +22,7 @@ from scripts.wildfire_sources import Client, timestamp
 from scripts.wildfire_spatial import point_zones
 from scripts.wildfire_store import Store
 from wildfire_service import WildfireAlarms, changes
-from responder import Responder, match_command, validate_config
+from responder import Responder, match_command, validate_config, reply_parts
 
 GUID = "11111111-1111-4111-8111-111111111111"
 
@@ -125,7 +126,39 @@ class CacheTests(unittest.TestCase):
         result = lookup.report("fires", "CAZ001", self.store)
         self.assertEqual(len(result["incidents"]), 1)
         self.assertIsNone(result["incidents"][0]["containment"])
-        self.assertIn("contained not reported", lookup.format_report(result))
+        self.assertIn("contained unknown", lookup.format_report(result))
+
+    def test_near_filters_radius_and_preserves_unknown_containment(self):
+        self.store.replace('zones', [zone()], 'test')
+        self.store.replace('incidents', [
+            feature('1', dict(IrwinID=GUID, IncidentName='Near Fire', IncidentTypeCategory='WF'),
+                    dict(type='Point', coordinates=[-120.01, 40])),
+            feature('2', dict(IrwinID='22222222-2222-4222-8222-222222222222',
+                              IncidentName='Outside', IncidentTypeCategory='WF'),
+                    dict(type='Point', coordinates=[-119, 40])),
+        ], 'test')
+        for source in ('egp', 'perimeters'):
+            self.store.replace(source, [], 'test')
+        result = lookup.report('fires', 'near 40 -120 within 2', self.store)
+        self.assertEqual([record['name'] for record in result['incidents']], ['Near Fire'])
+        self.assertGreater(result['incidents'][0]['distance_miles'], 0)
+        self.assertLess(result['incidents'][0]['distance_miles'], 2)
+        for sender in ('Alice', 'a' * 80):
+            with patch.dict(os.environ, {'MESHCORE_SENDER': sender}):
+                parts = reply_parts(sender, lookup.format_report(result), max_parts=1)
+                self.assertEqual(len(parts), 1)
+                self.assertLessEqual(len(parts[0].encode()), 150)
+                self.assertIn('Near Fire', parts[0])
+                self.assertIn('contained unknown', parts[0])
+                self.assertNotIn('Outside', parts[0])
+                self.assertNotIn('1 incident records', parts[0])
+                self.assertNotIn(GUID, parts[0])
+                if sender == 'Alice':
+                    self.assertIn(f"{result['incidents'][0]['distance_miles']:.2f} mi map distance", parts[0])
+        self.assertEqual(result['incidents'][0]['display_id'], GUID)
+        self.assertEqual(lookup.report('fire', GUID, self.store)['incidents'][0]['id'], GUID)
+        empty = lookup.report('fires', 'near 40 -120 within 0.1', self.store)
+        self.assertEqual(empty['incidents'], [])
 
     def test_latest_perimeter_and_explicit_field_provenance(self):
         self.store.replace("incidents", [feature("1", dict(IrwinID=GUID, IncidentName="Fire",
@@ -149,7 +182,7 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(lookup.incidents(self.store), {})
         result = lookup.report("fire", GUID, self.store)
         self.assertTrue(result["incidents"][0]["historical"])
-        self.assertIn("present status unconfirmed", lookup.format_report(result))
+        self.assertIn("status unconfirmed", lookup.format_report(result))
 
     def test_stale_monitor_does_not_return_empty_all_clear(self):
         with self.assertRaises(ValueError):
@@ -159,8 +192,8 @@ class CacheTests(unittest.TestCase):
         self.store.replace("zones", [zone()], "test")
         initial = lookup.report("firezone", "40, -120", self.store)
         self.assertEqual(initial["zones"][0]["id"], "CAZ001")
-        self.assertIn("Data limited", lookup.format_report(initial))
-        self.assertIn("available cache", lookup.format_report(initial))
+        self.assertIn("data limited", lookup.format_report(initial).lower())
+        self.assertIn("alert status unknown", lookup.format_report(initial))
         self.store.replace("alerts", [feature("a", dict(
             event="Red Flag Warning", status="Actual", messageType="Alert",
             geocode={"UGC": ["CAZ001"]}, expires="2099-10-21T12:00:00Z",
@@ -168,7 +201,7 @@ class CacheTests(unittest.TestCase):
         result = lookup.report("firezone", "40 -120", self.store)
         self.assertIn("Red Flag Warning", lookup.format_report(result))
         self.store.replace("alerts", [], "test")
-        self.assertIn("No active fire-weather", lookup.format_report(lookup.report("firezone", "CAZ001", self.store)))
+        self.assertIn("no active NWS fire-weather", lookup.format_report(lookup.report("firezone", "CAZ001", self.store)))
 
 
 class SourceTests(unittest.TestCase):
@@ -278,6 +311,20 @@ class AlarmTests(unittest.IsolatedAsyncioTestCase):
         self.alarms.acknowledge(self.request)
         self.assertTrue(self.alarms.current(self.alarms.row("Sam")))
 
+    async def test_enrollment_keeps_active_warning_with_maximum_sender_tag(self):
+        self.value['alerts'] = {
+            'watch': {'event': 'Fire Weather Watch', 'digest': 'w'},
+            'warning': {'event': 'Red Flag Warning', 'digest': 'r'},
+        }
+        self.assertTrue(self.alarms.remember(self.request, self.now))
+        text, error = await self.alarms.control(self.request)
+        self.assertFalse(error)
+        reply = reply_parts('A' * 80, text, max_parts=1)
+        self.assertEqual(len(reply), 1)
+        self.assertLessEqual(len(reply[0].encode()), 150)
+        self.assertIn('Red Flag Warning', reply[0])
+        self.assertIn('monitoring set', reply[0])
+
     async def test_ack_baseline_and_meaningful_change(self):
         await self.enroll()
         self.now += 301
@@ -286,7 +333,7 @@ class AlarmTests(unittest.IsolatedAsyncioTestCase):
         self.value["incidents"][GUID]["containment"] = 20
         self.now += 301
         await self.alarms.check_one()
-        self.assertIn("20 % contained", self.sent[0])
+        self.assertIn("containment now 20%.", self.sent[0])
 
     async def test_outage_retains_baseline_and_reports_once(self):
         await self.enroll()
@@ -381,6 +428,7 @@ class ResponderIntegrationTests(unittest.IsolatedAsyncioTestCase):
             db.close()
 
     async def test_slow_fire_enrollment_does_not_block_flood_ack(self):
+        from test_floodalarm import sample
         db = sqlite3.connect(":memory:")
         finish, entered = asyncio.Event(), asyncio.Event()
         task = None
@@ -388,6 +436,7 @@ class ResponderIntegrationTests(unittest.IsolatedAsyncioTestCase):
             config = json.loads((ROOT / "config.json").read_bytes())["responder"]
             send = AsyncMock()
             bot = Responder(ROOT, db, config, 3, "Local Bot", send)
+            bot.alarms.read = AsyncMock(side_effect=lambda *args: sample(time.time()))
             async def delayed(target):
                 entered.set()
                 await finish.wait()
@@ -400,7 +449,7 @@ class ResponderIntegrationTests(unittest.IsolatedAsyncioTestCase):
             task = asyncio.create_task(bot.process_one(alarm_only=False))
             await entered.wait()
             self.assertTrue(await bot.process_one(alarm_only=True))
-            self.assertIn("Flood Alarm is set", send.await_args.args[1])
+            self.assertTrue(any("Flood monitoring set" in call.args[1] for call in send.await_args_list))
             self.assertFalse(task.done())
         finally:
             finish.set()

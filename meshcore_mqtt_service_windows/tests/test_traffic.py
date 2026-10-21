@@ -55,6 +55,7 @@ class TrafficTests(unittest.IsolatedAsyncioTestCase):
     async def fixture_reply(self, body, network_error=False):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
+            shutil.copyfile(service.ROOT / 'scripts/response_text.py', root / 'response_text.py')
             shutil.copyfile(service.ROOT / 'scripts/highway_info.py', root / 'highway_info.py')
             fixture = '''import io
 from email.message import Message
@@ -92,7 +93,7 @@ raise SystemExit(h.main())
 
     async def test_real_highway_script_clear_report_is_exact(self):
         reply = await self.fixture_reply('[Northern California]<br>No traffic restrictions are reported for this area.<br>')
-        self.assertEqual(reply, 'No Traffic Restrictions Reported')
+        self.assertEqual(reply, 'Route 80: no restrictions reported.')
 
     async def test_real_highway_script_preserves_active_restrictions(self):
         reply = await self.fixture_reply(

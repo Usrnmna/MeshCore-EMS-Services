@@ -1,4 +1,143 @@
-# Windows service release notes
+# Linux service release notes
+
+## Current-source documentation: October 21, 2026
+
+The source contains 31 dedicated commands with one tagged response of at most
+150 UTF-8 bytes per request. [Command and subcommand examples](RESPONSE_EXAMPLES.md)
+cover all fields, context categories, help and subscription controls. The
+[response policy](RESPONSE_FORMATTING.md) records priority text and optional
+fields. Full supported structured records remain available through local
+JSON/snapshot modes. GitHub verification covers both service packages on
+Windows/Linux with Python 3.11 and 3.13. Configuration describes planned checks;
+local results and unverified deployment limits are recorded separately.
+
+This documentation update does not rebuild or republish existing release artifacts.
+
+
+## Concise single-message replies
+
+- Command replies use at most one tagged 150-byte UTF-8 message. Details and
+  paging routes are removed; no omission notices or continuation prompts appear.
+- Highest-priority warnings, urgent actions and material uncertainty precede
+  optional whole fields. Subscription events retain independent scheduling.
+- Both platform packages include the shared formatter, regression tests and
+  [manual field-review inventory](RESPONSE_FORMATTING.md).
+- This policy supersedes the historical multipart/details behavior below.
+
+
+Current source registers 31 commands. The [complete command/subcommand index](COMMAND_REFERENCE.md#subcommand-index)
+and [terminal/maintenance reference](../docs/CLI_REFERENCE.md) describe current
+interfaces. Historical entries retain the behavior and validation of their named
+source snapshots; those entries do not establish current artifacts or live operation.
+
+## Five-second shared radio spacing
+
+- Reduced `command_interval` from 15 to 5 seconds in both platform defaults.
+  Flood-alert responses retain their five-second minimum pause without the
+  former 15-second shared limit. All shared radio commands and reply chunks use
+  the new interval; contention and transmission time can still add delay.
+- Existing deployments require the same change in their active configuration
+  and a service restart. Alert priority, descriptions and uncertainty are unchanged.
+
+## Independent priority-ordered flood notifications
+
+- Flood-alarm alerts now arrive separately with the exact standard descriptions,
+  explicit lifecycle/outage states and urgency/severity/certainty/effective-time
+  ordering. Unknown priority fields remain visible.
+- Added a five-second minimum gap after complete responses; the existing shared
+  radio interval (5 seconds by default) still applies. Polling continues during
+  delivery, and superseded, expired or stopped notifications are suppressed.
+- Preserved current-only data, persistent subscription ownership and the existing
+  no-replay policy. Pending delivery metadata is replaceable and in memory.
+
+## Concise flood warnings and full details
+
+- Added `!floodwarn details LOCATION` for complete current bulletin text, source
+  links and metadata; existing radio and subprocess limits remain in effect.
+- Simplified default replies to the location, active alert, expiration and exact
+  standard description, without the "point" suffix, duplicate headline or URL.
+- Preserved explicit unknown states, coverage checks, current-only data and
+  subscription ownership. Both packages include matching regression coverage.
+
+## Automatic WAC/WAS metadata checks
+
+- Added five-source elevation, logger-offset, equipment and datum checks to
+  `--noaa-identifiers` refresh in both packages, including NOAA catalog failures.
+- Changed fields and inaccessible or malformed sources are saved and printed;
+  review-needed outcomes return exit code 1. Unchanged known uncertainty remains
+  explicit without causing a recurring failure.
+- Prioritized CDEC station-elevation metadata while retaining CW3E evidence,
+  discrepancy flags and unknown datum/offset interpretation.
+- Preserved fixed manual-review dates, current-only readings and unresolved
+  identities. No correction or link can be authorized by these auxiliary checks.
+
+## WAC/WAS vertical-reference audit
+
+- Corroborated conflicting station elevations through official CW3E and CDEC
+  inventories; no supported datum or numerical correction was established.
+- Retained the reported logger offset as uninterpreted static metadata, with
+  explicit unknown units, sign, target quantity and upstream application status.
+- Preserved current-only readings, thresholds, routing and unresolved NOAA links;
+  added regression coverage and detailed source citations.
+
+## WAC official-record recovery
+
+- Recovered CW3E WAC detail, sensor, logger and watershed records; retained the
+  explicit CDEC WAS alias without adding unsupported legacy-USGS/NOAA links.
+- Replaced obsolete access-failure evidence for two Warm Springs stations while
+  preserving other review dates, unresolved identities and current-only readings.
+- Documented conflicting elevations and unspecified logger-offset units without
+  applying measurement corrections or inferring flood thresholds.
+
+## Additional local NOAA station review
+
+- Recorded local operating-agency evidence for all sixteen unresolved stations;
+  no additional NOAA crosswalk was supported.
+- Preserved operator leads, differing record periods and the Lambert Bridge/Talmage
+  identifier conflict without changing accepted links or current-only readings.
+- Identifier refresh carries fixed manual evidence; new regressions protect link
+  authority, review dates, explicit uncertainty and measurement-free output.
+
+## NOAA archived-source access retry
+
+- Recovered three original USGS PDFs and Sonoma Water's OneRain site inventory;
+  no additional NOAA-to-USGS crosswalk was supported.
+- Added transient redirect cookies and a static OneRain metadata refresh, with
+  explicit failures and non-authorizing alias candidates.
+- Replaced obsolete access-failure labels with dated PDF checksums/page references;
+  preserved current-only readings and sixteen unresolved station identities.
+
+## Additional NOAA map and operator-record audit
+
+- Reviewed all sixteen remaining identities using official map metadata and
+  additional records; no new USGS-to-NOAA link was supported.
+- Retained non-authorizing candidate evidence, including WSSC1, and added refresh
+  flags for candidate changes, malformed maps and source failures.
+- Preserved current-only readings, original data, supported links and routing.
+
+
+## Complete upstream condition monitoring - unreleased
+
+- Evaluates all reliably linked upstream gauges independently of radio display
+  limits. Missing thresholds/readings and routing caveats remain explicit.
+- Summarizes all changed gauges, with up to three priority details; retains only
+  categorical subscription state and current source values.
+- Requires rebuilding the local water index (schema 2) so supported stations
+  without coordinates remain eligible. Existing point/expiry settings persist.
+
+## Location water status and subscriptions - unreleased
+
+- Adds dedicated `!waterway`, `!basin` and `!floodstatus` programs on both platforms.
+- Adds pinned `!floodalarm conditions`, `status` and `stop`; enrollment verifies
+  coverage before acknowledgment. Defaults are five-minute checks and four hours.
+- Compares material official alert updates and labeled current-condition states,
+  with explicit outage/recovery and no measured-level history.
+- Uses separately downloaded statewide USGS/CalWater routing, a verified local
+  index, NOAA observed gauge categories and current modeled point footprints.
+- Adds current-only online caches, tests and source documentation. Existing
+  unresolved matches remain explicit. `!rivers` is unchanged.
+- Existing installations require opt-in channel assignment for new commands;
+  no service restart, deployment, archive rebuild or data download is automatic.
 
 ## v0.9.5-beta - October 20, 2026
 
@@ -102,7 +241,7 @@
   installers; Python runtimes and dependency wheels are downloaded during setup.
 
 
-Updates the Windows 10 x64 service from `v0.1.1-alpha`.
+Updates the Linux service from `v0.1.1-alpha`.
 
 ### Changes since v0.1.1-alpha
 
@@ -128,9 +267,9 @@ Updates the Windows 10 x64 service from `v0.1.1-alpha`.
   shared-code and ZIP integrity checks. They include tests/documentation and
   exclude local environments, runtime data, caches, and historical backups.
 
-- Updated `verify.cmd` to discover every test suite and check dependencies.
-  Removed historical porting hash manifests and their one-time checker; retained
-  the Windows launchers, local environment, and runtime data during cleanup.
+- Added `verify.sh` for full test discovery and dependency checks. Removed
+  Windows-only launch helpers and the unused Windows virtual environment from
+  this folder; Linux setup creates `.venv-linux/`.
 
 ### Upgrade from v0.1.1-alpha
 
@@ -140,13 +279,12 @@ configuration, preserving `!snowpack`, `!floodalarm`, and existing command entri
 Retain the local runtime database if needed; the responder creates its new
 subscription table automatically. Keep `AIRNOW_API_KEY` for `!aqi`.
 The pinned dependencies are unchanged, and the new commands require no new key.
-On a new computer, do not copy `.venv`, `runtime`, or `__pycache__`; create a local
-environment using setup before verification and startup.
+On a new machine, create a fresh environment rather than copying one.
 
-```bat
-setup.cmd
-verify.cmd
-Start-Service.exe
+```bash
+bash setup.sh
+bash verify.sh
+bash Start-Service.sh
 ```
 
 ### Validation record and limitations
@@ -168,7 +306,7 @@ and validation limits. Those reference tools/data are separate from the service 
 
 ## v0.1.1-alpha â€” September 20, 2026
 
-Compared with `v0.1.0-alpha`, this Windows 10 x64 service adds:
+Compared with `v0.1.0-alpha`, this Linux service adds:
 
 - `!uv` for the current UV index by coordinates, US ZIP, or city/state.
 - `!floodwarn` for active NWS Flash Flood Warnings, Flood Warnings, Flood
@@ -176,9 +314,9 @@ Compared with `v0.1.0-alpha`, this Windows 10 x64 service adds:
 - Shared location parsing for coordinates, ZIP and ZIP+4 codes, and US city/state text.
 - Per-command reply-part limits, with up to 12 parts for `!floodwarn` and four for
   existing commands.
-- `scripts\uv_index.py`, `scripts\flood_warn.py`, `tests/test_uv.py`, and
+- `scripts/uv_index.py`, `scripts/flood_warn.py`, `tests/test_uv.py`, and
   `tests/test_floodwarn.py`.
-- Updated `verify.cmd`, configuration, and documentation for all seven commands.
+- Updated configuration and documentation for all seven included commands.
 
 No new dependency or API key is required for UV or flood alerts. `!aqi` still
 requires `AIRNOW_API_KEY`.
@@ -187,18 +325,18 @@ requires `AIRNOW_API_KEY`.
 
 Stop the service, back up custom settings, copy the new folder contents, and merge
 existing MQTT/channel settings into the new `config.json`. Preserve the new `!uv` and
-`!floodwarn` command entries. On another computer, do not copy `.venv`,
-`runtime`, or `__pycache__`; run `setup.cmd` to create a local environment.
+`!floodwarn` command entries. Then run:
 
-```bat
-setup.cmd
-verify.cmd
-Start-Service.exe
+```bash
+bash setup.sh
+.venv-linux/bin/python -m unittest discover -s tests -p 'test_*.py' -v
+.venv-linux/bin/python -m pip check
+bash Start-Service.sh
 ```
 
-The updated `verify.cmd` ran all 66 tests successfully and reported no broken
-requirements on Windows 10 x64 with Python 3.13. Automatic over-the-air delivery of
-the new responses remains unverified.
+All 66 tests passed against this folder using its installed Windows Python
+environment. Native Linux execution and physical over-the-air delivery of the new
+responses remain unverified.
 
 See the [project release notes](../RELEASE_NOTES.md) for the full change summary,
 validation details, and known limitations.
@@ -212,3 +350,15 @@ Added `!slidewarn`, `!slidealarm`, and `!slideinfo` with shared ZIP/city/GPS inp
 California/Nevada boundary enforcement, NWS source-name preservation, temporary
 channel-scoped subscriptions, and a checksummed USGS station catalog.
 [Behavior, configuration, and verification limits](LANDSLIDE_GUIDE.md).
+
+### NOAA upstream identifier review
+
+- Added a refreshable, source-cited review of 33 gauges: 16 corroborated NOAA IDs, six with published thresholds, and 17 unresolved IDs.
+- Preserve original inventories, current-only readings and categorical uncertainty; withhold conflicting or failed review links.
+- Require a defined threshold for the current NOAA category, including minor threshold evidence for `no_flooding`.
+
+### Additional NOAA agency records
+
+- Investigated all 17 unresolved IDs using USGS coverage metadata, NOAA HADS and additional agency records. Added one documented USGS-11462000 -> CDEC CDM -> NOAA YDMC1 successor; 16 remain unresolved.
+- The successor has no published flood thresholds and does not create current USGS readings or datum equivalence.
+- Refresh verifies the pinned agency report and current CDEC/HADS identity chain; changed evidence withholds the link, including cached observation use.

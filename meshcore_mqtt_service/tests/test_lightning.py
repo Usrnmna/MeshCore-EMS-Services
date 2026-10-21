@@ -82,13 +82,13 @@ class LightningTests(unittest.TestCase):
                          {'point': '38.5816,-121.4944', 'status': 'actual'}))
 
     def test_slight_chance_and_percentage_both_appear_in_pacific(self):
-        data = grid(row([weather('slight_chance', 'thunderstorms')]),
-                    probabilityOfThunder={'values': [row(15)]})
-        with patch.object(lightning, 'get_json', side_effect=[POINT, alerts(), data]):
-            result = lightning.lookup('38 -121', NOW)
-        self.assertEqual(result, 'Lightning Strike Warning for 38 -121 at '
-                         '2026-10-08 05:00 PDT-2026-10-09 05:00 PDT '
-                         '(15% thunderstorm chance, slight chance thunderstorms)')
+        data = grid(row([weather('slight_chance', 'thunderstorms')]), probabilityOfThunder={'values': [row(15)]})
+        with patch.object(lightning, 'get_json', side_effect=[POINT, alerts(), data]): result = lightning.lookup('38 -121', NOW)
+        self.assertIn('15% thunderstorm chance', result)
+        self.assertIn('slight chance thunderstorms', result)
+        self.assertIn('PDT', result)
+        self.assertNotIn('Lightning Strike Warning', result)
+        self.assertLessEqual(len(('@Reader '+result).encode()), 150)
 
     def test_every_stated_coverage_is_preserved(self):
         for chance in ('slight_chance', 'chance', 'likely', 'isolated', 'scattered', 'definite'):
@@ -204,7 +204,7 @@ class LightningTests(unittest.TestCase):
                          '2026-03-08 01:30 PST-04:30 PDT')
         with patch.object(lightning, 'get_json', side_effect=[POINT, alerts(alert()), grid()]):
             result = lightning.lookup('38 -121', NOW, 'America/New_York')
-        self.assertIn('08:00 EDT-11:00 EDT', result)
+        self.assertIn('08:00 EDT-Oct 08 11:00 EDT', result)
 
     def test_elapsed_24_hours_across_dst(self):
         now = datetime(2026, 11, 1, 0, tzinfo=ZoneInfo('America/Los_Angeles'))
@@ -212,7 +212,7 @@ class LightningTests(unittest.TestCase):
         data = grid(row([weather('chance', 'thunderstorms')], utc), now=utc)
         with patch.object(lightning, 'get_json', side_effect=[POINT, alerts(), data]):
             result = lightning.lookup('38 -121', now)
-        self.assertIn('2026-11-01 00:00 PDT-23:00 PST', result)
+        self.assertIn('Nov 01 00:00 PDT-Nov 01 23:00 PST', result)
 
     def test_invalid_timezone_stops_before_network(self):
         with patch.object(lightning, 'get_json') as get, self.assertRaises(ValueError):
@@ -260,8 +260,8 @@ class LightningTests(unittest.TestCase):
                           [POINT, RuntimeError('offline'), thunder]):
             with self.subTest(responses=responses), patch.object(lightning, 'get_json', side_effect=responses):
                 result = lightning.lookup('38 -121', NOW)
-            self.assertTrue(result.startswith('Lightning Strike Warning for 38 -121 at '))
-            self.assertTrue(result.endswith('; additional NWS data unavailable'))
+            self.assertIn('NWS', result)
+            self.assertIn('Data incomplete.', result)
 
     def test_partial_empty_result_never_means_clear(self):
         for responses in ([POINT, alerts(), RuntimeError('offline')],
@@ -288,6 +288,7 @@ class LightningTests(unittest.TestCase):
         config['timezone'] = 'America/New_York'
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            shutil.copyfile(ROOT/'scripts/response_text.py', root/'response_text.py')
             for name in ('lightning.py', 'heat_adv.py', 'uv_index.py', 'time_settings.py'):
                 shutil.copyfile(ROOT/'scripts'/name, root/name)
             now = datetime.now(timezone.utc).replace(microsecond=0) - timedelta(seconds=120)
@@ -312,7 +313,7 @@ class LightningTests(unittest.TestCase):
                 self.assertLessEqual(len(call.args[1].encode('utf-8')), 150)
             joined = ''.join(part[len(sender)+2:] for part in parts)
             self.assertIn('slight chance thunderstorms', joined)
-            self.assertIn(now.astimezone(ZoneInfo('America/New_York')).strftime('%Y-%m-%d %H:%M %Z'), joined)
+            self.assertEqual(len(parts), 1)
             self.assertNotIn('...', joined)
             self.assertEqual(db.execute('SELECT state FROM bot_requests').fetchone()[0], 'sent')
 

@@ -1,0 +1,23 @@
+# Maintained Python and workflow dependencies; no automatic merge or release.
+# Shared dependencies are grouped across both service packages and data tools.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: pip
+    directories:
+      - /meshcore_mqtt_service
+      - /meshcore_mqtt_service_windows
+      - /data/flood_impacts
+      - /data/usgs_water
+      - /satellite_database
+    schedule:
+      interval: weekly
+    groups:
+      shared-python-dependencies:
+        patterns: ['*']
+        group-by: dependency-name
+    open-pull-requests-limit: 5

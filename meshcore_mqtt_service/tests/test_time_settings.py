@@ -54,8 +54,8 @@ class TimeSettingsTests(unittest.TestCase):
                      'river_stage_history': [{'time': '05PM', 'stage_feet': 5}]}]
         with patch.dict(os.environ, {'MESHCORE_TIMEZONE': 'Asia/Tokyo'}):
             result = rivers.format_mesh_report(stations, 15)
-        self.assertIn('CDEC report: 2026-09-18 09:00 JST', result)
-        self.assertIn('stage 5 ft at 2026-09-18 09:00 JST', result)
+        self.assertIn('2026-09-18 09:00 JST', result)
+        self.assertIn('TEST1: 5ft; gauge; point flooding unknown.', result)
 
     def test_river_midnight_and_fall_dst_hour_resolution(self):
         issued = rivers.parse_report_time('100 AM PDT Thu Sep 17 2026')

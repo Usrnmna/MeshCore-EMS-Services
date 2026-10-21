@@ -8,6 +8,10 @@ Replies use local snapshots, with acquisition age and observation times.
 
 ## Radio commands
 
+[Every tagged command/category/control example](RESPONSE_EXAMPLES.md) and
+[response priorities and conditional fields](RESPONSE_FORMATTING.md) describe the
+concise radio presentation. Local JSON retains full supported source records.
+
 | Command | Example | Result |
 | --- | --- | --- |
 | `!firezone` | `!firezone 39.25 -119.96` | Complete official fire-weather zone, name, forecast office, interstate coverage, and current fire-weather warning/watch status. |
@@ -34,13 +38,15 @@ case-insensitively; names of zones are not aliases. Locations outside the
 configured California-associated zone collection are rejected by zone-based
 commands. `!smoke` and `!firedanger` use point-based searches instead.
 
-Use `page N` for subsequent incident/context results or forecast periods:
-`!fires CAZ272 page 2`, `!firewx CAZ272 page 2`, or
-`!firedata cameras CAZ272 page 2`. Default pages contain three incident or
-context records and one forecast period. Replies permit 12 radio parts;
-long replies can still be truncated with `...` by the common responder.
-Forecast alert headings precede the detailed forecast. Raw products and all
-attributes remain available through standalone JSON output.
+Every lookup returns one concise tagged message. No paging or details route is
+available. Alert/uncertainty text precedes optional fields. Source records and
+full attributes remain available through standalone JSON output. See the
+[manual response review inventory](RESPONSE_FORMATTING.md).
+
+`!fires near` presents the selected incident's name, containment and map distance
+instead of its identifier. The distance is the minimum to available mapped
+perimeter or origin geometry, not a travel distance. Full identifiers remain
+in JSON results and continue to work with `!fire INCIDENT-ID`.
 
 ## Geography and interpretation
 
@@ -132,7 +138,7 @@ flowchart LR
   Public["NIFC / NWS / AirNow / ALERTCalifornia"] --> Refresh["Service-owned bounded refresh"]
   Seed["Checksummed whole-zone seed"] --> Refresh
   Refresh --> Cache["runtime/wildfire.sqlite3"]
-  Cache --> Programs["Seven dedicated command programs"]
+  Cache --> Programs["Nine dedicated command programs"]
   Cache --> Monitor["Service subscription checks"]
   Programs --> Queue["Existing channel reply queue"]
   Monitor --> Queue
@@ -253,6 +259,11 @@ checksum and retrieval time, and mirrors the seed into both packages. Review
 changes to the zone list before packaging. Upstream boundary revisions can
 change membership; future live refreshes use the same selection rule.
 
+## Implementation reference
+
+[All wildfire, smoke, fuel-danger, refresh, cache, and subscription functions](WILDFIRE_FUNCTION_REFERENCE.md)
+are documented separately from radio usage.
+
 ## Deployment and verification
 
 Fresh configuration registers all nine dedicated scripts on the default
@@ -292,16 +303,14 @@ a match to the California-associated zone seed.
 ### Smoke response
 
 The response body starts with `Smoke:`. It has no city/ZIP header, `Monitor:`
-line, or `PM10:` line. Normal sender tagging and transport splitting still
+line, or `PM10:` line. Normal sender tagging and the single-message limit still
 apply. The following values illustrate formatting, not current conditions:
 
 ```text
-Smoke: inside medium-density satellite-mapped plume; observed Oct 20 11:00 PDT. Surface exposure may differ.
-PM2.5: 42 UG/M3; AQI 118, Unhealthy for Sensitive Groups; nearby observation 4.2 mi away, Oct 20 11:00 PDT.
-Origin: not established.
+Smoke: medium mapped plume; surface exposure may differ. | PM2.5 AQI 118 Unhealthy for Sensitive Groups | Oct 21 11:00 PDT
 ```
 
-Ozone appears when a fresh nearby measurement is available. Concentration
+Local JSON includes ozone when a fresh nearby measurement is available. Concentration
 units and AQI are supplied by AirNow; the program does not calculate an AQI
 from an instantaneous concentration. Different pollutants can come from
 different stations. PM10, station identity, distances, source status, and
@@ -310,7 +319,7 @@ the resolved point remain available through `smoke.py --json`.
 NOAA HMS polygons describe satellite-visible smoke and qualitative density.
 They are not surface concentration measurements. Exact polygon edges count
 as inside; polygon holes count as outside. Overlapping plumes use the highest
-reported density. Outside a plume, the response reports the nearest edge,
+reported density. Outside a plume, structured output retains the nearest edge,
 approximate straight-line distance, direction, and observation time within
 `maximum_radius_miles`. Full source polygons are retained across state lines.
 A search with no nearby polygon reports the search limit and incomplete
@@ -324,7 +333,8 @@ AirNow measurements are evaluated independently and can remain available.
 
 The program does not infer a named source fire from proximity or plume
 overlap. HMS geometry has no reliable incident identifier; consequently the
-current command reports `Origin: not established.` Numerical smoke transport,
+structured output records that the origin is not established; this field is
+optional in the radio reply. Numerical smoke transport,
 trajectory-based attribution, and named-fire attribution from verified
 advisories are not implemented. The existing `!firedata smoke` remains a
 separate zone-level forecast product. PM and AQI do not measure all toxic
@@ -336,9 +346,11 @@ The public NIFC NFDRS service joins station locations to daily ERC and Burning
 Index summaries by station ID. It supplies historical percentiles and observed
 and forecast trends from FEMS. The nearest processing-enabled station with a
 nonnegative ERC and sufficiently recent publication is selected within
-`maximum_radius_miles`. Distance, station name, model, publication time, ERC,
-percentile, trend, and available Burning Index are displayed. The full source
-record, including forecast values and elevation, remains in JSON.
+`maximum_radius_miles`. The radio reply prioritizes an official warning or
+unknown local danger rating and the qualification that ERC excludes wind. ERC,
+percentile, publication time and station name are optional fields. Structured
+JSON retains distance, model, trend, available Burning Index, forecast values
+and elevation with the full supported source record.
 
 The public product uses **NFDRS2016 fuel model Y (forest), 2005-2022 full-year
 daily maxima** for its reference distribution. It is a regional indicator,
@@ -364,7 +376,8 @@ is published at approximately 03:00 Mountain Time; its ERC is the most recent
 daily maximum, not an instantaneous observation. Publication time is labeled
 accordingly. Trends are provider-defined comparisons with two days earlier.
 
-Nearby RAWS wind, gust, and humidity observations are reported independently.
+Nearby RAWS wind, gust, and humidity observations are retained independently
+in structured output and the corresponding `!firedata raws` lookup.
 Fire-weather warnings are matched to the resolved point's known NWS fire
 zones, independently of whether ERC exists. Missing/stale zone or alert data
 produce an unknown warning status. ERC excludes wind; the command does not

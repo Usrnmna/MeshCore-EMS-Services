@@ -59,6 +59,7 @@ class AQITests(unittest.IsolatedAsyncioTestCase):
     async def test_real_airnow_program_subprocess_and_tagged_reply_with_fixture(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            shutil.copyfile(service.ROOT / 'scripts/response_text.py', root / 'response_text.py')
             shutil.copyfile(service.ROOT / 'scripts/airnow_aqi.py', root / 'airnow_aqi.py')
             shutil.copyfile(service.ROOT / 'scripts/time_settings.py', root / 'time_settings.py')
             fixture = [{
@@ -81,9 +82,9 @@ class AQITests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(all(call.args[0] == 2 for call in send.await_args_list))
             self.assertTrue(all(text.startswith('@Alice ') for text in replies))
             combined = ''.join(text[len('@Alice '):] for text in replies)
-            self.assertIn('AQI: 42', combined)
+            self.assertIn('AQI 42', combined)
             self.assertIn('Fixture Station', combined)
-            self.assertIn('Data status: Preliminary', combined)
+            self.assertIn('preliminary', combined)
             context = json.loads(db.execute('SELECT context FROM bot_requests').fetchone()[0])
             self.assertEqual(context['arguments'], ['37.7749', '-122.4194'])
             db.close()

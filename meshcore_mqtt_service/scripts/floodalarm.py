@@ -1,22 +1,12 @@
-"""Provide structured flood readings for !floodalarm's persistent service monitor.
-
-Standalone invocation reads one snapshot; it does not create a subscription.
-Enrollment, acknowledgment, scheduling, and expiry remain in the service.
-"""
-
+"""Dedicated !floodalarm location command; standalone execution creates no subscription."""
+from pathlib import Path
 import sys
-
-if __package__:
-    from .flood_warn import main as flood_main
-else:
-    from flood_warn import main as flood_main
-
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.water_lookup import main as water_main
 
 def main(argv=None):
-    """Read location arguments and print the monitor's JSON snapshot or error."""
-    args = list(sys.argv[1:] if argv is None else argv)
-    return flood_main(['--snapshot', *args])
+    return water_main("floodalarm", argv)
 
-
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    raise SystemExit(main())

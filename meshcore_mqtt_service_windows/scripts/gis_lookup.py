@@ -4,6 +4,11 @@ import argparse
 import sys
 
 try:
+    from scripts.response_text import compact_fields, short_label, split_fields
+except ModuleNotFoundError:
+    from response_text import compact_fields, short_label, split_fields
+
+try:
     from .gis_data import (BOUNDARY_LAYERS, PARK_LAYERS, GISUnavailable, Snapshot,
                            find_by_name, group_features, load_settings, normalize_name,
                            parse_command_query, SUBCOMMANDS, BOUNDARY_FILTERS, SETTINGS_FILE)
@@ -71,12 +76,10 @@ def summary(group):
 
 
 def short_list(labels, limit):
-    """Bound result lists while explicitly reporting omitted matches."""
+    """Bound result lists without transmitting omission notices."""
     if not labels:
         return 'none in local data'
     text = '; '.join(labels[:limit])
-    if len(labels) > limit:
-        text += f'; +{len(labels) - limit} more'
     return text
 
 
@@ -106,22 +109,15 @@ def format_trail_reply(group, snapshot, spatial, settings):
             f'sun {field_values(group, "SUN_SHADE", "SUNEXPO")}; '
             f'dogs {field_values(group, "DOGS", "DOG")}; '
             f'horses {field_values(group, "HORSES", "HORSE")}; '
-            f'bikes {field_values(group, "BIKES", "BICYCLE")}.')
+            f'bikes {field_values(group, "BIKES", "BICYCLE")}')
     if primary:
-        text += f' Estimated time {number(properties.get("HOUR"), "hr")} (3 mph; terrain excluded).'
-    endpoints = [record for record in snapshot.load_dataset('trail_endpoints')
-                 if normalize_name(record['name']) == normalize_name(group[0]['name'])]
-    starts = [record for record in endpoints if record['properties'].get('END_POINT') == 'START'
-              and record['geometry'] is not None]
-    if starts:
-        lon, lat = starts[0]['geometry']['coordinates'][:2]
-        text += f' Mapped start {lat:.5f},{lon:.5f}.'
+        text += f'; estimated time {number(properties.get("HOUR"), "hr")} (3 mph; terrain excluded)'
     areas = spatial.intersections(group, area_groups(snapshot, BOUNDARY_LAYERS))
-    text += ' Overlaps: ' + short_list([summary(area) for area in areas], settings['max_results']) + '.'
+    text += '; overlaps: ' + short_list([summary(area) for area in areas], settings['max_results'])
     description = properties.get('TRAIL_DESC')
     if description and settings['description_characters']:
         limit = settings['description_characters']
-        text += ' ' + description[:limit].strip() + ('...' if len(description) > limit else '')
+        text += '; ' + description[:limit].strip() + ('...' if len(description) > limit else '')
     return text
 
 
@@ -152,20 +148,22 @@ def format_park_reply(group, snapshot, spatial, settings):
     """Describe grouped park records and geometric associations, not accessible routes."""
     trails = spatial.intersections(group, trail_groups(snapshot))
     recreation = spatial.intersections(group, group_features(snapshot.load_dataset('recreation_points')))
-    return (f'{summary(group)}; {len(group)} source polygon records; '
-            f'agency {field_values(group, "AGENCY_NAM", "AGNCY_NAME")}. '
+    return (f'{summary(group)}; '
+            f'agency {field_values(group, "AGENCY_NAM", "AGNCY_NAME")}; '
             'Intersecting trails: ' + short_list([item[0]['name'] for item in trails], settings['max_results']) +
-            '. Recreation: ' + short_list([item[0]['name'] for item in recreation], settings['max_results']) + '.')
+            '; Recreation: ' + short_list([item[0]['name'] for item in recreation], settings['max_results']) + '.')
 
 
 def bounded_reply(body, spatial, settings):
     """Bound the UTF-8 reply size and retain any geometry-repair note."""
-    suffix = ' Geometry repaired for calculation.' if spatial is not None and spatial.repaired else ''
-    budget = settings['max_reply_bytes'] - len(suffix.encode('utf-8'))
+    suffix = 'Geometry repaired.' if spatial is not None and spatial.repaired else ''
     body = ' '.join(body.split())
-    if len(body.encode('utf-8')) > budget:
-        body = body.encode('utf-8')[:budget - 3].decode('utf-8', 'ignore').rstrip() + '...'
-    return body + suffix
+    fields = split_fields(body)
+    essential = fields[0]
+    if suffix:
+        essential = suffix
+        fields.insert(0, body)
+    return compact_fields(essential, fields[1:])
 
 
 def eligible(group, kind, attribute):
@@ -190,11 +188,9 @@ def eligible(group, kind, attribute):
 
 def command_help(kind):
     """Describe accepted syntax and subcommands without loading GIS datasets."""
-    choices = ', '.join(SUBCOMMANDS[kind])
     if kind == 'boundary':
-        return f'!boundary [CATEGORY] LAT LON | near LAT LON [MILES] | trail NAME. Categories: {choices}.'
-    return (f'!{kind} NAME [ATTRIBUTE] | [ATTRIBUTE] near LAT LON [MILES]. '
-            f'Subcommands: {choices}. No miles: closest only.')
+        return '!boundary LAT LON or near LAT LON [MILES]. Map boundaries only.'
+    return f'!{kind} NAME [ATTRIBUTE] or near LAT LON [MILES]. See command guide.'
 
 
 def attribute_text(kind, attribute, group, snapshot, spatial, settings):
@@ -233,7 +229,7 @@ def attribute_text(kind, attribute, group, snapshot, spatial, settings):
             if not description:
                 return 'description not recorded'
             if not limit:
-                return 'description omitted by settings'
+                return 'Description disabled by settings.'
             return 'description ' + description[:limit].strip() + ('...' if len(description) > limit else '')
         if attribute == 'start':
             starts = [record for record in snapshot.load_dataset('trail_endpoints')
@@ -259,7 +255,7 @@ def feature_reply(kind, group, attribute, snapshot, spatial, settings):
     """Return compact identification, one attribute, or an explicitly requested full reply."""
     name = group[0]['name']
     if attribute is None:
-        return f'{group[0]["category"]}: {name}. Subcommands: {", ".join(SUBCOMMANDS[kind])}.'
+        return f'{group[0]["category"]}: {short_label(name, 35)}.'
     if attribute != 'info':
         detail = attribute_text(kind, attribute, group, snapshot, spatial, settings)
         return f'{name}: {detail}' + ('' if detail.endswith('.') else '.')
@@ -301,17 +297,31 @@ def lookup(kind, query, settings=None):
             raise ValueError(f'Radius must not exceed {settings["maximum_radius_miles"]:g} miles.')
         if kind == 'boundary' and mode == 'coordinates':
             found = spatial.containing(groups, point)
-            body = 'Mapped areas: ' + short_list(
-                [f'{relation} {summary(group)}' for group, relation in found], settings['max_results']) + '.'
+            labels = []
+            for group, relation in found:
+                category = group[0]['category'].lower()
+                identity = summary(group).partition(': ')[2]
+                heading = (f'Inside mapped {category}' if relation == 'inside'
+                           else f'On mapped {category} boundary')
+                labels.append(f'{heading}: {identity}')
+            body = (short_list(labels, settings['max_results']) + '.' if labels
+                    else 'No containing areas in local map data.')
         else:
             groups = [group for group in groups if eligible(group, kind, attribute)]
             found = spatial.nearby(groups, point, radius)
             labels = []
             for group, distance in found:
-                label = f'{group[0]["category"]}: {group[0]["name"]} ({distance:.2f} mi)'
+                name = group[0]['name']
+                if kind == 'boundary' and radius is not None:
+                    name += f' [{group[0]["category"]}]'
+                label = f'{name} ({distance:.2f} mi map distance)'
                 if attribute and kind != 'boundary':
                     if attribute == 'info':
-                        label = f'{distance:.2f} mi; ' + feature_reply(kind, group, attribute, snapshot, spatial, settings)
+                        # Full replies already contain identity; retain status without
+                        # repeating the category/name after the proximity heading.
+                        identity = summary(group).partition(': ')[2]
+                        detail = feature_reply(kind, group, attribute, snapshot, spatial, settings).partition('; ')[2]
+                        label = f'{identity} ({distance:.2f} mi map distance); ' + detail
                     else:
                         label += '; ' + attribute_text(kind, attribute, group, snapshot, spatial, settings)
                 labels.append(label)
@@ -320,7 +330,13 @@ def lookup(kind, query, settings=None):
                 extent = f' within {radius:g} mi' if radius is not None else ''
                 body = f'No matching {kind}{qualifier}{extent} in local data.'
             else:
-                prefix = 'Closest, map distance: ' if radius is None else f'Within {radius:g} mi, map distance: '
+                if radius is None:
+                    nearest_group, _ = found[0]
+                    prefix = f'Nearest {nearest_group[0]["category"].lower()}: '
+                else:
+                    noun = {'trail': 'Trails', 'rec': 'Recreation', 'peak': 'Peaks',
+                            'park': 'Parks', 'boundary': 'Areas'}[kind]
+                    prefix = f'{noun} within {radius:g} mi: '
                 body = prefix + short_list(labels, settings['max_results'])
                 if not body.endswith('.'):
                     body += '.'

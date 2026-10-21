@@ -1,5 +1,7 @@
 # California-associated fire-weather zones
 
+[Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
+
 `zones.geojson` preserves complete official NWS fire-weather polygons selected
 by at least one hectare of overlap with California. Interstate portions are
 retained. The October 20, 2026 snapshot contains 186 zones, including CAZ272

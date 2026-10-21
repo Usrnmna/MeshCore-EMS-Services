@@ -4,6 +4,7 @@ import asyncio
 from datetime import datetime, timezone
 import io
 import json
+import os
 from pathlib import Path
 import sqlite3
 import sys
@@ -19,7 +20,7 @@ from scripts import landslide_alerts as alerts, landslide_lookup as lookup
 from scripts.landslide_data import nearest_station, reference, require_supported_location
 from scripts.landslide_settings import validate
 from landslide_service import LandslideAlarms, changes
-from responder import Responder, match_command, validate_config
+from responder import Responder, match_command, validate_config, reply_parts
 
 NOW = 1792500000
 POINT = [34.15, -118.14]
@@ -50,6 +51,39 @@ def snapshot(now=NOW, records=None):
 
 
 class LocationAndCatalogTests(unittest.TestCase):
+    def test_station_name_is_complete_or_absent_never_an_excerpt(self):
+        station = nearest_station(*POINT)
+        for name in (station['name'], 'Station ' + '温' * 80):
+            for sender in ('Alice', 'a' * 80, '温' * 26):
+                with self.subTest(name=name, sender=sender), patch.dict(os.environ, {'MESHCORE_SENDER': sender}):
+                    text = lookup.format_station(dict(station, name=name), 'Pasadena')
+                    parts = reply_parts(sender, text, max_parts=1)
+                    self.assertEqual(len(parts), 1)
+                    self.assertLessEqual(len(parts[0].encode()), 150)
+                    self.assertIn('telemetry unverified; not local coverage.', text)
+                    self.assertNotIn('...', text)
+                    if name == station['name'] and sender == 'Alice':
+                        self.assertTrue(text.endswith(name))
+                        self.assertNotIn("Catalog checked", text)
+                    else:
+                        self.assertNotIn(name.split()[0], text)
+
+    def test_near_cli_preserves_catalog_uncertainty_and_distance(self):
+        station = nearest_station(*POINT)
+        for sender in ('Alice', 'a' * 80):
+            output = io.StringIO()
+            with patch.dict(os.environ, {'MESHCORE_SENDER': sender}), redirect_stdout(output):
+                self.assertEqual(lookup.main('slideinfo', ['near', '34.15', '-118.14']), 0)
+            parts = reply_parts(sender, output.getvalue().strip(), max_parts=1)
+            self.assertEqual(len(parts), 1)
+            self.assertLessEqual(len(parts[0].encode()), 150)
+            self.assertIn('telemetry unverified', parts[0])
+            self.assertIn('not local coverage', parts[0])
+            self.assertIn(station['id'], parts[0])
+            if sender == 'Alice':
+                self.assertIn(f"{station['distance_miles']:.1f}mi", parts[0])
+                self.assertTrue(parts[0].endswith(station["name"]))
+
     def test_existing_location_grammar_and_default_state(self):
         for command in lookup.COMMANDS:
             for location in ("91107", "91107-1234", "Pasadena", "Pasadena CA", "Pasadena, California",
@@ -83,7 +117,7 @@ class LocationAndCatalogTests(unittest.TestCase):
                 target = lookup.parse_query(command, query)["target"]
                 self.assertEqual(lookup.resolve(target), point)
             station = nearest_station(*point)
-            self.assertIn("California catalog", lookup.format_station(station, str(point)))
+            self.assertIn("telemetry unverified; not local coverage.", lookup.format_station(station, str(point)))
             data = dict(snapshot(), point=list(point))
             self.assertEqual(lookup.checked_snapshot(data, validate({}), NOW)["point"], list(point))
 
@@ -127,9 +161,9 @@ class LocationAndCatalogTests(unittest.TestCase):
 
     def test_station_output_never_claims_current_measurement(self):
         result = lookup.format_station(nearest_station(*POINT), "Pasadena")
-        self.assertIn("telemetry status unverified", result)
-        self.assertIn("distance does not establish", result)
-        self.assertIn("Catalog checked", result)
+        self.assertIn("telemetry unverified", result)
+        self.assertIn("not local coverage", result)
+        self.assertLessEqual(len(("@Reader " + result).encode()), 150)
 
 
 class AlertTests(unittest.TestCase):
@@ -189,11 +223,11 @@ class AlertTests(unittest.TestCase):
 
     def test_empty_and_limited_output(self):
         text = lookup.format_alerts(snapshot(records=[]), "Pasadena", validate({}))
-        self.assertIn("No active NWS alerts mentioning", text)
+        self.assertIn("No NWS landslide mentions", text)
         self.assertIn("not an all-clear", text)
         text = lookup.format_alerts(snapshot(records=[feature(str(i)) for i in range(4)]), "Pasadena", validate({}))
-        self.assertIn("1 more", text)
-        self.assertIn("NWS Test Office", text)
+        self.assertIn("+3 alerts", text)
+        self.assertIn("NWS Flash Flood Warning", text)
 
     def test_fresh_snapshot_validation(self):
         for invalid in (dict(snapshot(), fetched=NOW - 301), dict(snapshot(), fetched=NOW + 1),
@@ -206,9 +240,9 @@ class AlertTests(unittest.TestCase):
         after = snapshot(records=[feature("b", messageType="Update", references=[dict(identifier="a")])])
         self.assertEqual(changes(before, after, NOW), [])
         after = snapshot(records=[feature("b", messageType="Update", description="Debris flows observed.", references=[dict(identifier="a")])])
-        self.assertTrue(changes(before, after, NOW)[0].startswith("Updated:"))
+        self.assertIn("| Updated", changes(before, after, NOW)[0])
         self.assertIn("expired", changes(before, snapshot(records=[]), NOW + 7200)[0])
-        self.assertIn("no longer listed", changes(before, snapshot(records=[]), NOW)[0])
+        self.assertIn("cancellation unconfirmed", changes(before, snapshot(records=[]), NOW)[0])
 
 
 class CacheTests(unittest.TestCase):
@@ -291,7 +325,7 @@ class AlarmTests(unittest.IsolatedAsyncioTestCase):
     async def enroll(self):
         self.assertTrue(self.alarms.remember(self.request, self.now))
         text, detail = await self.alarms.control(self.request)
-        self.assertIn("monitoring set", text)
+        self.assertIn("monitoring set", text.lower())
         self.assertEqual(detail, "")
         self.assertFalse(self.alarms.current(self.alarms.row("Sam")))
         self.alarms.acknowledge(self.request)

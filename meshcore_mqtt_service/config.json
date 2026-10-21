@@ -12,13 +12,13 @@
   "local_broker": true,
   "baudrate": 115200,
   "command_timeout": 45,
-  "command_interval": 15,
+  "command_interval": 5,
   "responder": {
     "enabled": true,
     "timezone": "America/Los_Angeles",
     "script_timeout": 20,
     "max_output_bytes": 65536,
-    "max_reply_parts": 4,
+    "max_reply_parts": 1,
     "max_message_age": 300,
     "sender_cooldown": 30,
     "max_pending": 50,
@@ -87,7 +87,7 @@
         "args": [],
         "input": "location",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "error_reply": "Heat alert lookup unavailable. Please try again later.",
         "channels": [
           "default"
@@ -96,9 +96,9 @@
       "!floodwarn": {
         "script": "scripts/flood_warn.py",
         "args": [],
-        "input": "location",
-        "timeout": 45,
-        "max_reply_parts": 12,
+        "input": "water_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
         "error_reply": "Flood alert lookup unavailable. Please try again later.",
         "channels": [
           "default"
@@ -117,18 +117,19 @@
       "!floodalarm": {
         "script": "scripts/floodalarm.py",
         "args": [],
-        "input": "location",
-        "max_reply_parts": 12,
+        "input": "water_query",
+        "max_reply_parts": 1,
         "channels": [
           "default"
-        ]
+        ],
+        "timeout": 90
       },
       "!lightning": {
         "script": "scripts/lightning.py",
         "args": [],
         "input": "location",
         "timeout": 60,
-        "max_reply_parts": 64,
+        "max_reply_parts": 1,
         "error_reply": "Lightning lookup unavailable. Please try again later.",
         "channels": [
           "default"
@@ -139,7 +140,7 @@
         "args": [],
         "input": "gis_query",
         "timeout": 30,
-        "max_reply_parts": 6,
+        "max_reply_parts": 1,
         "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
@@ -150,7 +151,7 @@
         "args": [],
         "input": "gis_query",
         "timeout": 30,
-        "max_reply_parts": 6,
+        "max_reply_parts": 1,
         "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
@@ -161,7 +162,7 @@
         "args": [],
         "input": "gis_query",
         "timeout": 30,
-        "max_reply_parts": 6,
+        "max_reply_parts": 1,
         "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
@@ -172,7 +173,7 @@
         "args": [],
         "input": "gis_query",
         "timeout": 30,
-        "max_reply_parts": 6,
+        "max_reply_parts": 1,
         "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
@@ -183,7 +184,7 @@
         "args": [],
         "input": "gis_query",
         "timeout": 30,
-        "max_reply_parts": 6,
+        "max_reply_parts": 1,
         "error_reply": "Local GIS data unavailable. Check snapshots, dependencies, or refresh state.",
         "channels": [
           "default"
@@ -194,7 +195,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -204,7 +205,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -214,7 +215,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -224,7 +225,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -234,7 +235,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -244,7 +245,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -254,7 +255,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -264,7 +265,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -274,7 +275,7 @@
         "args": [],
         "input": "fire_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]
@@ -284,7 +285,7 @@
         "args": [],
         "input": "slide_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "error_reply": "Landslide lookup unavailable. Please try again later.",
         "channels": [
           "default"
@@ -295,7 +296,7 @@
         "args": [],
         "input": "slide_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "error_reply": "Landslide lookup unavailable. Please try again later.",
         "channels": [
           "default"
@@ -306,11 +307,44 @@
         "args": [],
         "input": "slide_query",
         "timeout": 45,
-        "max_reply_parts": 12,
+        "max_reply_parts": 1,
         "error_reply": "Landslide lookup unavailable. Please try again later.",
         "channels": [
           "default"
         ]
+      },
+      "!waterway": {
+        "script": "scripts/waterway.py",
+        "args": [],
+        "input": "water_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Water status unavailable; current conditions unknown."
+      },
+      "!basin": {
+        "script": "scripts/basin.py",
+        "args": [],
+        "input": "water_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Water status unavailable; current conditions unknown."
+      },
+      "!floodstatus": {
+        "script": "scripts/floodstatus.py",
+        "args": [],
+        "input": "water_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Water status unavailable; current conditions unknown."
       }
     },
     "channels": {
@@ -359,6 +393,18 @@
       "subscription_interval": 300,
       "subscription_hours": 4,
       "max_alerts": 3
+    },
+    "water": {
+      "enabled": true,
+      "data_directory": "../data",
+      "cache_seconds": 300,
+      "subscription_interval": 300,
+      "subscription_hours": 4,
+      "reading_max_age": 21600,
+      "model_max_age": 10800,
+      "nearby_radius_miles": 15,
+      "max_results": 3,
+      "noaa_enabled": true
     }
   },
   "serial_port": "auto",

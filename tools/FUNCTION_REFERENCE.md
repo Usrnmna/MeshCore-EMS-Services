@@ -80,3 +80,26 @@ and service module; `main()` verifies paired copies before producing ZIPs.
 exclusions and exceptions from `.gitignore`. `download_only()` applies that
 specific publication policy without requiring Git during a distribution build.
 Generated water snapshots are excluded; curated inputs remain in the payload.
+
+
+## check_documentation.py
+
+[Source](check_documentation.py). Run from a Git checkout with
+`python tools/check_documentation.py`; no network or device access occurs.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `git(*arguments, input_bytes=None)` | Run a read-only Git query in the repository and return its captured bytes. |
+| `read_text(path)` | Read UTF-8 or legacy CP1252 documentation without rewriting its encoding. |
+| `maintained_paths()` | Include tracked and new publishable files, excluding deleted paths and local outputs. |
+| `prose(text)` | Remove fenced examples before interpreting Markdown links or heading anchors. |
+| `anchors(text)` | Collect explicit HTML anchors and duplicate-aware GitHub-style heading IDs. |
+| `source_constant(path, name)` | Read a literal published vocabulary without importing application or provider code. |
+| `check_commands()` | Check registered command programs, subcommand vocabulary, paired guides, and badges. |
+| `check_response_examples()` | Verify command, GIS-field, context-category and alarm-control response coverage, paired catalogs, exact tagged byte counts and the 150-byte limit. |
+| `function_definitions(node, prefix='')` | Yield qualified function names and definitions, including methods and nested callbacks. |
+| `check_function_references()` | Compare focused water/wildfire signatures with the current source definitions. |
+| `check_links(paths)` | Check local paths/fragments; recognize explicitly ignored generated water outputs. |
+| `check_cli_options(paths)` | Require every literal argparse flag/subcommand from maintained entry points in the CLI guide. |
+| `check_publication()` | Keep generated/private files out of Git and retain required maintained sources. |
+| `main()` | Run offline documentation gates and report checks separately from generated links. |

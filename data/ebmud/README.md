@@ -1,5 +1,7 @@
 # EBMUD local GIS references
 
+[Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
+
 These files are shared reference data for programs within MC-EMS-Services.
 Basic JSON reading requires no network connection, account, API key, or GIS
 library. Service spatial queries require Shapely and pyproj; permanent polygon

@@ -52,7 +52,7 @@ Installer upgrades preserve it. All programs receive MESHCORE_TIMEZONE.
 See README.md for provider-text limits and standalone usage.
 
 LOCAL GIS COMMANDS
-The current source includes 28 commands. Local GIS examples:
+The current source includes 31 commands. Local GIS examples:
     !trail Bear Creek
     !rec near 37.90 -122.20
     !peak Wildcat Peak
@@ -60,7 +60,8 @@ The current source includes 28 commands. Local GIS examples:
     !boundary 37.90 -122.20
     !boundary trail Bear Creek
 Use NAME ATTRIBUTE for a focused field, such as !trail Bear Creek dogs.
-Use NAME info for the full summary; NAME alone lists available subcommands.
+Use NAME info for a concise summary; NAME alone identifies the feature.
+Send help for syntax; focused fields remain independent requests.
 Use ATTRIBUTE near LATITUDE LONGITUDE [MILES] for focused proximity queries.
 Without miles, only the closest qualifying feature is returned. With miles,
 results within that radius are listed; the explicit maximum is 25 miles.
@@ -108,3 +109,22 @@ detailed fuel moisture requires optional FEMS access. See WILDFIRE_GUIDE.md.
 California and Nevada landslide commands: !slidewarn LOCATION, !slidealarm on LOCATION
 (status/off controls), and !slideinfo LOCATION. Locations accept ZIP, city, or GPS.
 See LANDSLIDE_GUIDE.md. New commands require channel assignments on registry upgrades.
+
+COMPLETE COMMAND AND SUBCOMMAND INDEX
+The current source registers 31 commands. COMMAND_REFERENCE.md lists every command,
+GIS field and category, wildfire context category and query form, location-water
+query, and flood/fire/landslide subscription control. BOT_USER_GUIDE.md provides
+short radio examples. WATER_GUIDE.md, WILDFIRE_GUIDE.md, and LANDSLIDE_GUIDE.md
+explain their own sources, limits, settings, and update procedures.
+
+Water examples: !waterway 38.61 -122.83; !basin 38.61 -122.83; !floodstatus 95814.
+Flood monitoring: !floodalarm LOCATION; !floodalarm conditions LOCATION;
+!floodalarm status; !floodalarm stop. Checks default to five minutes for four hours.
+Enrollment pins one verified location; status does not renew. Downloaded water
+collections and runtime indexes remain local and require explicit setup.
+
+REPLY EXAMPLES AND LIMITS
+RESPONSE_EXAMPLES.md covers commands, fields, near searches, help and alarms.
+Each reply is one tagged message of at most 150 UTF-8 bytes. Secondary fields
+may not fit. There are no details routes, pages or automatic continuations.
+RESPONSE_FORMATTING.md records priority fields and presentation limits.

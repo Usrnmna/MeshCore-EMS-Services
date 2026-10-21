@@ -14,8 +14,10 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 if __package__:
+    from .response_text import compact_fields, short_label
     from .uv_index import parse_location as _parse_location
 else:
+    from response_text import compact_fields, short_label
     from uv_index import parse_location as _parse_location
 
 # USER SETTINGS: each lookup makes at most three requests; the bot allows 45 seconds.
@@ -27,13 +29,13 @@ NWS_ALERTS_URL = 'https://api.weather.gov/alerts/active'
 USER_AGENT = 'MC-EMS-Services-HeatAdv/1.0'
 UNAVAILABLE = 'Heat alert lookup unavailable. Please try again later.'
 
-# REPLY TEXT: preserve the response-contract spelling and capitalization, including the clear reply.
+# REPLY TEXT: warning priority and canonical current event names.
 ALERT_REPLIES = {
-    'Extreme Heat Warning': 'Advisory: Extreme Heat Warning for {location}',
-    'Extreme Heat Watch': 'Advisory: Extreme Heat Watch for {location}',
-    'Heat Advisory': 'Heat Advisory for {location}',
+    'Extreme Heat Warning': 'NWS Extreme Heat Warning.',
+    'Extreme Heat Watch': 'NWS Extreme Heat Watch.',
+    'Heat Advisory': 'NWS Heat Advisory.',
 }
-NO_ALERTS = 'There is no Heat Advisories for {location}'
+NO_ALERTS = 'No active NWS heat alerts.'
 # NWS renamed these products in March 2025; accept either spelling from a feed.
 LEGACY_EVENTS = {
     'Excessive Heat Warning': 'Extreme Heat Warning',
@@ -168,8 +170,8 @@ def lookup(text):
     data = get_json(NWS_ALERTS_URL, {'point': point, 'status': 'actual'})
     events = active_types(data)
     if not events:
-        return NO_ALERTS.format(location=text)
-    return '\n'.join(ALERT_REPLIES[event].format(location=text) for event in events)
+        return compact_fields(NO_ALERTS, [short_label(text, 30)])
+    return compact_fields(ALERT_REPLIES[events[0]], events[1:] + [short_label(text, 30)])
 
 
 def main(argv=None):

@@ -2,6 +2,7 @@
 
 from datetime import datetime, timezone
 import json
+import re
 import sqlite3
 import sys
 import time
@@ -11,6 +12,7 @@ from .flood_warn import resolve_location
 from .landslide_data import nearest_station, require_supported_location
 from .time_settings import format_timestamp
 from .uv_index import parse_location
+from .response_text import compact_fields, short_label, counted
 
 COMMANDS = {"slidewarn", "slidealarm", "slideinfo"}
 
@@ -24,6 +26,8 @@ def parse_query(command, text):
     if text.lower() in {"", "help", "--help"}:
         return {"action": "help", "target": ""}
     action = "lookup"
+    if text.lower().startswith("details ") or text.lower() == "details" or re.search(r"\s+page\s+\d+\s*$", text, re.I):
+        raise ValueError(f"Use !{command} LOCATION; details and paging are not supported.")
     if command == "slidealarm":
         if text.lower() in {"status", "off"}:
             return {"action": text.lower(), "target": ""}
@@ -70,44 +74,30 @@ def shorten(text, limit):
 
 
 def alert_summary(alert):
-    """Keep official event/issuer and validity ahead of a bounded source-text excerpt."""
-    p = alert["properties"]
+    """Preserve official event and qualified relevance; do not invent landslide warnings."""
     until = format_timestamp(datetime.fromtimestamp(alert["expires"], timezone.utc))
-    issue = p.get("sent") or p.get("effective")
-    issued = format_timestamp(landslide_alerts.timestamp(issue))
-    excerpt = p.get("headline") or p.get("description") or p.get("instruction")
-    return (f"{alert['event']} ({p.get('senderName') or 'NWS'}), issued {issued}, until {until}; "
-            f"{alert['mention']}. {shorten(excerpt, 150)} "
-            f"Instructions (excerpt): {shorten(p.get('instruction') or 'See full NWS alert.', 180)} "
-            f"{alert['url']}")
+    mention = ("landslide mention" if alert["mention"] == "hazard mentioned in headline/description"
+               else "qualified mention only")
+    return compact_fields(f"NWS {alert['event']}; {mention}.", ["Until " + until])
 
 
 def format_alerts(data, target, config):
-    """Report fresh point matches with source age; an empty response is never an all-clear."""
-    checked = format_timestamp(datetime.fromtimestamp(data["fetched"], timezone.utc))
-    lat, lon = data["point"]
-    lines = [f"{target} ({lat:.5f}, {lon:.5f}); NWS checked {checked}."]
+    """Select highest severity, retaining explicit uncertainty for empty coverage."""
     alerts = list(data["alerts"].values())
     order = {"Extreme": 0, "Severe": 1, "Moderate": 2, "Minor": 3, "Unknown": 4}
     alerts.sort(key=lambda a: (order.get(a["properties"].get("severity"), 4), a["expires"], a["id"]))
     if not alerts:
-        lines.append("No active NWS alerts mentioning landslide/debris-flow hazards found for this location. This is not an all-clear.")
-    else:
-        lines.append(f"{len(alerts)} matching alert(s); official product names retained.")
-        lines.extend(alert_summary(a) for a in alerts[:config["max_alerts"]])
-        if len(alerts) > config["max_alerts"]:
-            lines.append(f"{len(alerts) - config['max_alerts']} more; full list: {data['source']}")
-    return "\n".join(lines)
+        return compact_fields("No NWS landslide mentions; not an all-clear.", [short_label(target, 25)])
+    return compact_fields(alert_summary(alerts[0]),
+                          (["+" + counted(len(alerts)-1, "alert")] if len(alerts) > 1 else []) + [short_label(target, 25)])
 
 
 def format_station(station, target):
-    """Describe catalog metadata, never imply a live sensor reading or coverage at the query point."""
-    return (f"{target}: nearest eligible USGS station in the California catalog: {station['name']} ({station['id']}), "
-            f"{station['distance_miles']:.1f} mi. Catalog checked {station['catalog_checked']}. "
-            f"Monitors: {', '.join(station['measurements'])}. Published graph interval: "
-            f"{station['graph_minutes']} min; current telemetry status unverified. "
-            "Preliminary site observations; distance does not establish local conditions or warning coverage. "
-            f"Graphs/info: {station['url']}")
+    """Report catalog identity and distance without claiming live local measurements."""
+    essential = f"{short_label(station['id'], 15)}: telemetry unverified; not local coverage."
+    # Catalog names can contain quoted titles and parenthetical fire context.
+    # Admit the complete name only; excerpts can leave either construct unfinished.
+    return compact_fields(essential, [f"{station['distance_miles']:.1f}mi", station['name']])
 
 
 def main(command, argv=None):

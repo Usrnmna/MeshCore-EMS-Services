@@ -18,7 +18,8 @@ import signal
 import sys
 import time
 
-from flood_alarm import ACKNOWLEDGMENT, FloodAlarms
+from flood_alarm import FloodAlarms
+from scripts.water_settings import validate as validate_water
 from wildfire_service import WildfireAlarms
 from landslide_service import LandslideAlarms
 from scripts.landslide_settings import validate as validate_landslide
@@ -42,6 +43,7 @@ def validate_config(config, root):
     validate_channels(config)
     validate_wildfire(config.get("wildfire", {}))
     validate_landslide(config.get("landslide", {}))
+    validate_water(config.get("water", {}))
     program_directory = config.get("program_directory")
     if program_directory is not None and (
         not isinstance(program_directory, str) or not Path(program_directory).is_absolute()
@@ -74,9 +76,9 @@ def validate_config(config, root):
             isinstance(x, str) for x in spec.get("args", [])
         ):
             raise ValueError("Script args must be a list of fixed strings")
-        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query"}:
-            raise ValueError("Command input must be none, coordinates, route_number, location, gis_query, fire_query or slide_query")
-        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query"} and any(
+        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query"}:
+            raise ValueError("Command input must be none, coordinates, route_number, location, gis_query, fire_query, slide_query or water_query")
+        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query"} and any(
             c.isspace() for c in phrase
         ):
             raise ValueError("Commands with arguments must be a single token")
@@ -100,6 +102,16 @@ def match_command(phrase, commands):
     spec = commands.get(key)
     if spec is None or (spec.get("input", "none") == "none" and phrase != key):
         return None
+    if re.search(r"^\s*details(?:\s|$)|\s+page\s+\d+\s*$", phrase[len(key):], re.I):
+        return key, [], f"Details and paging are not supported. Use {key} with its normal query."
+    if spec.get("input") == "water_query":
+        from scripts.water_lookup import parse_query
+        query = phrase[len(key):].strip() or "help"
+        try:
+            parse_query(key, query)
+        except ValueError as exc:
+            return key, [], str(exc)
+        return key, [query], None
     if spec.get("input") == "slide_query":
         from scripts.landslide_lookup import parse_query
         query = phrase[len(key):].strip() or "help"
@@ -233,21 +245,11 @@ def parse_message(payload, channel, own_name, config, now):
 
 
 def reply_parts(sender, output, limit=150, max_parts=4):
-    """Return tagged UTF-8-safe pieces within the byte/part limits; collapse whitespace and mark truncation."""
-    prefix = f"@{sender} "
-    budget = limit - len(prefix.encode("utf-8"))
-    if budget < 8:
-        raise ValueError("Sender name leaves insufficient room for a reply")
-    text = " ".join("".join(c for c in output if c.isprintable() or c.isspace()).split())
-    text = text or "The script returned no text."
-    parts = []
-    while text and len(parts) < max_parts:
-        piece = text.encode("utf-8")[:budget].decode("utf-8", "ignore")
-        text = text[len(piece) :]
-        if text and len(parts) == max_parts - 1:
-            piece = piece.encode("utf-8")[: budget - 3].decode("utf-8", "ignore") + "..."
-        parts.append(prefix + piece)
-    return parts
+    """Return numbered, word-aware UTF-8 radio messages with explicit overflow."""
+    from scripts.response_text import tagged_parts, compact_fields
+    if max_parts == 1:
+        output = compact_fields(output, sender=sender)
+    return tagged_parts(sender, output, limit, max_parts)
 
 
 async def run_script(root, spec, request, config):
@@ -265,6 +267,7 @@ async def run_script(root, spec, request, config):
             env.pop(key)
     env.update(
         MESHCORE_SENDER=request["sender"],
+        MESHCORE_REPLY_PARTS="1",
         MESHCORE_CHANNEL=request["channel_name"],
         MESHCORE_CHANNEL_ID=request.get("channel_id", ""),
         MESHCORE_CHANNEL_INDEX=str(request["channel_index"]),
@@ -274,6 +277,7 @@ async def run_script(root, spec, request, config):
         MESHCORE_RUNTIME_DIR=str(config.get("_runtime_directory", root / "runtime")),
         MESHCORE_WILDFIRE_SETTINGS=json.dumps(validate_wildfire(config.get("wildfire", {}))),
         MESHCORE_LANDSLIDE_SETTINGS=json.dumps(validate_landslide(config.get("landslide", {}))),
+        MESHCORE_WATER_SETTINGS=json.dumps(validate_water(config.get("water", {}))),
         PYTHONIOENCODING="utf-8",
     )
     proc = await asyncio.create_subprocess_exec(
@@ -366,17 +370,8 @@ class Responder:
         )
         db.commit()
         self.alarms = FloodAlarms(
-            db,
-            self.channel_id,
-            self.read_flood_status,
-            self.send_flood_change,
-            allowed=lambda: self.allowed("!floodalarm"),
-        )
-        if not self.allowed("!floodalarm"):
-            db.execute(
-                "UPDATE flood_subscriptions SET enabled=0 WHERE channel=?", (self.channel_id,)
-            )
-            db.commit()
+            db, self.channel_id, config.get("channel_identity"), config.get("water", {}),
+            self.read_flood_status, self.send_flood_change, lambda: self.allowed("!floodalarm"))
 
         self.fire_alarms = WildfireAlarms(
             db, self.channel_id, config.get("channel_identity"), config.get("wildfire", {}),
@@ -432,7 +427,7 @@ class Responder:
         ):
             return False
         request["script"] = self.config["commands"][request["command"]]
-        # ENROLLMENT/RENEWAL: only !floodalarm overwrites location and resets the four-hour timer.
+        # Only explicit flood controls can reserve, cancel or renew a subscription.
         if request["command"] == "!floodalarm" and not request["input_error"]:
             if not self.alarms.remember(request, now):
                 return False
@@ -460,6 +455,9 @@ class Responder:
 
     def update(self, request_id, state, response=None, detail=None):
         """Commit request state and diagnostics, retaining the prior response when response is None."""
+        context_row = self.db.execute("SELECT context FROM bot_requests WHERE id=?", (request_id,)).fetchone()
+        if context_row and json.loads(context_row[0]).get("command") in {"!waterway", "!basin", "!floodstatus", "!floodalarm"}:
+            response = "[]"  # Values are transmitted but are not retained in request history.
         self.db.execute(
             "UPDATE bot_requests SET state=?,response=COALESCE(?,response),detail=? WHERE id=?",
             (state, response, detail, request_id),
@@ -468,7 +466,7 @@ class Responder:
 
     async def process_one(self, alarm_only=None):
         """Process the oldest queued request, expire stale work, run its script and send replies; return False if empty."""
-        # Separate acknowledgment worker bypasses slow weather lookups in the ordinary queue.
+        # A separate flood-control worker bypasses lookups in the ordinary queue.
         rows = self.db.execute(
             "SELECT id,context FROM bot_requests WHERE state='queued' AND channel_id=? ORDER BY created",
             (self.channel_id,),
@@ -513,7 +511,7 @@ class Responder:
                 elif request["command"] == "!firealarm":
                     output, detail = await self.fire_alarms.control(request)
                 elif request["command"] == "!floodalarm":
-                    output, detail = ACKNOWLEDGMENT, ""
+                    output, detail = await self.alarms.control(request)
                 else:
                     output, detail = await run_script(
                         self.root, request["script"], request, self.config
@@ -523,13 +521,18 @@ class Responder:
             parts = reply_parts(
                 request["sender"],
                 output,
-                max_parts=request["script"].get("max_reply_parts", self.config["max_reply_parts"]),
+                max_parts=1,
             )
             self.update(request_id, "sending", json.dumps(parts), detail)
             for part in parts:
                 if not self.allowed(request["command"]):
                     raise RuntimeError("Program channel assignment changed")
-                if request["command"] == "!slidealarm" and not request.get("input_error"):
+                if request["command"] == "!floodalarm" and not request.get("input_error"):
+                    guard = lambda: self.alarms.control_current(request)
+                    if not guard():
+                        raise RuntimeError("Flood control request superseded or expired")
+                    await self.send(request["channel_index"], part, guard=guard)
+                elif request["command"] == "!slidealarm" and not request.get("input_error"):
                     guard = lambda: self.slide_alarms.control_current(request)
                     if not guard():
                         raise RuntimeError("Landslide control request superseded or expired")
@@ -575,7 +578,7 @@ class Responder:
     async def send_slide_change(self, reading, output):
         """Route tagged landslide updates through the shared radio queue with a revision guard."""
         guard = lambda: self.slide_alarms.current(reading)
-        for part in reply_parts(reading["sender"], output, max_parts=12):
+        for part in reply_parts(reading["sender"], output, max_parts=1):
             if not guard():
                 break
             await self.send(self.channel, part, guard=guard)
@@ -611,51 +614,34 @@ class Responder:
     async def send_fire_change(self, reading, output):
         """Recheck subscription validity inside the existing shared radio send queue."""
         guard = lambda: self.fire_alarms.current(reading)
-        for part in reply_parts(reading["sender"], output, max_parts=12):
+        for part in reply_parts(reading["sender"], output, max_parts=1):
             if not guard():
                 break
             await self.send(self.channel, part, guard=guard)
 
-    async def read_flood_status(self, location):
-        """Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status."""
-        from scripts.flood_warn import ALERTS, format_status
-
-        request = dict(
-            arguments=[location],
-            sender="Flood Alarm",
-            channel_name=self.config["channel_name"],
-            channel_index=self.channel,
-            channel_id=self.channel_id,
-            id="flood-alarm-check",
-            phrase="!floodalarm " + location,
-        )
-        spec = dict(script="scripts/floodalarm.py", args=[], timeout=45)
-        output, detail = await run_script(self.root, spec, request, self.config)
+    async def read_flood_status(self, location, mode="alerts"):
+        """Read a bounded structured location snapshot; scheduled checks use pinned coordinates."""
+        from scripts.water_lookup import checked_snapshot
+        query = ("conditions " if mode == "conditions" else "") + location
+        request = dict(arguments=[query], sender="Flood Alarm", channel_name=self.config["channel_name"],
+                       channel_index=self.channel, channel_id=self.channel_id,
+                       id="flood-alarm-check", phrase="!floodalarm")
+        output, detail = await run_script(
+            self.root, dict(script="scripts/floodalarm.py", args=["--snapshot"], timeout=90),
+            request, dict(self.config, max_output_bytes=2 * 1024 * 1024))
         try:
-            data = json.loads(output)
-        except ValueError as exc:
-            raise RuntimeError(
-                "Flood alert lookup unavailable. Will retry at the next check."
-            ) from exc
-        if not isinstance(data, dict) or data.get("error"):
-            raise RuntimeError(
-                data.get("error") if isinstance(data, dict) else "Invalid flood response."
-            )
-        events = data.get("events")
-        if not isinstance(events, list) or any(
-            not isinstance(event, str) or event not in ALERTS for event in events
-        ):
-            raise RuntimeError("Invalid flood status. Will retry at the next check.")
-        events = [event for event in ALERTS if event in events]
-        return {"events": events, "text": format_status(location, events)}
+            return checked_snapshot(json.loads(output), validate_water(self.config.get("water", {})))
+        except (ValueError, TypeError, KeyError) as exc:
+            raise RuntimeError("Flood monitoring data unavailable: " + str(exc)) from exc
 
     async def send_flood_change(self, reading, output):
-        """Tag changes as !floodwarn replies.
+        """Send tagged flood-monitor changes on the subscribing channel.
 
-        Recheck subscription validity after waiting for the radio's send slot.
+        Recheck subscription, source freshness and queued alert version after the
+        shared radio send-slot wait. FloodAlarms spaces completed responses.
         """
-        guard = lambda: self.allowed("!floodalarm") and self.alarms.is_current(reading)
-        for part in reply_parts(reading["sender"], output, max_parts=12):
+        guard = lambda: self.allowed("!floodalarm") and self.alarms.notification_current(reading)
+        for part in reply_parts(reading["sender"], output, max_parts=1):
             if not guard():
                 break
             await self.send(self.channel, part, guard=guard)

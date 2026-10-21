@@ -164,7 +164,7 @@ class GISUnitTests(unittest.TestCase):
         engine = unittest.mock.Mock(repaired=True)
         text = lookup.bounded_reply('long ' * 300, engine, settings)
         self.assertLessEqual(len(text.encode()), settings['max_reply_bytes'])
-        self.assertIn('...', text)
+        self.assertNotIn('omitted', text)
         self.assertNotIn('Snapshot ', text)
         self.assertNotIn('not live conditions/access', text)
         self.assertIn('Geometry repaired', text)

@@ -305,7 +305,7 @@ def _migrate_state(db, bindings, tables):
         ).fetchall():
             if channel_id not in bindings:
                 db.execute("UPDATE bot_requests SET state='expired' WHERE id=?", (request_id,))
-    for table in ("flood_subscriptions", "wildfire_subscriptions", "landslide_subscriptions"):
+    for table in ("flood_subscriptions", "flood_location_subscriptions", "wildfire_subscriptions", "landslide_subscriptions"):
         if table in tables:
             for (channel_id,) in db.execute(f"SELECT DISTINCT channel FROM {table}").fetchall():
                 if channel_id not in bindings:

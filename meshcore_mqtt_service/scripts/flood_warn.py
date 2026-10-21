@@ -170,7 +170,7 @@ def lookup(text):
     return snapshot(text)['text']
 
 
-def main(argv=None):
+def legacy_main(argv=None):
     """Print UTF-8 alert/usage/error text for location arguments; return 0 so the responder forwards the text."""
     args = list(sys.argv[1:] if argv is None else argv)
     # Internal subprocess mode: the alarm compares structured types, never error text.
@@ -190,6 +190,15 @@ def main(argv=None):
         message = 'Flood alert lookup unavailable: invalid service response.'
         print(json.dumps({'error': message}) if structured else message)
     return 0
+
+
+def main(argv=None):
+    """Run concise official flood alerts; --json retains full current source records."""
+    if not __package__:
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from scripts.water_lookup import main as water_main
+    return water_main("floodwarn", argv)
 
 
 if __name__ == '__main__':

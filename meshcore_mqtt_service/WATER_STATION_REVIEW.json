@@ -1,0 +1,2798 @@
+{
+  "schema": 1,
+  "retrieved_at": "2026-10-21T04:28:19.756955+00:00",
+  "catalog_source": "https://water.noaa.gov/resources/downloads/reports/nwps_all_gauges_report.csv",
+  "catalog_sha256": "bdf0d344969651e2d90b511b1be01fe6353425e3d6cb8b808985f6327b57911d",
+  "catalog_rows": 12929,
+  "stations": [
+    {
+      "station_id": "USGS-11460940",
+      "name": "RUSSIAN R NR REDWOOD VALLEY CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1963-09-01",
+            "end_date": "1968-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1964-01-20",
+            "end_date": "1977-12-14"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "RUSSIAN R NR REDWOOD VALLEY CA",
+          "latitude": 39.319332,
+          "longitude": -123.2233399,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "coverage_period_difference",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "ukiah_fis",
+              "url": "https://cityofukiah.com/wp-content/uploads/2025/09/FIS-1.1.pdf",
+              "locator": "Table 11, printed page 52 (PDF page 57), revised September 19, 2025",
+              "sha256": "3d288f64d731ca85603f6a38b091049604bd461bdba7dc52f4356e4ecfbd9fe0",
+              "scope": "City-hosted FEMA study; historical analysis inputs, not current operator telemetry."
+            },
+            {
+              "source_id": "ukiah_annual",
+              "url": "https://ukiahvalleygroundwater.org/wp-content/uploads/2026/02/1-052_WY2024.pdf",
+              "locator": "WY2024 annual report; full extracted-text identity search",
+              "sha256": "b3dc3ee4726a3d63388ddcba4dfb67da0f23aae47634e48f3db161321d42949c",
+              "scope": "No explicit crosswalk for the reviewed upper-basin IDs located; not proof of absence elsewhere."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            },
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            }
+          ],
+          "reason": "FIS lists 1964-1976 for this ID; the earlier USGS discontinued-record table lists 1963-1968. These may describe different record types; equivalence is unverified. CW3E RVY/RVP are meteorological sites, not an explicit river-gauge successor.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11461000",
+      "name": "RUSSIAN R NR UKIAH CA",
+      "lid": "UKAC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "UKAC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/UKAC1",
+      "noaa_name": "Russian River near Ukiah",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11461000",
+      "api_lid": "UKAC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11461400",
+      "name": "EF RUSSIAN R TRIB NR POTTER VALLEY CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1958-10-01",
+            "end_date": "1961-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-01-12",
+            "end_date": "1973-01-16"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "EF RUSSIAN R TRIB NR POTTER VALLEY CA",
+          "latitude": 39.2609999,
+          "longitude": -123.1163915,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "no_supported_crosswalk",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            },
+            {
+              "source_id": "ukiah_annual",
+              "url": "https://ukiahvalleygroundwater.org/wp-content/uploads/2026/02/1-052_WY2024.pdf",
+              "locator": "WY2024 annual report; full extracted-text identity search",
+              "sha256": "b3dc3ee4726a3d63388ddcba4dfb67da0f23aae47634e48f3db161321d42949c",
+              "scope": "No explicit crosswalk for the reviewed upper-basin IDs located; not proof of absence elsewhere."
+            }
+          ],
+          "reason": "No explicit pairing for the East Fork tributary was located. Cold Creek CLD and East Fork mainstem sites cannot substitute for an unnamed tributary by proximity.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11461500",
+      "name": "EF RUSSIAN R NR CALPELLA CA",
+      "lid": "CXLC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "CXLC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/CXLC1",
+      "noaa_name": "East Fork Russian River near Calpella",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11461500",
+      "api_lid": "CXLC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11462000",
+      "name": "EF RUSSIAN R NR UKIAH CA",
+      "lid": "YDMC1",
+      "identity_status": "matched_agency_successor",
+      "threshold_status": "none_published",
+      "catalog_candidates": [],
+      "reason": "Published agency crosswalk: legacy USGS-11462000 to CDEC CDM to NOAA YDMC1. Agency successor, not a current USGS observation or datum-equivalence claim.",
+      "agency_review": {
+        "status": "supported_agency_successor",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1911-09-01",
+            "end_date": "2011-10-01"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1912-03-15",
+            "end_date": "2011-03-28"
+          },
+          {
+            "data_type_cd": "uv",
+            "parm_cd": "00060",
+            "begin_date": "1987-10-01",
+            "end_date": "2011-10-02"
+          },
+          {
+            "data_type_cd": "uv",
+            "parm_cd": "00065",
+            "begin_date": "2007-10-01",
+            "end_date": "2011-10-02"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/YDMC1",
+      "api_usgs_id": "",
+      "api_lid": "YDMC1",
+      "noaa_name": "East Fork Russian River below Coyote Dam",
+      "latitude": 39.1975,
+      "longitude": -123.1864
+    },
+    {
+      "station_id": "USGS-11462080",
+      "name": "RUSSIAN R NR TALMAGE CA",
+      "lid": "TLMC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "TLMC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/TLMC1",
+      "noaa_name": "Russian River near Talmage",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11462080",
+      "api_lid": "TLMC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11462125",
+      "name": "SLIDE C NR UKIAH CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-02-21",
+            "end_date": "1973-01-16"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "SLIDE C NR UKIAH CA",
+          "latitude": 39.0707289,
+          "longitude": -123.2108389,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "no_supported_crosswalk",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "ukiah_annual",
+              "url": "https://ukiahvalleygroundwater.org/wp-content/uploads/2026/02/1-052_WY2024.pdf",
+              "locator": "WY2024 annual report; full extracted-text identity search",
+              "sha256": "b3dc3ee4726a3d63388ddcba4dfb67da0f23aae47634e48f3db161321d42949c",
+              "scope": "No explicit crosswalk for the reviewed upper-basin IDs located; not proof of absence elsewhere."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            }
+          ],
+          "reason": "No Slide Creek station pairing located in the reviewed local inventories and annual report. Coverage is incomplete; station closure is not established.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "partial_record",
+          "source": "https://pubs.usgs.gov/circ/1971/0661/report.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "0881d55be742e909af69cb650d3311dd9e2dd6f3ac78ce6248c7be906be4dcac",
+          "pdf_page": 42,
+          "printed_page": "38",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/cir661",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11462500",
+      "name": "RUSSIAN R NR HOPLAND CA",
+      "lid": "HOPC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "HOPC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/HOPC1",
+      "noaa_name": "Russian River near Hopland",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": 15,
+          "flow": null
+        },
+        "moderate": {
+          "stage": 23,
+          "flow": null
+        },
+        "major": {
+          "stage": 26,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11462500",
+      "api_lid": "HOPC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11462700",
+      "name": "FELIZ C NR HOPLAND CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1958-08-01",
+            "end_date": "1966-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-02-16",
+            "end_date": "1966-01-04"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "FELIZ C NR HOPLAND CA",
+          "latitude": 38.97212104,
+          "longitude": -123.1427815,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "ukiah_fis",
+              "url": "https://cityofukiah.com/wp-content/uploads/2025/09/FIS-1.1.pdf",
+              "locator": "Table 11, printed page 52 (PDF page 57), revised September 19, 2025",
+              "sha256": "3d288f64d731ca85603f6a38b091049604bd461bdba7dc52f4356e4ecfbd9fe0",
+              "scope": "City-hosted FEMA study; historical analysis inputs, not current operator telemetry."
+            }
+          ],
+          "reason": "Table 2-3 identifies former 11462700 for proposed reactivation with NMFS, and separately lists CLSI Feliz 2/3/4. These recommendations supply no NOAA identifier or documented replacement chain.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11462900",
+      "name": "CUMMISKY C NR CLOVERDALE CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1957-09-04",
+            "end_date": "1962-03-26"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "CUMMISKY C NR CLOVERDALE CA",
+          "latitude": 38.8999022,
+          "longitude": -123.0858356,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "no_supported_crosswalk",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            },
+            {
+              "source_id": "ukiah_annual",
+              "url": "https://ukiahvalleygroundwater.org/wp-content/uploads/2026/02/1-052_WY2024.pdf",
+              "locator": "WY2024 annual report; full extracted-text identity search",
+              "sha256": "b3dc3ee4726a3d63388ddcba4dfb67da0f23aae47634e48f3db161321d42949c",
+              "scope": "No explicit crosswalk for the reviewed upper-basin IDs located; not proof of absence elsewhere."
+            }
+          ],
+          "reason": "No Cummisky Creek station pairing located. The regional inventories are not exhaustive, so missing entries cannot establish a discontinued current operation.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "partial_record",
+          "source": "https://pubs.usgs.gov/circ/1971/0661/report.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "0881d55be742e909af69cb650d3311dd9e2dd6f3ac78ce6248c7be906be4dcac",
+          "pdf_page": 42,
+          "printed_page": "38",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/cir661",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11463000",
+      "name": "RUSSIAN R NR CLOVERDALE CA",
+      "lid": "CDLC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "CDLC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/CDLC1",
+      "noaa_name": "Russian River near Cloverdale 6NW",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463000",
+      "api_lid": "CDLC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463160",
+      "name": "BIG SULPHUR C NR MIDDLETOWN CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1977-10-01",
+            "end_date": "1979-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1977-12-14",
+            "end_date": "1979-02-13"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "BIG SULPHUR C NR MIDDLETOWN CA",
+          "latitude": 38.76351754,
+          "longitude": -122.74638,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "different_station",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "county_emergency",
+              "url": "https://socoemergency.org/recover/2019-kincade-fire/rain-ready/",
+              "locator": "Stay Informed: Big Sulphur forecast-point link BSCC1",
+              "scope": "County operational guidance identifies a NOAA point, but not legacy station 11463160."
+            },
+            {
+              "source_id": "bscc1",
+              "url": "https://api.water.noaa.gov/nwps/v1/gauges/BSCC1",
+              "locator": "Static identity: lid BSCC1, usgsId 11463200, Big Sulphur Creek near Cloverdale",
+              "scope": "Different explicit USGS identity from Middletown 11463160."
+            },
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            }
+          ],
+          "reason": "County guidance points to BSCC1. NOAA explicitly identifies that point as 11463200 near Cloverdale, not 11463160 near Middletown; no substitution authorized.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11463170",
+      "name": "BIG SULPHUR C A G RESORT NR CLOVERDALE CA",
+      "lid": "CDAC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "CDAC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/CDAC1",
+      "noaa_name": "Big Sulphur Creek at Geysers Resort NR Cloverdale",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463170",
+      "api_lid": "CDAC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463200",
+      "name": "BIG SULPHUR C NR CLOVERDALE CA",
+      "lid": "BSCC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "BSCC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/BSCC1",
+      "noaa_name": "Big Sulphur Creek near Cloverdale",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463200",
+      "api_lid": "BSCC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463500",
+      "name": "RUSSIAN R A GEYSERVILLE CA",
+      "lid": "GEYC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "GEYC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/GEYC1",
+      "noaa_name": "Russian River at Geyserville",
+      "thresholds": {
+        "action": {
+          "stage": 38,
+          "flow": null
+        },
+        "minor": {
+          "stage": 39.7,
+          "flow": null
+        },
+        "moderate": {
+          "stage": 46,
+          "flow": null
+        },
+        "major": {
+          "stage": 50,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463500",
+      "api_lid": "GEYC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463682",
+      "name": "RUSSIAN R A JIMTOWN CA",
+      "lid": "JIMC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "JIMC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/JIMC1",
+      "noaa_name": "Russian River at Jimtown",
+      "thresholds": {
+        "action": {
+          "stage": 25,
+          "flow": null
+        },
+        "minor": {
+          "stage": 26.23,
+          "flow": null
+        },
+        "moderate": {
+          "stage": 31,
+          "flow": null
+        },
+        "major": {
+          "stage": 36,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463682",
+      "api_lid": "JIMC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463700",
+      "name": "SAUSAL C NR HEALDSBURG CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1958-02-24",
+            "end_date": "1962-02-13"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "SAUSAL C NR HEALDSBURG CA",
+          "latitude": 38.6776864,
+          "longitude": -122.8052702,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "no_supported_crosswalk",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            }
+          ],
+          "reason": "No Sausal Creek legacy-ID pairing located in the reviewed regional operator inventories; no NOAA successor established.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "partial_record",
+          "source": "https://pubs.usgs.gov/circ/1971/0661/report.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "0881d55be742e909af69cb650d3311dd9e2dd6f3ac78ce6248c7be906be4dcac",
+          "pdf_page": 42,
+          "printed_page": "38",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/cir661",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11463900",
+      "name": "MAACAMA C NR KELLOGG CA",
+      "lid": "RMKC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "RMKC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/RMKC1",
+      "noaa_name": "Maacama Creek near Kellogg",
+      "thresholds": {
+        "action": {
+          "stage": 13.5,
+          "flow": null
+        },
+        "minor": {
+          "stage": 14.76,
+          "flow": null
+        },
+        "moderate": {
+          "stage": 19.5,
+          "flow": null
+        },
+        "major": {
+          "stage": 25,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463900",
+      "api_lid": "RMKC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11463940",
+      "name": "FRANZ C NR KELLOGG CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1963-10-01",
+            "end_date": "1968-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1955-12-22",
+            "end_date": "1976-02-29"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "FRANZ C NR KELLOGG CA",
+          "latitude": 38.60824169,
+          "longitude": -122.6947095,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "FVSC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/FVSC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Franz Creek at Franz Valley School Rd",
+            "latitude": 38.583716,
+            "longitude": -122.671742,
+            "map_metadata": {
+              "gaugelid": "FVSC1",
+              "location": "Franz Valley School Rd",
+              "waterbody": "Franz Creek",
+              "state": "CA",
+              "latitude": 38.583716,
+              "longitude": -122.671742
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "acf04b5a-0273-4189-bd4c-69dacc4e1793",
+              "site_id": 11,
+              "alias": "40210",
+              "system": "ALERT2",
+              "name": "Franz Creek at Franz Valley School Rd",
+              "latitude": 38.583716,
+              "longitude": -122.671742
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "coverage_period_difference",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "maacama_rcd",
+              "url": "https://sonomarcd.org/wp-content/uploads/2017/06/Maacama-UpperMarkWest-IntegratedWshdMgmtPlan-FULL-3-25-15-1.pdf",
+              "locator": "Stream Flow Monitoring, printed page 58 (PDF page 60)",
+              "sha256": "dad4b83714a831c54d8a47676c7552318e9b5541a8a8d0052165aa0a80020ffb",
+              "scope": "Historical Franz Creek identity and nearby research sites; no FVSC1 crosswalk."
+            },
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            }
+          ],
+          "reason": "The RCD explicitly cites 11463940 near Kellogg but gives 1956-1976, unlike the USGS discontinued-record period 1964-1968. Record types may differ; equivalence is unverified. Nearby research sites have no NOAA replacement crosswalk; FVSC1 remains unverified.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11463980",
+      "name": "RUSSIAN R A DIGGER BEND NR HEALDSBURG CA",
+      "lid": "RRHC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "RRHC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/RRHC1",
+      "noaa_name": "Russian River at Digger Bend NR Healdsburg",
+      "thresholds": {
+        "action": {
+          "stage": 20.8,
+          "flow": null
+        },
+        "minor": {
+          "stage": 25.42,
+          "flow": null
+        },
+        "moderate": {
+          "stage": 29.93,
+          "flow": null
+        },
+        "major": {
+          "stage": 36.73,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11463980",
+      "api_lid": "RRHC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11464050",
+      "name": "DRY C TRIB NR HOPLAND CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1967-10-01",
+            "end_date": "1969-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-02-16",
+            "end_date": "1974-01-16"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "DRY C TRIB NR HOPLAND CA",
+          "latitude": 38.88601437,
+          "longitude": -123.1552822,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "DCOC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/DCOC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Dry Creek at Cooley Ranch Road",
+            "latitude": 38.7892,
+            "longitude": -123.155803,
+            "map_metadata": {
+              "gaugelid": "DCOC1",
+              "location": "",
+              "waterbody": "Dry Creek",
+              "state": "CA",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "651ff1fe-d010-442d-af06-a7859221ec3e",
+              "site_id": 367,
+              "alias": "DAC",
+              "system": "CDEC",
+              "name": "Dry Creek at Cooley Ranch RD",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "different_station",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            }
+          ],
+          "reason": "The report's Dry Creek reactivation entry is 11464400 on the mainstem. Neither that entry nor DAC identifies the small Dry Creek tributary 11464050.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11464400",
+      "name": "DRY C NR YORKVILLE CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1973-10-01",
+            "end_date": "1983-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1974-01-16",
+            "end_date": "1983-01-26"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "DRY C NR YORKVILLE CA",
+          "latitude": 38.7890748,
+          "longitude": -123.1555604,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "DCOC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/DCOC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Dry Creek at Cooley Ranch Road",
+            "latitude": 38.7892,
+            "longitude": -123.155803,
+            "map_metadata": {
+              "gaugelid": "DCOC1",
+              "location": "",
+              "waterbody": "Dry Creek",
+              "state": "CA",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "651ff1fe-d010-442d-af06-a7859221ec3e",
+              "site_id": 367,
+              "alias": "DAC",
+              "system": "CDEC",
+              "name": "Dry Creek at Cooley Ranch RD",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            }
+          ],
+          "reason": "Table 2-3 explicitly associates 11464400 with CW3E and pending flow/reactivation. CW3E lists DAC at Cooley Ranch Road. The report does not pair the legacy ID with DAC or DCOC1; common operator and proximity remain insufficient.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11464500",
+      "name": "DRY C NR CLOVERDALE CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1941-10-01",
+            "end_date": "1980-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1937-12",
+            "end_date": "1980-02-17"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "DRY C NR CLOVERDALE CA",
+          "latitude": 38.74963216,
+          "longitude": -123.0922252,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "DCOC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/DCOC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Dry Creek at Cooley Ranch Road",
+            "latitude": 38.7892,
+            "longitude": -123.155803,
+            "map_metadata": {
+              "gaugelid": "DCOC1",
+              "location": "",
+              "waterbody": "Dry Creek",
+              "state": "CA",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          },
+          {
+            "lid": "WSDC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/WSDC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Warm Springs Reservoir (Lake Sonoma)",
+            "latitude": 38.723055555556,
+            "longitude": -123.01,
+            "map_metadata": {
+              "gaugelid": "WSDC1",
+              "location": "",
+              "waterbody": "Warm Springs Reservoir (Lake Sonoma)  ",
+              "state": "CA",
+              "latitude": 38.723056,
+              "longitude": -123.01
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "651ff1fe-d010-442d-af06-a7859221ec3e",
+              "site_id": 367,
+              "alias": "DAC",
+              "system": "CDEC",
+              "name": "Dry Creek at Cooley Ranch RD",
+              "latitude": 38.7892,
+              "longitude": -123.155803
+            },
+            {
+              "site": "2f1974a7-0b3b-4562-b8e5-070c6dadc1ea",
+              "site_id": 87,
+              "alias": "WRS",
+              "system": "CDEC",
+              "name": "WARM SPRINGS (USACE)",
+              "latitude": 38.723,
+              "longitude": -123.01
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            },
+            {
+              "source_id": "sonoma_ba",
+              "url": "https://www.sonomawater.org/media/PDF/Environment/BiologicalOpinion/RRBA_Final_20230823_rev1_ADA%20V2%20kt%20OCR%20and%20Scanned.pdf",
+              "locator": "Tables 4-9 and 4-10, printed pages 4-70/4-71 (PDF pages 181/182); Table 4-10 visually checked",
+              "sha256": "2f3945fde50a4dc4cfb3cb61899fb25f4892613b9d9869447000f5713f8c7ddf",
+              "scope": "Mainstem Dry Creek gauges and tributaries; contains an identifier/name conflict."
+            },
+            {
+              "source_id": "talmage",
+              "url": "https://waterdata.usgs.gov/monitoring-location/USGS-11462080/",
+              "locator": "Location name and agency identifier",
+              "scope": "USGS identifies 11462080 as Russian River near Talmage, not Lambert Bridge."
+            }
+          ],
+          "reason": "DAC and the downstream Dry Creek gauges do not establish a successor for Dry Creek near Cloverdale. Table 4-10 labels 11462080 as Lambert Bridge, conflicting with USGS Talmage metadata; that table cannot supply an automatic crosswalk.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11464860",
+      "name": "WARM SPRINGS C NR ASTI CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1973-08-15",
+            "end_date": "1983-09-29"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1974-01-16",
+            "end_date": "1983-01-26"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "WARM SPRINGS C NR ASTI CA",
+          "latitude": 38.69602174,
+          "longitude": -123.0966697,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "WSSC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/WSSC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Warm Springs Creek below Strawberry Creek",
+            "latitude": 38.7025,
+            "longitude": -123.0909,
+            "map_metadata": {
+              "gaugelid": "WSSC1",
+              "location": "",
+              "waterbody": "Warm Springs Creek",
+              "state": "CA",
+              "latitude": 38.7025,
+              "longitude": -123.0909
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          },
+          {
+            "lid": "WSDC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/WSDC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Warm Springs Reservoir (Lake Sonoma)",
+            "latitude": 38.723055555556,
+            "longitude": -123.01,
+            "map_metadata": {
+              "gaugelid": "WSDC1",
+              "location": "",
+              "waterbody": "Warm Springs Reservoir (Lake Sonoma)  ",
+              "state": "CA",
+              "latitude": 38.723056,
+              "longitude": -123.01
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "2f1974a7-0b3b-4562-b8e5-070c6dadc1ea",
+              "site_id": 87,
+              "alias": "WRS",
+              "system": "CDEC",
+              "name": "WARM SPRINGS (USACE)",
+              "latitude": 38.723,
+              "longitude": -123.01
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T04:13:27+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "cw3e_wac",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC",
+              "locator": "Station identifiers, installation, location and equipment links",
+              "sha256": "5f92f84b8586030fd78e5249de1f262afedcab344b26795d996f9413cc2b4811",
+              "access": "retrieved_with_verified_windows_tls",
+              "scope": "WAC explicitly identifies CDEC WAS; NWS ID is unpublished (--). No legacy USGS predecessor is identified.",
+              "metadata": {
+                "cw3e_id": "WAC",
+                "cdec_id": "WAS",
+                "published_nws_id": null,
+                "latitude": 38.7025,
+                "longitude": -123.0909,
+                "installed_on": "2026-07-15",
+                "reported_elevation_m": 190,
+                "location_context": "Below Strawberry Creek and upstream of Lake Sonoma"
+              }
+            },
+            {
+              "source_id": "cw3e_wac_sensor",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/sensors/899",
+              "locator": "Pressure-transducer record linked from WAC",
+              "sha256": "3838dc732dda2ff4d87297df4c6228f0da2a9d833e86d0f963f259b09643fe1b",
+              "scope": "Ott Hydro PLS500 installed July 15, 2026; no predecessor or NOAA identifier. Height/distance fields and calibration-history entries are blank."
+            },
+            {
+              "source_id": "cw3e_wac_logger",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/otherequipment/568",
+              "locator": "Data-logger installation and notes linked from WAC",
+              "sha256": "3e46a41280d315ab59e03cc7d26ea10337631fe1f514019f27660481b320aed1",
+              "scope": "Sutron SatLink3 Lite installed July 15, 2026. An offset note lacks units and datum; it is not applied to any reading."
+            },
+            {
+              "source_id": "cw3e_russian_inventory",
+              "url": "https://cw3e.ucsd.edu/metadata/fields/1/options/1",
+              "locator": "Russian watershed filtered inventory, WAC entry",
+              "sha256": "92e3cfb0d10e51ef4598826920dd155eab330e548b50696813a0309c79246596",
+              "scope": "Corroborates WAC installation and coordinates; no legacy-USGS crosswalk."
+            },
+            {
+              "source_id": "cdec_was",
+              "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+              "locator": "WAS station identity, operator and coordinates",
+              "sha256": "83246c3a87d39f966d157239f3531bf548260ffbe37a37d79e25f08034c29cd3",
+              "scope": "Names CW3E as operator at the same coordinates; no legacy-USGS crosswalk. Reported elevation differs from CW3E.",
+              "metadata": {
+                "cdec_id": "WAS",
+                "reported_elevation_ft": 470
+              }
+            },
+            {
+              "source_id": "noaa_wssc1",
+              "url": "https://api.water.noaa.gov/nwps/v1/gauges/WSSC1",
+              "locator": "Static identity fields only",
+              "scope": "WSSC1 has the same name and coordinates but an empty USGS ID. Proximity cannot authorize a legacy-USGS link.",
+              "metadata": {
+                "lid": "WSSC1",
+                "usgs_id": ""
+              }
+            },
+            {
+              "source_id": "cw3e_satellite_inventory",
+              "url": "https://cw3e.ucsd.edu/metadata/fields/2/options/15",
+              "locator": "Live Satellite telemetry inventory, WAC row",
+              "sha256": "2677bb69d6f01e0e6ef792324ca40196c7d396d5f3b3955f5c4d126f911e7cd9",
+              "scope": "Live row corroborates 190 m and 38.702500/-123.090900. A differing search excerpt was not corroborated and cannot authorize a correction."
+            },
+            {
+              "source_id": "cdec_realtime_station_inventory",
+              "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RealStations",
+              "locator": "WAS row; station metadata only",
+              "sha256": "8087b7bd7617a360c5b305b191b4e162a2498fa5d71d6a2cefcf9d535e5e66c5",
+              "scope": "Separately reports WAS station elevation 470 ft; no vertical datum specified in the row."
+            },
+            {
+              "source_id": "cdec_sensor_definitions",
+              "url": "https://cdec.water.ca.gov/misc/senslist.html",
+              "locator": "Sensor definitions 1, 141 and 144",
+              "sha256": "c3a8d4effa9fbafd12165b4e77a65bdb43621abe9467851e0a3dbf56da23cc10",
+              "scope": "Sensor 1 is river stage in feet. Separate definitions identify NAVD88 (141) and NGVD29 (144); neither may be assigned to WAS sensor 1 without station-specific evidence."
+            },
+            {
+              "source_id": "cdec_river_stage_information",
+              "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RivStagesInfo",
+              "locator": "Detailed river-stage station table, including DATUM 0 and DATUM columns",
+              "sha256": "79204abda05a103a2f93b03ed08c80830a48e22084aee85d057c20a13329ca5e",
+              "scope": "No exact WAS row found in the reviewed table. This is a coverage gap, not proof that no surveyed datum exists."
+            }
+          ],
+          "reason": "Recovered WAC detail and equipment records explicitly identify CDEC WAS but no Asti 11464860 predecessor. WSSC1 still has no USGS ID. CW3E and CDEC elevations differ; the logger offset lacks units/datum. No link, threshold or reading conversion is authorized.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative.",
+          "vertical_reference_review": {
+            "status": "unresolved",
+            "correction_authorized": false,
+            "applied_correction": null,
+            "station_elevations": {
+              "preferred_source": "cdec",
+              "preference_scope": "Station-elevation metadata only; source preference does not establish gauge zero or authorize reading corrections.",
+              "cw3e": {
+                "value": 190,
+                "units": "m",
+                "vertical_datum": null
+              },
+              "cdec": {
+                "value": 470,
+                "units": "ft",
+                "vertical_datum": null
+              },
+              "cdec_in_metres": 143.256,
+              "difference_metres": 46.744,
+              "comparison_basis": "Arithmetic unit conversion only (1 ft = 0.3048 m); not a datum transformation or reading correction."
+            },
+            "cdec_stage_metadata": {
+              "station_id": "WAS",
+              "sensor_number": 1,
+              "units": "ft",
+              "vertical_datum": null,
+              "datum_evidence": "No WAS entry found in the reviewed RivStagesInfo report. Sensor 1 is generic river stage; datum-specific definitions 141/144 do not apply by inference."
+            },
+            "logger_offset": {
+              "reported_value_text": "1.420000",
+              "reported_applied_on": "2026-07-15",
+              "units": null,
+              "sign_convention": null,
+              "target_quantity": null,
+              "vertical_datum": null,
+              "already_in_published_readings": null,
+              "interpretation": "The operator note says applied; it does not establish a service-side correction. Do not apply it again or assume its units from CDEC stage units."
+            },
+            "limitations": [
+              "The reviewed CW3E pressure-transducer page has blank height/distance fields and no calibration-history entries; this is not proof that calibration never occurred.",
+              "No surveyed reference point, common vertical datum or published correction instruction was located in the reviewed records.",
+              "Station elevation is not established as gauge zero, water-surface elevation, flood stage or a predecessor-gauge datum."
+            ],
+            "required_evidence_for_correction": [
+              "Surveyed reference point and vertical datum tying station elevation to gauge zero.",
+              "Logger offset units, sign, affected quantity and effective configuration, including whether the publisher already applies it.",
+              "Explicit operator correction instruction for the affected station and source product."
+            ]
+          }
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      },
+      "vertical_reference_check": {
+        "status": "unchanged_uncertainty",
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "baseline_reviewed_at": "2026-10-21T04:13:27+00:00",
+        "link_authorized": false,
+        "correction_authorized": false,
+        "applied_correction": null,
+        "preferred_station_elevation": {
+          "source": "cdec_was",
+          "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+          "value": "470",
+          "units": "ft",
+          "vertical_datum": null,
+          "status": "unchanged",
+          "scope": "Reported station metadata only; changed values still require review. No CW3E fallback or reading correction."
+        },
+        "unverified_configuration": {
+          "vertical_datum": null,
+          "gauge_zero": null,
+          "offset_units": null,
+          "offset_sign": null,
+          "offset_target_quantity": null,
+          "offset_already_in_published_readings": null
+        },
+        "sources": {
+          "cw3e_wac": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC",
+            "status": "unchanged",
+            "sha256": "de700a20a728796a19a974ce93c97aa6657cc0454dd45b6d6b745505e27b0629",
+            "metadata": {
+              "cw3e_id": "WAC",
+              "cdec_id": "WAS",
+              "nws_id": "--",
+              "elevation_m": "190",
+              "latitude": "38.7025",
+              "longitude": "-123.0909",
+              "logger_link_present": true,
+              "sensor_link_present": true
+            },
+            "changed_fields": []
+          },
+          "cw3e_wac_logger": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/otherequipment/568",
+            "status": "unchanged",
+            "sha256": "b57f6f1239d2167e0e5411b76d630927f31dc5c0ea2d3a49c6cf00b6a76fda37",
+            "metadata": {
+              "type": "Data Logger",
+              "model": "Sutron SatLink3 Lite",
+              "installed_on": "July 15, 2026",
+              "offset": "1.42",
+              "offset_applied_on": "2026-07-15",
+              "offset_note_recognized": true
+            },
+            "changed_fields": []
+          },
+          "cw3e_wac_sensor": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/sensors/899",
+            "status": "unchanged",
+            "sha256": "1425c09b066b8bba0ed0dad67c28f1a9946f0f059823909af2be24bfd6da9770",
+            "metadata": {
+              "type": "Pressure transducer",
+              "model": "Ott Hydro PLS500",
+              "installed_on": "July 15, 2026",
+              "deactivated_on": "--",
+              "height_cm": "--",
+              "distance_cm": "--",
+              "notes_present": false,
+              "calibration_entries_present": false
+            },
+            "changed_fields": []
+          },
+          "cdec_was": {
+            "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+            "status": "unchanged",
+            "sha256": "83246c3a87d39f966d157239f3531bf548260ffbe37a37d79e25f08034c29cd3",
+            "metadata": {
+              "station_id": "WAS",
+              "elevation_ft": "470",
+              "stage_sensor_number": "1",
+              "stage_description": "RIVER STAGE, FEET"
+            },
+            "changed_fields": []
+          },
+          "cdec_datums": {
+            "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RivStagesInfo",
+            "status": "unchanged",
+            "sha256": "79204abda05a103a2f93b03ed08c80830a48e22084aee85d057c20a13329ca5e",
+            "metadata": {
+              "was_entry_present": false
+            },
+            "changed_fields": []
+          }
+        },
+        "reason": "The manual baseline has conflicting station elevations; gauge-zero datum and logger offset units, sign, target quantity and prior application remain unverified. Changed evidence requires manual review. Source checks do not authorize links or reading corrections."
+      }
+    },
+    {
+      "station_id": "USGS-11464880",
+      "name": "WARM SPRINGS C NR SKAGGS SPRINGS CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-02-16",
+            "end_date": "1962-02-13"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "WARM SPRINGS C NR SKAGGS SPRINGS CA",
+          "latitude": 38.69713265,
+          "longitude": -123.0244452,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [
+          {
+            "lid": "WSSC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/WSSC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Warm Springs Creek below Strawberry Creek",
+            "latitude": 38.7025,
+            "longitude": -123.0909,
+            "map_metadata": {
+              "gaugelid": "WSSC1",
+              "location": "",
+              "waterbody": "Warm Springs Creek",
+              "state": "CA",
+              "latitude": 38.7025,
+              "longitude": -123.0909
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          },
+          {
+            "lid": "WSDC1",
+            "source": "https://api.water.noaa.gov/nwps/v1/gauges/WSDC1",
+            "status": "not_linked",
+            "api_usgs_id": "",
+            "name": "Warm Springs Reservoir (Lake Sonoma)",
+            "latitude": 38.723055555556,
+            "longitude": -123.01,
+            "map_metadata": {
+              "gaugelid": "WSDC1",
+              "location": "",
+              "waterbody": "Warm Springs Reservoir (Lake Sonoma)  ",
+              "state": "CA",
+              "latitude": 38.723056,
+              "longitude": -123.01
+            },
+            "reason": "No explicit legacy-USGS crosswalk; map proximity and names cannot authorize a link."
+          }
+        ],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [
+            {
+              "site": "2f1974a7-0b3b-4562-b8e5-070c6dadc1ea",
+              "site_id": 87,
+              "alias": "WRS",
+              "system": "CDEC",
+              "name": "WARM SPRINGS (USACE)",
+              "latitude": 38.723,
+              "longitude": -123.01
+            }
+          ],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T04:13:27+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "cw3e_wac",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC",
+              "locator": "Station identifiers, installation, location and equipment links",
+              "sha256": "5f92f84b8586030fd78e5249de1f262afedcab344b26795d996f9413cc2b4811",
+              "access": "retrieved_with_verified_windows_tls",
+              "scope": "WAC explicitly identifies CDEC WAS; NWS ID is unpublished (--). No legacy USGS predecessor is identified.",
+              "metadata": {
+                "cw3e_id": "WAC",
+                "cdec_id": "WAS",
+                "published_nws_id": null,
+                "latitude": 38.7025,
+                "longitude": -123.0909,
+                "installed_on": "2026-07-15",
+                "reported_elevation_m": 190,
+                "location_context": "Below Strawberry Creek and upstream of Lake Sonoma"
+              }
+            },
+            {
+              "source_id": "cw3e_wac_sensor",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/sensors/899",
+              "locator": "Pressure-transducer record linked from WAC",
+              "sha256": "3838dc732dda2ff4d87297df4c6228f0da2a9d833e86d0f963f259b09643fe1b",
+              "scope": "Ott Hydro PLS500 installed July 15, 2026; no predecessor or NOAA identifier. Height/distance fields and calibration-history entries are blank."
+            },
+            {
+              "source_id": "cw3e_wac_logger",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/otherequipment/568",
+              "locator": "Data-logger installation and notes linked from WAC",
+              "sha256": "3e46a41280d315ab59e03cc7d26ea10337631fe1f514019f27660481b320aed1",
+              "scope": "Sutron SatLink3 Lite installed July 15, 2026. An offset note lacks units and datum; it is not applied to any reading."
+            },
+            {
+              "source_id": "cw3e_russian_inventory",
+              "url": "https://cw3e.ucsd.edu/metadata/fields/1/options/1",
+              "locator": "Russian watershed filtered inventory, WAC entry",
+              "sha256": "92e3cfb0d10e51ef4598826920dd155eab330e548b50696813a0309c79246596",
+              "scope": "Corroborates WAC installation and coordinates; no legacy-USGS crosswalk."
+            },
+            {
+              "source_id": "cdec_was",
+              "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+              "locator": "WAS station identity, operator and coordinates",
+              "sha256": "83246c3a87d39f966d157239f3531bf548260ffbe37a37d79e25f08034c29cd3",
+              "scope": "Names CW3E as operator at the same coordinates; no legacy-USGS crosswalk. Reported elevation differs from CW3E.",
+              "metadata": {
+                "cdec_id": "WAS",
+                "reported_elevation_ft": 470
+              }
+            },
+            {
+              "source_id": "noaa_wssc1",
+              "url": "https://api.water.noaa.gov/nwps/v1/gauges/WSSC1",
+              "locator": "Static identity fields only",
+              "scope": "WSSC1 has the same name and coordinates but an empty USGS ID. Proximity cannot authorize a legacy-USGS link.",
+              "metadata": {
+                "lid": "WSSC1",
+                "usgs_id": ""
+              }
+            },
+            {
+              "source_id": "cw3e_satellite_inventory",
+              "url": "https://cw3e.ucsd.edu/metadata/fields/2/options/15",
+              "locator": "Live Satellite telemetry inventory, WAC row",
+              "sha256": "2677bb69d6f01e0e6ef792324ca40196c7d396d5f3b3955f5c4d126f911e7cd9",
+              "scope": "Live row corroborates 190 m and 38.702500/-123.090900. A differing search excerpt was not corroborated and cannot authorize a correction."
+            },
+            {
+              "source_id": "cdec_realtime_station_inventory",
+              "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RealStations",
+              "locator": "WAS row; station metadata only",
+              "sha256": "8087b7bd7617a360c5b305b191b4e162a2498fa5d71d6a2cefcf9d535e5e66c5",
+              "scope": "Separately reports WAS station elevation 470 ft; no vertical datum specified in the row."
+            },
+            {
+              "source_id": "cdec_sensor_definitions",
+              "url": "https://cdec.water.ca.gov/misc/senslist.html",
+              "locator": "Sensor definitions 1, 141 and 144",
+              "sha256": "c3a8d4effa9fbafd12165b4e77a65bdb43621abe9467851e0a3dbf56da23cc10",
+              "scope": "Sensor 1 is river stage in feet. Separate definitions identify NAVD88 (141) and NGVD29 (144); neither may be assigned to WAS sensor 1 without station-specific evidence."
+            },
+            {
+              "source_id": "cdec_river_stage_information",
+              "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RivStagesInfo",
+              "locator": "Detailed river-stage station table, including DATUM 0 and DATUM columns",
+              "sha256": "79204abda05a103a2f93b03ed08c80830a48e22084aee85d057c20a13329ca5e",
+              "scope": "No exact WAS row found in the reviewed table. This is a coverage gap, not proof that no surveyed datum exists."
+            }
+          ],
+          "reason": "Recovered WAC detail and equipment records explicitly identify CDEC WAS but no Skaggs Springs 11464880 predecessor. WSSC1 still has no USGS ID. Reservoir and creek gauges remain distinct. Conflicting reported elevations and an unqualified logger offset are not used to adjust readings.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative.",
+          "vertical_reference_review": {
+            "status": "unresolved",
+            "correction_authorized": false,
+            "applied_correction": null,
+            "station_elevations": {
+              "preferred_source": "cdec",
+              "preference_scope": "Station-elevation metadata only; source preference does not establish gauge zero or authorize reading corrections.",
+              "cw3e": {
+                "value": 190,
+                "units": "m",
+                "vertical_datum": null
+              },
+              "cdec": {
+                "value": 470,
+                "units": "ft",
+                "vertical_datum": null
+              },
+              "cdec_in_metres": 143.256,
+              "difference_metres": 46.744,
+              "comparison_basis": "Arithmetic unit conversion only (1 ft = 0.3048 m); not a datum transformation or reading correction."
+            },
+            "cdec_stage_metadata": {
+              "station_id": "WAS",
+              "sensor_number": 1,
+              "units": "ft",
+              "vertical_datum": null,
+              "datum_evidence": "No WAS entry found in the reviewed RivStagesInfo report. Sensor 1 is generic river stage; datum-specific definitions 141/144 do not apply by inference."
+            },
+            "logger_offset": {
+              "reported_value_text": "1.420000",
+              "reported_applied_on": "2026-07-15",
+              "units": null,
+              "sign_convention": null,
+              "target_quantity": null,
+              "vertical_datum": null,
+              "already_in_published_readings": null,
+              "interpretation": "The operator note says applied; it does not establish a service-side correction. Do not apply it again or assume its units from CDEC stage units."
+            },
+            "limitations": [
+              "The reviewed CW3E pressure-transducer page has blank height/distance fields and no calibration-history entries; this is not proof that calibration never occurred.",
+              "No surveyed reference point, common vertical datum or published correction instruction was located in the reviewed records.",
+              "Station elevation is not established as gauge zero, water-surface elevation, flood stage or a predecessor-gauge datum."
+            ],
+            "required_evidence_for_correction": [
+              "Surveyed reference point and vertical datum tying station elevation to gauge zero.",
+              "Logger offset units, sign, affected quantity and effective configuration, including whether the publisher already applies it.",
+              "Explicit operator correction instruction for the affected station and source product."
+            ]
+          }
+        },
+        "historical_context": {
+          "classification": "partial_record",
+          "source": "https://pubs.usgs.gov/circ/1971/0661/report.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "0881d55be742e909af69cb650d3311dd9e2dd6f3ac78ce6248c7be906be4dcac",
+          "pdf_page": 42,
+          "printed_page": "38",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/cir661",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      },
+      "vertical_reference_check": {
+        "status": "unchanged_uncertainty",
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "baseline_reviewed_at": "2026-10-21T04:13:27+00:00",
+        "link_authorized": false,
+        "correction_authorized": false,
+        "applied_correction": null,
+        "preferred_station_elevation": {
+          "source": "cdec_was",
+          "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+          "value": "470",
+          "units": "ft",
+          "vertical_datum": null,
+          "status": "unchanged",
+          "scope": "Reported station metadata only; changed values still require review. No CW3E fallback or reading correction."
+        },
+        "unverified_configuration": {
+          "vertical_datum": null,
+          "gauge_zero": null,
+          "offset_units": null,
+          "offset_sign": null,
+          "offset_target_quantity": null,
+          "offset_already_in_published_readings": null
+        },
+        "sources": {
+          "cw3e_wac": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC",
+            "status": "unchanged",
+            "sha256": "de700a20a728796a19a974ce93c97aa6657cc0454dd45b6d6b745505e27b0629",
+            "metadata": {
+              "cw3e_id": "WAC",
+              "cdec_id": "WAS",
+              "nws_id": "--",
+              "elevation_m": "190",
+              "latitude": "38.7025",
+              "longitude": "-123.0909",
+              "logger_link_present": true,
+              "sensor_link_present": true
+            },
+            "changed_fields": []
+          },
+          "cw3e_wac_logger": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/otherequipment/568",
+            "status": "unchanged",
+            "sha256": "b57f6f1239d2167e0e5411b76d630927f31dc5c0ea2d3a49c6cf00b6a76fda37",
+            "metadata": {
+              "type": "Data Logger",
+              "model": "Sutron SatLink3 Lite",
+              "installed_on": "July 15, 2026",
+              "offset": "1.42",
+              "offset_applied_on": "2026-07-15",
+              "offset_note_recognized": true
+            },
+            "changed_fields": []
+          },
+          "cw3e_wac_sensor": {
+            "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/sensors/899",
+            "status": "unchanged",
+            "sha256": "1425c09b066b8bba0ed0dad67c28f1a9946f0f059823909af2be24bfd6da9770",
+            "metadata": {
+              "type": "Pressure transducer",
+              "model": "Ott Hydro PLS500",
+              "installed_on": "July 15, 2026",
+              "deactivated_on": "--",
+              "height_cm": "--",
+              "distance_cm": "--",
+              "notes_present": false,
+              "calibration_entries_present": false
+            },
+            "changed_fields": []
+          },
+          "cdec_was": {
+            "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+            "status": "unchanged",
+            "sha256": "83246c3a87d39f966d157239f3531bf548260ffbe37a37d79e25f08034c29cd3",
+            "metadata": {
+              "station_id": "WAS",
+              "elevation_ft": "470",
+              "stage_sensor_number": "1",
+              "stage_description": "RIVER STAGE, FEET"
+            },
+            "changed_fields": []
+          },
+          "cdec_datums": {
+            "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RivStagesInfo",
+            "status": "unchanged",
+            "sha256": "79204abda05a103a2f93b03ed08c80830a48e22084aee85d057c20a13329ca5e",
+            "metadata": {
+              "was_entry_present": false
+            },
+            "changed_fields": []
+          }
+        },
+        "reason": "The manual baseline has conflicting station elevations; gauge-zero datum and logger offset units, sign, target quantity and prior application remain unverified. Changed evidence requires manual review. Source checks do not authorize links or reading corrections."
+      }
+    },
+    {
+      "station_id": "USGS-11465000",
+      "name": "DRY C BL WARM SPRINGS DAM NR GEYSERVILLE CA",
+      "lid": "DRWC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "DRWC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/DRWC1",
+      "noaa_name": "Dry Creek (Russian R.) below Warm Springs Dam NR Geyserville",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11465000",
+      "api_lid": "DRWC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11465050",
+      "name": "DUTCHER C NR ASTI CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1972-10-05",
+            "end_date": "1973-03-13"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1959-02-16",
+            "end_date": "1973-01-11"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "DUTCHER C NR ASTI CA",
+          "latitude": 38.72213199,
+          "longitude": -122.9774992,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "no_supported_crosswalk",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "sonoma_ba",
+              "url": "https://www.sonomawater.org/media/PDF/Environment/BiologicalOpinion/RRBA_Final_20230823_rev1_ADA%20V2%20kt%20OCR%20and%20Scanned.pdf",
+              "locator": "Tables 4-9 and 4-10, printed pages 4-70/4-71 (PDF pages 181/182); Table 4-10 visually checked",
+              "sha256": "2f3945fde50a4dc4cfb3cb61899fb25f4892613b9d9869447000f5713f8c7ddf",
+              "scope": "Mainstem Dry Creek gauges and tributaries; contains an identifier/name conflict."
+            },
+            {
+              "source_id": "talmage",
+              "url": "https://waterdata.usgs.gov/monitoring-location/USGS-11462080/",
+              "locator": "Location name and agency identifier",
+              "scope": "USGS identifies 11462080 as Russian River near Talmage, not Lambert Bridge."
+            },
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            }
+          ],
+          "reason": "Table 4-9 identifies Dutcher as a Dry Creek tributary; Table 4-10 concerns mainstem gauges and contains the Lambert Bridge/Talmage conflict. Neither supplies a Dutcher Creek NOAA identity.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11465150",
+      "name": "PENA C NR GEYSERVILLE CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "dv",
+            "parm_cd": "00060",
+            "begin_date": "1978-10-01",
+            "end_date": "1990-09-30"
+          },
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1979-01-11",
+            "end_date": "1990-01-13"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "PENA C NR GEYSERVILLE CA",
+          "latitude": 38.70046558,
+          "longitude": -122.9722211,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "sonoma_ba",
+              "url": "https://www.sonomawater.org/media/PDF/Environment/BiologicalOpinion/RRBA_Final_20230823_rev1_ADA%20V2%20kt%20OCR%20and%20Scanned.pdf",
+              "locator": "Tables 4-9 and 4-10, printed pages 4-70/4-71 (PDF pages 181/182); Table 4-10 visually checked",
+              "sha256": "2f3945fde50a4dc4cfb3cb61899fb25f4892613b9d9869447000f5713f8c7ddf",
+              "scope": "Mainstem Dry Creek gauges and tributaries; contains an identifier/name conflict."
+            }
+          ],
+          "reason": "Table 2-3 lists TU Pena sites Pn01/Pn03 and Table 2-4 proposes Pena 5/Woods. No explicit 11465150 or NOAA pairing is provided; proposed installation is not active telemetry.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "discontinued",
+          "source": "https://pubs.usgs.gov/wdr/wdr-ca-03-2/WDR.CA.03.vol2.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "5aa7e0b01a15ddceb644db71729f19915396f7357e387f3fc640278fd6ec24fa",
+          "pdf_page": 18,
+          "printed_page": "xvi",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/wdrCA032",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11465200",
+      "name": "DRY C NR GEYSERVILLE CA",
+      "lid": "DGYC1",
+      "identity_status": "matched",
+      "threshold_status": "published",
+      "catalog_candidates": [
+        "DGYC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/DGYC1",
+      "noaa_name": "Dry Creek (Russian R.) near Geyserville",
+      "thresholds": {
+        "action": {
+          "stage": 10,
+          "flow": null
+        },
+        "minor": {
+          "stage": 15,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11465200",
+      "api_lid": "DGYC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11465240",
+      "name": "DRY C BLW LAMBERT BR NR GEYSERVILLE CA",
+      "lid": "DCLC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "DCLC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/DCLC1",
+      "noaa_name": "Dry Creek (Russian R.) below Lambert Bridge NR Geyserville",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11465240",
+      "api_lid": "DCLC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11465300",
+      "name": "MILL C NR HEALDSBURG CA",
+      "lid": "",
+      "identity_status": "no_exact_catalog_match",
+      "threshold_status": "unverified",
+      "catalog_candidates": [],
+      "reason": "No exact USGS identifier in the retrieved national report; not proof that no other agency gauge exists.",
+      "agency_review": {
+        "status": "no_supported_agency_link",
+        "hads_candidates": [],
+        "usgs_periods": [
+          {
+            "data_type_cd": "pk",
+            "parm_cd": "",
+            "begin_date": "1958-02-24",
+            "end_date": "1962-02-13"
+          }
+        ],
+        "usgs_record_status": "historical_periods_only"
+      },
+      "map_record_review": {
+        "status": "not_linked",
+        "link_authorized": false,
+        "checked_at": "2026-10-21T04:28:19.756955+00:00",
+        "usgs_site": {
+          "name": "MILL C NR HEALDSBURG CA",
+          "latitude": 38.5949109,
+          "longitude": -122.9155516,
+          "horizontal_datum": "NAD83",
+          "site_type": "ST"
+        },
+        "candidates": [],
+        "onerain_review": {
+          "status": "no_supported_crosswalk",
+          "exact_usgs_alias_candidates": [],
+          "related_operator_sites": [],
+          "link_authorized": false
+        },
+        "operator_record_review": {
+          "status": "unresolved_at_manual_review",
+          "finding": "operator_lead_unresolved",
+          "link_authorized": false,
+          "reviewed_at": "2026-10-21T03:54:40+00:00",
+          "refresh_policy": "fixed_manual_evidence_not_retrieved_by_refresh",
+          "sources": [
+            {
+              "source_id": "mill_rcd",
+              "url": "https://sonomarcd.org/wp-content/uploads/2021/07/MillCreekFlowAvailabilityAnalysis.pdf",
+              "locator": "Streamflow calibration discussion and Figure 35 (PDF pages 75-76)",
+              "sha256": "4039fed01d25b81d02e9570910750ecb4d758d8805e2e7d69ff88001b7c1e168",
+              "scope": "CEMAR/TU local gauge reoccupation and new sites; no legacy-USGS/NOAA pairing located."
+            },
+            {
+              "source_id": "rrfc",
+              "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+              "locator": "Tables 2-2 through 2-4, printed pages 13-19 (PDF pages 26-32)",
+              "scope": "Draft recommendations; the report explicitly describes these lists as non-exhaustive."
+            },
+            {
+              "source_id": "cw3e",
+              "url": "https://cw3e.ucsd.edu/metadata/sites/",
+              "locator": "Russian watershed site inventory: DAC, WAC, MLL, RVY, RVP and CLD",
+              "scope": "Public operator metadata; no legacy USGS crosswalk in the reviewed entries."
+            }
+          ],
+          "reason": "RCD documents CEMAR sites reoccupied by TU plus new gauges; RRFC lists separate Mi-series sites. No explicit 11465300/NOAA crosswalk exists in those records. CW3E MLL is on the Redwood Valley Mill Creek, not Mill Creek near Healdsburg.",
+          "limitation": "Only the cited records were reviewed. No proof that a NOAA match cannot exist. Live exact-identity checks remain authoritative."
+        },
+        "historical_context": {
+          "classification": "partial_record",
+          "source": "https://pubs.usgs.gov/circ/1971/0661/report.pdf",
+          "reviewed_at": "2026-10-21T03:40:21+00:00",
+          "access": "full_pdf_retrieved_and_page_visually_reviewed",
+          "sha256": "0881d55be742e909af69cb650d3311dd9e2dd6f3ac78ce6248c7be906be4dcac",
+          "pdf_page": 42,
+          "printed_page": "38",
+          "official_index": "https://pubs.usgs.gov/pubs-services/publication/cir661",
+          "interpretation": "Historical publication context only; not proof of current closure or a NOAA successor."
+        },
+        "reason": "No additional crosswalk supported by the reviewed maps and records. This auxiliary review never overrides exact catalog/API evidence."
+      }
+    },
+    {
+      "station_id": "USGS-11465350",
+      "name": "DRY C NR MOUTH NR HEALDSBURG CA",
+      "lid": "DRIC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "DRIC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/DRIC1",
+      "noaa_name": "Dry Creek (Russian R.) near Mouth NR Healdsburg",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11465350",
+      "api_lid": "DRIC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    },
+    {
+      "station_id": "USGS-11465390",
+      "name": "RUSSIAN R NR WINDSOR CA",
+      "lid": "WDSC1",
+      "identity_status": "matched",
+      "threshold_status": "none_published",
+      "catalog_candidates": [
+        "WDSC1"
+      ],
+      "gauge_source": "https://api.water.noaa.gov/nwps/v1/gauges/WDSC1",
+      "noaa_name": "Russian River near Windsor",
+      "thresholds": {
+        "action": {
+          "stage": null,
+          "flow": null
+        },
+        "minor": {
+          "stage": null,
+          "flow": null
+        },
+        "moderate": {
+          "stage": null,
+          "flow": null
+        },
+        "major": {
+          "stage": null,
+          "flow": null
+        }
+      },
+      "stage_units": "ft",
+      "flow_units": "cfs",
+      "api_usgs_id": "11465390",
+      "api_lid": "WDSC1",
+      "reason": "Exact unique USGS ID in NOAA catalog, corroborated by NOAA gauge API; current responses must revalidate identity."
+    }
+  ],
+  "agency_sources": {
+    "usgs_catalog": {
+      "url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=11460940,11461400,11462000,11462125,11462700,11462900,11463160,11463700,11463940,11464050,11464400,11464500,11464860,11464880,11465050,11465150,11465300&seriesCatalogOutput=true&siteStatus=all",
+      "status": "retrieved",
+      "sha256": "5a88f491dbeffe1d6a2dedbb8098782f6a94b28336ef6219d2b7f5d99e53da44"
+    },
+    "hads_crosswalk": {
+      "url": "https://hads.ncep.noaa.gov/USGS/CA_USGS-HADS_SITES.txt",
+      "status": "retrieved",
+      "sha256": "f2760a96e449d709d70c468e801c53625ffb2e0c56370051eda1c7f351301af3"
+    },
+    "agency_report": {
+      "url": "https://www.rrfc.net/files/32a1f7e23/Telemetered%2BWater%2BMonitoring%2BProject%2BReport%2BPt%2B2%2BApril%2B2025.pdf",
+      "status": "retrieved",
+      "sha256": "8a55b40b4249a01279bda8311dad92ff53de096f854fb4d994e1862a1e676072"
+    },
+    "cdec_metadata": {
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=CDM",
+      "status": "retrieved",
+      "sha256": "e603fadbc7349168082cae94d6fb1936ea33c4e482611f64c4214a5bfbdb1c8c"
+    },
+    "hads_metadata": {
+      "url": "https://hads.ncep.noaa.gov/hsas/EKA_dcps.shtml",
+      "status": "retrieved",
+      "sha256": "79efa84c5e95a68db3a8f4ab199972c0817cc13350b4efc6ef610e6b5ed2e8a5"
+    }
+  },
+  "map_sources": {
+    "usgs_sites": {
+      "url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=11460940,11461400,11462125,11462700,11462900,11463160,11463700,11463940,11464050,11464400,11464500,11464860,11464880,11465050,11465150,11465300&siteOutput=expanded&siteStatus=all",
+      "status": "retrieved",
+      "sha256": "e5e521e8d32776e5dd13ba23fb33fc979bd116ed5e6b60becc50232a3964ea49"
+    },
+    "noaa_map": {
+      "url": "https://mapservices.weather.noaa.gov/eventdriven/rest/services/water/riv_gauges/MapServer/0/query?f=json&where=state%3D%27CA%27&outFields=gaugelid%2Clocation%2Cwaterbody%2Cstate%2Clatitude%2Clongitude&returnGeometry=false",
+      "status": "retrieved",
+      "sha256": "eeb824e4ef784ddd112285f17834f7380b11f135e909cbe94fd29215493a17c2"
+    },
+    "onerain_sites": {
+      "url": "https://sonoma.onerain.com/export/map/geojson/?method=sites&view=1476abfc-52ba-4423-8f6b-f2712d9593ed",
+      "status": "retrieved",
+      "sha256": "c5caea23e49ebb06639910c310b8cd577cf16124b9fe6a8e469b417fadc45778"
+    }
+  },
+  "wac_was_refresh_check": {
+    "status": "unchanged_uncertainty",
+    "checked_at": "2026-10-21T04:28:19.756955+00:00",
+    "baseline_reviewed_at": "2026-10-21T04:13:27+00:00",
+    "link_authorized": false,
+    "correction_authorized": false,
+    "applied_correction": null,
+    "preferred_station_elevation": {
+      "source": "cdec_was",
+      "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+      "value": "470",
+      "units": "ft",
+      "vertical_datum": null,
+      "status": "unchanged",
+      "scope": "Reported station metadata only; changed values still require review. No CW3E fallback or reading correction."
+    },
+    "unverified_configuration": {
+      "vertical_datum": null,
+      "gauge_zero": null,
+      "offset_units": null,
+      "offset_sign": null,
+      "offset_target_quantity": null,
+      "offset_already_in_published_readings": null
+    },
+    "sources": {
+      "cw3e_wac": {
+        "url": "https://cw3e.ucsd.edu/metadata/sites/WAC",
+        "status": "unchanged",
+        "sha256": "de700a20a728796a19a974ce93c97aa6657cc0454dd45b6d6b745505e27b0629",
+        "metadata": {
+          "cw3e_id": "WAC",
+          "cdec_id": "WAS",
+          "nws_id": "--",
+          "elevation_m": "190",
+          "latitude": "38.7025",
+          "longitude": "-123.0909",
+          "logger_link_present": true,
+          "sensor_link_present": true
+        },
+        "changed_fields": []
+      },
+      "cw3e_wac_logger": {
+        "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/otherequipment/568",
+        "status": "unchanged",
+        "sha256": "b57f6f1239d2167e0e5411b76d630927f31dc5c0ea2d3a49c6cf00b6a76fda37",
+        "metadata": {
+          "type": "Data Logger",
+          "model": "Sutron SatLink3 Lite",
+          "installed_on": "July 15, 2026",
+          "offset": "1.42",
+          "offset_applied_on": "2026-07-15",
+          "offset_note_recognized": true
+        },
+        "changed_fields": []
+      },
+      "cw3e_wac_sensor": {
+        "url": "https://cw3e.ucsd.edu/metadata/sites/WAC/sensors/899",
+        "status": "unchanged",
+        "sha256": "1425c09b066b8bba0ed0dad67c28f1a9946f0f059823909af2be24bfd6da9770",
+        "metadata": {
+          "type": "Pressure transducer",
+          "model": "Ott Hydro PLS500",
+          "installed_on": "July 15, 2026",
+          "deactivated_on": "--",
+          "height_cm": "--",
+          "distance_cm": "--",
+          "notes_present": false,
+          "calibration_entries_present": false
+        },
+        "changed_fields": []
+      },
+      "cdec_was": {
+        "url": "https://cdec.water.ca.gov/dynamicapp/staMeta?station_id=WAS",
+        "status": "unchanged",
+        "sha256": "83246c3a87d39f966d157239f3531bf548260ffbe37a37d79e25f08034c29cd3",
+        "metadata": {
+          "station_id": "WAS",
+          "elevation_ft": "470",
+          "stage_sensor_number": "1",
+          "stage_description": "RIVER STAGE, FEET"
+        },
+        "changed_fields": []
+      },
+      "cdec_datums": {
+        "url": "https://cdec.water.ca.gov/reportapp/javareports?name=RivStagesInfo",
+        "status": "unchanged",
+        "sha256": "79204abda05a103a2f93b03ed08c80830a48e22084aee85d057c20a13329ca5e",
+        "metadata": {
+          "was_entry_present": false
+        },
+        "changed_fields": []
+      }
+    },
+    "reason": "The manual baseline has conflicting station elevations; gauge-zero datum and logger offset units, sign, target quantity and prior application remain unverified. Changed evidence requires manual review. Source checks do not authorize links or reading corrections."
+  }
+}

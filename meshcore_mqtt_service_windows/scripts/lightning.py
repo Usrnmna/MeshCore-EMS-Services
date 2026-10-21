@@ -16,10 +16,12 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 if __package__:
+    from .response_text import compact_fields, short_label, counted
     from .time_settings import display_timezone
     from .heat_adv import resolve_location
     from .uv_index import parse_location as _parse_location
 else:
+    from response_text import compact_fields, short_label, counted
     from time_settings import display_timezone
     from heat_adv import resolve_location
     from uv_index import parse_location as _parse_location
@@ -290,7 +292,7 @@ def request_time():
 
 def lookup(text, now=None, timezone_name=None):
     """Resolve location, fetch NWS point alerts/grid, and format chance/time or clear text."""
-    text = ' '.join(text.split())
+    text = " ".join(text.split())
     parsed = parse_location(text)
     now = now or datetime.now(timezone.utc)
     if now.tzinfo is None:
@@ -322,10 +324,20 @@ def lookup(text, now=None, timezone_name=None):
         if incomplete:
             raise RuntimeError(UNAVAILABLE)
         return f'No Lightning expected for {text} in the next 24h'
-    periods = '; '.join(f'{format_window(start, end, zone)} ({", ".join(labels)})'
-                        for start, end, labels in windows)
-    note = '; additional NWS data unavailable' if incomplete else ''
-    return f'Lightning Strike Warning for {text} at {periods}{note}'
+    official = sorted({label.split(":", 1)[0] for _, _, labels in windows for label in labels
+                       if any(event in label for event in THUNDER_EVENTS | {'Red Flag Warning', 'Fire Weather Watch', 'Special Weather Statement', 'Special Marine Warning'})},
+                      key=lambda label: ("Warning" not in label, label))
+    first = next((window for window in windows if official and any(official[0] in label for label in window[2])), windows[0])
+    labels = list(first[2])
+    essential = ("NWS " + official[0] + "." if official else "NWS: " + labels[0] + " (24h).")
+    if incomplete:
+        essential += " Data incomplete."
+    start, end = first[0].astimezone(zone), first[1].astimezone(zone)
+    span = f"{start:%b %d %H:%M %Z}-{end:%b %d %H:%M %Z}"
+    return compact_fields(essential, labels[1:] + [span] +
+                          (["+" + counted(len(official)-1, "official event")] if len(official) > 1 else []) +
+                          [counted(len(windows), "hazard window"), short_label(text, 25)])
+
 
 
 def main(argv=None):

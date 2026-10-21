@@ -66,7 +66,8 @@ class PointReports(unittest.TestCase):
         for forbidden in ("Monitor:", "PM10:", "ZIP", "South Lake", "Resolved point"):
             self.assertNotIn(forbidden, text)
         self.assertIn("Unhealthy for Sensitive Groups", text)
-        self.assertIn("Origin: not established.", text)
+        self.assertIn("surface exposure may differ", text)
+        self.assertLessEqual(len(("@Reader " + text).encode()), 150)
         self.assertEqual(data["air_quality"]["PM10"]["concentration"], 51)
         self.assertEqual(data["air_quality"]["PM25"]["station"], "Example")
 
@@ -90,7 +91,7 @@ class PointReports(unittest.TestCase):
         self.put("hms", [plume()])
         result = self.smoke(35, -120)
         self.assertNotIn("distance_miles", result)
-        self.assertIn("detection is incomplete", env.format_report(result))
+        self.assertIn("detection incomplete", env.format_report(result))
 
     def test_stale_or_failed_hms_is_unknown(self):
         p = plume()
@@ -143,7 +144,7 @@ class PointReports(unittest.TestCase):
         data = env.danger_report(self.store,40,-120,self.config,NOW)
         self.assertEqual(data["station"]["id"], "good")
         self.assertIn("Unusually high", data["assessment"])
-        self.assertIn("official local danger rating unavailable", env.format_report(dict(command="firedanger", **data)))
+        self.assertIn("Local danger rating unknown", env.format_report(dict(command="firedanger", **data)))
 
     def test_no_percentile_does_not_classify_raw_erc(self):
         self.put("nfdrs", [station(percentile=None, erc=100)])

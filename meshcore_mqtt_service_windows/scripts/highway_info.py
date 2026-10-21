@@ -13,6 +13,12 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 
+try:
+    from scripts.response_text import compact_fields, short_label
+except ModuleNotFoundError:
+    from response_text import compact_fields, short_label
+
+
 # USER SETTINGS AND SOURCES: provider changes require reviewing HighwayReportParser.
 BASE_URL = "https://roads.dot.ca.gov/"
 HTTP_TIMEOUT_SECONDS = 20  # One request; config.json caps the whole mesh script at 30.
@@ -301,6 +307,28 @@ def fetch_highway_info(number: int) -> str:
     return result
 
 
+def format_radio_report(number, report):
+    """Give a safe restriction summary; never cut a location or schedule in half."""
+    if report == NO_RESTRICTIONS_MESSAGE:
+        return f"Route {number}: no restrictions reported."
+    blocks = [" ".join(block.split()) for block in re.split(r"\n\s*\n", report) if block.strip()]
+    closures = sum(bool(re.search(r"closed|closure|clsd", value, re.I)) for value in blocks)
+    chains = any(re.search(r"chain", value, re.I) for value in blocks)
+    essential = f"Route {number}: " + ("closures reported." if closures else "restrictions reported.")
+    if chains:
+        essential += " Chain controls."
+    # Generic chain notices repeat the essential flag. Qualified requirements,
+    # exceptions, locations and schedules remain complete optional source blocks.
+    generic_chain_notice = r"(?:chain controls?|chains)(?: (?:are )?(?:in effect|required))?[.!]?"
+    blocks = [" ".join(sentence for sentence in re.split(r"(?<=[.!?])\s+", value)
+                       if not re.fullmatch(generic_chain_notice, sentence, re.I))
+              for value in blocks]
+    blocks = [value for value in blocks if value]
+    # Complete provider entries are optional; summaries do not imply full-route closure.
+    blocks.sort(key=lambda value: not bool(re.search(r"closed|closure|clsd|chain", value, re.I)))
+    return compact_fields(essential, [*blocks, "roads.dot.ca.gov; times Pacific"])
+
+
 def main() -> int:
     """Read or prompt for a route, print the report, and return 0; return 1 for retrieval or 2 for prompted input errors."""
     parser = argparse.ArgumentParser(
@@ -322,7 +350,8 @@ def main() -> int:
             return 2
 
     try:
-        print(fetch_highway_info(args.number))
+        report = fetch_highway_info(args.number)
+        print(format_radio_report(args.number, report))
     except (HTTPError, URLError, TimeoutError, RuntimeError) as exc:
         print(f"Error: unable to retrieve highway information: {exc}", file=sys.stderr)
         return 1

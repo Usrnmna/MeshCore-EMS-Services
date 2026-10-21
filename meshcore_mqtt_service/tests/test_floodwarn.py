@@ -130,7 +130,7 @@ class FloodTests(unittest.TestCase):
                       HTTPError('url', 429, 'rate limit', {}, None)):
             with patch.object(flood, 'urlopen', side_effect=error), \
                     patch('sys.stdout', new_callable=io.StringIO) as output:
-                self.assertEqual(flood.main(['!floodwarn', '38', '-121']), 0)
+                self.assertEqual(flood.legacy_main(['!floodwarn', '38', '-121']), 0)
                 self.assertNotIn('no flooding', output.getvalue())
                 self.assertTrue(output.getvalue().strip())
 
@@ -149,14 +149,14 @@ class FloodTests(unittest.TestCase):
         for value in ('Sacramento', '95814', '38, -121', 'Reno Nevada'):
             self.assertEqual(responder.match_command('!floodwarn ' + value, cfg['commands']),
                              ('!floodwarn', [value], None))
-        self.assertIn('!floodwarn', responder.match_command('!floodwarn', cfg['commands'])[2])
+        self.assertEqual(responder.match_command('!floodwarn', cfg['commands']), ('!floodwarn', ['help'], None))
         self.assertIsNone(responder.match_command('!floodwarnx Sacramento', cfg['commands']))
         self.assertIn('!uv', responder.match_command('!uv', cfg['commands'])[2])
         cfg['commands']['!floodwarn']['max_reply_parts'] = 0
         with self.assertRaises(ValueError):
             responder.validate_config(cfg, ROOT)
 
-    def test_real_subprocess_emoji_output_and_all_types_survive_channel_splitting(self):
+    def test_legacy_subprocess_output_does_not_trigger_automatic_continuation(self):
         cfg = json.loads((ROOT / 'config.json').read_text())['responder']
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -167,7 +167,7 @@ class FloodTests(unittest.TestCase):
             (root / 'fixture.py').write_text(
                 'import flood_warn as f\n'
                 f'responses=iter({[COVERAGE, fixture]!r})\n'
-                'f.get_json=lambda *args: next(responses)\nf.main()\n', encoding='utf-8')
+                'f.get_json=lambda *args: next(responses)\nf.legacy_main()\n', encoding='utf-8')
             cfg['commands']['!floodwarn']['script'] = 'fixture.py'
             db = sqlite3.connect(':memory:')
             self.addCleanup(db.close)
@@ -179,15 +179,13 @@ class FloodTests(unittest.TestCase):
                 'sender_timestamp': int(time.time()), 'text': f'{sender}: !floodwarn 38 -121'}))
             asyncio.run(bot.process_one())
             parts = [call.args[1] for call in send.await_args_list]
-            self.assertGreater(len(parts), 4)
-            self.assertLessEqual(len(parts), 12)
+            self.assertEqual(len(parts), 1)
             for call in send.await_args_list:
                 self.assertEqual(call.args[0], 3)
                 self.assertTrue(call.args[1].startswith('@' + sender + ' '))
                 self.assertLessEqual(len(call.args[1].encode('utf-8')), 150)
             joined = ''.join(part[len(sender) + 2:] for part in parts)
-            for event, (emoji, description) in flood.ALERTS.items():
-                self.assertIn(f'{event} {emoji} - {description}', joined)
+            self.assertEqual(joined, 'Unable to return this result.')
             self.assertNotIn('...', joined)
             self.assertEqual(db.execute('SELECT state FROM bot_requests').fetchone()[0], 'sent')
 

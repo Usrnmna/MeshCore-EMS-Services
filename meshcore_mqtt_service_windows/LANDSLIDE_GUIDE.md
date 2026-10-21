@@ -1,9 +1,16 @@
 # California and Nevada landslide information and alert monitoring
 
+[Tagged alert, station, control, and notification examples](RESPONSE_EXAMPLES.md)
+use fixed offline records. The [response policy](RESPONSE_FORMATTING.md) identifies
+fields that may not fit the single-message radio budget.
+
 Three dedicated commands provide NWS alerts mentioning landslide hazards,
 temporary alert subscriptions, and the nearest eligible USGS monitoring station.
 Location queries support California and Nevada. Station observations are research
 information; they are not used to generate warning levels or predict slope failure.
+
+[All radio commands and subcommands](COMMAND_REFERENCE.md#subcommand-index) |
+[Service function reference](FUNCTION_REFERENCE.md#landslide-functions).
 
 ## Commands and location formats
 
@@ -12,7 +19,7 @@ information; they are not used to generate warning levels or predict slope failu
 | `!slidewarn` | `!slidewarn 91107` | Applicable actual NWS alerts mentioning landslides, debris flows, mudslides, or mud flows. Includes watches and warnings under their original product names. |
 | `!slidealarm` | `!slidealarm on Pasadena` | Four-hour subscription after a successful baseline lookup; initial reply includes current matching alerts. |
 | `!slidealarm` | `!slidealarm status` / `!slidealarm off` | Remaining subscription time/data availability, or immediate cancellation for that sender and channel. |
-| `!slideinfo` | `!slideinfo 34.15, -118.14` | Nearest eligible station, distance, monitored variables, published graph interval, catalog date, and source link. |
+| `!slideinfo` | `!slideinfo 34.15, -118.14` | Nearest eligible station ID, telemetry/coverage uncertainty, distance, and complete name when space permits. The name is the final field. |
 
 Each location-taking command accepts the same parser and geocoder as the flood
 functions: five-digit US ZIP (optional ZIP+4 suffix), city with optional state,
@@ -40,7 +47,7 @@ The bundled California and Nevada polygons check every resolved location,
 including GPS and ZIP results. Coverage includes both sides of Lake Tahoe, Reno,
 Carson City, Las Vegas, Elko, and other Nevada locations. Points outside these
 two states are rejected. Exact polygon boundary points are accepted. Ordinary channel assignment, sender cooldown, tagged replies, and
-radio transmission limits apply. Each command permits up to 12 reply parts.
+radio transmission limits apply. Each command returns one tagged message of at most 150 UTF-8 bytes; no paging or details route is available. See the [response review inventory](RESPONSE_FORMATTING.md).
 
 ## Alert interpretation
 
@@ -51,10 +58,11 @@ matching, including alerts whose CAP geometry is null. The original alert area
 and geometry are retained in JSON; alert polygons are not replaced with fire zones.
 
 Headline, description, and instruction fields are checked for explicit hazard
-terms. Original event names, issuing offices, issue times, and expiration times
-remain visible. A `Flood Watch` or `Flash Flood Warning` is not renamed to an
+terms. Original event names remain in the concise reply; offices, issue times,
+expiration and original text remain in local JSON. Expiration is an optional
+radio field. A `Flood Watch` or `Flash Flood Warning` is not renamed to an
 invented landslide product. Instruction-only and qualified/negated mentions are
-labelled `precautionary/qualified mention only`; that label is a text-classification
+labelled `qualified mention only`; that label is a text-classification
 description, not a warning level. Classification is rule-based and can miss unusual
 wording. An alert for heavy rain without these terms remains outside this command.
 
@@ -65,7 +73,9 @@ produce unavailable status, never an absence claim. Successful empty responses s
 that no matching NWS alerts were found and explicitly state that this is not an all-clear.
 This interface does not provide comprehensive landslide detection or local evacuation orders.
 
-Radio replies contain bounded source-text excerpts and links. `--json` preserves
+Radio replies prioritize the highest-severity official event and its qualified
+landslide relevance. Optional expiration and location fit when space permits;
+full source excerpts and links remain in local structured output. `--json` preserves
 the complete fetched CAP collection, matched records, original instructions,
 geometry, references, source URL, coverage zone, and acquisition time. Display
 times follow the existing `responder.timezone`; source times retain their offsets.
@@ -136,8 +146,10 @@ The bundled catalog contains the 13 California entries on the
 reviewed on October 20, 2026. Twelve are eligible for nearest-station ranking;
 Highway 50 is marked discontinued. Listed status does not establish working telemetry.
 The reviewed index lists no Nevada stations. Nevada queries therefore rank the
-same California catalog, explicitly identified in the reply; this does not
-establish local sensor or warning coverage. The catalog includes BALT1-4, Chips, Chambers, Maria Ygnacio, Las Lomas,
+same California catalog. Replies retain `telemetry unverified; not local coverage`
+and end at the complete station name when it fits. Catalog metadata, measured
+variables, published graph intervals and source links remain in local `--json`
+output; no live telemetry is established. The catalog includes BALT1-4, Chips, Chambers, Maria Ygnacio, Las Lomas,
 Arroyo Seco, Dunsmore, Pasadena Glen, Castro Peak, and Highway 50.
 
 Coordinates come from the official USGS study-area GeoJSON. Its Castro Peak

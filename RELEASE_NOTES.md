@@ -1,5 +1,126 @@
 # Release notes
 
+## Current-source documentation: October 21, 2026
+
+The source contains 31 dedicated commands with one tagged response of at most
+150 UTF-8 bytes per request. [Command and subcommand examples](meshcore_mqtt_service/RESPONSE_EXAMPLES.md)
+cover all fields, context categories, help and subscription controls. The
+[response policy](meshcore_mqtt_service/RESPONSE_FORMATTING.md) records priority text and optional
+fields. Full supported structured records remain available through local
+JSON/snapshot modes. GitHub verification covers both service packages on
+Windows/Linux with Python 3.11 and 3.13. Configuration describes planned checks;
+local results and unverified deployment limits are recorded separately.
+
+This documentation update does not rebuild or republish existing release artifacts.
+
+
+Current source registers 31 commands. The [complete command/subcommand index](meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
+and [terminal/maintenance reference](docs/CLI_REFERENCE.md) describe current
+interfaces. Historical entries retain the behavior and validation of their named
+source snapshots; those entries do not establish current artifacts or live operation.
+
+## Five-second shared radio spacing
+
+- Reduced `command_interval` from 15 to 5 seconds in both platform defaults.
+  Flood-alert responses retain their five-second minimum pause without the
+  former 15-second shared limit. All shared radio commands and reply chunks use
+  the new interval; contention and transmission time can still add delay.
+- Existing deployments require the same change in their active configuration
+  and a service restart. Alert priority, descriptions and uncertainty are unchanged.
+
+## Independent priority-ordered flood notifications
+
+- Flood-alarm alerts now arrive separately with the exact standard descriptions,
+  explicit lifecycle/outage states and urgency/severity/certainty/effective-time
+  ordering. Unknown priority fields remain visible.
+- Added a five-second minimum gap after complete responses; the existing shared
+  radio interval (5 seconds by default) still applies. Polling continues during
+  delivery, and superseded, expired or stopped notifications are suppressed.
+- Preserved current-only data, persistent subscription ownership and the existing
+  no-replay policy. Pending delivery metadata is replaceable and in memory.
+
+## Concise flood warnings and full details
+
+- Added `!floodwarn details LOCATION` for complete current bulletin text, source
+  links and metadata; existing radio and subprocess limits remain in effect.
+- Simplified default replies to the location, active alert, expiration and exact
+  standard description, without the "point" suffix, duplicate headline or URL.
+- Preserved explicit unknown states, coverage checks, current-only data and
+  subscription ownership. Both packages include matching regression coverage.
+
+## Automatic WAC/WAS metadata checks
+
+- Added five-source elevation, logger-offset, equipment and datum checks to
+  `--noaa-identifiers` refresh in both packages, including NOAA catalog failures.
+- Changed fields and inaccessible or malformed sources are saved and printed;
+  review-needed outcomes return exit code 1. Unchanged known uncertainty remains
+  explicit without causing a recurring failure.
+- Prioritized CDEC station-elevation metadata while retaining CW3E evidence,
+  discrepancy flags and unknown datum/offset interpretation.
+- Preserved fixed manual-review dates, current-only readings and unresolved
+  identities. No correction or link can be authorized by these auxiliary checks.
+
+## WAC/WAS vertical-reference audit
+
+- Corroborated conflicting station elevations through official CW3E and CDEC
+  inventories; no supported datum or numerical correction was established.
+- Retained the reported logger offset as uninterpreted static metadata, with
+  explicit unknown units, sign, target quantity and upstream application status.
+- Preserved current-only readings, thresholds, routing and unresolved NOAA links;
+  added regression coverage and detailed source citations.
+
+## WAC official-record recovery
+
+- Recovered CW3E WAC detail, sensor, logger and watershed records; retained the
+  explicit CDEC WAS alias without adding unsupported legacy-USGS/NOAA links.
+- Replaced obsolete access-failure evidence for two Warm Springs stations while
+  preserving other review dates, unresolved identities and current-only readings.
+- Documented conflicting elevations and unspecified logger-offset units without
+  applying measurement corrections or inferring flood thresholds.
+
+## Additional local NOAA station review
+
+- Recorded local operating-agency evidence for all sixteen unresolved stations;
+  no additional NOAA crosswalk was supported.
+- Preserved operator leads, differing record periods and the Lambert Bridge/Talmage
+  identifier conflict without changing accepted links or current-only readings.
+- Identifier refresh carries fixed manual evidence; new regressions protect link
+  authority, review dates, explicit uncertainty and measurement-free output.
+
+## NOAA archived-source access retry
+
+- Recovered three original USGS PDFs and Sonoma Water's OneRain site inventory;
+  no additional NOAA-to-USGS crosswalk was supported.
+- Added transient redirect cookies and a static OneRain metadata refresh, with
+  explicit failures and non-authorizing alias candidates.
+- Replaced obsolete access-failure labels with dated PDF checksums/page references;
+  preserved current-only readings and sixteen unresolved station identities.
+
+## Additional NOAA map and operator-record audit
+
+- Reviewed all sixteen remaining identities using official map metadata and
+  additional records; no new USGS-to-NOAA link was supported.
+- Retained non-authorizing candidate evidence, including WSSC1, and added refresh
+  flags for candidate changes, malformed maps and source failures.
+- Preserved current-only readings, original data, supported links and routing.
+
+
+## Complete upstream monitoring - unreleased
+
+Condition subscriptions evaluate all reliably linked upstream gauges independently
+of the radio display limit, with full-set categorical baselines and concise change
+summaries. Schema-2 indexes preserve linked stations without coordinates. Rebuild
+instructions and uncertainty rules are in the [water guide](meshcore_mqtt_service/WATER_GUIDE.md).
+
+## Location water commands - unreleased
+
+Adds paired `!waterway`, `!basin` and `!floodstatus` commands, plus pinned
+`!floodalarm conditions`, `status` and `stop`. Current-only observations,
+explicit derived relationships and source limitations are documented in the
+[water guide](meshcore_mqtt_service/WATER_GUIDE.md). Existing `!rivers` behavior
+is unchanged. Downloader/index setup remains separate from service installation.
+
+
 ## v0.9.5-beta - October 20, 2026
 
 - Adds `!slidewarn`, `!slidealarm`, and `!slideinfo` for California and Nevada,
@@ -345,3 +466,11 @@ The source now contains 28 dedicated commands per platform. `!slidewarn`,
 and USGS research-station information with the existing ZIP/city/GPS inputs.
 Official NWS event names are retained; station data does not generate warnings.
 [Setup, behavior, sources, and limits](meshcore_mqtt_service/LANDSLIDE_GUIDE.md).
+
+### NOAA upstream station review
+
+Both platforms include a source-cited 33-station NOAA identifier review and explicit refresh. Six additional gauges have published thresholds; ten have corroborated IDs without thresholds; seventeen remain unresolved. Original datasets and current-only retention remain unchanged. See [review evidence and refresh behavior](meshcore_mqtt_service/WATER_STATION_REVIEW.md).
+
+### Additional NOAA agency-record review
+
+The remaining 17 IDs now have USGS coverage and HADS cross-reference evidence. One published agency-successor chain links legacy USGS-11462000 through CDEC CDM to NOAA YDMC1, without published thresholds. Sixteen remain unresolved. Both packages preserve current-only values and withhold the successor when its source evidence changes. See [official evidence and refresh guards](meshcore_mqtt_service/WATER_STATION_REVIEW.md#additional-official-agency-review).

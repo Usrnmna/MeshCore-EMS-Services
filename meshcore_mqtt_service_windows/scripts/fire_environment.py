@@ -11,6 +11,7 @@ from shapely.geometry import Point, shape
 from shapely.ops import nearest_points, transform
 
 from . import wildfire_settings as settings
+from .response_text import compact_fields, short_label
 from .fire_weather import fire_alerts
 from .uv_index import parse_location, resolve_location
 from .wildfire_lookup import parse_query, moment
@@ -191,70 +192,40 @@ def report(command, text, store, config=None, now=None):
 
 
 def format_report(data):
-    """Keep smoke replies free of a location header, Monitor line, and PM10 line."""
-    command = data["command"]
+    """Keep essential uncertainty in the first field of a single radio response."""
     if data.get("help"):
-        return f"Use !{command} ZIP, CITY STATE, or LAT LON."
-    if command == "smoke":
-        coverage, plume = data["coverage"], data.get("plume", {}).get("properties", {})
-        if coverage == "inside":
-            lines = [f"Smoke: inside {plume['density']}-density satellite-mapped plume; "
-                     f"observed {moment(plume['end'])}. Surface exposure may differ."]
-        elif coverage == "outside":
-            if "plume" in data:
-                lines = [f"Smoke: outside recently mapped plumes; nearest edge approximately "
-                         f"{data['distance_miles']:.1f} mi {data['direction']}, observed {moment(plume['end'])}."]
-            else:
-                lines = [f"Smoke: no recent mapped plume within {data['search_radius_miles']:g} mi."]
-            lines[0] += " Satellite detection is incomplete."
+        return f"Use !{data['command']} ZIP, CITY STATE, or LAT LON."
+    if data["command"] == "smoke":
+        plume = data.get("plume", {}).get("properties", {})
+        if data["coverage"] == "inside":
+            essential = f"Smoke: {plume['density']} mapped plume; surface exposure may differ."
+        elif data["coverage"] == "outside":
+            essential = "Smoke: outside mapped plumes; detection incomplete."
         else:
-            lines = ["Smoke: unknown; " + data["reason"] + "."]
-        for pollutant, label in (("PM25", "PM2.5"), ("OZONE", "Ozone")):
-            p = data["air_quality"].get(pollutant)
-            if not p:
-                if pollutant == "PM25":
-                    lines.append("PM2.5: fresh nearby measurements unavailable.")
-                continue
-            concentration = ("concentration unavailable" if p["concentration"] is None else
-                             f"{p['concentration']:g} {p['unit'] or '(unit not supplied)'}")
-            aqi = "AQI unavailable" if p["aqi"] is None else f"AQI {p['aqi']:g}, {p['category']}"
-            lines.append(f"{label}: {concentration}; {aqi}; nearby observation "
-                         f"{p['distance_miles']:.1f} mi away, {moment(p['observed'])}.")
-        lines.append("Origin: not established.")
-        return "\n".join(lines)
-    lines = []
+            essential = "Smoke: unknown; satellite data insufficient."
+        p = data["air_quality"].get("PM25")
+        fields = []
+        if p:
+            aqi = "AQI unknown" if p["aqi"] is None else f"AQI {p['aqi']:g} {p['category']}"
+            fields += ["PM2.5 " + aqi, moment(p["observed"])]
+        else:
+            fields.append("PM2.5 unavailable")
+        fields.append("Origin not established")
+        return compact_fields(essential, fields)
+    alerts = sorted({f["properties"]["event"] for f in data["alerts"]}, key=lambda e: ("Warning" not in e, e))
+    essential = ("NWS " + alerts[0] + "." if alerts else "Local danger rating unknown.")
+    essential += " ERC excludes wind."
+    fields = []
     if data["station"]:
         p = data["station"]["properties"]
         percentile = numeric(p.get("erc_percentile"), 100)
-        ranking = "percentile unavailable" if percentile is None else f"{percentile:g}th percentile"
-        lines += [f"Fire danger: {data['assessment']}",
-                  f"ERC {numeric(p['erc']):g}, {ranking}; trend {p.get('erc_trend') or 'unavailable'}.",
-                  f"{p['Station_Name']} ({data['distance_miles']:.1f} mi); model Y; "
-                  f"daily maximum summary published {moment(p['published'])}."]
-        if numeric(p.get("bi")) is not None:
-            lines.append(f"Burning Index {numeric(p['bi']):g}; trend {p.get('bi_trend') or 'unavailable'}.")
+        fields.append(f"ERC {numeric(p['erc']):g}" + (f", percentile {percentile:g}" if percentile is not None else "; percentile unknown"))
+        fields += [moment(p["published"]), short_label(p["Station_Name"], 20)]
     else:
-        lines = ["Fire danger: unknown; fresh ERC station data unavailable within the configured radius."]
-    if data["fuel_moisture"]:
-        p = data["fuel_moisture"]["properties"]
-        names = [("1h", "one_hr_tl_fuel_moisture"), ("10h", "ten_hr_tl_fuel_moisture"),
-                 ("100h", "hun_hr_tl_fuel_moisture"), ("1000h", "thou_hr_tl_fuel_moisture"),
-                 ("live herb", "herbaceous_lfi_fuel_moisture"), ("live woody", "woody_lfi_fuel_moisture")]
-        values = [f"{label} {numeric(p.get(key)):g}%" for label, key in names if numeric(p.get(key)) is not None]
-        lines.append("Modeled fuel moisture (QC unverified): " + (", ".join(values) or "unavailable") +
-                     f"; {moment(p['observed'])}; source quality code {p.get('quality_code')}; type {p.get('nfdr_type')}.")
-    else:
-        lines.append("Detailed fuel moisture: unavailable.")
-    weather = data.get("weather")
-    if weather:
-        p = weather["feature"]["properties"]
-        lines.append(f"Nearby RAWS ({weather['distance_miles']:.1f} mi): wind {p.get('WindSpeedMPH') or 'unknown'}, "
-                     f"gust {p.get('WindSpeedPeak') or 'unknown'}, RH {p.get('RelativeHumidity') or 'unknown'}; "
-                     f"{moment(timestamp(p.get('ObservedDate')))}.")
-    lines.append("Fire-weather warnings: " + (", ".join(sorted({f["properties"]["event"] for f in data["alerts"]}))
-                                              if data["alerts"] else data["warning_status"]) + ".")
-    lines.append("ERC excludes wind; official local danger rating unavailable.")
-    return "\n".join(lines)
+        fields.append("Fresh ERC unavailable")
+    if not alerts:
+        fields.append("NWS warnings: " + data["warning_status"])
+    return compact_fields(essential, fields)
 
 
 def main(command, argv=None):

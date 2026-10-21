@@ -156,20 +156,20 @@ class SnowpackTests(unittest.TestCase):
         with patch.object(snow, 'get_text', return_value=HTML), \
                 patch.object(snow, 'get_json', side_effect=[POINT, [observation()], forecast()]) as get:
             self.assertEqual(snow.lookup('39, -120', NOW),
-                'Snowpack: Current: 12in | Next 24h: 4in | Station: Snow & Creek 0.0mi.')
+                'Snow depth at station: 12in. | Next 24h snow: 4in | Snow & Creek 0.0mi')
             self.assertEqual(get.call_args_list[0].args[0], 'https://api.weather.gov/points/39.0000,-120.0000')
             self.assertEqual(get.call_args_list[1].args[1]['Stations'], 'ABC')
             self.assertEqual(get.call_args_list[-1].args[0], POINT['properties']['forecastGridData'])
 
     def test_partial_outages_keep_other_value_and_nearest_station(self):
-        for depth, prediction, expected in [([], forecast(), 'Current: unavailable | Next 24h: 4in'),
-              ([observation()], RuntimeError('offline'), 'Current: 12in | Next 24h: unavailable'),
-              (RuntimeError('offline'), forecast(), 'Current: unavailable | Next 24h: 4in')]:
+        for depth, prediction, expected in [([], forecast(), 'Snow depth at station: unavailable. | Next 24h snow: 4in'),
+              ([observation()], RuntimeError('offline'), 'Snow depth at station: 12in. | Next 24h snow: unavailable'),
+              (RuntimeError('offline'), forecast(), 'Snow depth at station: unavailable. | Next 24h snow: 4in')]:
             with patch.object(snow, 'get_text', return_value=HTML), \
                     patch.object(snow, 'get_json', side_effect=[POINT, depth, prediction]):
                 result = snow.lookup('39 -120', NOW)
                 self.assertIn(expected, result)
-                self.assertIn('Snow & Creek 0.0mi.', result)
+                self.assertIn('Snow & Creek 0.0mi', result)
 
     def test_california_coverage_and_grid_url_validation(self):
         for county, grid in [('https://api.weather.gov/zones/county/NVC031', POINT['properties']['forecastGridData']),
@@ -207,6 +207,7 @@ class SnowpackTests(unittest.TestCase):
         cfg = json.loads((ROOT/'config.json').read_text())['responder']
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            shutil.copyfile(ROOT/'scripts/response_text.py', root/'response_text.py')
             for name in ('snowpack.py', 'uv_index.py'):
                 shutil.copyfile(ROOT/'scripts'/name, root/name)
             (root/'fixture.py').write_text(
@@ -226,7 +227,7 @@ class SnowpackTests(unittest.TestCase):
                 'sender_timestamp': int(time.time()), 'text': 'Alice: !snowpack 39, -120'}))
             asyncio.run(bot.process_one())
             send.assert_awaited_once_with(3,
-                '@Alice Snowpack: Current: 12in | Next 24h: 4in | Station: Snow & Creek 0.0mi.')
+                '@Alice Snow depth at station: 12in. | Next 24h snow: 4in | Snow & Creek 0.0mi')
             self.assertEqual(db.execute('SELECT state FROM bot_requests').fetchone()[0], 'sent')
 
 

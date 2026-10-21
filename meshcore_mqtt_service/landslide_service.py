@@ -7,6 +7,7 @@ import time
 
 from scripts.landslide_lookup import alert_summary, checked_snapshot, format_alerts, parse_query
 from scripts.landslide_settings import validate
+from scripts.response_text import compact_fields, short_label
 
 LOG = logging.getLogger("landslide")
 
@@ -22,15 +23,18 @@ def changes(before, after, now):
             previous = old[sorted(references)[0]]
         replaced.update(references)
         if previous is None or previous["fingerprint"] != alert["fingerprint"]:
-            messages.append(("New: " if previous is None else "Updated: ") + alert_summary(alert))
+            messages.append(alert_summary(alert).split(" | ")[0] + " | " + ("New" if previous is None else "Updated"))
     for key in old.keys() - new.keys() - replaced:
         if key in after.get("cancelled_ids", []):
             reason = "cancelled by NWS"
         elif now >= old[key]["expires"]:
             reason = "expired"
         else:
-            reason = "no longer listed in the current NWS feed"
-        messages.append(old[key]["event"] + " " + reason + "; not an all-clear.")
+            reason = "unlisted; cancellation unconfirmed"
+        if key not in after.get("cancelled_ids", []) and now < old[key]["expires"]:
+            messages.append("NWS alert unlisted; cancellation unconfirmed. Not an all-clear. | " + old[key]["event"])
+        else:
+            messages.append(old[key]["event"] + " " + reason + "; not an all-clear.")
     return messages
 
 
@@ -103,9 +107,8 @@ class LandslideAlarms:
         if query["action"] == "status":
             if not row or not self.current(row):
                 return "No active landslide subscription.", ""
-            return (f"Landslide monitoring {row['target']} at {row['point']}; "
-                    f"{max(0, int((row['expires'] - self.clock()) / 60))} minutes remaining."
-                    + (" Data unavailable; previous baseline retained." if row["error"] else ""), "")
+            return compact_fields("Landslide monitoring active." + (" Data unavailable." if row["error"] else ""),
+                                  [f"{max(0, int((row['expires']-self.clock())/60))}m left", short_label(row["target"], 25)]), ""
         if not self.config["enabled"]:
             return "Landslide monitoring is disabled in configuration.", ""
         if not self.control_current(request):
@@ -121,8 +124,9 @@ class LandslideAlarms:
                         (json.dumps(snapshot["point"]), json.dumps(snapshot),
                          self.clock() + self.config["subscription_interval"], self.channel, request["sender"], request["id"]))
         self.db.commit()
-        return (f"Landslide monitoring set for {query['target']}; {self.config['subscription_hours']:g} hours. "
-                "Use !slidealarm off to stop.\n" + format_alerts(snapshot, query["target"], self.config), "")
+        return compact_fields(format_alerts(snapshot, query["target"], self.config).split(" | ")[0],
+                              [f"Monitoring set {self.config['subscription_hours']:g}h", "Stop: !slidealarm off"]), ""
+
 
     def acknowledge(self, request):
         """Permit scheduled checks only after all acknowledgment parts have been sent."""
@@ -158,7 +162,7 @@ class LandslideAlarms:
                                 (str(exc), self.channel, reading["sender"]))
                 self.db.commit()
                 if reading["error"] is None:
-                    await self.notify(reading, "Landslide alert data unavailable; previous status retained; not an all-clear.")
+                    await self.notify(reading, "Landslide data unavailable; status unknown. Not an all-clear.")
             return True
         if not self.current(reading):
             return True
@@ -169,8 +173,10 @@ class LandslideAlarms:
         self.db.execute("UPDATE landslide_subscriptions SET baseline=?,error=NULL WHERE channel=? AND sender=?",
                         (json.dumps(snapshot), self.channel, reading["sender"]))
         self.db.commit()
-        if messages:
-            await self.notify(reading, "Landslide " + reading["target"] + ": " + "; ".join(messages))
+        for message in messages:
+            if not self.current(reading):
+                break
+            await self.notify(reading, compact_fields(message, [short_label(reading["target"], 25)]))
         return True
 
     async def run(self):

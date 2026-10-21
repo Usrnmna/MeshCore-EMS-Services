@@ -21,8 +21,10 @@ from datetime import datetime, timedelta, timezone
 
 try:
     from scripts.time_settings import display_timezone, format_timestamp
+    from scripts.response_text import compact_fields, short_label, counted
 except ModuleNotFoundError:
     from time_settings import display_timezone, format_timestamp
+    from response_text import compact_fields, short_label, counted
 
 
 # USER SETTINGS AND SOURCES: distances are miles; timeouts are seconds.
@@ -307,26 +309,26 @@ def reading_time(label, issued):
 
 
 def format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str:
-    """Summarize nearest-first station readings without inventing missing values."""
+    """Prioritize reported threshold exceedances, retaining the gauge-only limitation."""
     if not stations:
         return f"No matching river stations found within {radius:g} mi."
+    def priority(station):
+        level, flood = station.get("river_stage_feet"), station.get("minor_flood_stage_feet")
+        action = station.get("action_stage_feet")
+        rank = 0 if level is not None and flood is not None and level >= flood else (
+            1 if level is not None and action is not None and level >= action else 2)
+        return rank, station["distance_miles"]
+    station = min(stations, key=priority)
     def stage(value):
-        """Format a stage as feet or N/A without converting missing readings to zero."""
-        return "N/A" if value is None else f"{value:g} ft"
-    zone = display_timezone()
-    issued = parse_report_time(stations[0].get("report_issued"))
-    issued_text = format_timestamp(issued, zone) if issued else 'unknown report time'
-    lines = [f"CDEC report: {issued_text}. Within {radius:g} mi:"]
-    for station in stations:
-        latest_time = next((entry.get("time") for entry in reversed(station.get("river_stage_history", []))), None)
-        observed = reading_time(latest_time, parse_report_time(station.get('report_issued')))
-        when = f" at {format_timestamp(observed, zone)}" if observed else ""
-        lines.append(
-            f"{station['station_id']} {station['station_name']} ({station['distance_miles']:g} mi): "
-            f"stage {stage(station.get('river_stage_feet'))}{when}; "
-            f"AS {stage(station.get('action_stage_feet'))}, FS {stage(station.get('minor_flood_stage_feet'))}."
-        )
-    return " ".join(lines)
+        return "unknown" if value is None else f"{value:g}ft"
+    state = ("flood threshold" if priority(station)[0] == 0 else
+             "action threshold" if priority(station)[0] == 1 else "gauge")
+    essential = f"{station['station_id']}: {stage(station.get('river_stage_feet'))}; {state}; point flooding unknown."
+    issued = parse_report_time(station.get("report_issued"))
+    when = format_timestamp(issued) if issued else "time unknown"
+    return compact_fields(essential, [when,
+        f"AS {stage(station.get('action_stage_feet'))}; FS {stage(station.get('minor_flood_stage_feet'))}",
+        counted(len(stations), "station"), short_label(station['station_name'], 30)])
 
 
 def main() -> int:

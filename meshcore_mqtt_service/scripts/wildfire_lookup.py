@@ -13,6 +13,7 @@ from shapely.geometry import Point, shape
 from shapely.ops import unary_union
 
 from . import wildfire_settings as settings
+from .response_text import compact_fields, short_label, counted
 from .fire_weather import compact_period, fire_alerts
 from .time_settings import display_timezone
 from .uv_index import parse_location, resolve_location
@@ -29,11 +30,11 @@ def parse_query(command, text):
     text = " ".join(text.split())
     if command not in COMMANDS or len(text) > 220:
         raise ValueError("Invalid wildfire command")
-    result = {"command": command, "target": text, "page": 1, "radius": None, "action": "lookup"}
+    result = {"command": command, "target": text, "radius": None, "action": "lookup"}
     if text in {"", "help"}:
         return dict(result, action="help")
     if command in {"smoke", "firedanger"}:
-        if re.fullmatch(r"[A-Za-z]{2}Z\d{3}", text) or " page " in text:
+        if re.fullmatch(r"[A-Za-z]{2}Z\d{3}", text) or re.search(r"\s+page\s+\d+\s*$", text, re.I):
             raise ValueError(f"Use !{command} LAT LON, ZIP, or CITY STATE.")
         try:
             parse_location(text)
@@ -51,10 +52,8 @@ def parse_query(command, text):
         if category not in settings.CONTEXT_NAMES:
             raise ValueError("Use !firedata CATEGORY ZONE/LOCATION; categories: " + ", ".join(sorted(settings.CONTEXT_NAMES)))
         result.update(category=category, target=target)
-    match = re.search(r" page ([1-9][0-9]?)$", result["target"])
-    if match:
-        result["page"] = int(match[1])
-        result["target"] = result["target"][:match.start()]
+    if re.search(r"\s+page\s+\d+\s*$", result["target"], re.I) or result["target"].lower().startswith("details "):
+        raise ValueError(f"Use !{command} with its normal query; details and paging are not supported.")
     if command == "fires" and result["target"].startswith("near "):
         match = re.fullmatch(r"near (.+) within (\d+(?:\.\d+)?)", result["target"])
         if not match or not 0 < float(match[2]) <= 200:
@@ -272,114 +271,135 @@ def context_line(category, feature):
     """Provide source-specific, unit-labelled context without inventing a composite risk score."""
     p = feature["properties"]
     if category == "raws":
-        return (f"{p.get('StationName')}: RH {p.get('RelativeHumidity') or 'not reported'}; "
-                f"wind {p.get('WindSpeedMPH') or 'not reported'}; gust {p.get('WindSpeedPeak') or 'not reported'}; "
-                f"observed {moment(timestamp(p.get('ObservedDate')))}")
+        readings = []
+        for field, label, unit in (("RelativeHumidity", "RH", "%"),
+                                   ("WindSpeedMPH", "wind", " mph"),
+                                   ("WindSpeedPeak", "gust", " mph")):
+            value = number(p.get(field))
+            readings.append(label + " " + (f"{value:g}{unit}" if value is not None else "not reported"))
+        return (f"{p.get('StationName') or 'Station unknown'}: " + "; ".join(readings) +
+                f"; observed {moment(timestamp(p.get('ObservedDate')))}")
     if category == "aqi":
         aqi = number(p.get("PM25_AQI"))
-        return f"{p.get('SiteName')}: PM2.5 AQI {aqi if aqi is not None else 'not reported'}; valid {moment(timestamp(p.get('ValidTime')))}."
+        value = f"{aqi:g}" if aqi is not None else "not reported"
+        return f"{p.get('SiteName') or 'Site unknown'}: PM2.5 AQI {value}; valid {moment(timestamp(p.get('ValidTime')))}."
     if category in {"aqi_today", "aqi_tomorrow"}:
         try:
             aqi = number(float(p.get("MaxAQI", "")))
         except (TypeError, ValueError):
             aqi = None
         value = f"{aqi:g} ({p.get('MaxAQICat') or 'category unknown'})" if aqi is not None else "not reported"
-        return f"{p.get('RAName') or 'Reporting area'}: {category.replace('_', ' ')} maximum AQI {value}; source does not provide a valid-time field."
+        return f"{p.get('RAName') or 'Reporting area'}: max AQI {value}; valid time unavailable."
     if category == "potential":
         return (f"{p.get('source_layer')}, PSA {p.get('nat_code')}: "
                 f"provider flag {p.get('type') or 'not reported'}; dryness code {p.get('drynesscode')}; "
                 f"provider validity flag {p.get('isvalid')}; "
                 f"dated {moment(timestamp(p.get('timestampdate')))}.")
     if category == "smoke":
-        return f"Smoke forecast: {p.get('smoke_classdesc')}; valid {moment(timestamp(p.get('referencedate')))} to {moment(timestamp(p.get('todate')))}."
+        return f"{p.get('smoke_classdesc') or 'Smoke class unknown'}; valid {moment(timestamp(p.get('referencedate')))} to {moment(timestamp(p.get('todate')))}."
     if category in {"viirs", "modis"}:
-        return (f"{category.upper()} thermal detection {moment(timestamp(p.get('DetectionDate')))}; "
+        return (f"Detected {moment(timestamp(p.get('DetectionDate')))}; "
                 f"confidence {p.get('Raw_Confidence', p.get('Confidence'))}; not a mapped fire boundary.")
     if category == "cameras":
-        return f"{p.get('cameraName')}: online={p.get('isOnline')}; {p.get('cameraURL', '')}"
+        online = p.get('isOnline')
+        status = "online" if online is True else "offline" if online is False else "status unknown"
+        return f"{p.get('cameraName') or 'Camera'}: {status}; {p.get('cameraURL', '')}".rstrip('; ')
     # Supplemental schemas retain all original fields in JSON/GeoJSON output.
     useful = [(k, v) for k, v in p.items() if v is not None and
               re.search(r"name|date|valid|forecast|potential|label|category|treat|year|aqi", k, re.I)]
-    label = (str(p["source_layer"]) + ": ") if p.get("source_layer") else ""
-    return label + ("; ".join(f"{k}={v}" for k, v in useful[:6]) or f"{category} record {feature['id']}; use --json for attributes.")
+    fields = [str(p["source_layer"])] if p.get("source_layer") else []
+    for key, value in useful[:6]:
+        label = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', key).replace('_', ' ').lower()
+        fields.append(str(value) if label in {"name", "category"} else f"{label}: {value}")
+    return "; ".join(fields) or "Attributes unavailable."
 
 
 def format_report(data, config=None):
-    """Format short, paged radio text while keeping full details available as JSON."""
-    config = config or settings.load()
+    """Return one focused result, prioritizing alerts and degraded-source status."""
     query, command = data["query"], data["query"]["command"]
     if data.get("help"):
-        return {
-            "fire": "Use !fire INCIDENT-ID or an unambiguous name from !fires.",
-            "firealarm": "Use !firealarm on ZONE/LOCATION, status, or off. Monitoring lasts configured hours.",
-            "firedata": "Use !firedata CATEGORY ZONE/LOCATION [page N]. Categories: " + ", ".join(sorted(settings.CONTEXT_NAMES)),
-            "fires": "Use !fires ZONE/LOCATION [page N], or !fires near LOCATION within MILES.",
-        }.get(command, f"Use !{command} ZONE or LAT LON, ZIP, CITY STATE.")
-    zone_names = ", ".join(z["id"] for z in data.get("zones", []))
-    lines = [zone_names]
-    if data.get("resolved_point"):
-        lines.append("Resolved point " + ", ".join(f"{v:.4f}" for v in data["resolved_point"]))
-    degraded = [s for s in data.get("sources", []) if s["stale"] or s.get("error")]
-    if degraded:
-        lines.append("Data limited: " + ", ".join(
-            s["source"] + (" unavailable" if s.get("fetched") is None else
-                           f" age {int(s['age_seconds']//60)}m" + (" refresh failed" if s.get("error") else " stale"))
-            for s in degraded))
+        return {"fire": "Use !fire INCIDENT-ID or NAME from !fires.",
+                "firealarm": "Use !firealarm on ZONE/LOCATION, status, or off.",
+                "firedata": "Use !firedata CATEGORY ZONE/LOCATION. Categories are listed in the command guide."}.get(
+                    command, f"Use !{command} ZONE, ZIP, CITY STATE, or LAT LON.")
+    degraded = any(s["stale"] or s.get("error") for s in data.get("sources", []))
+    caveat = " Data limited." if degraded else ""
+    zones = ",".join(z["id"] for z in data.get("zones", []))
+    alerts = data.get("alerts", [])
+    hazards = sorted({a["properties"]["event"] for a in alerts}, key=lambda x: ("Warning" not in x, x))
+    hazard = hazards[0] if hazards else ""
+    if command in {"firewarn", "firewx", "firezone"} and hazard:
+        essential = "NWS " + hazard + "." + caveat
+    elif command == "firewarn":
+        essential = ("Fire-weather alert status unknown; data limited." if degraded else "No active NWS fire-weather alerts.")
+    elif command == "firezone":
+        essential = (zones or "Zone unknown") + (": alert status unknown; data limited." if degraded else ": no active NWS fire-weather alerts.")
     else:
-        relevant = [s for s in data.get("sources", []) if s["source"] != "zones"] or data.get("sources", [])
-        age = max((s["age_seconds"] or 0 for s in relevant), default=0)
-        lines.append(f"Cache age up to {int(age//60)}m.")
-    if data.get("alerts"):
-        # Hazard information precedes long incident/forecast lists on constrained radio replies.
-        lines.append("Active: " + ", ".join(sorted({a["properties"]["event"] for a in data["alerts"]})) + ".")
-    if command == "firezone":
-        lines += [f"{z['id']} {z['properties']['name']}; office {z['properties']['cwa']}; "
-                  + ("includes territory outside CA." if z["properties"].get("cross_state") else "California zone.")
-                  for z in data["zones"]]
-    if "incidents" in data:
-        records = data["incidents"]
-        start = (query["page"] - 1) * config["max_results"]
-        lines.append(f"{len(records)} incident records" + (" (complex/component records may overlap)." if any(r["complex_parent"] for r in records) else "."))
+        essential = ""
+    fields = []
+    if command in {"fires", "fire"}:
+        records = data.get("incidents", [])
         if not records:
-            lines.append("No matches in available cached feeds." if degraded else "No matching incidents reported.")
-        for r in records[start:start + config["max_results"]]:
-            if r.get("historical"):
-                lines.append(f"Last seen {moment(r['last_seen'])}; absent from current feeds; present status unconfirmed.")
-            containment = "not reported" if r["containment"] is None else f"{r['containment']:g}%"
-            acres = "unknown" if r["acres"] is None else f"{r['acres']:g}"
-            polygon_time = max((timestamp(f["properties"].get("poly_PolygonDateTime")) or 0 for f in r["perimeters"]), default=0)
-            lines.append(f"{r['name']} [{r['display_id']}]: {acres} ac; contained {containment}; "
-                         f"containment source {r['field_sources']['containment']} {moment(r['field_times']['containment'])}; "
-                         f"perimeter {moment(polygon_time) if polygon_time else 'not reported'}.")
-        if records and start >= len(records):
-            lines.append("Page outside available incident results.")
-        if start + config["max_results"] < len(records):
-            lines.append(f"More: !{command} {query['target']} page {query['page'] + 1}")
-    if "alerts" in data:
-        lines += [f"{f['properties']['event']}: {f['properties'].get('headline') or f['properties'].get('areaDesc')}; "
-                  f"until {moment(timestamp(f['properties'].get('ends') or f['properties'].get('expires')))}."
-                  for f in data["alerts"]]
-        if not data["alerts"]:
-            lines.append("No fire-weather alerts in available cache." if degraded else "No active fire-weather watches/warnings reported.")
-    if command == "firewx":
-        for f in data["forecasts"]:
-            lines.append(f"FWF issued {moment(f['issued'])}.")
-            periods = f["periods"]
-            index = query["page"] - 1
-            if index < len(periods):
-                lines.append(compact_period(periods[index]))
-                if index + 1 < len(periods):
-                    lines.append(f"Next: !firewx {query['target']} page {query['page'] + 1}")
-        if not data["forecasts"]:
-            lines.append("Zone forecast unavailable.")
-    if command == "firedata":
-        features = data["features"]
-        start = (query["page"] - 1) * config["max_results"]
-        lines.append(f"{len(features)} {query['category']} records intersect the zone.")
-        lines.extend(context_line(query["category"], f) for f in features[start:start + config["max_results"]])
-        if start + config["max_results"] < len(features):
-            lines.append(f"More: !firedata {query['category']} {query['target']} page {query['page'] + 1}")
-    return " ".join(lines)
+            return compact_fields("No matches in available cache." + caveat, [zones])
+        r = records[0]
+        contained = "unknown" if r["containment"] is None else f"{r['containment']:g}%"
+        if r.get("historical"):
+            essential = short_label(r["name"], 18) + ": absent from current feeds; status unconfirmed."
+        else:
+            essential = f"{short_label(r['name'], 18)}: contained {contained}." + caveat
+        fields = [f"{r['acres']:g} ac" if r["acres"] is not None else "acres unknown",
+                  counted(len(records), "incident record")]
+        if command == "fires" and query.get("radius") is not None:
+            # Proximity is more useful on radio than a raw incident identifier.
+            # The structured record and exact-ID lookup retain the full identifier.
+            distance = r.get("distance_miles")
+            fields.insert(0, f"{distance:.2f} mi map distance" if distance is not None else "Map distance unknown")
+        else:
+            fields.append(r["display_id"])
+        fields.append(zones)
+    elif command == "firedata":
+        features = data.get("features", [])
+        labels = {"aqi": "AQI observation", "aqi_today": "AQI forecast",
+                  "aqi_tomorrow": "AQI forecast", "raws": "RAWS observation",
+                  "cameras": "camera", "history": "historical fire",
+                  "treatments": "fuel treatment", "spc": "SPC outlook",
+                  "viirs": "VIIRS detection", "modis": "MODIS detection",
+                  "potential": "fire potential record", "smoke": "smoke forecast"}
+        category = query["category"]
+        period = " for " + category.split('_')[1] if category in {"aqi_today", "aqi_tomorrow"} else ""
+        essential = counted(len(features), labels[category]) + period + "." + caveat
+        fields = [context_line(query["category"], f) for f in features[:1]] + [zones]
+    elif command == "firewx":
+        forecasts = data.get("forecasts", [])
+        essential = essential or ("Fire weather: data limited." if degraded else "Fire weather forecast.")
+        fields = []
+        for forecast in forecasts:
+            if not forecast["periods"]:
+                continue
+            period = forecast["periods"][0]
+            fields.append(period["name"])
+            group = []
+            for line in period["text"].splitlines():
+                text = line.strip().lstrip("*").strip()
+                label = re.split(r"\.{2,}", text)[0]
+                terrain = re.search(r"Valley|Valleys|Slope|Ridge|Above|Below", label, re.I)
+                if re.search(r"\.{2,}", text) and not terrain:
+                    if group:
+                        fields.append(" ".join(group))
+                    group = [re.sub(r"\.{2,}", ": ", text)] if re.search(r"Humidity|Winds|Thunder|Wetting|LAL", label, re.I) else []
+                elif group and text:
+                    group.append(re.sub(r"\.{2,}", ": ", text))
+            if group:
+                fields.append(" ".join(group))
+        fields.append(zones)
+        if not forecasts:
+            fields.insert(0, "Zone forecast unavailable")
+    elif command == "firezone":
+        fields = [short_label(z["properties"]["name"], 40) +
+                  ("; crosses CA boundary" if z["properties"].get("cross_state") else "") for z in data.get("zones", [])]
+    elif alerts:
+        fields = ["Until " + moment(timestamp(alerts[0]["properties"].get("ends") or alerts[0]["properties"].get("expires"))), zones]
+    return compact_fields(essential, fields)
 
 
 def monitor_snapshot(data):

@@ -125,7 +125,7 @@ class HeatTests(unittest.TestCase):
         for text in ('Sacramento', '95814', '38.5816, -121.4944', 'Reno NV', 'Reno, Nevada'):
             with patch.object(heat, 'resolve_location', return_value=(38.5816, -121.4944)), \
                     patch.object(heat, 'get_json', side_effect=[COVERAGE, collection()]) as get:
-                self.assertEqual(heat.lookup('  ' + text + '  '), f'There is no Heat Advisories for {text}')
+                self.assertEqual(heat.lookup('  ' + text + '  '), f'No active NWS heat alerts. | {text}')
                 self.assertEqual(get.call_args_list[0].args,
                                  ('https://api.weather.gov/points/38.5816,-121.4944',))
                 self.assertEqual(get.call_args.args, ('https://api.weather.gov/alerts/active',
@@ -133,9 +133,9 @@ class HeatTests(unittest.TestCase):
 
     def test_exact_requested_alert_replies_individually_and_together(self):
         cases = {
-            'Extreme Heat Warning': 'Advisory: Extreme Heat Warning for 38 -121',
-            'Extreme Heat Watch': 'Advisory: Extreme Heat Watch for 38 -121',
-            'Heat Advisory': 'Heat Advisory for 38 -121',
+            'Extreme Heat Warning': 'NWS Extreme Heat Warning. | 38 -121',
+            'Extreme Heat Watch': 'NWS Extreme Heat Watch. | 38 -121',
+            'Heat Advisory': 'NWS Heat Advisory. | 38 -121',
         }
         for events in ([event] for event in cases):
             with self.subTest(events=events), \
@@ -144,7 +144,7 @@ class HeatTests(unittest.TestCase):
                 self.assertEqual(heat.lookup('38 -121'), cases[events[0]])
         with patch.object(heat, 'get_json', side_effect=[COVERAGE, collection()]), \
                 patch.object(heat, 'active_types', return_value=list(cases)):
-            self.assertEqual(heat.lookup('38 -121'), '\n'.join(cases.values()))
+            self.assertEqual(heat.lookup('38 -121'), 'NWS Extreme Heat Warning. | Extreme Heat Watch | Heat Advisory | 38 -121')
 
     def test_missing_coverage_stops_before_alert_query(self):
         for coverage in (None, collection(), {'type': 'Feature', 'properties': {}}):
@@ -200,6 +200,7 @@ class HeatTests(unittest.TestCase):
         cfg = json.loads((ROOT / 'config.json').read_text())['responder']
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
+            shutil.copyfile(ROOT/'scripts/response_text.py', root/'response_text.py')
             for name in ('heat_adv.py', 'uv_index.py'):
                 shutil.copyfile(ROOT / 'scripts' / name, root / name)
             fixture = collection(*(alert(event, effective='2000-01-01T00:00:00Z',
@@ -225,8 +226,8 @@ class HeatTests(unittest.TestCase):
                 self.assertTrue(call.args[1].startswith('@' + sender + ' '))
                 self.assertLessEqual(len(call.args[1].encode('utf-8')), 150)
             joined = ''.join(part[len(sender) + 2:] for part in parts)
-            for reply in heat.ALERT_REPLIES.values():
-                self.assertIn(reply.format(location='38 -121'), joined)
+            for event in heat.ALERT_REPLIES:
+                self.assertIn(event, joined)
             self.assertNotIn('...', joined)
             self.assertEqual(db.execute('SELECT state FROM bot_requests').fetchone()[0], 'sent')
 

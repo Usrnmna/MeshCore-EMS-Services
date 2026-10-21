@@ -46,7 +46,7 @@ Both platform packages contain the same service components:
 | MeshCore/MQTT bridge | `service.py` | Owns the selected serial, BLE, or TCP connection, publishes radio events, accepts restricted MQTT commands, and manages the durable event outbox. |
 | Channel registry/setup | `channels.py`, `channel_setup.py` | Validates program assignments, verifies radio identities, controls MQTT export, and explicitly provisions empty slots. |
 | Channel responder | `responder.py` | Validates channel commands, records requests, runs approved scripts, and sends rate-limited replies to the requesting channel. |
-| Flood monitor | `flood_alarm.py` | Stores subscriptions, schedules checks, compares alert types, and expires monitoring after four hours. |
+| Flood monitor | `flood_alarm.py` | Pins a verified location and categorical baseline, checks official alerts and optional conditions every five minutes, and expires subscriptions after four hours. |
 | Installed service runner | `service_runner.py` | Runs unattended with a configured serial, BLE, or TCP connection, external settings, persistent state, and rotating logs. |
 | Air quality lookup | `scripts/airnow_aqi.py` | Finds the nearest AirNow PM2.5 monitor and formats current AQI information. |
 | Highway lookup | `scripts/highway_info.py` | Retrieves and compacts active Caltrans highway restrictions. |
@@ -59,6 +59,9 @@ Both platform packages contain the same service components:
 | GIS command programs | `scripts/trail.py`, `rec.py`, `peak.py`, `park.py`, `boundary.py` | Dedicated offline entry points for trail, recreation, peak, park, and boundary queries. |
 | GIS helpers | `scripts/gis_lookup.py`, `gis_data.py`, `gis_spatial.py` | Shared reply formatting, verified snapshot loading, and projected geometry. |
 | Flood-alarm program | `scripts/floodalarm.py` | Structured readings for the persistent service monitor; standalone execution does not enroll subscriptions. |
+| Water lookup programs | `scripts/waterway.py`, `basin.py`, `floodstatus.py` | Find named water features, basin context, supported current gauges, and source availability through the shared static index. |
+| Wildfire programs and worker | Nine dedicated programs, `scripts/wildfire_refresh.py`, `wildfire_service.py` | Refresh shared source caches, query whole fire-weather zones or point smoke/fuel context, and manage guarded temporary subscriptions. |
+| Landslide programs and monitor | `scripts/slidewarn.py`, `slidealarm.py`, `slideinfo.py`, `landslide_service.py` | Interpret relevant official point alerts, describe research-station metadata, and manage temporary California/Nevada subscriptions. |
 | GIS settings | `gis_settings.json` | Data path, radius, projection, result count, and reply limits for local queries. |
 | Shared data maintenance | `data/ebmud/refresh_geojson.py`, `repair_geojson.py` (workspace root) | Manually verify complete raw downloads or repair invalid polygons with original-byte provenance. |
 | Local utilities | `scripts/status.py`, `scripts/time_now.py` | Report service status and current time in the shared timezone. |
@@ -106,11 +109,10 @@ Use a unique request ID for every intentional command. Restrict publishing acces
 
 ## Reliability and message handling
 
-Long replies are split into four 150-byte messages by default. Per-command limits
-allow 12 parts for flood alerts, 64 for lightning, and six for GIS; GIS command
-output also has a default 480-byte UTF-8 limit before sender tags. See the
-[command limits](../meshcore_mqtt_service/COMMAND_REFERENCE.md) for truncation and
-reply behavior.
+Command replies contain one message of at most 150 UTF-8 bytes including the
+sender tag. Primary warnings and uncertainty precede optional whole fields.
+Details, paging and automatic continuations are unavailable. See the
+[response policy and review inventory](../meshcore_mqtt_service/RESPONSE_FORMATTING.md).
 
 The service records requests before execution so sender names and request state survive restarts. It ignores duplicate, stale, future-dated, malformed, self-originated, and reply-like messages. Interrupted scripts and failed radio sends are recorded without automatic retransmission because execution or transmission may already have occurred.
 
@@ -155,3 +157,65 @@ in `runtime/landslide.sqlite3`; subscriptions persist in the existing bridge
 SQLite database. Station metadata is bundled and checksummed. The shared
 ZIP/city/GPS resolver supplies points; wildfire-zone geography is not used.
 [Alert interpretation and lifecycle](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md).
+
+## Location water status
+
+Dedicated location entry points share `water_lookup`, `water_local` and
+`water_sources`. A verified static spatial index references separately downloaded
+statewide collections. Monitoring evaluates all supported upstream gauge links;
+radio detail limits apply only to presentation. Online cache rows replace current values; subscription
+baselines retain categorical state and official fingerprints, not level history.
+The existing `flood_alarm.py` worker pins coordinates, verifies enrollment and
+checks expiry/revision/channel guards before notifications. No new service is
+introduced. [Source contracts and refresh](../meshcore_mqtt_service/WATER_GUIDE.md).
+
+The water identifier review is a supplemental static relationship table, applied
+at lookup time without changing inventory manifests or routing geometry.
+`water_identifiers` corroborates unique NOAA catalog USGS IDs through the gauge
+API. An explicit `water_refresh --noaa-identifiers` replaces the runtime review,
+including unresolved results and source failures. See the
+[NOAA station review](../meshcore_mqtt_service/WATER_STATION_REVIEW.md).
+
+The sole agency-successor exception uses the documented
+USGS-11462000 -> CDEC CDM -> NOAA YDMC1 chain. `water_agency_review` validates its
+static source evidence during refresh; the live gauge reader enforces the reviewed
+NOAA identity and checks that the current overlay still permits the link before
+using cached data. The exception does not relax identity checks for other gauges.
+
+The [NOAA map and operator-record audit](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#further-map-and-operator-record-review)
+retains static evidence for sixteen unresolved stations. Identifier refresh also
+checks current map/candidate metadata; source failures and changed candidate
+identities require review. These auxiliary records cannot authorize a link,
+change routing or add historical readings. Existing exact and agency-successor
+validation remains in effect.
+
+The [source-access retry](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
+recovered the USGS PDFs and OneRain inventory. Identifier refresh now checks the
+public OneRain sites endpoint using transient cookies. Only static metadata is
+retained; PDF evidence remains dated manual-review context, and no additional
+station link or reading history is created.
+
+`water_operator_records` supplies static local-agency evidence beneath the map
+review. Its fixed manual-review dates and unresolved findings are distinct from
+live retrieval outcomes. It has no network or observation-storage behavior and
+cannot authorize or revoke a NOAA identity. Detailed citations and source
+conflicts are in the [local-agency review](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#additional-local-operating-agency-records).
+
+`water_vertical_review` performs the separate live WAC/WAS interpretation-metadata
+checks inside `water_identifiers.refresh`, including catalog-failure outcomes.
+The five source checks compare allowlisted fields to a fixed manual baseline;
+page hashes are provenance only. `water_refresh` prints changed fields and exits
+1 after saving when metadata needs review. These auxiliary records cannot
+supply identity or correction authority to `water_identifiers.apply` or reading
+consumers. The same current review file is replaced without retaining measurement
+history. See [automatic metadata checks](../meshcore_mqtt_service/WATER_STATION_REVIEW.md#automatic-wacwas-metadata-checks).
+
+Flood-alarm delivery uses an in-memory per-channel notification queue inside
+`FloodAlarms`. Its polling and delivery tasks share the existing service lifetime;
+no new daemon or database table is introduced. Active notices sort by urgency,
+severity, certainty and newest effective time. Each complete notification is
+followed by a five-second minimum gap, while the existing shared radio limiter
+remains authoritative. Guards after the radio wait validate source freshness,
+alert version and subscription/channel state. Categorical baselines remain
+persistent; pending notices are replaceable and are not replayed after restart
+or uncertain sends. See [notification semantics](../meshcore_mqtt_service/WATER_GUIDE.md#independent-flood-alarm-notifications).

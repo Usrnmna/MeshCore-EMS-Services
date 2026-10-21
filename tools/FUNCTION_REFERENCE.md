@@ -48,7 +48,7 @@ Build standalone service ZIPs from current source, without local state. Run from
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `package_files(name)` | Return the explicit distributable inventory; reject missing files or scripts. |
-| `main()` | Check paired sources, then atomically replace each validated standalone ZIP. |
+| `main()` | Check paired sources, then atomically replace each validated standalone ZIP and write its SHA-256 file. |
 
 <a id="build-installers-py"></a>
 
@@ -65,3 +65,18 @@ Build online Windows x64 and Linux x86_64/ARM64 installers from this workspace. 
 | `stage_payload(destination)` | Create an isolated build snapshot with normalized shell files and an integrity manifest. |
 | `linux_installer(payload, output, arch)` | Write a checksum-protected self-extracting Linux installer for the selected architecture. |
 | `main()` | Build platform installers and checksums locally; never install or publish them. |
+
+
+## prepare_wildfire_data.py
+
+`main()` retrieves the California reference boundary and NWS fire-weather
+polygons, selects full polygons with material California overlap, validates
+interstate coverage, records source dates and a SHA-256 digest, and mirrors the
+seed to both packages. See [wildfire data provenance](../data/wildfire/README.md).
+`package_services.package_files()` includes both wildfire seed files, the guide
+and service module; `main()` verifies paired copies before producing ZIPs.
+
+`build_installers.water_download_rules()` reads the root-anchored water-collection
+exclusions and exceptions from `.gitignore`. `download_only()` applies that
+specific publication policy without requiring Git during a distribution build.
+Generated water snapshots are excluded; curated inputs remain in the payload.

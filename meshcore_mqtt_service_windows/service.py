@@ -206,7 +206,7 @@ async def publish_outbox(client, store):
 
 async def bridge_loop(mc, cli, config, port):
     """Own the connected radio/MQTT session, persist events, run the responder, and serialize radio actions."""
-    bot_config = config.get("responder", {"enabled": False})
+    bot_config = dict(config.get("responder", {"enabled": False}), _runtime_directory=str(RUNTIME))
     validate_config(bot_config, ROOT)
     bindings = (
         await resolve_channels(mc, bot_config)
@@ -326,6 +326,13 @@ async def bridge_loop(mc, cli, config, port):
         async with asyncio.TaskGroup() as workers:
             for bot in bots.values():
                 workers.create_task(bot.run())
+            from wildfire_service import refresh_loop
+            from scripts.wildfire_settings import validate as wildfire_settings
+            if wildfire_settings(bot_config.get("wildfire", {}))["enabled"] and any(
+                bot.allowed(command) for bot in bots.values()
+                for command, spec in bot_config["commands"].items() if spec.get("input") == "fire_query"
+            ):
+                workers.create_task(refresh_loop(ROOT, bot_config))
 
     bot_task = asyncio.create_task(run_bots()) if bots else None
     receive_tasks = set()

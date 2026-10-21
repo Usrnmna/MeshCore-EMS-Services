@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="172" height="28" viewBox="0 0 172 28" role="img" aria-labelledby="title">
-  <title id="title">Distribution version: v0.9.0-beta</title>
+  <title id="title">Distribution version: v0.9.5-beta</title>
   <clipPath id="corners"><rect width="172" height="28" rx="6"/></clipPath>
   <g clip-path="url(#corners)">
     <path fill="#263749" d="M0 0h69v28H0z"/>
@@ -7,6 +7,6 @@
   </g>
   <g fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="12" text-anchor="middle">
     <text x="34.5" y="18">version</text>
-    <text x="120.5" y="18">v0.9.0-beta</text>
+    <text x="120.5" y="18">v0.9.5-beta</text>
   </g>
 </svg>

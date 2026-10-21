@@ -2,7 +2,7 @@
 
 Send a command in the MeshCore channel assigned to the bot. The default channel is `#autatestbot`; a local installation can use another channel. Replies appear in that same channel with the sender's name, such as `@Alice`.
 
-Quick links: [First message](#start) · [Weather and local conditions](#conditions) · [Flood monitoring](#monitoring) · [Trails and recreation](#gis) · [No reply or incomplete reply](#help).
+Quick links: [First message](#start) · [Weather and local conditions](#conditions) · [Wildfire information](#wildfire) · [Landslide information](#landslides) · [Flood monitoring](#monitoring) · [Trails and recreation](#gis) · [No reply or incomplete reply](#help).
 
 For every subcommand, response type, error, and administrator option, see the [detailed command reference](COMMAND_REFERENCE.md#command-index). Installation information is in the [README](README.md).
 
@@ -125,4 +125,65 @@ If no reply arrives, check spelling and channel assignment, allow time for queue
 
 Long answers arrive in several tagged messages. An ending `...` means text was shortened. For GIS results, request a single field to reduce reply length. `not recorded` means the dataset lacks a value; it does not mean an amenity is unavailable or a policy prohibits access.
 
-[All response and failure types](COMMAND_REFERENCE.md#troubleshooting) · [All 16 commands](COMMAND_REFERENCE.md#command-index) · [Platform README](README.md).
+[All response and failure types](COMMAND_REFERENCE.md#troubleshooting) · [All 28 commands](COMMAND_REFERENCE.md#command-index) · [Platform README](README.md).
+
+
+<a id="wildfire"></a>
+## Wildfire information and monitoring
+
+Use `!firezone 39.25 -119.96` to identify a complete fire-weather zone, including
+territory across a state line, and its current fire-weather warning/watch status.
+ZIP codes and city names also work: `!firezone 96161`, `!firezone Truckee`. `!fires CAZ272` lists reported incidents;
+`!fire INCIDENT-ID` provides containment and perimeter timing.
+`!firewx CAZ272` reads the zone forecast and `!firewarn CAZ272` checks fire-weather
+watches/warnings. `!firedata raws CAZ272` provides supporting station observations.
+Use `page 2` for more results or the next forecast period.
+
+`!firealarm on CAZ272` starts four-hour monitoring after a fresh baseline is
+available. `!firealarm status` inspects it and `!firealarm off` cancels it.
+Unchanged checks are silent. Outages preserve previous information; a fire
+leaving a feed is not reported as extinguished. These are forecast zones,
+not evacuation zones. See the [wildfire guide](WILDFIRE_GUIDE.md) for sources,
+examples, observation age, optional data, and delivery limitations.
+
+## Smoke and fuel conditions at a location
+
+Send `!smoke 96150` or `!smoke 39.25, -119.96` for satellite-mapped smoke and
+nearby PM2.5/available ozone observations. The body starts with `Smoke:`; no city,
+ZIP, monitor-detail or PM10 line appears. If outside a recent plume, the reply
+reports distance to its nearest mapped edge within the configured search radius.
+Unknown coverage is not clean air; satellite smoke can remain above the surface.
+The originating fire is not inferred from proximity.
+
+Send `!firedanger Reno NV` for nearby ERC, local historical percentile, trend,
+and weather/warning context. Higher percentiles indicate unusual fuel-energy
+potential, not the probability that a fire will start. Detailed fuel moisture
+requires optional administrator configuration. These are lookups, not subscriptions.
+Cities, ZIP codes and GPS coordinates work for both commands; city/ZIP lookups
+represent one approximate point. See the [point-command guide](WILDFIRE_GUIDE.md#point-smoke-and-fuel-danger).
+
+<a id="landslides"></a>
+## California and Nevada landslide alerts and stations
+
+```text
+!slidewarn 91107
+!slidewarn Pasadena
+!slidewarn Reno NV
+!slideinfo Las Vegas NV
+!slidewarn 34.15, -118.14
+!slidealarm on Pasadena
+!slidealarm status
+!slidealarm off
+!slideinfo near Castro Valley
+```
+
+Locations accept the same ZIP, city, or GPS formats as flood commands, restricted
+to California or Nevada. Nevada city names require NV or Nevada; bare cities default to California. `!slidewarn` shows NWS products mentioning landslide hazards,
+including watches, under their official names. `!slidealarm` monitors changes
+for four hours, checking about every five minutes; repeat `on LOCATION` to renew
+or replace the location. `status` does not renew. `off` cancels monitoring.
+
+`!slideinfo` describes the nearest eligible USGS research station and links to
+its graphs. It does not provide current sensor readings or predict landslides.
+Missing alerts or unavailable data do not establish safe conditions.
+[Detailed landslide behavior and limitations](LANDSLIDE_GUIDE.md).

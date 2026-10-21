@@ -52,17 +52,25 @@ functions; flood-alarm scheduling remains in the service.
 
 The following is a complete **installer import file**, for example
 `channels.json`. It is an overlay, not a replacement for the service's entire
-`config.json`. It supplies assignments for all sixteen current-source commands and preserves
+`config.json`. It supplies assignments for all 23 current-source commands and preserves
 their scripts, arguments, input validation, timeouts, and reply settings.
-The October 11, 2026 installer rebuild supports all listed commands. Earlier
+The October 20, 2026 installer rebuild supports all listed commands. Earlier
 installer builds without GIS reject those names as unknown; upgrade the
 application before using this complete import. See [GIS source deployment](../INSTALL.md#gis-source-deployment).
 
 ```json
 {
   "channels": {
-    "public": {"name": "Public", "type": "public", "mqtt_export": true},
-    "community": {"name": "#ourcommunity", "type": "hashtag", "mqtt_export": true},
+    "public": {
+      "name": "Public",
+      "type": "public",
+      "mqtt_export": true
+    },
+    "community": {
+      "name": "#ourcommunity",
+      "type": "hashtag",
+      "mqtt_export": true
+    },
     "operations": {
       "name": "Operations",
       "type": "private",
@@ -71,22 +79,110 @@ application before using this complete import. See [GIS source deployment](../IN
     }
   },
   "command_channels": {
-    "!status": ["operations"],
-    "!time": ["public", "community", "operations"],
-    "!aqi": ["community", "operations"],
-    "!traffic": ["community", "operations"],
-    "!rivers": ["community", "operations"],
-    "!uv": ["community", "operations"],
-    "!lightning": ["community", "operations"],
-    "!heatadv": ["community", "operations"],
-    "!floodwarn": ["community", "operations"],
-    "!floodalarm": ["operations"],
+    "!status": [
+      "operations"
+    ],
+    "!time": [
+      "public",
+      "community",
+      "operations"
+    ],
+    "!aqi": [
+      "community",
+      "operations"
+    ],
+    "!traffic": [
+      "community",
+      "operations"
+    ],
+    "!rivers": [
+      "community",
+      "operations"
+    ],
+    "!uv": [
+      "community",
+      "operations"
+    ],
+    "!lightning": [
+      "community",
+      "operations"
+    ],
+    "!heatadv": [
+      "community",
+      "operations"
+    ],
+    "!floodwarn": [
+      "community",
+      "operations"
+    ],
+    "!floodalarm": [
+      "operations"
+    ],
     "!snowpack": [],
-    "!trail": ["community", "operations"],
-    "!rec": ["community", "operations"],
-    "!peak": ["community", "operations"],
-    "!park": ["community", "operations"],
-    "!boundary": ["community", "operations"]
+    "!trail": [
+      "community",
+      "operations"
+    ],
+    "!rec": [
+      "community",
+      "operations"
+    ],
+    "!peak": [
+      "community",
+      "operations"
+    ],
+    "!park": [
+      "community",
+      "operations"
+    ],
+    "!boundary": [
+      "community",
+      "operations"
+    ],
+    "!firezone": [
+      "community",
+      "operations"
+    ],
+    "!fires": [
+      "community",
+      "operations"
+    ],
+    "!fire": [
+      "community",
+      "operations"
+    ],
+    "!firewx": [
+      "community",
+      "operations"
+    ],
+    "!firewarn": [
+      "community",
+      "operations"
+    ],
+    "!firedata": [
+      "community",
+      "operations"
+    ],
+    "!firealarm": [
+      "operations"
+    ],
+    "!smoke": [
+      "community",
+      "operations"
+    ],
+    "!firedanger": [
+      "community",
+      "operations"
+    ],
+    "!slidewarn": [
+      "operations"
+    ],
+    "!slidealarm": [
+      "operations"
+    ],
+    "!slideinfo": [
+      "operations"
+    ]
   }
 }
 ```
@@ -183,14 +279,14 @@ correct channels, provisioning is unnecessary.
 Linux import example:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.0-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
+sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
 ```
 
 Use the corresponding ARM64 installer on Raspberry Pi. Windows setup provides an
 optional channels-JSON path field. An administrator can also use:
 
 ```bat
-MeshCore-EMS-v0.9.0-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
+MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
 ```
 
 The old `--channel` / `/CHANNEL` option is only for a single-channel configuration;
@@ -547,3 +643,21 @@ Use a Windows absolute path on Windows. Settings and data are shared by GIS
 commands using that file; assigning different channels does not select different
 datasets. Reply routing, sender tags, cooldowns, and MQTT export policy remain
 channel-specific. GIS commands never create flood-monitor subscriptions.
+
+
+### Wildfire command assignments
+
+The seven wildfire programs use `input: "fire_query"` and distinct executable
+scripts. A service-owned refresh worker starts when wildfire is enabled and
+at least one wildfire command is assigned. `!firealarm` subscriptions are
+scoped to sender/channel identity; cancellation, expiry and removed assignments
+stop subsequent notifications. Standalone commands do not enroll subscribers.
+See [wildfire configuration and lifecycle](WILDFIRE_GUIDE.md).
+
+## Landslide command assignments
+
+The three landslide programs use `input: "slide_query"` with separate executables.
+Only `!slidealarm` changes subscriptions. State is scoped to sender and stable
+channel identity; assignment removal or identity changes invalidate monitoring.
+Existing-registry upgrades leave new commands unassigned until explicitly enabled.
+See the [landslide lifecycle and settings](LANDSLIDE_GUIDE.md).

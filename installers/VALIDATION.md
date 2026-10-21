@@ -1,8 +1,91 @@
 # Installer and service validation
 
+## Version 0.9.5 - Beta: October 20, 2026
+
+The release identifier is `v0.9.5-beta`; Windows assembly/file metadata uses
+`0.9.5.0`. Both platform source packages contain 28 dedicated command programs,
+including `!slidewarn`, `!slidealarm`, and `!slideinfo` for California and Nevada.
+Each standalone ZIP includes `VERSION.txt` and has a companion SHA-256 file.
+
+- Full regression suites pass 331 tests per platform package on Windows Python
+  3.13. The 37 landslide tests cover location resolution, both state boundaries,
+  NWS alert lifecycle/failure handling, cache retention, subscription persistence,
+  Nevada enrollment, and queue guards. Dedicated command registrations are tested.
+- Eighteen installer tests cover metadata consistency, landslide asset inventories,
+  upgrade settings, channel assignments, credentials, and runtime preservation.
+- Live point lookups succeeded for Reno by city and ZIP, Las Vegas GPS, and the
+  Nevada-side Tahoe point. One concurrent request reported the documented SQLite
+  lock limit and succeeded on retry. These are point-in-time provider checks.
+
+Release verification compares every standalone ZIP member with current source;
+checks Linux installer inventory, embedded payload checksums, file hashes and
+source bytes; and verifies the Windows compiler input snapshot, its payload
+manifest, and x64 service wrapper. Inno Setup compiles that snapshot into the
+Windows installer. Windows installer checks cover output version metadata,
+compiler completion, and release SHA-256 integrity; they do not independently
+extract the proprietary installer archive or perform an installation.
+
+Both platforms include all landslide entry points/helpers, service integration,
+California and Nevada polygons, the station catalog and hash manifest, tests,
+and maintained user/technical guides. Runtime state, development environments,
+credentials, and generated water downloads remain excluded. The combined ZIP
+is checked against its three installers, copied guides, and checksum list.
+The machine-readable verification report is generated alongside release artifacts
+as `dist/v0.9.5-beta/VERIFICATION.json` after building from the final source.
+
+No service is installed or started by these checks. Native Linux/ARM64 execution,
+SCM/systemd lifecycle, physical radio delivery, and continuous warning delivery
+remain unverified. Windows executables are unsigned.
+
+
+## October 20, 2026 wildfire validation
+
+- Both platform source suites pass 294 tests each, including 30 wildfire and 25 point-environment tests
+  and the dedicated-command registration check. Tests run on Windows; the
+  Linux-package result is not native Linux runtime validation.
+- Point-command tests cover smoke formatting omissions, plume holes/edges,
+  stale/future/malformed observations, per-pollutant monitor selection, ERC
+  percentile boundaries, independent warnings, KML validation and FEMS errors.
+- Live HMS parsing returned 104 plume features plus dated product metadata;
+  the national NFDRS station-summary join returned 946 records. Point CLI checks
+  exercised nearby AirNow observations and Tahoe-area ERC/RAWS/warning output.
+  These are October 20, 2026 provider checks, not permanent dataset counts.
+- FEMS authenticated access was tested with fixtures only. Live account access,
+  source quality-code interpretation, numerical smoke transport, and named-fire
+  smoke attribution remain unverified or unimplemented as described in the guide.
+- Fifteen installer tests pass, including preservation of an edited wildfire
+  interval, existing channel assignments, runtime databases and credentials.
+  Distribution inventory also excludes generated water downloads according to
+  the existing root `.gitignore` policy while retaining curated inputs.
+- Live source checks cover EGP/WFIGS incidents, year-to-date perimeters, all ten
+  relevant NWS FWF offices, CAP alerts, RAWS, AQI, smoke, VIIRS/MODIS,
+  ALERTCalifornia, AQI forecasts, SPC outlooks and seven-day fire potential.
+  A successful empty SPC collection is checked through an independent count.
+- GPS `39.25, -119.96`, ZIP `96161`, and city `Truckee` resolve to CAZ272 and
+  return its cached fire-weather warning/watch status. Active-warning behavior
+  is also tested with fixtures containing a null-geometry CAP warning.
+- The bundled seed contains 186 complete California-associated zones and its
+  checksum is verified before initialization. Tests check Nevada coverage in
+  CAZ272 and inclusion of NVZ420.
+- The optional all-years historical layer exceeds one refresh budget.
+  Completed batches are staged and resumed; partial collections are never
+  published. This is distinct from the bounded recent-observation history.
+- Documentation file-link checks pass, and all 25 command anchors are present
+  in each command reference.
+
+Initial restricted test runs encountered Windows temporary-file permissions.
+The complete suites passed with normal local filesystem/subprocess access and
+the existing local MQTT dependencies. Package parity and distribution integrity
+are checked during the rebuild. No live radio, recipient delivery, native
+Linux host, installed Windows Service/systemd lifecycle, or evacuation workflow
+has been validated by these software tests.
+
+See the [wildfire guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md) for inputs,
+source interpretation, refresh settings and deployment.
+
 ## October 11, 2026 GIS distribution validation
 
-The current rebuild uses version `v0.9.0-beta`. The artifacts comprise Windows
+That rebuild used version `v0.9.0-beta`. The artifacts comprise Windows
 x64, Linux x86_64, and Raspberry Pi ARM64 installers, both standalone service
 ZIPs, and the combined installer ZIP. Generated SHA-256 files identify this
 rebuild; matching version filenames alone do not establish artifact identity.

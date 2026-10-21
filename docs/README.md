@@ -23,13 +23,14 @@ command guides describe the same command behavior; platform setup and paths diff
 | Service and command functions | [Linux function reference](../meshcore_mqtt_service/FUNCTION_REFERENCE.md) · [Windows function reference](../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md) |
 | Installer configuration and distribution functions | [Tool function reference](../tools/FUNCTION_REFERENCE.md) |
 | Recorded software checks and unverified deployment boundaries | [Installer and service validation](../installers/VALIDATION.md) |
-| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.0-Beta comparison](../RELEASE_v0.9.0-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
+| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.5 - Beta comparison](../RELEASE_v0.9.5-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
 | Local historical recovery snapshots | [Recovery archive guidance](../archive/README.md) |
 
 ## Data and separate reference tools
 
 | Topic | Documentation |
 | --- | --- |
+| Wildfire commands, forecasts, alarms and interstate boundaries | [Wildfire guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md) · [Zone seed](../data/wildfire/README.md) |
 | EBMUD snapshots used by the five GIS commands | [Loading, source freshness, refresh, and polygon repair](../data/ebmud/README.md) · [Maintenance function reference](../data/ebmud/FUNCTION_REFERENCE.md) |
 | California State Parks reference collection | [Collection, acquisition evidence, loading, and reuse terms](../data/california_state_parks/README.md) · [Dataset and attribute dictionary](../data/california_state_parks/DATA_DICTIONARY.md) |
 | California Basin Plan reference collection | [Download datasets after cloning](WATER_DATA_SETUP.md) · [Name search and organization](../data/basin_plans/ORGANIZATION.md) · [Tributary and other relationship tables](../data/basin_plans/RELATIONSHIPS.md) · [Acquisition, offline use, and refresh](../data/basin_plans/README.md) |
@@ -41,3 +42,7 @@ California State Parks and satellite resources are separate reference tools. The
 presence does not register additional MeshCore commands. Supplier receipts and
 versioned distributions preserve historical evidence; maintained guides describe
 the source tree and identify snapshot-specific results where applicable.
+
+- [Point smoke and fuel-danger commands](../meshcore_mqtt_service/WILDFIRE_GUIDE.md#point-smoke-and-fuel-danger): observed plume coverage, local ERC percentiles, optional FEMS access and interpretation limits.
+
+[California and Nevada landslide commands, station sources, alert subscriptions, and limitations](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md).

@@ -1,6 +1,6 @@
 # MeshCore bot command and response reference
 
-This reference describes the 16 shipped commands in [config.json](config.json), their radio inputs, response families, and administrator options. Linux and Windows use the same command behavior. Installed channel assignments and settings can differ from these defaults. For a shorter introduction, see the [MeshCore user guide](BOT_USER_GUIDE.md).
+This reference describes the 28 shipped commands in [config.json](config.json), their radio inputs, response families, and administrator options. Linux and Windows use the same command behavior. Installed channel assignments and settings can differ from these defaults. For a shorter introduction, see the [MeshCore user guide](BOT_USER_GUIDE.md).
 
 ## Quick navigation
 
@@ -9,6 +9,7 @@ This reference describes the 16 shipped commands in [config.json](config.json), 
 - [All commands](#command-index)
 - [Status](#cmd-status), [time](#cmd-time), [air quality](#cmd-aqi), [traffic](#cmd-traffic), [rivers](#cmd-rivers), [UV](#cmd-uv)
 - [Heat alerts](#cmd-heatadv), [lightning](#cmd-lightning), [flood alerts](#cmd-floodwarn), [flood monitoring](#cmd-floodalarm), [snowpack](#cmd-snowpack)
+- [Landslide alerts](#cmd-slidewarn), [landslide monitoring](#cmd-slidealarm), [landslide stations](#cmd-slideinfo)
 - [GIS query rules](#gis-syntax), [trail attributes](#cmd-trail), [recreation amenities](#cmd-rec), [peak details](#cmd-peak), [park details](#cmd-park), [boundaries](#cmd-boundary)
 - [GIS response and error reference](#gis-responses)
 - [Administrator settings](#settings), [standalone Python programs](#python-programs), [troubleshooting](#troubleshooting), [source and verification](#verification)
@@ -31,7 +32,7 @@ Defaults that affect visible behavior:
 | 30-second sender cooldown per channel | Additional requests during cooldown can be ignored, including after a malformed request. Wait before retrying. |
 | 15-second command transmission spacing | Long or queued replies can take several minutes. Spacing applies between radio transmissions, not just between complete answers. |
 | 150-byte radio reply limit | Every part includes `@sender`. Unicode uses multiple bytes; a 150-byte limit is not a 150-character limit. |
-| Part caps | Four parts by default; heat/flood/flood-alarm commands allow 12, lightning 64, GIS commands six. Excess text ends in `...`. |
+| Part caps | Four parts by default; heat/flood/flood-alarm commands allow 12, lightning 64, GIS commands six, wildfire commands 12. Excess text ends in `...`. |
 | Message freshness | Messages older than 300 seconds or more than 60 seconds in the future are ignored. |
 | Duplicate detection | Repeated packets do not run the same request again. |
 | Channel assignments | A recognized command on an unassigned channel produces no response. |
@@ -46,7 +47,7 @@ Reply examples below are **body text** unless `@Alice` is shown. Newlines from a
 | No arguments | Exact command only | `!status`, `!time` |
 | Decimal coordinates | `38.5816 -121.4944` or `38.5816, -121.4944` | `!aqi`, `!rivers` |
 | Route number | Digits from 1 through 999, such as `80` | `!traffic` |
-| Location | GPS, five-digit US ZIP, ZIP+4, city, or city plus state | `!uv`, `!heatadv`, `!lightning`, `!floodwarn`, `!floodalarm`, `!snowpack` |
+| Location | GPS, five-digit US ZIP, ZIP+4, city, or city plus state | `!uv`, `!heatadv`, `!lightning`, `!floodwarn`, `!floodalarm`, `!snowpack`, `!smoke`, `!firedanger` |
 | GIS query | A mapped feature name, coordinates, or the documented attribute/category grammar | `!trail`, `!rec`, `!peak`, `!park`, `!boundary` |
 
 Coordinates use **latitude first, longitude second**; longitude is normally negative in California. Global bounds are latitude -90 through 90 and longitude -180 through 180. Degrees/minutes/seconds, map URLs, and phone GPS-sharing links are not accepted coordinate syntax.
@@ -76,9 +77,21 @@ Radio requests cannot supply arbitrary terminal flags such as `--radius`, `--tim
 | [!peak](#cmd-peak) | Local peak elevation or coordinates | `!peak Wildcat Peak elevation` |
 | [!park](#cmd-park) | Local park status and associations | `!park Pleasanton Ridge status` |
 | [!boundary](#cmd-boundary) | Mapped area containment or overlap | `!boundary trail Bear Creek` |
+| [!firezone](#cmd-firezone) | Interstate fire-weather zones and warning status | `!firezone CAZ272` |
+| [!fires](#cmd-fires) | Current reported incidents and mapped boundaries | `!fires CAZ272` |
+| [!fire](#cmd-fire) | Incident containment and source detail | `!fire INCIDENT-ID` |
+| [!firewx](#cmd-firewx) | Zone fire-weather forecast | `!firewx CAZ272` |
+| [!firewarn](#cmd-firewarn) | Red Flag Warnings and Fire Weather Watches | `!firewarn CAZ272` |
+| [!firedata](#cmd-firedata) | Supporting observations and outlooks | `!firedata raws CAZ272` |
+| [!firealarm](#cmd-firealarm) | Temporary wildfire change monitoring | `!firealarm on CAZ272` |
+| [!slidewarn](#cmd-slidewarn) | California/Nevada alerts mentioning landslide hazards | `!slidewarn 91107` |
+| [!slidealarm](#cmd-slidealarm) | Temporary California/Nevada alert monitoring | `!slidealarm on Pasadena` |
+| [!slideinfo](#cmd-slideinfo) | Nearest eligible USGS station | `!slideinfo 34.15,-118.14` |
+| [!smoke](#cmd-smoke) | Point smoke coverage and nearby air quality | `!smoke 96150` |
+| [!firedanger](#cmd-firedanger) | Local ERC percentile, fuels and warning context | `!firedanger Reno NV` |
 
 <a id="cmd-status"></a>
-## !status — local responder
+## !status â€” local responder
 
 **Syntax:** `!status` with no arguments. **Program:** [scripts/status.py](scripts/status.py).
 
@@ -89,7 +102,7 @@ Radio requests cannot supply arbitrary terminal flags such as `--radius`, `--tim
 This is a local smoke response. It does not check the weather providers, dataset currency, every radio route, or delivery to other recipients. Additional text, such as `!status help`, does not match this command. There are no radio subcommands or per-request options.
 
 <a id="cmd-time"></a>
-## !time — host time
+## !time â€” host time
 
 **Syntax:** `!time` with no arguments. **Program:** [scripts/time_now.py](scripts/time_now.py).
 
@@ -102,7 +115,7 @@ Illustrative response:
 The format is `Current time: YYYY-MM-DD HH:MM:SS ZONE`. This uses the host clock and the persistent [reply timezone](#timezone), not the location of the requesting radio. There is no radio timezone argument. Incorrect host time can also affect message-age acceptance and provider freshness checks.
 
 <a id="cmd-aqi"></a>
-## !aqi — air quality
+## !aqi â€” air quality
 
 **Syntax:** `!aqi LATITUDE LONGITUDE`. **Program:** [scripts/airnow_aqi.py](scripts/airnow_aqi.py). The bot host requires internet access and an `AIRNOW_API_KEY` environment setting.
 
@@ -128,9 +141,9 @@ Ratings include `Good`, `Moderate`, `Sensitive`, `Unhealthy`, `Very Unhealthy`, 
 Missing/invalid coordinates return a usage reply. A failed script returns `AirNow lookup unavailable. Check the service AIRNOW_API_KEY setting or try again later.` A subprocess timeout has the separate [timeout response](#errors).
 
 <a id="cmd-traffic"></a>
-## !traffic — highway restrictions
+## !traffic â€” highway restrictions
 
-**Syntax:** `!traffic ROUTE_NUMBER`, 1–999. **Program:** [scripts/highway_info.py](scripts/highway_info.py). Source: Caltrans California highway reports; internet required, no API key.
+**Syntax:** `!traffic ROUTE_NUMBER`, 1â€“999. **Program:** [scripts/highway_info.py](scripts/highway_info.py). Source: Caltrans California highway reports; internet required, no API key.
 
 ```text
 !traffic 80
@@ -147,7 +160,7 @@ No Traffic Restrictions Reported
 Invalid syntax returns `Use !traffic ROUTE_NUMBER (1-999), for example !traffic 80.` Omit `I-`, `US`, `SR`, directions, and city names. Fetch failures return `Caltrans traffic lookup unavailable. Please try again later.` Missing information is not interpreted as a clear road. This command does not estimate traffic speed or travel time. Undated or recurring source schedules retain an explicit Pacific source-time label.
 
 <a id="cmd-rivers"></a>
-## !rivers — nearby river stations
+## !rivers â€” nearby river stations
 
 **Syntax:** `!rivers LATITUDE LONGITUDE`. **Program:** [scripts/nearby_river_stations.py](scripts/nearby_river_stations.py). CDEC/NOAA data; internet required, no API key.
 
@@ -166,7 +179,7 @@ CDEC report: <issued time>. Within 15 mi: <ID> <station name> (<distance> mi): s
 Long lists can be truncated by the four-part default. This is a report lookup, not a water-level forecast or a subscription. There is no radio radius option: `!rivers 39 -121 30` is invalid. An administrator can adjust the fixed radius through the [standalone program arguments](#python-programs).
 
 <a id="cmd-uv"></a>
-## !uv — current ultraviolet index
+## !uv â€” current ultraviolet index
 
 **Syntax:** `!uv LOCATION`. **Program:** [scripts/uv_index.py](scripts/uv_index.py). Uses CurrentUVIndex.com and location lookup when needed; internet required, no API key.
 
@@ -182,7 +195,7 @@ Illustrative response: `UV Index: 6.5 High`. Categories are `Low` below 3, `Mode
 This reports the current reading, without a forecast or date selector. Empty/malformed input returns `Use !uv LATITUDE LONGITUDE, ZIP, or CITY [STATE].` Unknown locations or provider errors can return explanatory text. Malformed provider data can return `UV lookup unavailable: invalid service response.` A nonzero subprocess exit uses the configured `UV lookup unavailable. Please try again later.` fallback.
 
 <a id="cmd-heatadv"></a>
-## !heatadv — heat alerts
+## !heatadv â€” heat alerts
 
 **Syntax:** `!heatadv LOCATION`. **Program:** [scripts/heat_adv.py](scripts/heat_adv.py). NWS point coverage and active alerts; internet required, no API key.
 
@@ -207,7 +220,7 @@ Every distinct applicable type is included in warning/watch/advisory order. Lega
 Unverified NWS coverage, missing/incomplete data, or failed requests return explanatory error text rather than a no-alert assertion. The nonzero-exit fallback is `Heat alert lookup unavailable. Please try again later.` This is a one-time lookup; there are no radio thresholds, subscription flags, or forecast-day options.
 
 <a id="cmd-lightning"></a>
-## !lightning — 24-hour lightning potential
+## !lightning â€” 24-hour lightning potential
 
 **Syntax:** `!lightning LOCATION`. **Program:** [scripts/lightning.py](scripts/lightning.py). NWS point alerts and forecast-grid weather, thunderstorm probability, and lightning activity levels; internet required, no API key.
 
@@ -237,7 +250,7 @@ Known hazards remain visible when an additional NWS input fails, with `additiona
 `Lightning Strike Warning` is a program summary label, not a standalone official NWS lightning warning. Forecast intervals do not predict individual strike times. No radio radius, duration, timezone override, or ongoing monitoring option exists. The 64-part ceiling permits long forecast results; transmission can take considerable time.
 
 <a id="cmd-floodwarn"></a>
-## !floodwarn — one-time flood alerts
+## !floodwarn â€” one-time flood alerts
 
 **Syntax:** `!floodwarn LOCATION`. **Program:** [scripts/flood_warn.py](scripts/flood_warn.py). NWS point alerts; internet required, no API key.
 
@@ -253,17 +266,17 @@ When active, the supplied location precedes the applicable descriptions in this 
 
 | Alert | Response description |
 | --- | --- |
-| Flash Flood Warning 🟥 | Life-threatening flash flooding is imminent or occurring. Move to higher ground immediately. |
-| Flood Warning 🟧 | Flooding is imminent or occurring. Take necessary precautions now. |
-| Flood Advisory 🟨 | Minor flooding expected. May cause inconvenience but not typically life-threatening. |
-| Flood Watch 🟦 | Conditions favorable for flooding. Stay alert and be ready to take action. |
+| Flash Flood Warning ðŸŸ¥ | Life-threatening flash flooding is imminent or occurring. Move to higher ground immediately. |
+| Flood Warning ðŸŸ§ | Flooding is imminent or occurring. Take necessary precautions now. |
+| Flood Advisory ðŸŸ¨ | Minor flooding expected. May cause inconvenience but not typically life-threatening. |
+| Flood Watch ðŸŸ¦ | Conditions favorable for flooding. Stay alert and be ready to take action. |
 
 A body is formatted as `<location>: <alert> <square> - <description>`, with each distinct type included once. The responder flattens and splits the result. Coastal/lakeshore alerts and general flood statements are outside this four-type lookup. Coverage and response validation must succeed before a no-events result is produced.
 
 Invalid input uses the location usage response. Coverage/provider failures return explanatory text; malformed responses can return `Flood alert lookup unavailable: invalid service response.` The configured nonzero-exit fallback is `Flood alert lookup unavailable. Please try again later.` This command never creates, renews, or cancels a flood subscription.
 
 <a id="cmd-floodalarm"></a>
-## !floodalarm — temporary flood-change monitoring
+## !floodalarm â€” temporary flood-change monitoring
 
 **Syntax:** `!floodalarm LOCATION`. **Program:** [scripts/floodalarm.py](scripts/floodalarm.py), with persistent scheduling in [flood_alarm.py](flood_alarm.py) and [responder.py](responder.py).
 
@@ -291,7 +304,7 @@ An error notice starts `Flood Alarm for <location>: <error detail>`. A failed su
 There is no shipped radio `cancel`, `stop`, interval, or duration subcommand. Monitoring expires automatically; `!floodalarm stop` is not a cancellation request. State survives restarts, but restarts do not extend expiry. Two nodes sharing a display name on the same channel share the subscription. Standalone Python execution reads a single structured snapshot and does **not** enroll monitoring.
 
 <a id="cmd-snowpack"></a>
-## !snowpack — snow depth and forecast snowfall
+## !snowpack â€” snow depth and forecast snowfall
 
 **Syntax:** `!snowpack LOCATION`, California only. **Program:** [scripts/snowpack.py](scripts/snowpack.py). CDEC hourly snow-depth stations and NWS snowfall forecast grid; internet required, no API key.
 
@@ -346,7 +359,7 @@ Distances use the nearest part of the complete projected geometry, not its centr
 GIS input is limited to 150 characters. City names, ZIPs, addresses, and arbitrary command flags are not geocoded. Unrecognized suffix words can be interpreted as part of a feature name; use the exact attribute spellings below.
 
 <a id="cmd-trail"></a>
-## !trail — trail details
+## !trail â€” trail details
 
 **Program:** [scripts/trail.py](scripts/trail.py). All queries are offline. [Shared syntax](#gis-syntax) applies.
 
@@ -409,7 +422,7 @@ Within 5 mi, map distance: Trail: Oursan (0.84 mi); dogs Yes; Trail: Old San Pab
 ```
 
 <a id="cmd-rec"></a>
-## !rec — recreation amenities
+## !rec â€” recreation amenities
 
 **Program:** [scripts/rec.py](scripts/rec.py). All queries are offline. [Shared syntax](#gis-syntax) applies.
 
@@ -465,7 +478,7 @@ Closest, map distance: Recreation: Tilden Steam Trains Park Entrance (1.82 mi); 
 ```
 
 <a id="cmd-peak"></a>
-## !peak — peak details
+## !peak â€” peak details
 
 **Program:** [scripts/peak.py](scripts/peak.py). All queries are offline. [Shared syntax](#gis-syntax) applies.
 
@@ -505,7 +518,7 @@ Closest, map distance: Peak: Eureka Peak (1.54 mi); elevation 1640 ft.
 Unnamed peak records are excluded by default. An administrator can enable them in `gis_settings.json`; proximity searches then include their generated identifiers.
 
 <a id="cmd-park"></a>
-## !park — park details and associated features
+## !park â€” park details and associated features
 
 **Program:** [scripts/park.py](scripts/park.py). All queries are offline. [Shared syntax](#gis-syntax) applies.
 
@@ -546,11 +559,11 @@ These response bodies were produced by the current local snapshots. `not recorde
 Closest, map distance: Park: Tilden (1.52 mi).
 ```
 
-`!park` searches the configured park layers, including mapped recreation areas. It has no `dogs`, `open`, opening-hours, permit, or reservation subcommand. `!park status near LAT LON` displays the nearest result’s status; it does not select only open parks.
+`!park` searches the configured park layers, including mapped recreation areas. It has no `dogs`, `open`, opening-hours, permit, or reservation subcommand. `!park status near LAT LON` displays the nearest resultâ€™s status; it does not select only open parks.
 
 
 <a id="cmd-boundary"></a>
-## !boundary — mapped areas and trail overlaps
+## !boundary â€” mapped areas and trail overlaps
 
 **Program:** [scripts/boundary.py](scripts/boundary.py). This command has category prefixes instead of named-feature attribute suffixes.
 
@@ -680,14 +693,14 @@ Global defaults are `script_timeout=20`, `max_output_bytes=65536`, `sender_coold
 
 ### GIS settings
 
-Each dedicated GIS program accepts `--settings PATH` for an alternate JSON file. By default, `gis_settings.json` beside the source configuration is loaded even when the runner uses an external `config.json`. Relative dataset paths resolve against the settings file. For an installed external file, set each GIS registration’s `args` to `["--settings", "/absolute/path/gis_settings.json"]`. Settings are read for each lookup; registration changes still require a service restart.
+Each dedicated GIS program accepts `--settings PATH` for an alternate JSON file. By default, `gis_settings.json` beside the source configuration is loaded even when the runner uses an external `config.json`. Relative dataset paths resolve against the settings file. For an installed external file, set each GIS registrationâ€™s `args` to `["--settings", "/absolute/path/gis_settings.json"]`. Settings are read for each lookup; registration changes still require a service restart.
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
 | `data_directory` | `"../data/ebmud"` | Local EBMUD manifest and datasets; directory must be readable by the service account. |
 | `maximum_radius_miles` | `25.0` | Maximum positive, explicitly supplied radius. No-radius queries still select exactly one nearest result. |
-| `max_results` | `3` | Maximum listed matches or associations; valid range 1–20. |
-| `max_reply_bytes` | `480` | UTF-8 GIS body limit before sender tags; valid range 200–2000. |
+| `max_results` | `3` | Maximum listed matches or associations; valid range 1â€“20. |
+| `max_reply_bytes` | `480` | UTF-8 GIS body limit before sender tags; valid range 200â€“2000. |
 | `description_characters` | `100` | Source narrative limit; zero suppresses descriptions, maximum 500. |
 | `include_unnamed_peaks` | `false` | Include unnamed peak records in local peak searches. |
 | `projected_crs` | `"EPSG:32610"` | Projected CRS with metre units for spatial calculations. |
@@ -753,3 +766,116 @@ python -m unittest discover -s tests -p "test_gis*.py" -v
 ```
 
 The [platform README](README.md) supplies installation and provider-specific details. The [user guide](BOT_USER_GUIDE.md) supplies short radio examples. These maintained source guides are included in future package inventories; updating them does not rebuild existing installer or ZIP artifacts.
+
+
+<a id="cmd-firezone"></a>
+## !firezone - Interstate fire-weather zones and warning status
+
+**Example:** `!firezone CAZ272`. **Program:** [scripts/firezone.py](scripts/firezone.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Locations accept zone IDs, coordinates, ZIP codes, or city/state. Missing or stale data is distinguished from a successful empty result.
+
+<a id="cmd-fires"></a>
+## !fires - Current reported incidents and mapped boundaries
+
+**Example:** `!fires CAZ272`. **Program:** [scripts/fires.py](scripts/fires.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Locations accept zone IDs, coordinates, ZIP codes, or city/state. Missing or stale data is distinguished from a successful empty result.
+
+<a id="cmd-fire"></a>
+## !fire - Incident containment and source detail
+
+**Example:** `!fire INCIDENT-ID`. **Program:** [scripts/fire.py](scripts/fire.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Use an exact incident identifier or unambiguous name from `!fires`. Last-known records are explicitly labelled; disappearance never means extinguishment.
+
+<a id="cmd-firewx"></a>
+## !firewx - Zone fire-weather forecast
+
+**Example:** `!firewx CAZ272`. **Program:** [scripts/firewx.py](scripts/firewx.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Locations accept zone IDs, coordinates, ZIP codes, or city/state. Missing or stale data is distinguished from a successful empty result.
+
+<a id="cmd-firewarn"></a>
+## !firewarn - Red Flag Warnings and Fire Weather Watches
+
+**Example:** `!firewarn CAZ272`. **Program:** [scripts/firewarn.py](scripts/firewarn.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Locations accept zone IDs, coordinates, ZIP codes, or city/state. Missing or stale data is distinguished from a successful empty result.
+
+<a id="cmd-firedata"></a>
+## !firedata - Supporting observations and outlooks
+
+**Example:** `!firedata raws CAZ272`. **Program:** [scripts/firedata.py](scripts/firedata.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Categories include RAWS, AQI, smoke, satellite detections, cameras, outlooks, treatments and history; optional feeds require administrator enablement or an explicit refresh.
+
+<a id="cmd-firealarm"></a>
+## !firealarm - Temporary wildfire change monitoring
+
+**Example:** `!firealarm on CAZ272`. **Program:** [scripts/firealarm.py](scripts/firealarm.py).
+
+See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, paging, source interpretation and errors. Only the running service enrolls subscriptions. Use `status` or `off` to inspect/cancel; the default lifetime is four hours.
+
+<a id="cmd-smoke"></a>
+## !smoke - Point smoke and air quality
+
+**Examples:** `!smoke 96150`, `!smoke South Lake Tahoe CA`, `!smoke 39.25, -119.96`.
+**Program:** [scripts/smoke.py](scripts/smoke.py).
+
+Replies start with `Smoke:` and omit the location header, `Monitor:` and `PM10:`
+lines. PM2.5, available ozone, observation timing and unknown source-fire attribution
+follow. Outside mapped smoke, a bounded nearest-edge distance is reported. Stale
+or missing coverage remains unknown. Station details and PM10 remain in JSON.
+See [smoke behavior and data limits](WILDFIRE_GUIDE.md#smoke-response).
+
+<a id="cmd-firedanger"></a>
+## !firedanger - Point fuel-energy potential
+
+**Examples:** `!firedanger 96150`, `!firedanger Reno NV`, `!firedanger 39.25 -119.96`.
+**Program:** [scripts/firedanger.py](scripts/firedanger.py).
+
+Returns the nearest eligible public NFDRS station's ERC, historical percentile,
+trend and available Burning Index, plus independent weather/warning context.
+Detailed fuel moisture requires optional FEMS access. Percentile descriptions
+are not official fire-danger ratings or ignition probabilities. Both new commands
+accept locations rather than zone IDs and do not enroll monitoring.
+See [fire-danger interpretation](WILDFIRE_GUIDE.md#fire-danger-response) and
+[optional FEMS setup](WILDFIRE_GUIDE.md#optional-fems-fuel-moisture).
+
+<a id="cmd-slidewarn"></a>
+## !slidewarn: California and Nevada landslide-related alerts
+
+`!slidewarn LOCATION` accepts California/Nevada ZIP, city/state, or decimal latitude/longitude. Bare cities default to California; use `Reno NV` or `Las Vegas Nevada` for Nevada cities.
+Examples: `!slidewarn 91107`, `!slidewarn Pasadena`, `!slidewarn 34.15, -118.14`.
+Returns effective actual NWS products with explicit landslide/debris-flow wording,
+including watches, retaining original event names, source times, and instructions.
+Precautionary/qualified mentions are labelled. A fresh empty result is not an
+all-clear; failed, malformed, or incomplete data reports unavailable. Three alerts
+are shown by default; source links and `--json` provide complete content.
+
+<a id="cmd-slidealarm"></a>
+## !slidealarm: temporary California/Nevada alert monitoring
+
+`!slidealarm on LOCATION` starts or replaces a sender/channel subscription after
+fresh data is available. Defaults: checks every five minutes, expiry after four
+hours. `!slidealarm status` does not renew; `!slidealarm off` cancels pending and
+active monitoring. Subsequent checks use the original resolved GPS point.
+New/content-updated alerts, expiry, cancellation when supplied, and feed
+removals generate notifications. Outages retain the last baseline and produce
+one outage/recovery notification. Standalone Python calls never enroll.
+
+<a id="cmd-slideinfo"></a>
+## !slideinfo: California monitoring station information
+
+`!slideinfo LOCATION` (optional `near LOCATION`) returns the nearest eligible
+station from the reviewed USGS California catalog. Distance is geodesic and does
+not imply local warning coverage. Results include measured variables, published
+graph cadence, catalog review date, and source link; current telemetry is unverified.
+Highway 50 is discontinued and excluded from ranking. Nevada locations are accepted; the reviewed source lists no Nevada stations, so results explicitly identify the California catalog.
+
+All three programs have dedicated executables, `--json` output, a 45-second timeout,
+and 12 reply parts. Alarm `--snapshot` is the service's structured interface.
+Settings are under `responder.landslide`; no new API key or OS service is required.
+See the [landslide guide](LANDSLIDE_GUIDE.md) for source selection, cache semantics,
+subscription lifecycle, geographic limits, and upgrade/channel assignment steps.

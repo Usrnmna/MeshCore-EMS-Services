@@ -22,6 +22,79 @@ spec.loader.exec_module(configure)
 
 
 class InstallerTests(unittest.TestCase):
+    def test_release_versions_agree_across_platforms_and_installers(self):
+        """Current release metadata must agree without rewriting historical release notes."""
+        version = build_installers.VERSION
+        self.assertEqual(version, "v0.9.5-beta")
+        numeric = version.removeprefix("v").split("-")[0] + ".0"
+        for package in build_installers.PACKAGES:
+            self.assertEqual((ROOT / package / "VERSION.txt").read_text().strip(), version)
+        for name in ("installers/windows/ServiceHost.cs", "meshcore_mqtt_service_windows/Start-Service.cs"):
+            source = (ROOT / name).read_text()
+            self.assertIn(f'AssemblyVersion("{numeric}")', source)
+            self.assertIn(f'AssemblyInformationalVersion("{version}")', source)
+        wizard = (ROOT / "installers/windows/setup.iss").read_text()
+        self.assertIn("AppVersion=" + version, wizard)
+        self.assertIn("VersionInfoVersion=" + numeric, wizard)
+        self.assertIn("MeshCore-EMS-" + version + "-windows-x64-setup", wizard)
+        for name in ("installers/windows/install.ps1", "installers/linux/install.sh"):
+            self.assertIn(version, (ROOT / name).read_text())
+
+    def test_landslide_payloads_include_both_boundaries_and_dedicated_programs(self):
+        """Both distribution inventories must contain the executable feature and verified references."""
+        import package_services
+        workspace_files = set(build_installers.source_files())
+        required = {"landslide_service.py", "LANDSLIDE_GUIDE.md", "tests/test_landslide.py",
+                    "data/landslide/california.geojson", "data/landslide/nevada.geojson",
+                    "data/landslide/manifest.json", "data/landslide/stations.json"}
+        required.update("scripts/" + name + ".py" for name in ("slidewarn", "slidealarm", "slideinfo"))
+        for package in package_services.PACKAGES:
+            standalone_files = set(package_services.package_files(package))
+            for name in required:
+                path = ROOT / package / name
+                self.assertIn(path, standalone_files)
+                self.assertIn(path, workspace_files)
+
+    def test_upgrade_adds_landslide_commands_without_assigning_existing_channels(self):
+        """New command registrations preserve the administrator's existing channel routing."""
+        for platform in ("linux", "windows"):
+            with self.subTest(platform=platform), tempfile.TemporaryDirectory() as folder:
+                root, state, config = self.fixture(folder)
+                package = root / "meshcore_mqtt_service"
+                if platform == "windows":
+                    package = root / "meshcore_mqtt_service_windows"
+                    shutil.copytree(root / "meshcore_mqtt_service", package)
+                configure.configure(root, state, config, platform)
+                defaults = json.loads((package / "config.json").read_text())
+                shipped = json.loads((ROOT / "meshcore_mqtt_service/config.json").read_text())
+                for name in ("slidewarn", "slidealarm", "slideinfo"):
+                    defaults["responder"]["commands"]["!" + name] = shipped["responder"]["commands"]["!" + name]
+                    shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts" / (name + ".py"),
+                                    package / "scripts" / (name + ".py"))
+                configure.write_json(package / "config.json", defaults)
+                configure.configure(root, state, config, platform)
+                updated = json.loads((config / "config.json").read_text())["responder"]
+                for name in ("slidewarn", "slidealarm", "slideinfo"):
+                    self.assertEqual(updated["commands"]["!" + name]["channels"], [])
+                    self.assertEqual(updated["commands"]["!" + name]["script"], "scripts/" + name + ".py")
+
+    def test_download_only_policy_excludes_generated_water_but_keeps_curated_inputs(self):
+        rules = build_installers.water_download_rules()
+        for path in ("data/usgs_water/routing/generation/routing.sqlite",
+                     "data/basin_plans/snapshots/generation/features.geojson.gz",
+                     "data/flood_impacts/observations/generation/report.json",
+                     "data/usgs_water/observations.json"):
+            self.assertTrue(build_installers.download_only(Path(path), rules), path)
+        for path in ("data/usgs_water/local_review_rules.json",
+                     "data/usgs_water/scripts/example.json",
+                     "data/wildfire/zones.geojson",
+                     "data/ebmud/sources.json"):
+            self.assertFalse(build_installers.download_only(Path(path), rules), path)
+        paths = {p.relative_to(ROOT).as_posix() for p in build_installers.source_files()}
+        self.assertIn("data/wildfire/zones.geojson", paths)
+        self.assertIn("data/usgs_water/local_review_rules.json", paths)
+        self.assertFalse(any(p.startswith("data/usgs_water/routing/") for p in paths))
+
     def test_named_channel_override_accepts_public_and_private_radio_names(self):
         """The legacy name option must not apply the shipped hashtag key rule to other names."""
         for name in ("Public", "Operations"):
@@ -50,7 +123,7 @@ class InstallerTests(unittest.TestCase):
         (package / "scripts").mkdir(parents=True)
         (root / "satellite_database").mkdir()
         (root / "data/satellites").mkdir(parents=True)
-        for name in ("channels.py", "responder.py", "flood_alarm.py", "radio_connection.py"):
+        for name in ("channels.py", "responder.py", "flood_alarm.py", "radio_connection.py", "wildfire_service.py", "landslide_service.py"):
             shutil.copy2(ROOT / "meshcore_mqtt_service" / name, package / name)
         defaults = json.loads((ROOT / "meshcore_mqtt_service/config.json").read_text())
         defaults["responder"].pop("channels", None)
@@ -62,6 +135,11 @@ class InstallerTests(unittest.TestCase):
         for name in ("status.py", "snowpack.py"):
             (package / "scripts" / name).write_text('print("test")\n')
         shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts/time_settings.py", package / "scripts/time_settings.py")
+        shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts/wildfire_settings.py", package / "scripts/wildfire_settings.py")
+        for source in (ROOT / "meshcore_mqtt_service/scripts").glob("landslide_*.py"):
+            shutil.copyfile(source, package / "scripts" / source.name)
+        for name in ("flood_warn.py", "uv_index.py"):
+            shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts" / name, package / "scripts" / name)
         configure.write_json(package / "config.json", defaults)
         (root / "satellite_database/settings.json").write_text("{}")
         (root / "data/satellites/satellites.sqlite3").write_bytes(b"supplied-reference")
@@ -74,6 +152,8 @@ class InstallerTests(unittest.TestCase):
             current = json.loads((config / "config.json").read_text())
             current["responder"]["channels"]["default"]["name"] = "custom"
             current["responder"]["commands"]["!status"]["timeout"] = 99
+            current["responder"]["wildfire"]["incident_interval"] = 600
+            current["responder"]["landslide"]["subscription_hours"] = 2
             del current["responder"]["commands"]["!snowpack"]
             configure.write_json(config / "config.json", current)
             configure.write_json(config / "environment.json", {"AIRNOW_API_KEY": "kept-test-key"})
@@ -86,6 +166,8 @@ class InstallerTests(unittest.TestCase):
                 configure.configure(root, state, config, "linux", "/dev/ttyACM0")
             updated = json.loads((config / "config.json").read_text())
             self.assertEqual(updated["serial_port"], "/dev/ttyACM0")
+            self.assertEqual(updated["responder"]["wildfire"]["incident_interval"], 600)
+            self.assertEqual(updated["responder"]["landslide"]["subscription_hours"], 2)
             self.assertEqual(updated["responder"]["channels"]["default"]["name"], "custom")
             self.assertEqual(
                 updated["responder"]["commands"]["!status"],
@@ -355,7 +437,7 @@ class InstallerTests(unittest.TestCase):
             "docs/README.md",
             "docs/ARCHITECTURE.md",
             "docs/DEVELOPMENT.md",
-            "RELEASE_v0.9.0-beta.md",
+            "RELEASE_v0.9.5-beta.md",
             "AGENTS.md",
             ".gitignore",
             ".gitattributes",

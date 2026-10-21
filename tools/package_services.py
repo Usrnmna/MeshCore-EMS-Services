@@ -6,6 +6,7 @@ than silently distributing two versions. Platform-specific files stay separate.
 """
 
 from pathlib import Path
+import hashlib
 import json
 import zipfile
 
@@ -19,12 +20,23 @@ COMMON = {
     "BOT_USER_GUIDE.md",
     "RELEASE_NOTES.md",
     "START-HERE.txt",
+    "VERSION.txt",
     "config.json",
     "gis_settings.json",
     "requirements.txt",
     "service.py",
     "responder.py",
     "flood_alarm.py",
+    "wildfire_service.py",
+    "WILDFIRE_GUIDE.md",
+    "landslide_service.py",
+    "LANDSLIDE_GUIDE.md",
+    "data/landslide/california.geojson",
+    "data/landslide/nevada.geojson",
+    "data/landslide/stations.json",
+    "data/landslide/manifest.json",
+    "data/wildfire/zones.geojson",
+    "data/wildfire/manifest.json",
     "check_live.py",
     "service_runner.py",
     "channels.py",
@@ -65,13 +77,23 @@ def package_files(name):
 
 
 def main():
-    """Check paired sources, then atomically replace each validated standalone ZIP."""
+    """Check paired sources, then atomically replace each validated standalone ZIP and write its SHA-256 file."""
     # Validate both packages before replacing either distribution.
     inventories = {name: package_files(name) for name in PACKAGES}
     left, right = (ROOT / name for name in PACKAGES)
     shared = {
         "responder.py",
         "flood_alarm.py",
+        "wildfire_service.py",
+        "WILDFIRE_GUIDE.md",
+        "landslide_service.py",
+        "LANDSLIDE_GUIDE.md",
+        "data/landslide/california.geojson",
+        "data/landslide/nevada.geojson",
+        "data/landslide/stations.json",
+        "data/landslide/manifest.json",
+        "data/wildfire/zones.geojson",
+        "data/wildfire/manifest.json",
         "service_runner.py",
         "requirements.txt",
         "gis_settings.json",
@@ -81,6 +103,7 @@ def main():
         "MULTI_CHANNEL_GUIDE.md",
         "COMMAND_REFERENCE.md",
         "BOT_USER_GUIDE.md",
+        "VERSION.txt",
     }
     shared |= {
         p.relative_to(ROOT / name).as_posix()
@@ -108,6 +131,10 @@ def main():
             temporary.replace(destination)
         finally:
             temporary.unlink(missing_ok=True)
+        destination.with_suffix(".zip.sha256").write_text(
+            f"{hashlib.sha256(destination.read_bytes()).hexdigest()}  {destination.name}\n",
+            encoding="utf-8",
+        )
         print(f"Built {destination.relative_to(ROOT)} ({len(files)} files)")
 
 

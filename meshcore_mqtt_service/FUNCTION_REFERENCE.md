@@ -559,3 +559,101 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 | `main(argv=None)` | Print one structured flood snapshot or error for the persistent monitor. Standalone use does not enroll a subscription. |
 
 Shared data-maintenance functions are documented in the [EBMUD utility reference](../data/ebmud/FUNCTION_REFERENCE.md).
+
+
+## Wildfire functions
+
+See the [wildfire behavior and source guide](WILDFIRE_GUIDE.md) for configuration and interpretation.
+
+| Module/function | Responsibility |
+| --- | --- |
+| `wildfire_service.refresh_loop` | One bounded refresh child per service session; existing runtime and lifecycle. |
+| `WildfireAlarms.remember`, `control`, `acknowledge` | Revision-safe control, fresh enrollment baseline and acknowledgment gating. |
+| `WildfireAlarms.current`, `check_one`, `run` | Delivery guards, expiry, outage retention and change checks. |
+| `wildfire_service.changes` | Incident appearance/disappearance, measurement thresholds and alert changes. |
+| `scripts/wildfire_sources.Client` | Bounded HTTPS, complete ArcGIS ID batches, NWS pagination and outlook leaf layers. |
+| `scripts/wildfire_store.Store` | Atomic SQLite snapshots, spatial candidates, history, errors and writer lease. |
+| `scripts/wildfire_spatial.prepare_zones`, `scope`, `point_zones`, `distance_miles` | Whole interstate geometry, collection extent, boundary membership and local distance. |
+| `scripts/fire_weather.parse_fwf`, `ugc_codes`, `fire_alerts` | Forecast sections and periods, compressed zone identifiers and active CAP alerts. |
+| `scripts/wildfire_refresh.seed`, `boundaries`, `refresh`, `main` | Seed verification, acquisition, per-source refresh and GeoJSON/status export. |
+| `scripts/wildfire_lookup.parse_query`, `report`, `format_report` | Radio grammar, joined results with provenance and paged replies. |
+| `scripts/wildfire_lookup.monitor_snapshot`, `historical_incidents` | Stable monitor comparisons and explicitly last-known incident details. |
+| `scripts/wildfire_settings.validate`, `load`, `database_path` | Config bounds, external settings and installed runtime location. |
+| `scripts/firezone.py`, `fires.py`, `fire.py`, `firewx.py`, `firewarn.py`, `firedata.py`, `firealarm.py` | Independent executable entry points selecting their own command. |
+
+## Point smoke and fire-danger programs
+
+| Module | Responsibility |
+| --- | --- |
+| `scripts/smoke.py`, `scripts/firedanger.py` | Dedicated executable command entry points. |
+| `scripts/fire_environment.py` | Point resolution, per-source freshness, eligible nearest-feature selection, AQI categories, local ERC interpretation and compact/JSON output. |
+| `scripts/fire_environment_sources.py` | Bounded HMS KML parsing, complete public NFDRS station-summary joins and optional authenticated FEMS GraphQL pagination. |
+
+The [point-command guide](WILDFIRE_GUIDE.md#point-smoke-and-fuel-danger) specifies
+source metadata, output omissions, settings, credential setup and interpretation limits.
+
+## Landslide functions
+
+See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
+
+### landslide_service.py
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `changes(before, after, now)` | Compare CAP content and references; distinguish expiry/cancellation from feed disappearance. |
+| `LandslideAlarms.__init__(self, db, channel, identity, config, read, notify, allowed, clock=time.time)` | Create persistent state and disable subscriptions whose channel identity or assignment changed. |
+| `LandslideAlarms.row(self, sender)` | Read one subscription without changing the shared connection's row factory. |
+| `LandslideAlarms.remember(self, request, now)` | Reserve ordered on/off revisions at acceptance; off invalidates pending lookups immediately. |
+| `LandslideAlarms.current(self, reading)` | Recheck expiry, identity, revision and assignment after awaits and inside the radio queue. |
+| `LandslideAlarms.control_current(self, request)` | Suppress obsolete control acknowledgments while allowing status/help without enrollment. |
+| `LandslideAlarms.control(self, request)` | Baseline an enrollment before acknowledgment; keep monitoring disabled on lookup failure. |
+| `LandslideAlarms.acknowledge(self, request)` | Permit scheduled checks only after all acknowledgment parts have been sent. |
+| `LandslideAlarms.check_one(self)` | Check one due fixed point; retain baselines on failure and report outage/recovery once. |
+| `LandslideAlarms.run(self)` | Poll due subscriptions until the parent service cancels this worker. |
+
+### scripts/landslide_settings.py
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `validate(values)` | Reject unknown settings and unbounded polling, subscriptions, or radio output. |
+| `load()` | Use installed service settings when exported, otherwise the standalone package config. |
+| `database_path()` | Keep the point cache under the configured runtime directory, outside installed source. |
+
+### scripts/landslide_data.py
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `reference()` | Load curated reference files only after verifying their published package checksums. |
+| `require_supported_location(latitude, longitude)` | Accept California and Nevada; reject other out-of-state and invalid coordinates. |
+| `nearest_station(latitude, longitude)` | Rank verified, non-discontinued station points by geodesic distance; no coverage radius is implied. |
+
+### scripts/landslide_alerts.py
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `get_json(url)` | Read bounded NWS JSON; reject known stale HTTP responses instead of refreshing their age. |
+| `relevance(properties)` | Identify explicit source wording; precaution-only and negated mentions remain labelled context. |
+| `select_alerts(data, now)` | Validate a complete point response and retain effective actual alerts mentioning slide hazards. |
+| `fetch_point(latitude, longitude, now=None, fetch=get_json)` | Verify NWS coverage before querying point-matched alerts, including alerts without geometry. |
+| `prune_cache(db, current)` | Bound successful and failed point records within the caller's cache transaction. |
+| `snapshot(latitude, longitude, config, path=None, now=None, fetcher=fetch_point)` | Share fresh point snapshots across commands/subscribers; failed refreshes never become clear. A short SQLite writer lock prevents duplicate concurrent refreshes. Failed attempts retain the last successful payload for diagnosis but it is not returned as current. At most 1,000 points and seven days of unused point state are retained. |
+
+### scripts/landslide_lookup.py
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `parse_query(command, text)` | Validate the existing ZIP/city/GPS grammar before child execution; alarm controls are explicit. |
+| `resolve(target)` | Use the flood/UV location contract, then check the California/Nevada boundary. |
+| `checked_snapshot(data, config, now=None)` | Validate child/cache snapshots before enabling or changing a persistent subscription. |
+| `shorten(text, limit)` | Collapse CAP whitespace and explicitly mark excerpts that exceed the radio budget. |
+| `alert_summary(alert)` | Keep official event/issuer and validity ahead of a bounded source-text excerpt. |
+| `format_alerts(data, target, config)` | Report fresh point matches with source age; an empty response is never an all-clear. |
+| `format_station(station, target)` | Describe catalog metadata, never imply a live sensor reading or coverage at the query point. |
+| `main(command, argv=None)` | Run one bounded lookup; standalone alarm invocation never enrolls a subscription. |
+
+### Responder integration
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `Responder.read_slide_status(self, target)` | Run a bounded structured lookup and validate freshness before changing subscription state. |
+| `Responder.send_slide_change(self, reading, output)` | Send tagged updates on the originating channel with expiry, identity, and revision guards. |

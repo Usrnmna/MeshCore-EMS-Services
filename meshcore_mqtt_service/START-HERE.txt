@@ -1,5 +1,7 @@
 LINUX: START THE CONTINUOUS SERVICE
 
+Version 0.9.5 - Beta (v0.9.5-beta)
+
 Run this one command from the service folder:
 
     bash Start-Service.sh
@@ -50,7 +52,7 @@ Installer upgrades preserve it. All programs receive MESHCORE_TIMEZONE.
 See README.md for provider-text limits and standalone usage.
 
 LOCAL GIS COMMANDS
-The current source includes sixteen commands. Local GIS examples:
+The current source includes 28 commands. Local GIS examples:
     !trail Bear Creek
     !rec near 37.90 -122.20
     !peak Wildcat Peak
@@ -93,3 +95,16 @@ COMMAND DOCUMENTATION
 BOT_USER_GUIDE.md: concise MeshCore channel examples and reply guidance.
 COMMAND_REFERENCE.md: linked command, subcommand, option, and response reference.
 README.md: installation, configuration, and provider details.
+
+Wildfire: try !firezone Truckee, !fires CAZ272, or !firewx CAZ272.
+See WILDFIRE_GUIDE.md for sources, cache refresh, interstate coverage, and
+!firealarm on/status/off. New commands require channel assignment on upgrades.
+
+Point wildfire lookups: !smoke LOCATION and !firedanger LOCATION accept ZIP,
+city/state, or latitude/longitude. Smoke replies begin with Smoke: and omit
+location, Monitor: and PM10: lines. ERC uses local historical percentiles;
+detailed fuel moisture requires optional FEMS access. See WILDFIRE_GUIDE.md.
+
+California and Nevada landslide commands: !slidewarn LOCATION, !slidealarm on LOCATION
+(status/off controls), and !slideinfo LOCATION. Locations accept ZIP, city, or GPS.
+See LANDSLIDE_GUIDE.md. New commands require channel assignments on registry upgrades.

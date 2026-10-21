@@ -146,6 +146,8 @@ def configure(
     responder = current["responder"]
     # One saved display timezone applies to every responder program; retain operator edits.
     responder.setdefault("timezone", defaults["responder"].get("timezone", "America/Los_Angeles"))
+    responder.setdefault("wildfire", copy.deepcopy(defaults["responder"].get("wildfire", {})))
+    responder.setdefault("landslide", copy.deepcopy(defaults["responder"].get("landslide", {})))
     # Operator programs live beside installed settings so application upgrades
     # never replace them. A custom absolute location remains operator-managed.
     programs = config_dir / "programs"

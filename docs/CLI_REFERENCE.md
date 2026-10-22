@@ -21,6 +21,24 @@ programs. Use the interpreter belonging to the deployment. Commands in the next
 two sections run from a platform package unless an example includes a root path.
 `PATH`, `LOCATION`, `SOURCE`, and similar uppercase terms are placeholders.
 Most argparse-based programs support `--help` without performing their action.
+
+## Independent dataset packages
+
+The [dataset installation and recovery guide](DATA_PACKAGES.md) documents native
+wrappers, dependencies, retention and removal. Maintenance does not create a
+service, schedule or subscription.
+
+| Program | Arguments and behavior |
+| --- | --- |
+| `tools/build_data_installers.py` | Repeatable `--dataset ID` selects packages; omission builds all eight. `--linux-only` builds distinct Linux x86_64 and Raspberry Pi ARM64 installers. `--iscc PATH` selects the Inno Setup compiler. Optional `--sign-tool NAME=COMMAND` enables signing of Windows installers and uninstallers. |
+| `installers/datasets/manage.py` | Positional `install`, `update`, `verify`, `status`, `rollback` or `uninstall`; required `--dataset ID`; optional `--root PATH` and `--payload PATH`. `--resume ID` resumes an unchanged install/update candidate. `--purge` applies only to uninstall and includes modified receipt-owned generations. |
+| `installers/datasets/adapters.py` | Internal subprocess worker: required `--worker acquire\|validate\|index`, followed by dataset ID, candidate directory, payload root and dependency-path JSON. Direct invocation is reserved for isolated candidates and does not activate a dataset. |
+
+`install` verifies an already selected generation without replacing it. `update`
+is independent of the service release. The builder's `--version VERSION` option
+sets a data-package release version without changing service metadata. `update`
+stages and validates before atomic activation. Native wrappers supply dataset,
+root and payload automatically. Failed updates retain the previous selection.
 Manual location parsers instead accept the `help` query documented below.
 
 ## Service and channel operation
@@ -102,7 +120,7 @@ excluded from Git and installer payloads.
 | `python data/basin_plans/names.py QUERY` | `--directory`, `--exact`, `--region`, `--category`, `--name-field`, `--limit`, `--records`, `--links`, `--direction {both,children,parents}` | Search source names and published parent/tributary associations. `--limit 0` displays all catalog matches; `--records` emits every matched original record as JSON Lines. [Relationships](../data/basin_plans/RELATIONSHIPS.md). |
 | `python data/flood_impacts/refresh.py` | `--directory`, `--config`, `--basin-directory`, `--mode {all,static,observations}`, `--offline` | Build the Russian River pilot or refresh its separate static and observation evidence; `--offline` rebuilds static outputs from verified cache. [Pilot refresh](../data/flood_impacts/README.md#refresh-and-offline-rebuild). |
 | `python data/flood_impacts/report.py` | `--directory`, `--gauge`, `--scenario`, `--at`, `--verify`, `--output` | Report current reference evidence or an explicitly hypothetical static scenario. `--at` selects an ISO UTC evaluation time. |
-| `python data/flood_impacts/validate.py` | `--directory`, `--output` | Independently verify the pilot's relationships, geometry, and retained evidence. |
+| `python data/flood_impacts/validate.py` | `--directory`, `--output`, `--static-only` | Independently verify the pilot's relationships, geometry, and retained evidence. `--static-only` retains static semantic checks without requiring optional observation snapshots. |
 | `python -m data.usgs_water.refresh` | `--directory`, `--mode`, `--basin-directory`, `--flood-directory`, `--resume`, `--reuse-routing-sources` | Refresh current values or a selected metadata/review generation. Modes are listed below. [USGS refresh](../data/usgs_water/README.md#refresh). |
 | `python -m data.usgs_water.report` | `--directory`, either `--station ID` or `--name TEXT`, `--output` | Inspect exact agency-qualified station IDs or matching source names. |
 | `python -m data.usgs_water.validate` | `--directory`, `--flood-directory`, `--output` | Verify inventory, latest observations, and flood-pilot integration. |

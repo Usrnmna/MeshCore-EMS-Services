@@ -14,6 +14,7 @@ updates:
       - /data/flood_impacts
       - /data/usgs_water
       - /satellite_database
+      - /installers/datasets
     schedule:
       interval: weekly
     groups:

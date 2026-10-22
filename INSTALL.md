@@ -2,15 +2,16 @@
 
 After installation, use the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) for channel commands and the [detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#settings) for command settings, limits, and response formats. Equivalent [Windows user](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) and [command](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) guides are included in the Windows source package.
 
-These **online installers** include the complete maintained workspace: both
-platform source packages, bundled responder commands, tests and documentation,
-the standalone satellite catalog, EBMUD GeoJSON, and the supplied satellite
-database/source snapshots. They automatically obtain Python and dependencies
+These **online service installers** include both platform source packages,
+responder commands, tests, documentation and standalone satellite tools.
+Reference datasets use [independent data installers](docs/DATA_PACKAGES.md),
+with separate updates and uninstallers for each collection and platform.
+The service installers automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
 ZIPs are excluded. The satellite catalog remains a standalone reference tool.
-The maintained source includes all 31 commands, five local GIS
-commands with focused subcommands, and repaired local GeoJSON snapshots. See
+The maintained source includes all 31 commands and five local GIS
+commands with focused subcommands. Install the EBMUD data package for GIS lookups. See
 [GIS source deployment](#gis-source-deployment) for external settings and manual
 updates. Neither GIS nor satellite refresh is scheduled automatically.
 
@@ -43,6 +44,13 @@ usage guide](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md) for Public, hashtag, 
 private channels, program assignments, and the deployment sequence.
 
 ## Windows x64
+
+Installed Apps lists `MeshCore EMS Services`. Start menu entries share the
+`MeshCore EMS` folder: Service guide, Service settings and Uninstall services.
+Independent data packages appear under its `Datasets` subgroup with readable
+collection names and a compiled `Dataset.exe` maintenance menu. See the
+[dataset installation and recovery guide](docs/DATA_PACKAGES.md) for updates,
+verification, rollback and separate removal.
 
 Run the `.exe`, approve the administrator prompt, and choose the connection type.
 The default preserves existing settings; a new installation uses USB serial `auto`.
@@ -235,7 +243,7 @@ Satellite lookup examples (run with permission to read the installed state):
 
 ```bash
 sudo -u meshcore-ems meshcore-satellites summary
-sudo -u meshcore-ems meshcore-satellites refresh
+sudo /opt/meshcore-ems-data/satellites/dataset update
 ```
 
 On Windows, use an administrator terminal:
@@ -245,22 +253,22 @@ On Windows, use an administrator terminal:
 ```
 
 Refreshing the satellite catalog is an explicit operation. Existing snapshots are
-not overwritten during an upgrade. Installed snapshot age and source coverage
+not overwritten during a service upgrade. Managed snapshots are updated only
+through their independent dataset package. Installed snapshot age and source coverage
 still limit their usefulness; inclusion is not proof of current RF reception.
 
 ## GIS source deployment
 
 Current source contains 31 commands. The five GIS commands are `!trail`,
-`!rec`, `!peak`, `!park`, and `!boundary`. Rebuilt installers include their
-programs, dependencies, settings templates, twelve datasets, and preserved
-polygon-repair originals. Service ZIPs include programs and settings but require
-the shared datasets separately. Manual source updates must update the deployed
+`!rec`, `!peak`, `!park`, and `!boundary`. Service installers and ZIPs include their
+programs and settings. The independent EBMUD data installer supplies twelve
+datasets and preserved polygon-repair originals. Manual source updates must update the deployed
 application and its active configuration together.
 
-A fresh installer deployment uses the bundled `gis_settings.json` and its
-`../data/ebmud` path in the installed application tree. The installer also copies
-missing reference files to writable state storage, but GIS queries use that copy
-only after external settings select it. Existing command definitions are preserved
+A fresh deployment discovers the EBMUD data package through the persistent
+dataset registry. Source checkouts without a registry entry retain the
+`../data/ebmud` default. Explicit external GIS settings remain authoritative.
+Service upgrades do not copy or overwrite reference data. Existing command definitions are preserved
 on upgrade; merge any older GIS dispatcher definitions and the dedicated
 `floodalarm.py` registration as described below. Commands newly added to an
 existing channel registry start without channel assignments and require explicit
@@ -409,8 +417,9 @@ Upstream packaging references: [CPython NuGet packages](https://docs.python.org/
 
 ## Wildfire deployment
 
-The nine wildfire commands and checksummed full-zone seed are included in
-both standalone ZIPs and complete installers. Fresh configurations assign them
+The nine wildfire commands are included in both service ZIPs and installers.
+Install the independent wildfire data package for the checksummed full-zone seed.
+Fresh configurations assign the commands
 to the default channel. On upgrades, missing commands are added with empty
 channel assignment lists when a registry already exists; select assignments
 before restarting. Existing `responder.wildfire` values are preserved.
@@ -440,8 +449,9 @@ and configured station IDs; see [FEMS setup](meshcore_mqtt_service/WILDFIRE_GUID
 
 Both standalone service packages include `landslide_service.py`, dedicated
 `slidewarn.py`, `slidealarm.py`, and `slideinfo.py` programs, shared helpers,
-and checksummed `data/landslide/` reference files. Deploy the updated responder
-and channel-state handling with these files. Existing installations preserve
+and shared data-discovery code. Install the independent landslide data package
+for the checksummed reference files. Deploy the updated responder
+and channel-state handling together. Existing installations preserve
 `responder.landslide` settings and existing assignments; new commands are
 unassigned on an existing channel registry. Assign the three commands to the
 desired channel IDs, validate configuration, and restart. No additional API key,

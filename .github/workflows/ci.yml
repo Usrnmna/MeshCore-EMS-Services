@@ -24,10 +24,10 @@ jobs:
         python: ['3.11', '3.13']
         package: [meshcore_mqtt_service, meshcore_mqtt_service_windows]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python }}
           cache: pip
@@ -41,13 +41,18 @@ jobs:
         run: python -m unittest discover -s tests -p "test_*.py"
 
   documentation-and-tools:
-    runs-on: ubuntu-latest
+    name: Documentation and tools / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.13'
           cache: pip
@@ -56,13 +61,18 @@ jobs:
             data/flood_impacts/requirements.txt
             data/usgs_water/requirements.txt
             satellite_database/requirements-tracking.txt
+            installers/datasets/requirements.txt
       - name: Install offline verification dependencies
-        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt
+        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt
       - name: Check tooling dependency compatibility
         run: python -m pip check
+      - name: Install pinned Windows dataset test compiler
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: Install-Module -Name ps2exe -RequiredVersion 1.0.18 -Repository PSGallery -Scope CurrentUser -Force -ErrorAction Stop
       - name: Check documentation, examples, commands, and publication rules
         run: python tools/check_documentation.py
-      - name: Check installer configuration and inventories
+      - name: Check service and dataset installers, registries, and inventories
         run: python -m unittest discover -s tools -p "test_*.py"
       - name: Check offline data tools and satellite catalog
         shell: bash

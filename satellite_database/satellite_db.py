@@ -17,6 +17,7 @@ import sys
 from catalog import classify, frequency_band, normalize_operation, tle_epoch
 from reports import match_operation, parse_amsat_reports
 from sources import SourceReader, parse_time, utc_now
+import dataset_paths
 
 HERE = Path(__file__).resolve().parent
 STATUS_URL = "https://www.amsat.org/status/"
@@ -34,11 +35,29 @@ def read_json(path):
 
 
 def settings_from(path):
-    """Load settings, resolve database/cache/export paths relative to the settings file, and reject nonpositive tuning values."""
+    """Resolve configured paths or an installed generation and reject invalid tuning values.
+
+    Explicit staging settings retain their candidate paths. Published managed
+    generations remain immutable; custom external catalogs retain legacy behavior.
+    """
     path = Path(path).resolve()
     settings = read_json(path)
     for key in ("database", "cache_directory", "export_directory"):
         settings[key] = (path.parent / settings[key]).resolve()
+    configured = settings["database"].parent
+    directory = dataset_paths.resolve(
+        "satellites", configured, configured=configured,
+        defaults=(HERE / "../data/satellites",) if path == HERE / "settings.json" else (),
+    )
+    if directory != configured:
+        settings["database"] = directory / "satellites.sqlite3"
+        settings["cache_directory"] = directory / "raw"
+        settings["export_directory"] = directory
+    # Explicit paths inside a generation must also retain snapshot immutability.
+    settings["managed_snapshot"] = directory != configured or (
+        settings["database"].is_relative_to(dataset_paths.data_root() / ".datasets" / "satellites")
+        and (settings["database"].parent.parent / "receipt.json").is_file()
+    )
     for key in ("status_max_age_days", "orbit_max_age_days", "cache_hours", "timeout_seconds", "max_response_bytes", "max_pages"):
         value = settings[key]
         if not isinstance(value, (int, float)) or value <= 0:
@@ -51,13 +70,19 @@ def connect(settings, create=False):
 
     Without create, reject a missing database. With create, initialize schema
     version 1 or reject an unsupported version. Create the parent directory if
-    needed; schema initialization writes to disk.
+    needed for unmanaged data; schema initialization writes to disk. Managed
+    snapshots open read-only and reject creation.
     """
     path = settings["database"]
     if not create and not path.exists():
         raise ValueError("Database not found. Run the refresh command first.")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    db = sqlite3.connect(path)
+    if settings.get("managed_snapshot"):
+        if create:
+            raise ValueError("Use the Satellites data package updater; managed generations are immutable.")
+        db = sqlite3.connect(path.as_uri() + "?mode=ro", uri=True)
+    else:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        db = sqlite3.connect(path)
     db.row_factory = sqlite3.Row
     db.execute("PRAGMA foreign_keys=ON")
     if create:
@@ -260,6 +285,8 @@ def refresh(settings, args):
     Write cache files, exports, coverage data, and a printed JSON report. Return
     0 without warnings or 2 when optional-source warnings remain.
     """
+    if settings.get("managed_snapshot"):
+        raise ValueError("Use the Satellites data package updater; managed generations are immutable.")
     reader = SourceReader(settings["cache_directory"], settings, args.offline)
     feeds = settings["sources"]
     print("Reading satellite identities, radio capabilities and AMSAT references...", file=sys.stderr)
@@ -418,6 +445,8 @@ def export_database(db, settings):
     prefixes, and replace each output through a temporary file. Create the
     directory if needed; do not fetch sources or modify the database.
     """
+    if settings.get("managed_snapshot"):
+        raise ValueError("Use the Satellites data package updater; managed generations are immutable.")
     directory = settings["export_directory"]
     directory.mkdir(parents=True, exist_ok=True)
     satellites = [json.loads(row[0]) for row in db.execute("SELECT data_json FROM satellites ORDER BY name")]
@@ -511,8 +540,9 @@ def position(db, settings, args):
 def main(argv=None):
     """Parse CLI arguments, dispatch the selected catalog command, print results/errors, and close any opened database.
 
-    Refresh, observation import, summary, and export can write local data;
-    list, show, and position read the catalog. Return 0 on success, 1 for
+    Unmanaged refresh, observation import, summary, and export can write data.
+    Managed snapshots reject mutations; summary reads the dated coverage report.
+    List, show, and position read the catalog. Return 0 on success, 1 for
     handled errors, or refresh status 2 for optional-source warnings. Argparse
     handles invalid command syntax separately.
     """
@@ -543,6 +573,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         settings = settings_from(args.settings)
+        if settings.get("managed_snapshot") and args.command in ("refresh", "export", "import-observations"):
+            raise ValueError("Use the Satellites data package updater; managed generations are immutable.")
         if args.command == "refresh":
             return refresh(settings, args)
         db = connect(settings)
@@ -569,7 +601,8 @@ def main(argv=None):
                     result.append(sat)
                 print(json.dumps(result, ensure_ascii=False, indent=2))
             elif args.command in ("summary", "export"):
-                export_database(db, settings)
+                if not settings.get("managed_snapshot"):
+                    export_database(db, settings)
                 print((settings["export_directory"] / "coverage.json").read_text(encoding="utf-8"))
             elif args.command == "import-observations":
                 observations = read_json(args.file)

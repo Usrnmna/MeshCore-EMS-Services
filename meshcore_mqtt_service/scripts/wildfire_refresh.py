@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 
 from . import wildfire_settings as settings
+from . import dataset_paths
 from .fire_weather import fetch_fwf
 from .fire_environment_sources import HMS_URL, NFDRS_URL, FEMS_URL, hms, nfdrs, fems
 from .wildfire_sources import Client, NWS, SOURCES, STATE_URL, ZONE_URL
@@ -27,8 +28,9 @@ def seed(store):
     """Initialize offline zones from a checksum-verified package snapshot."""
     if store.status("zones").get("fetched"):
         return
-    manifest = json.loads((SEED / "manifest.json").read_bytes())
-    raw = (SEED / "zones.geojson").read_bytes()
+    directory = dataset_paths.resolve("wildfire", SEED)
+    manifest = json.loads((directory / "manifest.json").read_bytes())
+    raw = (directory / "zones.geojson").read_bytes()
     if hashlib.sha256(raw).hexdigest() != manifest["sha256"]:
         raise ValueError("Bundled wildfire zone checksum mismatch")
     features = json.loads(raw)["features"]

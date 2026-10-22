@@ -76,6 +76,14 @@ def source_files():
                 or path.suffix in {".pyc", ".pyo"}
                 or path.name.endswith(("-wal", "-shm"))
                 or download_only(relative, download_rules)
+                # Dataset installers own reference bytes. Keep maintained download
+                # tools/guides and curated inputs, never a development snapshot.
+                or (relative.parts[0] == "data" and
+                    (any(p in {"snapshots", "organized", "raw", "originals", "source", "metadata", "geojson", "boundaries"}
+                         for p in relative.parts[2:-1]) or
+                     (path.suffix not in {".py", ".md", ".txt"} and
+                      relative.as_posix() not in {
+                          "data/flood_impacts/pilot.json", "data/usgs_water/local_review_rules.json"})))
             ):
                 continue
             files.add(path)

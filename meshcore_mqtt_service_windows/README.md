@@ -989,7 +989,8 @@ The [deployment guide](../INSTALL.md#gis-source-deployment) covers external
 settings paths, service interpreters, and offline checks. Existing connection,
 channel, credential, and timezone settings must be preserved. The configured
 shared data directory must exist; standalone service folders require that data
-to be provided separately. Rebuilt complete-workspace installers include the data.
+to be provided separately. Install the independent EBMUD data package; see
+[dataset installation and recovery](../docs/DATA_PACKAGES.md).
 Installer upgrades preserve existing command definitions; merge older dispatcher
 registrations and explicitly assign newly added commands to permitted channels.
 

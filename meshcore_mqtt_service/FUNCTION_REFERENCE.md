@@ -634,8 +634,9 @@ See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
 
 | Function signature | Purpose and behavior |
 | --- | --- |
-| `reference()` | Load curated reference files only after verifying their published package checksums. |
-| `require_supported_location(latitude, longitude)` | Accept California and Nevada; reject other out-of-state and invalid coordinates. |
+| `reference()` | Resolve the active installed generation before consulting the generation-keyed reference cache. |
+| `_reference(directory)` | Cache checksummed boundaries and stations by immutable generation directory. |
+| `require_supported_location(latitude, longitude, boundary=None)` | Accept California and Nevada; reject other out-of-state and invalid coordinates. An optional pinned boundary keeps a multi-step lookup within one generation. |
 | `nearest_station(latitude, longitude)` | Rank verified, non-discontinued station points by geodesic distance; no coverage radius is implied. |
 
 ### scripts/landslide_alerts.py
@@ -706,3 +707,14 @@ See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
 | `short_label(value, budget=60)` | Bound variable names without cutting warning/action text. |
 | `split_fields(text, separator="; ")` | Split top-level fields while preserving parenthetical and bracketed qualifiers. |
 | `compact_fields(essential, fields=(), sender=None)` | Retain a primary field and distinct complete optional fields without omission notices. |
+
+## Installed dataset discovery
+
+[Source](scripts/dataset_paths.py). Registry selection performs no network access
+and writes no data. Each lookup retains its selected generation for the operation.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `data_root()` | Resolve the persistent root from `MESHCORE_DATA_DIR`, the runtime directory sibling, or the platform default. |
+| `checked_path(root, relative)` | Reject absolute, traversing, and symlink-escaping registry paths. |
+| `resolve(dataset, fallback, *, configured=None, defaults=())` | Select the active registry generation for default paths and collection aliases. Preserve explicit custom paths; absent entries allow legacy fallback, while explicit removal or invalid registry data fails visibly. |

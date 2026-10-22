@@ -28,6 +28,8 @@ htmlcov/
 .env.*
 !.env.example
 !.env.*.example
+!.env.template
+!.env.*.template
 
 # Local service credentials, including private channel keys
 environment.json
@@ -57,6 +59,13 @@ build/
 
 # Transient GIS maintenance state; retain snapshots, manifests, and originals/.
 .refresh.lock
+
+# Managed dataset state in standalone copies; retain reference seeds and settings.
+.datasets/
+datasets.json
+datasets.json.*.tmp
+.datasets.lock
+
 .refresh-*/
 .test-refresh-*/
 gis_settings.json.tmp

@@ -60,8 +60,8 @@ Build, inspect and export a sourced satellite radio reference database. Python 3
 | --- | --- |
 | `dumps(value)` | Serialize a JSON-compatible value with sorted keys and Unicode preserved; return the string without writing a file. |
 | `read_json(path)` | Read a UTF-8 JSON file, allowing a BOM, and return the decoded value; propagate file and JSON errors. |
-| `settings_from(path)` | Load settings, resolve database/cache/export paths relative to the settings file, and reject nonpositive tuning values. |
-| `connect(settings, create=False)` | Open the configured SQLite database with row objects and foreign keys enabled; the caller must close it. Without create, reject a missing database. With create, initialize schema version 1 or reject an unsupported version. Create the parent directory if needed; schema initialization writes to disk. |
+| `settings_from(path)` | Load settings, resolve paths, and reject nonpositive tuning values. Default paths and persistent collection aliases select the installed generation; explicit staging or external paths remain authoritative. |
+| `connect(settings, create=False)` | Open the configured SQLite database with row objects and foreign keys enabled; the caller must close it. Without create, reject a missing database. With create, initialize schema version 1 or reject an unsupported version. Create the parent directory if needed for unmanaged data; schema initialization writes to disk. Published managed generations open read-only and reject creation. |
 | `receipt_time(reader, url)` | Return fetched_at from the latest recorded receipt for a URL; raise StopIteration if the reader has no matching receipt. |
 | `as_norad(value)` | Convert a value with int() and return a positive NORAD identifier, or None for invalid or nonpositive input. |
 | `build_catalog(satellite_rows, transmitters, amsat_rows, settings, fetched_at)` | Join by stable SatNOGS ID, then NORAD ID. Never join different craft by name. |
@@ -77,7 +77,7 @@ Build, inspect and export a sourced satellite radio reference database. Python 3
 | `atomic_json(path, value)` | Write a JSON value as indented UTF-8 through an adjacent .tmp file, then replace the destination; the parent directory must exist. |
 | `export_database(db, settings)` | Write satellites.json, operations.csv, and coverage.json snapshots from SQLite into the configured export directory. Evaluate operation freshness at export time, escape spreadsheet formula prefixes, and replace each output through a temporary file. Create the directory if needed; do not fetch sources or modify the database. |
 | `position(db, settings, args)` | Print a Skyfield orbital prediction and observer pointing from stored elements and the requested coordinates/time. Require one satellite match, valid observer coordinates/altitude, and elements within the configured age limit. Return None; raise ValueError for unsupported inputs, missing Skyfield, stale elements, or propagation failure. No refresh or radio operation occurs. |
-| `main(argv=None)` | Parse CLI arguments, dispatch the selected catalog command, print results/errors, and close any opened database. Refresh, observation import, summary, and export can write local data; list, show, and position read the catalog. Return 0 on success, 1 for handled errors, or refresh status 2 for optional-source warnings. Argparse handles invalid command syntax separately. |
+| `main(argv=None)` | Parse CLI arguments, dispatch the selected catalog command, print results/errors, and close any opened database. Unmanaged refresh, observation import, summary, and export can write local data. Managed generations reject mutation commands; summary reads the saved dated coverage report. List, show, and position read the catalog. Return 0 on success, 1 for handled errors, or refresh status 2 for optional-source warnings. Argparse handles invalid command syntax separately. |
 
 <a id="sources-py"></a>
 
@@ -95,3 +95,14 @@ Small, cached HTTP reader. No credentials, background jobs, or radio traffic.
 | `SourceReader.__init__(self, directory, settings, offline=False)` | Create the cache directory and retain settings/offline mode; initialize acquisition receipts without fetching data. |
 | `SourceReader.read(self, url, cache_hours=None)` | Return (body_bytes, metadata) for an HTTPS URL from a checksum-verified cache or bounded download. Offline mode requires a cached response. Online cache age uses cache_hours or the configured default. Successful downloads replace the body through a temporary file and write metadata; every successful read records a receipt. Network, redirect, size, and integrity failures propagate to the caller. |
 | `SourceReader.records(self, url, required_field)` | Accept a JSON list or paginated results; never silently truncate a feed. |
+
+## Installed dataset discovery
+
+[Source](dataset_paths.py). Registry selection performs no network access
+and writes no data. Each lookup retains its selected generation for the operation.
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `data_root()` | Resolve the persistent root from `MESHCORE_DATA_DIR`, the runtime directory sibling, or the platform default. |
+| `checked_path(root, relative)` | Reject absolute, traversing, and symlink-escaping registry paths. |
+| `resolve(dataset, fallback, *, configured=None, defaults=())` | Select the active registry generation for default paths and collection aliases. Preserve explicit custom paths; absent entries allow legacy fallback, while explicit removal or invalid registry data fails visibly. |

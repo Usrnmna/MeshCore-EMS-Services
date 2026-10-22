@@ -105,7 +105,7 @@ Read verified statewide collections using a separate spatial index; originals ar
 | `generation(root, kind, files=())` | Verify manifest and requested artifacts without repeatedly hashing unrelated archives. |
 | `readonly(path)` | Open a read-only SQLite URI and return a connection with named row fields. |
 | `signature(path)` | Return file size and nanosecond modification time for detecting source changes. |
-| `build_index(config, output=None)` | Atomically index verified static geometry and station identities; store no observations. |
+| `build_index(config, output=None, collection=None)` | Atomically index verified static geometry and station identities; store no observations. An explicit collection selects a staged package. Relative routing pointers preserve the index when its complete generation moves. |
 | `readings(root, now, max_age)` | Read the sole latest-value generation; never copy measurements into the spatial index. |
 | `context(latitude, longitude, config, now, index_path=None)` | Resolve containing basins and nearby reaches; proximity is never an alarm-qualified link. |
 
@@ -199,6 +199,7 @@ Location water-status settings shared by direct programs and the service.
 | `validate(values)` | Validate local settings; radio requests cannot change paths, limits or source URLs. |
 | `load()` | Read the active service environment or the standalone package configuration. |
 | `data_root(config)` | Resolve the downloaded-data directory relative to the platform package when the setting is not absolute. |
+| `collection(config)` | Pin the active managed USGS generation for one operation; preserve an explicit external data directory. |
 | `runtime()` | Return the configured runtime directory or the package runtime default. |
 
 <a id="scripts-water_sources-py"></a>

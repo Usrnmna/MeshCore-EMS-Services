@@ -7,14 +7,14 @@
 [Setup]
 AppId={{E76251FC-52CF-44EE-93E7-0278400F236C}
 AppName=MeshCore EMS Services
-AppVersion=v0.9.5-beta
-VersionInfoVersion=0.9.5.0
+AppVersion=v0.9.6-beta
+VersionInfoVersion=0.9.6.0
 AppPublisher=Usrnmna
 AppPublisherURL=https://github.com/Usrnmna/MeshCore-EMS-Services
 DefaultDirName={autopf}\MeshCore-EMS
 DefaultGroupName=MeshCore EMS
 OutputDir={#ReleaseDir}
-OutputBaseFilename=MeshCore-EMS-v0.9.5-beta-windows-x64-setup
+OutputBaseFilename=MeshCore-EMS-v0.9.6-beta-windows-x64-setup
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0

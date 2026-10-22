@@ -1,4 +1,4 @@
-# Install MeshCore EMS v0.9.5-beta as an OS service
+# Install MeshCore EMS v0.9.6-beta as an OS service
 
 After installation, use the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) for channel commands and the [detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#settings) for command settings, limits, and response formats. Equivalent [Windows user](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) and [command](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) guides are included in the Windows source package.
 
@@ -18,11 +18,11 @@ updates. Neither GIS nor satellite refresh is scheduled automatically.
 
 | File | Target |
 | --- | --- |
-| `MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.9.5-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
-| `MeshCore-EMS-v0.9.5-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
+| `MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
+| `MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
+| `MeshCore-EMS-v0.9.6-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
-Outputs are under `dist/v0.9.5-beta/`, alongside `SHA256SUMS.txt`.
+Outputs are under `dist/v0.9.6-beta/`, alongside `SHA256SUMS.txt`.
 Each operating-system installer is distributed separately. Download only the
 installer matching the target system; installation and validation guides are
 available as separate files alongside the checksums.
@@ -67,7 +67,7 @@ publisher release.
 For unattended installation from an administrator terminal:
 
 ```bat
-MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
+MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
 ```
 
 Add `/NOSTART=1` to register without starting now (automatic startup remains enabled).
@@ -101,8 +101,8 @@ Windows wizard: select **Wi-Fi / TCP**, then enter the node IP and port; or sele
 preserves the installed connection. Unattended examples:
 
 ```bat
-MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
-MeshCore-EMS-v0.9.5-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
+MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
+MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
 ```
 
 Direct PowerShell setup exposes `-Transport`, `-SerialPort`, `-TcpHost`, `-TcpPort`,
@@ -113,8 +113,8 @@ under that account before relying on unattended BLE operation.
 Linux (use the ARM64 filename on Raspberry Pi):
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
-sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
+sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
+sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
 ```
 
 For BLE, the Linux installer installs BlueZ and enables its service. Pair/trust
@@ -135,9 +135,9 @@ it cannot verify pairing, service-account Bluetooth access, or TCP reachability.
 Run the matching installer with Bash. Automatic USB serial detection is the default:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.5-beta-raspberry-pi-arm64.run --port auto
+sudo bash MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run --port auto
 # Intel/AMD:
-sudo bash MeshCore-EMS-v0.9.5-beta-linux-x86_64.run --port auto
+sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --port auto
 ```
 
 Use `--port auto` to rescan USB serial devices at each start. A new installation

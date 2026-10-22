@@ -1,6 +1,6 @@
 LINUX: START THE CONTINUOUS SERVICE
 
-Version 0.9.5 - Beta (v0.9.5-beta)
+Version 0.9.6 - Beta (v0.9.6-beta)
 
 Run this one command from the service folder:
 

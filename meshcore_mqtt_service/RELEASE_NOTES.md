@@ -1,5 +1,17 @@
 # Linux service release notes
 
+## v0.9.6-beta - October 21, 2026
+
+- Packages the current 31-command source, water tooling, flood lifecycle handling,
+  and single-message response formatting as Version 0.9.6 - Beta.
+- Updates package and installer identifiers to `v0.9.6-beta` and Windows binary
+  metadata to `0.9.6.0`; rebuilds separate Windows x64, Linux x86_64, and
+  Raspberry Pi ARM64 installers plus both standalone source ZIPs.
+- Refreshes SHA-256 inventories and verification documentation for this build.
+  Historical validation entries describe their original source snapshots.
+- Existing configuration and command assignments remain preserved on upgrade;
+  generated water datasets require the documented download-on-demand setup.
+
 ## Current-source documentation: October 21, 2026
 
 The source contains 31 dedicated commands with one tagged response of at most

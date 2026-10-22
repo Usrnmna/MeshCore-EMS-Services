@@ -1,6 +1,6 @@
 WINDOWS 10 X64: START THE CONTINUOUS SERVICE
 
-Version 0.9.5 - Beta (v0.9.5-beta)
+Version 0.9.6 - Beta (v0.9.6-beta)
 
 Double-click Start-Service.exe once.
 

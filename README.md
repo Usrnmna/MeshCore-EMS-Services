@@ -2,7 +2,7 @@
 
 ![Illustrative same-channel exchanges on #autatestbot: !snowpack Truckee returns an @Alice snow-depth and snowfall report; !floodwarn Sacramento returns an @Alice point-scoped NWS flood-alert report. Values are examples, not live conditions.](docs/assets/readme-hero.svg)
 
-[![Distribution version v0.9.5-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.5-beta.md)
+[![Distribution version v0.9.6-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.6-beta.md)
 [![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
@@ -81,7 +81,7 @@ formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 ### Install and send the first command
 
 1. Follow the [installation guide](INSTALL.md) for Windows x64, Linux x86_64,
-   or Raspberry Pi ARM64. The distribution version is `v0.9.5-beta`.
+   or Raspberry Pi ARM64. The distribution version is `v0.9.6-beta`.
 2. Select USB serial, BLE, or TCP and configure the permitted channels and commands.
    USB serial autodetection is the default; attach one supported device or select
    an explicit port. Complete BLE pairing through the operating system first.
@@ -144,7 +144,7 @@ unattended service operation. Restart after configuration changes.
 | Query water conditions and manage flood subscriptions | [Water command guide](meshcore_mqtt_service/WATER_GUIDE.md) / [Station identity and threshold review](meshcore_mqtt_service/WATER_STATION_REVIEW.md) |
 | Query landslide-related alerts and station metadata | [Landslide guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md) |
 | Use the separate satellite catalog | [Satellite database tools](satellite_database/README.md) / [Stored catalog and exports](data/satellites/README.md) |
-| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.5 - Beta highlights](RELEASE_v0.9.5-beta.md) / [Documentation index](docs/README.md) |
+| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.6 - Beta highlights](RELEASE_v0.9.6-beta.md) / [Documentation index](docs/README.md) |
 
 The California State Parks collection and satellite catalog are separate reference
 resources; they are not registered MeshCore commands. Their guides describe data

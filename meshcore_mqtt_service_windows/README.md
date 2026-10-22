@@ -14,7 +14,7 @@ packages or runtime databases from the Linux service folder.
 
 ## OS service installers
 
-Current distribution version: `v0.9.5-beta`.
+Current distribution version: `v0.9.6-beta`.
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,

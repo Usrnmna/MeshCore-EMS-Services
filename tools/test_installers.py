@@ -42,7 +42,7 @@ class InstallerTests(unittest.TestCase):
     def test_release_versions_agree_across_platforms_and_installers(self):
         """Current release metadata must agree without rewriting historical release notes."""
         version = build_installers.VERSION
-        self.assertEqual(version, "v0.9.5-beta")
+        self.assertEqual(version, "v0.9.6-beta")
         numeric = version.removeprefix("v").split("-")[0] + ".0"
         for package in build_installers.PACKAGES:
             self.assertEqual((ROOT / package / "VERSION.txt").read_text().strip(), version)
@@ -457,7 +457,7 @@ class InstallerTests(unittest.TestCase):
             "docs/README.md",
             "docs/ARCHITECTURE.md",
             "docs/DEVELOPMENT.md",
-            "RELEASE_v0.9.5-beta.md",
+            "RELEASE_v0.9.6-beta.md",
             "AGENTS.md",
             ".gitignore",
             ".gitattributes",

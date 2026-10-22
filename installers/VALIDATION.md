@@ -1,5 +1,56 @@
 # Installer and service validation
 
+## Version 0.9.6 - Beta rebuild: October 21, 2026
+
+The local release identifier is `v0.9.6-beta`; Windows launcher, service-host,
+and installer metadata use `0.9.6.0`. The release packages the current 31-command
+source as separate Windows x64, Linux x86_64, and Raspberry Pi ARM64 online
+installers, plus Linux and Windows standalone source ZIPs.
+
+| Offline suite | Passed on Windows Python 3.13 |
+| --- | ---: |
+| Linux service source package | 475 |
+| Windows service source package | 475 |
+| Installer/configuration tools | 19 |
+| Basin Plan tools | 20 |
+| Flood-impact tools | 22 |
+| Statewide USGS tools | 88 |
+| EBMUD refresh tools | 5 |
+| Satellite catalog | 27 |
+| Total | 1,131 |
+
+The documentation checker verifies 31 registrations per package, 618 tagged
+response examples across the paired catalogs, 378 focused function signatures,
+terminal options, local links/fragments, version badges, paired guides, and Git
+publication exclusions. Generated water-data destinations require their documented
+setup. Initial restricted runs encountered temporary-directory access failures;
+the table records successful reruns with the required execution permissions.
+The existing test environment includes system-site packages. Its `pip check`
+reports an unrelated `folium-vectortilelayer==0.2.5` dependency on missing `folium`;
+a clean-environment dependency validation is not claimed.
+
+Artifact verification compares complete ZIP inventories and bytes with current
+source, checks every embedded Linux payload file against its manifest and source,
+and validates both Linux installer payload checksums with read-only `--check`
+under Git Bash. Windows verification checks the compiler snapshot manifest,
+source bytes, x64 launcher/service-host PE targets, binary version metadata,
+launcher `--check`, service-host `--version`, and installer SHA-256.
+The embedded Inno Setup archive is not independently extracted.
+
+The release directory `dist/v0.9.6-beta/` contains all three separate installers,
+both source ZIPs and individual checksums, installation and release guides,
+this validation record, `TEST-RESULTS.txt`, `VERIFICATION.json` and its checksum,
+`SHA256SUMS.txt` for the installers, and `RELEASE-ASSET-SHA256SUMS.txt` for the
+complete release inventory. The asset inventory excludes itself. Exact hashes,
+file counts, test results and inspection limits are recorded after the final
+build in `VERIFICATION.json`. Current standalone ZIPs also remain under `dist/`.
+
+No native Linux/ARM64 execution, OS-service installation or reboot recovery,
+physical radio or recipient delivery, continuous monitoring, or live-provider
+validation was performed. The Windows installer is unsigned and dependencies
+are obtained online during installation. This is a local rebuild; no GitHub
+release publication is asserted. Earlier entries below retain historical results.
+
 ## Current-source documentation verification: October 21, 2026
 
 The current source contains **31 registered commands per platform**. The

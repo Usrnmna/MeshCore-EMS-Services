@@ -39,6 +39,13 @@ cannot enroll one. See [monitoring behavior](../meshcore_mqtt_service/COMMAND_RE
 
 ## Included programs and services
 
+Reference collections are installed independently of service binaries. A shared
+`datasets.json` registry selects immutable per-collection generations. Acquisition,
+validation and index construction occur in an unpublished candidate; only a
+complete candidate can replace the registry selection. Previous directories and
+dependency-pinned generations remain available. No dataset updater owns service
+subscriptions or adds a scheduler. See [dataset lifecycle and recovery](DATA_PACKAGES.md).
+
 Both platform packages contain the same service components:
 
 | Component | File | Purpose |

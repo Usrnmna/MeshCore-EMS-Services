@@ -3,6 +3,16 @@
 set -euo pipefail
 umask 0027
 source_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+
+grant_service_venv_access() {
+    # The private runtime inherits umask 0027. Permit the service group to read
+    # libraries and traverse directories without granting code write access.
+    local environment=$1
+    chgrp -R -h meshcore-ems "$environment"
+    find "$environment" -type d -exec chmod 0750 {} +
+    find "$environment" -type f -exec chmod g+rX,go-w,o-rwx {} +
+}
+
 # Detect the USB radio at each service start instead of saving today's tty number.
 port=''
 transport=''
@@ -53,6 +63,7 @@ chmod 0755 "$release"
 python3 -m venv "$release/.venv"
 "$release/.venv/bin/python" -I -m pip install --disable-pip-version-check -r "$release/meshcore_mqtt_service/requirements.txt" -r "$release/satellite_database/requirements-tracking.txt"
 "$release/.venv/bin/python" -I -m pip check
+grant_service_venv_access "$release/.venv"
 args=(--root "$release" --state /var/lib/meshcore-ems --config-dir /etc/meshcore-ems --platform linux)
 [[ -z $port ]] || args+=(--port "$port")
 [[ -z $transport ]] || args+=(--transport "$transport")
@@ -102,8 +113,14 @@ if python3 -c 'import json,sys; sys.exit(json.load(open("/etc/meshcore-ems/confi
     apt-get install -y bluez
     systemctl enable --now bluetooth.service
 fi
-chown -R meshcore-ems:meshcore-ems /var/lib/meshcore-ems
-chmod -R o-rwx /var/lib/meshcore-ems
+chown meshcore-ems:meshcore-ems /var/lib/meshcore-ems
+chmod o-rwx /var/lib/meshcore-ems
+# Public reference roots must remain traversable after service-first installation.
+install -d -m 0755 /var/lib/meshcore-ems/data
+# Dataset installers own data permissions; service upgrades must not recursively
+# transfer their immutable generations to the writable service account.
+chown -R meshcore-ems:meshcore-ems /var/lib/meshcore-ems/runtime
+chmod -R o-rwx /var/lib/meshcore-ems/runtime
 find /var/lib/meshcore-ems/runtime -type d -exec chmod 0700 {} +
 find /var/lib/meshcore-ems/runtime -type f -exec chmod 0600 {} +
 if [[ -d /var/lib/meshcore-ems/backups ]]; then
@@ -117,7 +134,7 @@ chmod 0640 /etc/meshcore-ems/*.json
 chown -R root:meshcore-ems /etc/meshcore-ems/programs
 find /etc/meshcore-ems/programs -type d -exec chmod 0750 {} +
 find /etc/meshcore-ems/programs -type f -exec chmod 0640 {} +
-"$release/.venv/bin/python" "$release/meshcore_mqtt_service/service_runner.py" --config /etc/meshcore-ems/config.json --state-dir /var/lib/meshcore-ems/runtime --environment /etc/meshcore-ems/environment.json --check
+runuser -u meshcore-ems -- "$release/.venv/bin/python" -B "$release/meshcore_mqtt_service/service_runner.py" --config /etc/meshcore-ems/config.json --state-dir /var/lib/meshcore-ems/runtime --environment /etc/meshcore-ems/environment.json --check
 ln -sfn "$release" /opt/meshcore-ems/current
 changed_link=1
 install -m 0644 "$release/installers/linux/meshcore-ems.service" /etc/systemd/system/meshcore-ems.service

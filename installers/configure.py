@@ -187,13 +187,9 @@ def configure(
     environment = config_dir / "environment.json"
     if not environment.exists():
         write_json(environment, {})
-    # Copy supplied snapshots only on first installation. Never reset a refreshed catalog.
-    for source in (root / "data").rglob("*"):
-        if source.is_file():
-            destination = state / "data" / source.relative_to(root / "data")
-            if not destination.exists():
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, destination)
+    # Independent dataset packages own reference installation. Existing legacy
+    # directories and managed generations remain untouched during service setup.
+    (state / "data").mkdir(parents=True, exist_ok=True)
     satellite = config_dir / "satellite-settings.json"
     if not satellite.exists():
         settings = json.loads((root / "satellite_database/settings.json").read_text())

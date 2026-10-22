@@ -67,6 +67,12 @@ formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 
 ## Get started
 
+Install the [separate data packages](docs/DATA_PACKAGES.md) needed by the enabled
+features: EBMUD for local GIS, wildfire and landslide references, and the dependent
+water collections for local water context. Each collection has Windows, Linux
+and Raspberry Pi installers and its own uninstaller. Failed updates retain the
+last validated local dataset; service upgrades do not replace data collections.
+
 ### Essential requirements
 
 - A Linux computer, Raspberry Pi ARM64, or Windows x64 computer and a reachable

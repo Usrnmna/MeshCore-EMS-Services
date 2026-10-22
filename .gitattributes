@@ -4,6 +4,8 @@
 *.md text eol=lf
 *.txt text eol=lf
 *.json text eol=lf
+*.jsonl text eol=lf
+*.csv text eol=lf
 *.sql text eol=lf
 *.svg text eol=lf
 *.yml text eol=lf
@@ -25,12 +27,18 @@
 *.zip -text
 *.gz -text
 *.7z -text
+*.bz2 -text
+*.xz -text
+*.zst -text
+*.whl -text
+*.pyd -text
 *.png -text
 *.jpg -text
 *.jpeg -text
 *.gif -text
 *.pdf -text
 *.sqlite3 -text
+*.db binary
 *.sqlite binary
 *.parquet binary
 *.kmz binary
@@ -75,3 +83,7 @@
 /data/usgs_water/link_review/** -text -whitespace
 /data/usgs_water/agency_review/** -text -whitespace
 /data/usgs_water/local_review/** -text -whitespace
+
+# Local managed generations are immutable even when they contain source copies.
+# Ignore rules exclude these paths; attributes also protect explicitly added files.
+**/.datasets/** -text -whitespace

@@ -12,6 +12,11 @@ from pathlib import Path
 import re
 import unicodedata
 
+if __package__:
+    from . import dataset_paths
+else:
+    import dataset_paths
+
 
 SETTINGS_FILE = Path(__file__).resolve().parents[1] / 'gis_settings.json'
 MAX_QUERY_CHARACTERS = 150
@@ -76,7 +81,11 @@ def load_settings(path=SETTINGS_FILE):
             not -180 <= bounds[0] < bounds[2] <= 180 or
             not -90 <= bounds[1] < bounds[3] <= 90):
         raise ValueError('search_bounds must be [west, south, east, north]')
-    settings['data_directory'] = (path.parent / settings['data_directory']).resolve()
+    configured = (path.parent / settings['data_directory']).resolve()
+    settings['data_directory'] = dataset_paths.resolve(
+        'ebmud', configured, configured=configured,
+        defaults=(SETTINGS_FILE.parent / '../data/ebmud',),
+    )
     return settings
 
 

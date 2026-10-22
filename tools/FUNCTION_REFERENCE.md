@@ -2,6 +2,10 @@
 
 See [the installation guide](../INSTALL.md) for operator workflows.
 These tools change local configuration or build artifacts only when invoked.
+Independent dataset packaging and transactional maintenance are described in
+[dataset lifecycle and validation](../docs/DATA_PACKAGES.md) and the
+[dataset build reference](../installers/datasets/BUILD.md). The manager, adapters
+and builder document their nontrivial functions alongside the implementation.
 The shared GeoJSON utilities have a separate [refresh and repair function reference](../data/ebmud/FUNCTION_REFERENCE.md).
 Current GIS source and documentation updates do not imply rebuilt artifacts;
 see [source deployment](../INSTALL.md#gis-source-deployment).

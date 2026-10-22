@@ -3,9 +3,11 @@
 import importlib.util
 from contextlib import closing
 import json
+import os
 from pathlib import Path
 import shutil
 import sqlite3
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -23,6 +25,110 @@ spec.loader.exec_module(configure)
 
 
 class InstallerTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform.startswith("linux") and getattr(os, "geteuid", lambda: -1)() == 0,
+                         "Native Linux root permission integration test")
+    def test_private_venv_is_readable_by_service_account_without_write_access(self):
+        """Run a real interpreter as the service identity through restricted runtime directories."""
+        import grp
+        import pwd
+        import stat
+        try:
+            account = pwd.getpwnam("meshcore-ems")
+            group = grp.getgrnam("meshcore-ems")
+        except KeyError:
+            self.skipTest("Native service installation account is required")
+        source = (ROOT / "installers/linux/install.sh").read_text()
+        start = source.index("grant_service_venv_access() {")
+        function = source[start:source.index("\n}", start) + 2]
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            root.chmod(0o755)
+            environment = root / ".venv"
+            binary = environment / "bin"
+            library = environment / "lib"
+            binary.mkdir(parents=True)
+            library.mkdir()
+            for directory in (environment, binary, library):
+                directory.chmod(0o700)
+            module = library / "permission_fixture.py"
+            module.write_text("VALUE = 42\n")
+            module.chmod(0o600)
+            sentinel = root / "outside-runtime"
+            sentinel.write_text("outside bytes")
+            sentinel.chmod(0o600)
+            (library / "outside-link").symlink_to(sentinel)
+            target = Path("/usr/bin/python3").resolve()
+            (binary / "python").symlink_to(target)
+            before = {path: (path.stat().st_uid, path.stat().st_gid, stat.S_IMODE(path.stat().st_mode))
+                      for path in (sentinel, target)}
+            subprocess.run(["bash", "-eu", "-c", function + '\ngrant_service_venv_access "$1"',
+                            "permissions-test", str(environment)], check=True, capture_output=True, text=True)
+            for path in (environment, binary, library, module):
+                metadata = path.stat()
+                self.assertEqual(metadata.st_uid, 0)
+                self.assertEqual(metadata.st_gid, group.gr_gid)
+                self.assertEqual(stat.S_IMODE(metadata.st_mode) & 0o027, 0)
+            for path, expected in before.items():
+                metadata = path.stat()
+                self.assertEqual((metadata.st_uid, metadata.st_gid, stat.S_IMODE(metadata.st_mode)), expected)
+            command = ["runuser", "-u", "meshcore-ems", "--", str(binary / "python"), "-B", "-c",
+                       "import os,sys; sys.path.insert(0,sys.argv[1]); import permission_fixture; "
+                       "print(os.geteuid(),permission_fixture.VALUE); "
+                       "assert not os.access(sys.argv[2],os.W_OK)", str(library), str(module)]
+            completed = subprocess.run(command, capture_output=True, text=True, timeout=30)
+            self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+            self.assertEqual(completed.stdout.strip(), f"{account.pw_uid} 42")
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows ACL integration test")
+    def test_private_installation_grants_service_read_without_replacing_owner_permissions(self):
+        """Actual ACL changes cover existing protected descendants in a private custom install."""
+        with tempfile.TemporaryDirectory() as folder:
+            script = r'''
+param([string]$Installer, [string]$Root)
+$ErrorActionPreference = 'Stop'
+$owner = [Security.Principal.WindowsIdentity]::GetCurrent().User
+$private = New-Object System.Security.AccessControl.DirectorySecurity
+$private.SetAccessRuleProtection($true, $false)
+$private.AddAccessRule((New-Object System.Security.AccessControl.FileSystemAccessRule($owner, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')))
+Set-Acl -LiteralPath $Root -AclObject $private
+$nested = Join-Path $Root 'python\Lib'
+New-Item -ItemType Directory -Path $nested -Force | Out-Null
+$file = Join-Path $nested 'reader.py'
+[IO.File]::WriteAllText($file, 'preserved bytes')
+# Protected descendants cannot depend on inheritance from the installation root.
+Set-Acl -LiteralPath $nested -AclObject $private
+$before = Get-Acl -LiteralPath $file
+$tokens = $null
+$errors = $null
+$ast = [Management.Automation.Language.Parser]::ParseFile($Installer, [ref]$tokens, [ref]$errors)
+if ($errors.Count) { throw 'Installer PowerShell parsing failed' }
+$function = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Grant-ServiceApplicationReadAccess'}, $true)
+if ($null -eq $function) { throw 'Application ACL helper was not found' }
+. ([ScriptBlock]::Create($function.Extent.Text))
+Grant-ServiceApplicationReadAccess -ApplicationRoot $Root
+foreach ($path in @($Root, $nested, $file)) {
+    $acl = Get-Acl -LiteralPath $path
+    $rules = $acl.GetAccessRules($true, $true, [Security.Principal.SecurityIdentifier])
+    $read = [Security.AccessControl.FileSystemRights]::ReadAndExecute
+    if (-not ($rules | Where-Object {$_.IdentityReference.Value -eq 'S-1-5-19' -and $_.AccessControlType -eq 'Allow' -and ($_.FileSystemRights -band $read) -eq $read})) { throw "Missing LocalService RX: $path" }
+    if (-not ($rules | Where-Object {$_.IdentityReference.Value -eq $owner.Value -and $_.FileSystemRights -eq 'FullControl'})) { throw "Owner rights changed: $path" }
+    if ($rules | Where-Object {$_.IdentityReference.Value -eq 'S-1-5-19' -and ($_.FileSystemRights -band [Security.AccessControl.FileSystemRights]::WriteData)}) { throw "Service received write access: $path" }
+}
+if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application bytes changed' }
+'''
+            probe = Path(folder) / "acl-probe.ps1"
+            probe.write_text(script, encoding="utf-8")
+            application = Path(folder) / "private application"
+            application.mkdir()
+            result = subprocess.run(
+                ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(probe),
+                 "-Installer", str(ROOT / "installers/windows/install.ps1"), "-Root", str(application)],
+                capture_output=True, text=True, timeout=60,
+                env=dict(os.environ, PSModulePath=str(Path(os.environ["SystemRoot"]) /
+                                                      "System32/WindowsPowerShell/v1.0/Modules")),
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_build_distributes_os_installers_separately(self):
         """A release build emits architecture-specific installers without an aggregate archive."""
         with tempfile.TemporaryDirectory() as folder:
@@ -57,13 +163,11 @@ class InstallerTests(unittest.TestCase):
         for name in ("installers/windows/install.ps1", "installers/linux/install.sh"):
             self.assertIn(version, (ROOT / name).read_text())
 
-    def test_landslide_payloads_include_both_boundaries_and_dedicated_programs(self):
-        """Both distribution inventories must contain the executable feature and verified references."""
+    def test_landslide_programs_ship_separately_from_dataset_references(self):
+        """Service packages contain commands; independent data packages own references."""
         import package_services
         workspace_files = set(build_installers.source_files())
-        required = {"landslide_service.py", "LANDSLIDE_GUIDE.md", "tests/test_landslide.py",
-                    "data/landslide/california.geojson", "data/landslide/nevada.geojson",
-                    "data/landslide/manifest.json", "data/landslide/stations.json"}
+        required = {"landslide_service.py", "LANDSLIDE_GUIDE.md", "tests/test_landslide.py"}
         required.update("scripts/" + name + ".py" for name in ("slidewarn", "slidealarm", "slideinfo"))
         for package in package_services.PACKAGES:
             standalone_files = set(package_services.package_files(package))
@@ -71,6 +175,8 @@ class InstallerTests(unittest.TestCase):
                 path = ROOT / package / name
                 self.assertIn(path, standalone_files)
                 self.assertIn(path, workspace_files)
+            self.assertFalse(any("data/landslide/" in p.as_posix() for p in standalone_files))
+            self.assertFalse(any("data/wildfire/" in p.as_posix() for p in standalone_files))
 
     def test_upgrade_adds_landslide_commands_without_assigning_existing_channels(self):
         """New command registrations preserve the administrator's existing channel routing."""
@@ -108,7 +214,7 @@ class InstallerTests(unittest.TestCase):
                      "data/ebmud/sources.json"):
             self.assertFalse(build_installers.download_only(Path(path), rules), path)
         paths = {p.relative_to(ROOT).as_posix() for p in build_installers.source_files()}
-        self.assertIn("data/wildfire/zones.geojson", paths)
+        self.assertNotIn("data/wildfire/zones.geojson", paths)
         self.assertIn("data/usgs_water/local_review_rules.json", paths)
         self.assertFalse(any(p.startswith("data/usgs_water/routing/") for p in paths))
 
@@ -161,6 +267,8 @@ class InstallerTests(unittest.TestCase):
         for name in ("flood_warn.py", "uv_index.py", "response_text.py"):
             shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts" / name, package / "scripts" / name)
         configure.write_json(package / "config.json", defaults)
+        shutil.copy2(ROOT / "meshcore_mqtt_service/scripts/dataset_paths.py",
+                     root / "meshcore_mqtt_service/scripts/dataset_paths.py")
         (root / "satellite_database/settings.json").write_text("{}")
         (root / "data/satellites/satellites.sqlite3").write_bytes(b"supplied-reference")
         return root, state, config
@@ -177,6 +285,7 @@ class InstallerTests(unittest.TestCase):
             del current["responder"]["commands"]["!snowpack"]
             configure.write_json(config / "config.json", current)
             configure.write_json(config / "environment.json", {"AIRNOW_API_KEY": "kept-test-key"})
+            (state / "data/satellites").mkdir(parents=True)
             (state / "data/satellites/satellites.sqlite3").write_bytes(b"operator-refreshed")
             with closing(sqlite3.connect(state / "runtime/bridge.sqlite3")) as database:
                 database.execute("PRAGMA journal_mode=WAL")
@@ -466,13 +575,15 @@ class InstallerTests(unittest.TestCase):
             "docs/assets/commands-badge.svg",
             "docs/assets/offline-gis-badge.svg",
             "archive/README.md",
-            "data/satellites/satellites.sqlite3",
-            "data/ebmud/trails.geojson",
             "satellite_database/satellite_db.py",
             "meshcore_mqtt_service/service_runner.py",
             "meshcore_mqtt_service_windows/service_runner.py",
         ):
             self.assertIn(required, paths)
+        for excluded in ("data/satellites/satellites.sqlite3", "data/ebmud/trails.geojson",
+                         "meshcore_mqtt_service/data/wildfire/zones.geojson",
+                         "meshcore_mqtt_service_windows/data/landslide/stations.json"):
+            self.assertNotIn(excluded, paths)
         for path in paths:
             if path.startswith("archive/"):
                 # Include public recovery guidance without distributing recovery data.

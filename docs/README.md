@@ -33,6 +33,10 @@ command guides describe the same command behavior; platform setup and paths diff
 
 ## Data and separate reference tools
 
+[Independent dataset installers, updates, recovery and removal](DATA_PACKAGES.md)
+cover the separate Windows, Linux and Raspberry Pi packages. Failed source
+updates retain the active local dataset and its original freshness information.
+
 | Topic | Documentation |
 | --- | --- |
 | Wildfire commands, forecasts, alarms, point smoke/fuel context and interstate boundaries | [Wildfire guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md) · [Zone seed](../data/wildfire/README.md) |

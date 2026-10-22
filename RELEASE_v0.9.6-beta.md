@@ -18,9 +18,17 @@ and [response examples](meshcore_mqtt_service/RESPONSE_EXAMPLES.md).
   defaults to five seconds; contention and transmission time can add delay.
 - Water collection programs and maintained configuration are included. Generated
   Basin Plan, flood-impact and USGS downloads remain local and require the
-  [water-data setup procedure](docs/WATER_DATA_SETUP.md).
+  [independent dataset installers](docs/DATA_PACKAGES.md).
+- All eight reference collections have separate Windows x64, Linux x86_64 and
+  Raspberry Pi ARM64 installers and uninstallers. Updates validate an isolated
+  candidate before activation; failed acquisition retains the selected local
+  dataset. Main service installation and removal preserve independent datasets.
 - Persistent subscriptions remain service-owned. Standalone command invocation
   does not create a subscription.
+- Windows dataset maintenance uses a PS2EXE-compiled `Dataset.exe` with a console
+  menu and scriptable actions. Readable dataset names and grouped Start menu
+  shortcuts simplify access; package IDs, data paths and preservation rules remain
+  unchanged. Setup and removal retain their native Inno Setup executables.
 
 Upgrades preserve existing configuration and channel assignments. Assign any
 newly available commands to the intended channels and restart the service.
@@ -39,6 +47,9 @@ Existing configurations retain their radio spacing; set `command_interval` to
 | `MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run` | Raspberry Pi OS 64-bit, Bookworm or newer, with systemd |
 
 The three online installers are distributed separately under `dist/v0.9.6-beta/`.
+The 24 independent data installers are under its `datasets/` directory, with a
+separate `SHA256SUMS.txt`. The dataset guide identifies required collections,
+dependency order, custom data roots, update/rollback commands and removal rules.
 Both source ZIPs and their individual SHA-256 files are also copied there for a
 self-contained release inventory; current ZIPs remain available under `dist/`.
 No combined installer archive is produced. Each source package contains
@@ -56,9 +67,10 @@ configuration, environments and generated water downloads are excluded.
 
 ## Verification boundaries
 
-The [validation record](installers/VALIDATION.md) distinguishes Windows-hosted
-offline tests and artifact inspection from deployment acceptance. Building and
-checking the installers does not establish native Linux/ARM64 operation,
-service installation or reboot recovery, physical radio delivery, or current
-provider availability. The Windows installer is unsigned. This local rebuild
-does not publish a GitHub release.
+The [validation record](installers/VALIDATION.md) distinguishes offline tests,
+artifact inspection and actual Windows/Ubuntu WSL lifecycle checks. Its native
+qualification section records installed service-account reads after failed data
+updates and ownership-aware removal. No Raspberry Pi host was available. Services
+were installed without starting the radio bridge; reboot recovery, physical radio
+delivery and current provider availability remain unverified. The Windows
+installer is unsigned. This local rebuild does not publish a GitHub release.

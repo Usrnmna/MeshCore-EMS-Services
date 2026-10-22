@@ -1,5 +1,154 @@
 # Installer and service validation
 
+## Compiled Windows dataset tools
+
+Windows dataset packages include `Dataset.exe`, compiled from the maintained
+PowerShell entry point using PS2EXE 1.0.18. Automated executable tests cover paths
+with spaces, invocation from another working directory, native stdout/stderr,
+child exit codes, candidate and purge arguments, invalid arguments, menu input,
+missing runtime settings and source-invocation compatibility. Native Inno fixture
+tests cover setup failure code 20, clean Installed Apps names, refused removal
+and successful removal of the executable.
+
+PS2EXE parameter-attribute validation can report an error with exit code zero;
+action and candidate validation therefore run inside the script's error handler.
+Console input uses `Console.ReadLine` to support redirected input as well as
+interactive menu launches. Neither conversion nor menu operation changes dataset
+activation, receipt validation, dependency protection or retention policy.
+
+The release's `native-validation/windows/VERIFICATION.json` records the actual
+compiled-tool lifecycle qualification. A passing result requires all eight
+installed executables to reject unavailable updates while preserving registry
+selection, complete receipt hashes and service-account reader results. It also
+records readable Installed Apps names, shortcut targets, removal of known obsolete
+launchers, dependency-blocked uninstall and all eight successful uninstallers.
+Compiler snapshots record source and generated executable hashes. Final rebuilds
+are compared with native-tested runtime sources; regenerated PE files can differ
+in build metadata, so tested and final executable hashes remain distinct evidence.
+
+Linux/Pi wrappers are unchanged by Windows compilation. Linux native lifecycle
+evidence below remains applicable only when the final runtime-input comparison
+passes. Rebuilt Linux/Pi archives also require checksum and extraction validation.
+An ARM64 archive check on WSL does not establish native Raspberry Pi execution.
+
+## Native dataset lifecycle qualification: October 21-22, 2026
+
+Actual generated installers and their installed uninstallers were exercised in
+isolated data roots. The Linux run used Ubuntu 24.04 x86_64 under WSL2. The Windows
+run used Windows 10 Pro x64 with administrator elevation. Raspberry Pi native
+execution was unavailable because no ARM64 test host was available.
+
+| Native check | Ubuntu 24.04 WSL2 | Windows 10 x64 |
+| --- | --- | --- |
+| Eight independent dataset installers and receipt verification | Passed | Passed |
+| Eight failed updates preserve registry, receipts and all selected file hashes | Passed | Passed |
+| Failed installer repair preserves the selected maintenance runtime and data | Passed | Passed |
+| Installed readers and service readiness under the service identity | Passed | Passed |
+| Main service uninstaller preserves independent datasets | Passed | Passed |
+| Prerequisite removal refused while dependent datasets remain | Passed | Passed |
+| Eight independent uninstallers and modified/unowned/legacy data retention | Passed | Passed |
+
+The four bundled collections used their actual packaged snapshots. Basin Plans,
+flood reference, USGS Water and satellites imported isolated copies of existing
+local archives. USGS installation validated its prerequisites and prepared its
+managed spatial index. The original source directories were not used as uninstall
+targets. These checks establish import, validation and activation behavior;
+they do not establish complete fresh downloads from every upstream provider.
+
+Failure injection used refused loopback proxy connections on Linux and a local
+proxy returning HTTP 503 on Windows for the six network updaters. Unavailable or
+invalid packaged manifests exercised the two curated collections. A refused
+dependency-index connection tested actual installer repair
+failure. The post-failure probes compared complete receipt-bound file hashes,
+registry selection and functional reader results with the baseline. They executed
+installed code using the installed interpreter under `meshcore-ems` or Windows
+`LocalService`, with network access rejected during the reader checks. Parks,
+Basin archive and flood-reference helper checks remain reference-tool checks;
+they do not introduce additional MeshCore commands.
+
+Native testing exposed and corrected three installation defects:
+
+- Linux private virtual environments inherited permissions that prevented the
+  service account from executing Python. Runtime files now grant the service
+  group read/traverse access without write access, and installation performs the
+  readiness check as that account before activating the release.
+- Windows custom application directories could inherit private profile ACLs.
+  Installation now grants `LocalService` read/execute access to application files.
+- Windows PowerShell 5.1 rejected the null backup argument used during atomic
+  runtime-settings replacement. Replacement now uses a unique backup path.
+  Dataset setup also returns exit code 20 when preparation fails, retains helper
+  output under the package's `logs` directory, and exits promptly when silent
+  uninstall is refused.
+
+An initial Windows USGS import stalled during prerequisite validation and was
+terminated after its owned process tree was identified. The unchanged registry
+and preserved legacy directory were recorded; the exact stall cause was not
+established. The subsequent installer uses hidden helpers with output redirected
+to persistent files. A preexisting invalid third-party Ubuntu APT repository
+required a process-only override using official Ubuntu sources; system APT
+configuration was not changed.
+
+Focused regression checks passed: 21 service-installer tests on Windows with the
+Linux-only case skipped; 10 dataset-installer tests, including native PowerShell
+5.1 and a compiled Inno failure/refusal fixture; and 18 dataset-manager tests plus
+the service-runtime permission test on native Ubuntu with no skips.
+
+Test-created service registrations and temporary scheduled tasks were removed.
+Retained configuration, failed candidates, modified content and legacy copies
+remain under the isolated evidence directories. The Linux `meshcore-ems` account
+is retained by the normal uninstaller policy. These checks do not claim reversal
+of every package-manager dependency installed during qualification.
+
+The release `VERIFICATION.json` records final artifact hashes and compares runtime
+source/seed bytes with the exact native-tested payload manifests. Documentation
+rebuilds can change installer hashes without changing the tested runtime inputs;
+the native reports retain that distinction. Service-first installation order
+remains covered by source/unit checks; the native sequence installed data first,
+then installed, repaired and removed the main service.
+
+Services were installed with `--no-start` or `/NOSTART=1` to avoid starting the
+bridge during qualification. Readiness and offline
+reader execution under the real service identities do not establish a running
+radio bridge, reboot recovery, hardware access, live-provider availability or
+over-the-air delivery. Windows builds remain unsigned. Earlier sections retain
+their original source/build scope; this section supersedes their native-test
+limitations only for the checks explicitly recorded here.
+
+## Independent dataset packaging: October 21, 2026
+
+Eight dataset packages use separate Windows x64, Linux x86_64 and Raspberry Pi
+ARM64 installers. Service payload inventories exclude reference dataset bytes.
+The [dataset lifecycle guide](../docs/DATA_PACKAGES.md) describes updates,
+ownership-scoped removal and preserved local generations.
+
+Completed software checks for this change:
+
+| Suite | Result |
+| --- | --- |
+| Linux service source on Windows host | 484 passed |
+| Windows service source | 484 passed |
+| Dataset manager failure and recovery tests | 18 run; POSIX permission-bit case skipped on Windows |
+| Dataset source adapters | 17 passed |
+| Dataset packaging | Passed; separate targets, payload hashes and release versioning |
+| Existing service installer/configuration regression | 19 passed |
+| Flood-reference tools, including static-only validation | 22 passed |
+| Satellite tools and managed generation access | 31 run; 1 optional Skyfield test skipped |
+
+Real local EBMUD, Parks, wildfire, landslide, satellite, Basin Plan and static
+flood datasets passed offline validation. USGS routing and its three review
+validators passed against the existing local archive. Complete new USGS
+acquisition and its generation-local index were not exercised against live
+providers. Windows temporary-directory/pipe restrictions required permitted
+runs outside the restricted sandbox; no production workaround was introduced.
+
+PowerShell parsing, Bash syntax and binary-wheel dependency resolution were
+checked for Windows x64 Python 3.13, Linux x64 Python 3.11, and Raspberry Pi ARM64
+Python 3.11/3.13. Windows Inno Setup compilation and self-extracting archive
+inspection are build evidence, not native installation/uninstallation evidence.
+Actual administrator service/data installation in either order, reboot behavior,
+Linux/Pi deployment, live-provider outages and physical radio delivery remain
+target acceptance checks. Default Windows builds are unsigned.
+
 ## Version 0.9.6 - Beta rebuild: October 21, 2026
 
 The local release identifier is `v0.9.6-beta`; Windows launcher, service-host,

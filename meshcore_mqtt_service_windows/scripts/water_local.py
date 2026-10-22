@@ -96,12 +96,12 @@ def signature(path):
     return [stat.st_size, stat.st_mtime_ns]
 
 
-def build_index(config, output=None):
+def build_index(config, output=None, collection=None):
     """Atomically index verified static geometry and station identities; store no observations."""
     import shapely
     from pyproj import Transformer
 
-    root = water_settings.data_root(config) / "usgs_water"
+    root = Path(collection) if collection is not None else water_settings.collection(config)
     directory, manifest, pointer = generation(root, "routing", ["routing.sqlite"])
     inventory, im, ip = generation(
         root,
@@ -184,7 +184,7 @@ def build_index(config, output=None):
                 "routing": pointer,
                 "inventory": ip,
                 "pins": pins,
-                "routing_path": str(directory / "routing.sqlite"),
+                "routing_path": (directory / "routing.sqlite").relative_to(root.resolve()).as_posix(),
                 "routing_signature": signature(directory / "routing.sqlite"),
                 "schema": 2,
             }
@@ -250,8 +250,9 @@ def context(latitude, longitude, config, now, index_path=None):
     import shapely
     from pyproj import Transformer
 
-    root = water_settings.data_root(config) / "usgs_water"
-    path = index_path or water_settings.runtime() / "water_index.sqlite3"
+    root = water_settings.collection(config)
+    path = index_path or (root / "water_index.sqlite3" if (root / "water_index.sqlite3").exists()
+                          else water_settings.runtime() / "water_index.sqlite3")
     if not path.exists():
         raise ValueError(
             "Water index unavailable; run scripts/water_refresh.py --index"
@@ -276,6 +277,8 @@ def context(latitude, longitude, config, now, index_path=None):
                     "Routing dependencies changed; refresh routing and index"
                 )
         source_path = Path(metadata["routing_path"])
+        if not source_path.is_absolute():
+            source_path = checked_path(root, metadata["routing_path"])
         if signature(source_path) != metadata["routing_signature"]:
             raise ValueError("Routing file changed since verified indexing")
         to_albers = Transformer.from_crs(4326, 3310, always_xy=True).transform

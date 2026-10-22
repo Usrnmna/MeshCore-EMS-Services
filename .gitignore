@@ -37,6 +37,8 @@ htmlcov/
 .env.*
 !.env.example
 !.env.*.example
+!.env.template
+!.env.*.template
 
 # Rebuilt distribution packages and local recovery snapshots
 dist/
@@ -77,6 +79,16 @@ satellite-settings.json.tmp
 
 # Transient GIS maintenance state; retain snapshots, manifests, and originals/.
 .refresh.lock
+
+# Managed dataset generations, activation registry, and maintenance locks.
+# Curated settings, source adapters, and bundled reference seeds remain trackable.
+.datasets/
+datasets.json
+datasets.json.*.tmp
+.datasets.lock
+/.dataset-test-temp/
+
+# Interrupted collection refreshes and GIS settings writes.
 .refresh-*/
 .test-refresh-*/
 # Cover pending generations in current and future collection stages.

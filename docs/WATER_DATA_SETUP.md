@@ -1,5 +1,12 @@
 # Download water datasets after cloning
 
+For installed deployments, use the [independent data packages](DATA_PACKAGES.md).
+They stage acquisition and all dependent processing outside the active dataset,
+then activate a fully validated generation and matching spatial index. Source
+failures retain the previous working collection. The commands below remain the
+manual source-checkout workflow; do not run them against managed immutable
+generation directories. Use the installed package updater instead.
+
 The Basin Plan, flood-reference and statewide USGS collections are distributed
 as programs, tests, curated inputs and documentation. Their downloaded originals,
 GeoJSON, databases, relationship tables, generated catalogs, generation pointers

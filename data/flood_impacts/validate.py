@@ -18,17 +18,24 @@ else:
     from report import table
 
 
-def validate(root):
+def validate(root, include_observations=True):
     """Check semantic consistency after checksum verification, without network access.
 
     These checks establish consistency of the archived/reference products. They
     do not validate hydraulic predictions against an observed flood event.
+    Static-only data installations set include_observations=False; all static
+    receipt, routing, area, and coverage checks remain enabled.
     """
     static, manifest = archive.open_generation(root)
-    observations, observation_manifest = archive.open_generation(root, "observations")
-    bound_static, _ = archive.open_generation(root, pointer=observation_manifest["static_pointer"])
+    observation_manifest = None
+    bound_static = None
+    directories = {static}
+    if include_observations:
+        observations, observation_manifest = archive.open_generation(root, "observations")
+        bound_static, _ = archive.open_generation(root, pointer=observation_manifest["static_pointer"])
+        directories.update((observations, bound_static))
     receipts = 0
-    for directory in {static, observations, bound_static}:
+    for directory in directories:
         for receipt_path in directory.glob("raw/*.receipt.json"):
             receipt = archive.read_json(receipt_path)
             raw_path = receipt_path.with_name(receipt_path.name.replace(".receipt.json", ".json.gz"))
@@ -77,9 +84,10 @@ def validate(root):
                  "mapped_footprint_fraction": unary_union(parts).area / footprints[key[0]].area}
                 for key, parts in sorted(grouped.items())]
     return {"verified_at_utc": archive.utc_now(), "static_generation": manifest["generation"],
-            "observation_generation": observation_manifest["generation"],
-            "observations_bound_to_active_static": bound_static == static,
-            "verified_static_files": len(manifest["files"]), "verified_observation_files": len(observation_manifest["files"]),
+            "observation_generation": observation_manifest["generation"] if observation_manifest else None,
+            "observations_bound_to_active_static": bound_static == static if include_observations else None,
+            "verified_static_files": len(manifest["files"]),
+            "verified_observation_files": len(observation_manifest["files"]) if observation_manifest else 0,
             "raw_receipts_verified": receipts, "network_reaches": len(network),
             "connection_rows": len(edges), "scenario_basin_portions_verified": len(seen),
             "scenario_level_coverage": coverage,
@@ -90,8 +98,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--directory", type=Path, default=archive.ROOT)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--static-only", action="store_true", help="Verify the static reference without optional observations")
     args = parser.parse_args()
-    result = validate(args.directory)
+    result = validate(args.directory, include_observations=not args.static_only)
     if args.output:
         archive.write_json(args.output, result)
     print(json.dumps({k: v for k, v in result.items() if k != "scenario_level_coverage"}, indent=2))

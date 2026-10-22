@@ -5,6 +5,8 @@ import math
 import os
 from pathlib import Path
 
+from . import dataset_paths
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULTS = {
     "enabled": True,
@@ -65,6 +67,15 @@ def load():
 
 def data_root(config):
     return (ROOT / config["data_directory"]).resolve()
+
+
+def collection(config):
+    """Pin the managed USGS collection while respecting custom external data roots."""
+    configured = data_root(config) / "usgs_water"
+    return dataset_paths.resolve(
+        "usgs_water", configured, configured=configured,
+        defaults=(ROOT / DEFAULTS["data_directory"] / "usgs_water",),
+    )
 
 
 def runtime():

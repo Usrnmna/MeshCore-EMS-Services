@@ -47,10 +47,19 @@ bytecode, and historical backups. The ZIPs include their own tests and documenta
 
 ## Workspace ignore policy
 
+Build independent dataset artifacts with `python tools/build_data_installers.py`.
+The [dataset guide](DATA_PACKAGES.md#build-and-validation) documents inventories,
+platform targets and failure-injection tests. Dataset reference bytes are excluded
+from the main service ZIPs/installers. Managed generations, activation registries
+and maintenance locks are local state excluded from Git.
+
 The root `.gitignore` excludes local environments, service runtime state, Python
 bytecode/tool caches, coverage reports, build/distribution directories, credentials,
 recovery backups, interrupted archive/export writes, and GIS refresh staging/locks.
-The platform and satellite ignore files also protect standalone checkouts. Source Python,
+All four ignore files exclude managed `.datasets/` generations, `datasets.json`
+activation registries, registry temporary writes, and `.datasets.lock` maintenance
+locks, including standalone service and satellite copies. Environment `.example`
+and `.template` files remain publishable. Source Python,
 configuration templates, tests, function references, reference SQLite/JSON/CSV data,
 and retained raw source receipts remain trackable. Ignore rules do not remove
 files that Git already tracks, including previously committed distribution files.
@@ -62,6 +71,10 @@ under `data/` bypass line-ending conversion to preserve manifest-recorded bytes;
 maintained collection Python and top-level Markdown guides retain text handling.
 Supplier whitespace is retained and exempt from whitespace linting; authored
 Python and Markdown files continue to receive whitespace checks.
+CSV and JSONL files outside protected reference-data directories use LF endings;
+SQLite `.db` files, compressed archives, wheels, and Python extensions retain
+binary bytes. Managed `.datasets/` generations bypass text conversion, including
+archived source copies.
 
 Immutable Basin Plan, flood-reference and USGS generation directories override
 the text exceptions, including archived `build_code/*.py` and README copies.
@@ -246,9 +259,14 @@ present after a fresh clone. Their setup instructions remain linked.
 
 `.github/workflows/ci.yml` defines offline Linux/Windows checks for both packages,
 plus documentation, installer configuration, data-tool, and satellite tests on
-Linux. The service matrix selects Python 3.11 and 3.13 on both operating systems;
-the documentation/tools job uses Python 3.13. Actions are pinned to verified commit
-SHAs, checkout credentials are not persisted, and permissions are read-only.
+both operating systems. The service matrix selects Python 3.11 and 3.13 on both
+operating systems; the documentation/tools matrix uses Python 3.13. Its dependency
+installation includes the pinned dataset maintenance requirements. Windows tooling
+checks install PS2EXE 1.0.18 from PowerShell Gallery to compile and exercise the
+dataset maintenance entry point; tests requiring a local Inno Setup compiler or
+a native Linux service account remain conditional.
+Actions use verified commit pins for checkout v7.0.1 and setup-python v7.1.0;
+checkout credentials are not persisted, and workflow permissions are read-only.
 Checks run on pushes, pull requests, and manual dispatch. This workflow performs
 no provider acquisition, radio operation, OS-service installation, deployment,
 or release publication. Adding its configuration does not establish a successful
@@ -256,7 +274,8 @@ hosted run; its first published execution must be checked independently.
 
 `.github/dependabot.yml` covers GitHub Actions and all maintained pip requirement
 directories. Cross-directory dependency grouping keeps paired requirement changes
-in review together when constraints permit. Updates require review and verification;
+and `installers/datasets/requirements.txt` in review together when constraints
+permit. Updates require review and verification;
 no automatic merge or release process is configured.
 
 Official references: [checkout](https://github.com/actions/checkout),

@@ -16,6 +16,15 @@ $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
 $StateRoot = [IO.Path]::GetFullPath($StateRoot)
+
+function Grant-ServiceApplicationReadAccess {
+    param([Parameter(Mandatory=$true)][string]$ApplicationRoot)
+    # Custom installation paths can inherit private user-profile permissions.
+    # Add executable/read access for LocalService while preserving all other ACLs.
+    & icacls.exe $ApplicationRoot /grant '*S-1-5-19:(OI)(CI)RX' /T /Q
+    if ($LASTEXITCODE -ne 0) { throw 'Could not grant LocalService access to the application files.' }
+}
+
 # Keep auto in the saved config; the service detects the USB device on each start.
 if ($SerialPort -ieq 'auto') { $SerialPort = 'auto' }
 if ($Channel -and $ChannelsConfig) { throw 'Use -Channel or -ChannelsConfig, not both.' }
@@ -45,6 +54,8 @@ foreach ($sid in $access.Keys) {
 }
 Set-Acl -LiteralPath $StateRoot -AclObject $stateAcl
 foreach ($item in Get-ChildItem -LiteralPath $StateRoot -Force) {
+    # Independently managed public reference data retains its own ownership ACLs.
+    if ($item.Name -eq 'data') { continue }
     & icacls.exe $item.FullName /reset /T /Q
     if ($LASTEXITCODE -ne 0) { throw 'Could not restrict existing service state permissions.' }
 }
@@ -72,6 +83,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed. Check internet access and rerun setup.' }
     & $python -I -m pip check
     if ($LASTEXITCODE -ne 0) { throw 'Dependency validation failed.' }
+    Grant-ServiceApplicationReadAccess -ApplicationRoot $InstallRoot
     $configArgs = @('--root',$InstallRoot,'--state',$StateRoot,'--config-dir',$StateRoot,'--platform','windows')
     if ($SerialPort) { $configArgs += @('--port',$SerialPort) }
     if ($Transport) { $configArgs += @('--transport',$Transport) }
@@ -82,7 +94,7 @@ try {
     if ($ChannelsConfig) { $configArgs += @('--channels-config',$ChannelsConfig) }
     & $python (Join-Path $InstallRoot 'installers\configure.py') @configArgs
     if ($LASTEXITCODE -ne 0) { throw 'Configuration failed.' }
-    foreach ($folder in @('runtime','data')) {
+    foreach ($folder in @('runtime')) {
         & icacls.exe (Join-Path $StateRoot $folder) /grant '*S-1-5-19:(OI)(CI)M' /T /Q
         if ($LASTEXITCODE -ne 0) { throw 'Could not grant runtime permissions.' }
     }

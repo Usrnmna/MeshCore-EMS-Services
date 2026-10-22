@@ -7,6 +7,7 @@
 [Setup]
 AppId={{E76251FC-52CF-44EE-93E7-0278400F236C}
 AppName=MeshCore EMS Services
+UninstallDisplayName=MeshCore EMS Services
 AppVersion=v0.9.6-beta
 VersionInfoVersion=0.9.6.0
 AppPublisher=Usrnmna
@@ -31,9 +32,13 @@ SetupLogging=yes
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Installation guide"; Filename: "{app}\INSTALL.md"
+Name: "{group}\Service guide"; Filename: "{app}\INSTALL.md"
 Name: "{group}\Service settings"; Filename: "notepad.exe"; Parameters: """{commonappdata}\MeshCore-EMS\config.json"""
-Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
+Name: "{group}\Uninstall services"; Filename: "{uninstallexe}"
+
+[InstallDelete]
+Type: files; Name: "{group}\Installation guide.lnk"
+Type: files; Name: "{group}\Uninstall.lnk"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\python"

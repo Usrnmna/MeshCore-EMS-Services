@@ -37,6 +37,14 @@ build/
 .env.*
 !.env.example
 !.env.*.example
+!.env.template
+!.env.*.template
+
+# Managed dataset state in standalone copies; retain reference databases and exports.
+.datasets/
+datasets.json
+datasets.json.*.tmp
+.datasets.lock
 
 # Interrupted exports and SQLite sidecars; retain reference databases and receipts.
 *.json.tmp

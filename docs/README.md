@@ -36,6 +36,8 @@ command guides describe the same command behavior; platform setup and paths diff
 [Independent dataset installers, updates, recovery and removal](DATA_PACKAGES.md)
 cover the separate Windows, Linux and Raspberry Pi packages. Failed source
 updates retain the active local dataset and its original freshness information.
+The [editable PyQt6 dataset manager](DATASET_GUI.md) adds checkbox selection,
+batch planning and manual GUI builds that reuse the existing dataset installers.
 
 | Topic | Documentation |
 | --- | --- |

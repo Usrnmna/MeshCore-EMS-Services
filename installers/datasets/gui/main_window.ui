@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DatasetManagerWindow</class>
+ <widget class="QMainWindow" name="DatasetManagerWindow">
+  <property name="geometry"><rect><x>0</x><y>0</y><width>1180</width><height>850</height></rect></property>
+  <property name="windowTitle"><string>MeshCore EMS Dataset Manager</string></property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainLayout">
+    <item><widget class="QLabel" name="titleLabel"><property name="text"><string>MeshCore EMS Dataset Manager</string></property></widget></item>
+    <item><widget class="QLabel" name="modeLabel"><property name="wordWrap"><bool>true</bool></property><property name="text"><string>Existing dataset installers and maintenance tools • Package and data status are checked separately.</string></property></widget></item>
+    <item><widget class="QGroupBox" name="locationsGroup"><property name="title"><string>Locations</string></property>
+     <layout class="QGridLayout" name="locationsLayout">
+      <item row="0" column="0"><widget class="QLabel" name="dataRootLabel"><property name="text"><string>Data root</string></property><property name="buddy"><cstring>dataRootEdit</cstring></property></widget></item>
+      <item row="0" column="1"><widget class="QLineEdit" name="dataRootEdit"/></item>
+      <item row="0" column="2"><widget class="QPushButton" name="browseDataButton"><property name="text"><string>Browse…</string></property></widget></item>
+      <item row="1" column="0"><widget class="QLabel" name="installerFolderLabel"><property name="text"><string>Installer folder</string></property><property name="buddy"><cstring>installerFolderEdit</cstring></property></widget></item>
+      <item row="1" column="1"><widget class="QLineEdit" name="installerFolderEdit"/></item>
+      <item row="1" column="2"><widget class="QPushButton" name="browseInstallersButton"><property name="text"><string>Browse…</string></property></widget></item>
+     </layout>
+    </widget></item>
+    <item><widget class="QGroupBox" name="selectionGroup"><property name="title"><string>Collections — check rows, then choose an action to review its plan</string></property>
+     <layout class="QVBoxLayout" name="selectionLayout">
+      <item><widget class="QTreeWidget" name="datasetTree">
+       <property name="rootIsDecorated"><bool>false</bool></property>
+       <property name="alternatingRowColors"><bool>true</bool></property>
+       <column><property name="text"><string>Collection</string></property></column>
+       <column><property name="text"><string>Description</string></property></column>
+       <column><property name="text"><string>Prerequisites</string></property></column>
+       <column><property name="text"><string>Package/tools</string></property></column>
+       <column><property name="text"><string>Data</string></property></column>
+      </widget></item>
+      <item><layout class="QHBoxLayout" name="selectionButtonsLayout">
+       <item><widget class="QPushButton" name="selectAllButton"><property name="text"><string>Select All</string></property></widget></item>
+       <item><widget class="QPushButton" name="clearSelectionButton"><property name="text"><string>Clear Selection</string></property></widget></item>
+       <item><widget class="QPushButton" name="refreshButton"><property name="text"><string>Refresh Status</string></property></widget></item>
+      </layout></item>
+      <item><widget class="QLabel" name="detailsLabel"><property name="wordWrap"><bool>true</bool></property><property name="text"><string>Select a row to see its paths, verification details and recovery guidance.</string></property><property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property></widget></item>
+     </layout>
+    </widget></item>
+    <item><widget class="QGroupBox" name="actionsGroup"><property name="title"><string>Plan an operation</string></property>
+     <layout class="QGridLayout" name="actionsLayout">
+      <item row="0" column="0"><widget class="QPushButton" name="installSelectedButton"><property name="text"><string>Install Selected</string></property></widget></item>
+      <item row="0" column="1"><widget class="QPushButton" name="uninstallSelectedButton"><property name="text"><string>Uninstall Selected</string></property></widget></item>
+      <item row="1" column="0"><widget class="QPushButton" name="missingPackagesButton"><property name="text"><string>Install All Missing Source Packages</string></property></widget></item>
+      <item row="1" column="1"><widget class="QPushButton" name="missingDataButton"><property name="text"><string>Install All Missing Datasets</string></property></widget></item>
+      <item row="2" column="0" colspan="2"><widget class="QPushButton" name="uninstallAllButton"><property name="text"><string>Uninstall All Dataset Packages and Their Managed Data</string></property></widget></item>
+     </layout>
+    </widget></item>
+    <item><widget class="QTabWidget" name="outputTabs">
+     <widget class="QWidget" name="planTab"><attribute name="title"><string>Plan</string></attribute><layout class="QVBoxLayout" name="planLayout"><item><widget class="QPlainTextEdit" name="planText"><property name="readOnly"><bool>true</bool></property></widget></item></layout></widget>
+     <widget class="QWidget" name="logTab"><attribute name="title"><string>Live log</string></attribute><layout class="QVBoxLayout" name="logLayout"><item><widget class="QPlainTextEdit" name="logText"><property name="readOnly"><bool>true</bool></property><property name="maximumBlockCount"><number>5000</number></property></widget></item></layout></widget>
+     <widget class="QWidget" name="resultsTab"><attribute name="title"><string>Results</string></attribute><layout class="QVBoxLayout" name="resultsLayout"><item><widget class="QPlainTextEdit" name="resultsText"><property name="readOnly"><bool>true</bool></property></widget></item></layout></widget>
+    </widget></item>
+    <item><widget class="QProgressBar" name="progressBar"><property name="value"><number>0</number></property></widget></item>
+    <item><layout class="QHBoxLayout" name="executionLayout">
+     <item><widget class="QPushButton" name="executeButton"><property name="enabled"><bool>false</bool></property><property name="text"><string>Execute Reviewed Plan</string></property></widget></item>
+     <item><widget class="QPushButton" name="cancelButton"><property name="enabled"><bool>false</bool></property><property name="text"><string>Cancel After Current Package</string></property></widget></item>
+     <item><widget class="QPushButton" name="saveLogButton"><property name="text"><string>Save Log / Results…</string></property></widget></item>
+    </layout></item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,4 @@
+# GUI dependencies are separate from every dataset maintenance runtime.
+PyQt6==6.11.0
+PyQt6-Qt6==6.11.0
+PyQt6-sip==13.11.1

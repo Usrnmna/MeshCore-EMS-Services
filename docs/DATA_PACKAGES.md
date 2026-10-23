@@ -1,5 +1,9 @@
 # Independent dataset installation and recovery
 
+The optional [editable PyQt6 dataset manager](DATASET_GUI.md) provides checkbox
+selection and batch planning over these existing installers and uninstallers.
+Its GUI can be built separately without recompiling the dataset packages.
+
 [Installation](../INSTALL.md) | [Documentation index](README.md) | [Water acquisition details](WATER_DATA_SETUP.md)
 
 Reference datasets have separate Windows x64, Linux x86_64 and Raspberry Pi

@@ -48,6 +48,8 @@ bytecode, and historical backups. The ZIPs include their own tests and documenta
 ## Workspace ignore policy
 
 Build independent dataset artifacts with `python tools/build_data_installers.py`.
+The optional [dataset GUI build](DATASET_GUI.md#manually-package-the-gui) uses
+`tools/build_dataset_gui.py` and reuses those artifacts without recompiling them.
 The [dataset guide](DATA_PACKAGES.md#build-and-validation) documents inventories,
 platform targets and failure-injection tests. Dataset reference bytes are excluded
 from the main service ZIPs/installers. Managed generations, activation registries

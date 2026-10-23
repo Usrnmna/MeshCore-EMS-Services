@@ -1,5 +1,9 @@
 # Building independent dataset installers
 
+For the optional checkbox interface, see the [editable dataset GUI and manual
+build guide](../../docs/DATASET_GUI.md). Its separate builder reuses existing
+compiled dataset installers; it does not invoke this dataset build pipeline.
+
 `tools/build_data_installers.py` creates one installer per collection and target.
 The eight collections produce 24 separate artifacts; the main service installer
 is not included in any dataset package.

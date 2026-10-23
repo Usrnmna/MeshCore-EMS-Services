@@ -51,6 +51,12 @@ build/
 .build/
 archive/*.zip
 
+# Dataset GUI packaging and exported session logs outside the default build folders.
+# Keep the editable .ui form, Python source, requirements and build scripts trackable.
+MeshCore-EMS-Dataset-Manager.spec
+dataset-manager.log
+dataset-manager.log.*
+
 # SQLite transient files (keep the supplied reference database)
 *.sqlite3-wal
 *.sqlite3-shm
@@ -86,6 +92,7 @@ satellite-settings.json.tmp
 datasets.json
 datasets.json.*.tmp
 .datasets.lock
+.gui-manager.lock
 /.dataset-test-temp/
 
 # Interrupted collection refreshes and GIS settings writes.
@@ -113,6 +120,14 @@ Desktop.ini
 .vs/
 *.suo
 *.user
+
+# Qt Creator machine-local settings, backups and generated build directories.
+# Shared project definitions and Designer .ui forms remain trackable.
+*.user.*
+*.ui.autosave
+.qtcreator/
+.qtc_clangd/
+/build-*/
 
 # Download-on-demand water collections: publish tools and curated inputs only.
 # Keep all local datasets and previous generations on disk, outside Git.

@@ -30,6 +30,8 @@ service, schedule or subscription.
 
 | Program | Arguments and behavior |
 | --- | --- |
+| `installers/datasets/gui/main.py` | Optional `--demo` simulates states and operations without host discovery or installation. `--root PATH` selects the data root; `--installers PATH` selects existing native artifacts. `--smoke-test` requires `--demo`, loads the form and exits. See the [editable GUI guide](DATASET_GUI.md). |
+| `tools/build_dataset_gui.py` | Build only the GUI for the current OS/architecture. Optional `--output PATH` selects a new output directory; `--installers PATH` copies the eight existing checked artifacts for that target without rebuilding them. |
 | `tools/build_data_installers.py` | Repeatable `--dataset ID` selects packages; omission builds all eight. `--linux-only` builds distinct Linux x86_64 and Raspberry Pi ARM64 installers. `--iscc PATH` selects the Inno Setup compiler. Optional `--sign-tool NAME=COMMAND` enables signing of Windows installers and uninstallers. |
 | `installers/datasets/manage.py` | Positional `install`, `update`, `verify`, `status`, `rollback` or `uninstall`; required `--dataset ID`; optional `--root PATH` and `--payload PATH`. `--resume ID` resumes an unchanged install/update candidate. `--purge` applies only to uninstall and includes modified receipt-owned generations. |
 | `installers/datasets/adapters.py` | Internal subprocess worker: required `--worker acquire\|validate\|index`, followed by dataset ID, candidate directory, payload root and dependency-path JSON. Direct invocation is reserved for isolated candidates and does not activate a dataset. |

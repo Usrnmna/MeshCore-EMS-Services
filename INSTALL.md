@@ -6,6 +6,9 @@ These **online service installers** include both platform source packages,
 responder commands, tests, documentation and standalone satellite tools.
 Reference datasets use [independent data installers](docs/DATA_PACKAGES.md),
 with separate updates and uninstallers for each collection and platform.
+The optional [editable PyQt6 dataset manager](docs/DATASET_GUI.md) adds checkbox
+selection, missing-only installation and batch removal using those existing
+packages. GUI packaging does not require recompiling the dataset installers.
 The service installers automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution

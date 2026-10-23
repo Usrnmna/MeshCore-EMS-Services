@@ -72,6 +72,9 @@ features: EBMUD for local GIS, wildfire and landslide references, and the depend
 water collections for local water context. Each collection has Windows, Linux
 and Raspberry Pi installers and its own uninstaller. Failed updates retain the
 last validated local dataset; service upgrades do not replace data collections.
+The optional [editable dataset manager](docs/DATASET_GUI.md) provides a PyQt6
+checkbox interface for installing missing collections and removing selected
+packages, with a Qt Creator form and a separate manual GUI build.
 
 ### Essential requirements
 

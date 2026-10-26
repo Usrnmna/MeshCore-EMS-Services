@@ -67,8 +67,9 @@ and retained raw source receipts remain trackable. Ignore rules do not remove
 files that Git already tracks, including previously committed distribution files.
 
 The root [Git attributes](../.gitattributes) define LF endings for maintained
-source and documentation, and CRLF endings for Windows command and PowerShell
-scripts. File encodings remain unchanged. Reference datasets and supplier receipts
+source, documentation, and editable Qt Designer forms. Windows command and
+PowerShell scripts use CRLF endings. File encodings remain unchanged. Reference
+datasets and supplier receipts
 under `data/` bypass line-ending conversion to preserve manifest-recorded bytes;
 maintained collection Python and top-level Markdown guides retain text handling.
 Supplier whitespace is retained and exempt from whitespace linting; authored
@@ -260,25 +261,30 @@ present after a fresh clone. Their setup instructions remain linked.
 ## GitHub configuration and dependency review
 
 `.github/workflows/ci.yml` defines offline Linux/Windows checks for both packages,
-plus documentation, installer configuration, data-tool, and satellite tests on
-both operating systems. The service matrix selects Python 3.11 and 3.13 on both
+plus documentation, installer configuration, GUI widget, data-tool, and satellite
+tests on both operating systems. The service matrix selects Python 3.11 and 3.13 on both
 operating systems; the documentation/tools matrix uses Python 3.13. Its dependency
-installation includes the pinned dataset maintenance requirements. Windows tooling
-checks install PS2EXE 1.0.18 from PowerShell Gallery to compile and exercise the
-dataset maintenance entry point; tests requiring a local Inno Setup compiler or
+installation includes the pinned dataset maintenance and GUI runtime requirements.
+Qt widget tests run with the offscreen platform plugin; Linux preparation installs
+the EGL, OpenGL, and keyboard runtime libraries required by Qt.
+Windows compiler installation and tooling tests both use Windows PowerShell 5.1.
+An explicit PS2EXE 1.0.18 import precedes the tooling suite, and the Python exit
+code is propagated to the job. The compiler exercises the dataset maintenance
+entry point; tests requiring a local Inno Setup compiler or
 a native Linux service account remain conditional.
 Actions use verified commit pins for checkout v7.0.1 and setup-python v7.1.0;
 checkout credentials are not persisted, and workflow permissions are read-only.
 Checks run on pushes, pull requests, and manual dispatch. This workflow performs
 no provider acquisition, radio operation, OS-service installation, deployment,
-or release publication. Adding its configuration does not establish a successful
-hosted run; its first published execution must be checked independently.
+or release publication. Local verification does not establish hosted success;
+GitHub Actions results must be checked for each published revision.
 
 `.github/dependabot.yml` covers GitHub Actions and all maintained pip requirement
-directories. Cross-directory dependency grouping keeps paired requirement changes
-and `installers/datasets/requirements.txt` in review together when constraints
-permit. Updates require review and verification;
-no automatic merge or release process is configured.
+directories, including `installers/datasets/gui/requirements.txt` and its
+`requirements-build.txt` packaging dependencies. Cross-directory dependency
+grouping keeps each shared dependency's service, dataset, and GUI requirement
+changes in review together when constraints permit. Updates require review and
+verification. No automatic merge or release process is configured.
 
 Official references: [checkout](https://github.com/actions/checkout),
 [Python setup](https://github.com/actions/setup-python), and

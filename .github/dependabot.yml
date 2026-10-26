@@ -1,5 +1,5 @@
 # Maintained Python and workflow dependencies; no automatic merge or release.
-# Shared dependencies are grouped across both service packages and data tools.
+# Shared dependencies are grouped across service packages, data tools, and GUI builds.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -15,6 +15,7 @@ updates:
       - /data/usgs_water
       - /satellite_database
       - /installers/datasets
+      - /installers/datasets/gui
     schedule:
       interval: weekly
     groups:

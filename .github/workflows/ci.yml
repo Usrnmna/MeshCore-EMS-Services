@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+env:
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PYTHONUNBUFFERED: '1'
+
 concurrency:
   group: offline-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -44,6 +48,8 @@ jobs:
     name: Documentation and tools / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
     strategy:
       fail-fast: false
       matrix:
@@ -62,8 +68,15 @@ jobs:
             data/usgs_water/requirements.txt
             satellite_database/requirements-tracking.txt
             installers/datasets/requirements.txt
+            installers/datasets/gui/requirements.txt
+      - name: Install headless Qt runtime libraries
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends libegl1 libopengl0 libxkbcommon0
       - name: Install offline verification dependencies
-        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt
+        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt -r installers/datasets/gui/requirements.txt
       - name: Check tooling dependency compatibility
         run: python -m pip check
       - name: Install pinned Windows dataset test compiler
@@ -73,7 +86,16 @@ jobs:
       - name: Check documentation, examples, commands, and publication rules
         run: python tools/check_documentation.py
       - name: Check service and dataset installers, registries, and inventories
+        if: runner.os != 'Windows'
+        shell: bash
         run: python -m unittest discover -s tools -p "test_*.py"
+      - name: Check service and dataset installers, registries, and inventories (Windows PowerShell)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Import-Module -Name ps2exe -RequiredVersion 1.0.18 -ErrorAction Stop
+          python -m unittest discover -s tools -p "test_*.py"
+          exit $LASTEXITCODE
       - name: Check offline data tools and satellite catalog
         shell: bash
         run: |
@@ -81,5 +103,6 @@ jobs:
             python -m unittest discover -s "$suite" -p 'test_*.py' || exit $?
           done
 
-# Checks use fixtures and loopback MQTT. No acquisition, radio, installation,
-# deployment, release publication, or live-provider validation runs in this workflow.
+# Checks use fixtures, offscreen Qt widgets, and loopback MQTT. No provider
+# acquisition, radio operation, production installation, deployment, or release
+# publication runs in this workflow.

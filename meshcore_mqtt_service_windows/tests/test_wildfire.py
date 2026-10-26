@@ -176,12 +176,13 @@ class CacheTests(unittest.TestCase):
         self.assertEqual([f["id"] for f in record["perimeters"]], ["p2"])
 
     def test_disappeared_fire_is_last_known_only(self):
-        self.store.replace("zones", [zone()], "test")
-        self.store.replace("incidents", [feature("1", dict(IrwinID=GUID, IncidentName="Gone"))], "test")
-        self.store.replace("incidents", [], "test")
+        self.store.replace("zones", [zone()], "test", now=100)
+        self.store.replace("incidents", [feature("1", dict(IrwinID=GUID, IncidentName="Gone"))], "test", now=100)
+        self.store.replace("incidents", [], "test", now=200)
         self.assertEqual(lookup.incidents(self.store), {})
-        result = lookup.report("fire", GUID, self.store)
+        result = lookup.report("fire", GUID, self.store, now=200)
         self.assertTrue(result["incidents"][0]["historical"])
+        self.assertEqual(result["incidents"][0]["last_seen"], 100)
         self.assertIn("status unconfirmed", lookup.format_report(result))
 
     def test_stale_monitor_does_not_return_empty_all_clear(self):

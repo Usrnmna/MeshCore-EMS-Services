@@ -151,6 +151,7 @@ operator files retain their permissions. Windows inherits its data-root ACL.
 
 def record_path(root, dataset, record):
     """Resolve an activation record only inside the named collection's ownership."""
+    root = Path(root).resolve()
     path = contained(root, record["path"])
     if record.get("legacy"):
         if path != root / dataset:
@@ -229,7 +230,9 @@ def install(root, dataset, payload, update=False, resume=None, acquire=None, val
 Failed candidates and all previous directories are retained. A repeated install
 checks the selected generation rather than downgrading it to a shipped seed.
 Callbacks are injectable to exercise failure boundaries without live providers.
+Root aliases are resolved before deriving candidate and receipt paths.
 """
+    root = Path(root).resolve()
     if acquire is None or validate is None:
         from adapters import acquire as acquire_default, validate as validate_default
         acquire = acquire or acquire_default
@@ -301,6 +304,7 @@ Callbacks are injectable to exercise failure boundaries without live providers.
 
 def rollback(root, dataset):
     """Select the previous verified generation while retaining the newer directory."""
+    root = Path(root).resolve()
     with locked(root):
         state = registry(root)
         entry = state["datasets"].get(dataset, {})
@@ -342,6 +346,7 @@ failed candidates without receipts, and unrelated files are never deleted. A
 failed deletion leaves an unselected recoverable directory, never a broken active
 selection. Dataset consumers must be stopped before intentional removal.
 """
+    root = Path(root).resolve()
     with locked(root):
         state = registry(root)
         required = dependents(root, state, dataset)

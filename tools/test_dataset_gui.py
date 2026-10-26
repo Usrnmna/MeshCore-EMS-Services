@@ -22,7 +22,7 @@ class GuiCoreTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.folder = Path(self.temporary.name)
+        self.folder = Path(self.temporary.name).resolve()
         self.root = self.folder / "data"
         self.payload = self.folder / "payload"
         self.payload.mkdir()
@@ -257,7 +257,9 @@ class GuiCoreTests(unittest.TestCase):
         # need no symlink privileges to exercise the Linux record contract.
         original_resolve = Path.resolve
         def resolve(path, *args, **kwargs):
-            return release if path == prefix / "current" else original_resolve(path, *args, **kwargs)
+            if path == prefix / "current":
+                path = release
+            return original_resolve(path, *args, **kwargs)
         with patch.object(Path, "resolve", resolve):
             package = discovery.read_package("ebmud", "linux-x86_64", {}, prefix.parent)
         self.assertEqual(package.state, "ready", package.detail)
@@ -272,7 +274,7 @@ class GuiCoreTests(unittest.TestCase):
 
     def test_artifact_selection_is_target_specific_and_checksummed(self):
         path = self.artifact()
-        self.assertEqual(planning.installer_artifact(self.folder, "ebmud", self.target)[0], path)
+        self.assertEqual(planning.installer_artifact(self.folder, "ebmud", self.target)[0], path.resolve())
         with self.assertRaises(ValueError):
             planning.installer_artifact(self.folder, "ebmud", "linux-x86_64")
         path.write_bytes(b"corrupted")

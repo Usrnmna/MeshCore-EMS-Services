@@ -4,6 +4,8 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -14,7 +16,33 @@ manager = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(manager)
 
 
+def windows_short_path(path):
+    """Return a real 8.3 alias, skipping only when no distinct alias is available."""
+    import ctypes
+    from ctypes import wintypes
+
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    get_short_path = kernel.GetShortPathNameW
+    get_short_path.argtypes = (wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD)
+    get_short_path.restype = wintypes.DWORD
+    required = get_short_path(str(path), None, 0)
+    if not required:
+        raise ctypes.WinError(ctypes.get_last_error())
+    buffer = ctypes.create_unicode_buffer(required)
+    written = get_short_path(str(path), buffer, len(buffer))
+    if not written:
+        raise ctypes.WinError(ctypes.get_last_error())
+    if written >= len(buffer):
+        raise RuntimeError("Short-path buffer size changed during fixture creation")
+    alias = Path(buffer.value)
+    if alias == path:
+        raise unittest.SkipTest("Temporary volume does not provide a distinct Windows 8.3 alias")
+    return alias
+
+
 class DatasetManagerTests(unittest.TestCase):
+    path_forms = ("long", "noncanonical") + (("short",) if os.name == "nt" else ())
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -31,9 +59,21 @@ class DatasetManagerTests(unittest.TestCase):
             raise ValueError("Empty provider response")
 
     def install(self, dataset="ebmud", **kwargs):
-        return manager.install(self.root, dataset, self.payload,
+        return manager.install(kwargs.pop("root", self.root), dataset, self.payload,
                                acquire=kwargs.pop("acquire", self.acquire),
                                validate=kwargs.pop("validate", self.validate), **kwargs)
+
+    def path_root(self, form, label="paths"):
+        """Create an isolated long root and return an equivalent spelling for a subtest."""
+        root = (Path(self.temporary.name) / label / form / "Dataset root with spaces").resolve()
+        root.mkdir(parents=True)
+        if form == "noncanonical":
+            return root / ".." / root.name
+        if form == "short":
+            alias = windows_short_path(root)
+            self.assertEqual(alias.resolve(), root)
+            return alias
+        return root
 
     def current(self, dataset="ebmud"):
         return manager.selected(self.root, manager.registry(self.root), dataset)
@@ -74,18 +114,22 @@ class DatasetManagerTests(unittest.TestCase):
         self.assertEqual((self.root / "datasets.json").read_bytes(), before)
 
     def test_failed_atomic_activation_keeps_registry_and_old_files(self):
-        original = self.install()
-        before = (self.root / "datasets.json").read_bytes()
         replace = os.replace
         def fail_registry(source, target):
             if Path(target).name == "datasets.json":
                 raise PermissionError("registry locked")
             return replace(source, target)
-        with patch.object(manager.os, "replace", side_effect=fail_registry):
-            with self.assertRaises(PermissionError):
-                self.install(update=True)
-        self.assertEqual((self.root / "datasets.json").read_bytes(), before)
-        self.assertEqual(self.contents(original), self.value)
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                original = self.install(root=canonical)
+                before = (canonical / "datasets.json").read_bytes()
+                with patch.object(manager.os, "replace", side_effect=fail_registry):
+                    with self.assertRaises(PermissionError):
+                        self.install(root=root, update=True)
+                self.assertEqual((canonical / "datasets.json").read_bytes(), before)
+                self.assertEqual((canonical / original["path"] / "data.txt").read_text(), self.value)
 
     def test_success_and_rollback_retain_both_complete_generations(self):
         first = self.install()
@@ -243,6 +287,212 @@ class DatasetManagerTests(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 self.install(update=True)
         self.assertEqual(self.current(), record)
+
+    def test_root_alias_install_update_and_rollback_share_generations(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                self.value = "verified first version"
+                first = self.install(root=root)
+                self.assertEqual((canonical / first["path"] / "data.txt").read_text(), self.value)
+                for relative in first.values():
+                    self.assertFalse(Path(relative).is_absolute())
+                    self.assertNotIn("..", Path(relative).parts)
+                self.value = "verified second version"
+                second = self.install(root=canonical, update=True)
+                self.assertNotEqual(first, second)
+                manager.rollback(root, "ebmud")
+                state = manager.registry(canonical)["datasets"]["ebmud"]
+                self.assertEqual(state, {"active": first, "previous": second})
+                manager.verify_record(root, "ebmud", first)
+                manager.verify_record(root, "ebmud", second)
+                self.assertEqual((canonical / first["path"] / "data.txt").read_text(), "verified first version")
+                self.assertEqual((canonical / second["path"] / "data.txt").read_text(), self.value)
+
+    def test_root_alias_legacy_lookup_and_import_preserve_original(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                legacy = root.resolve() / "ebmud"
+                legacy.mkdir()
+                (legacy / "data.txt").write_bytes(b"original legacy bytes")
+                record = {"path": "ebmud", "legacy": True}
+                self.assertEqual(manager.record_path(root, "ebmud", record), legacy)
+                installed = self.install(root=root)
+                state = manager.registry(root)["datasets"]["ebmud"]
+                self.assertEqual(state, {"active": installed, "previous": record})
+                before = (root / "datasets.json").read_bytes()
+                with self.assertRaisesRegex(ValueError, "Legacy"):
+                    manager.rollback(root, "ebmud")
+                self.assertEqual((root / "datasets.json").read_bytes(), before)
+                self.assertEqual((legacy / "data.txt").read_bytes(), b"original legacy bytes")
+
+    def test_root_alias_failed_update_retains_registry_and_partial_candidate(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                first = self.install(root=canonical)
+                before = (canonical / "datasets.json").read_bytes()
+                def unavailable(dataset, directory, *args, **kwargs):
+                    (directory / "download.part").write_bytes(b"incomplete download")
+                    raise TimeoutError("fixture provider unavailable")
+                with self.assertRaises(TimeoutError):
+                    self.install(root=root, update=True, acquire=unavailable)
+                self.assertEqual((canonical / "datasets.json").read_bytes(), before)
+                self.assertEqual((canonical / first["path"] / "data.txt").read_text(), self.value)
+                candidate = manager.status(root, "ebmud")["last_attempt"]["candidate"]
+                partial = canonical / ".datasets/ebmud" / candidate / "content/download.part"
+                self.assertEqual(partial.read_bytes(), b"incomplete download")
+
+    def test_root_alias_uninstall_removes_only_receipt_owned_generations(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                first = self.install(root=canonical)
+                other = self.install("wildfire", root=canonical)
+                content = canonical / first["path"]
+                legacy = canonical / "ebmud"
+                legacy.mkdir()
+                (legacy / "operator.txt").write_bytes(b"legacy data")
+                pending = canonical / ".datasets/ebmud" / ("f" * 32)
+                pending.mkdir()
+                (pending / "download.part").write_bytes(b"unpublished data")
+                result = manager.uninstall(root, "ebmud")
+                self.assertEqual(result["removed"], [str(content.parent)])
+                self.assertEqual(result["retained"], [str(pending)])
+                self.assertFalse(content.exists())
+                self.assertEqual((legacy / "operator.txt").read_bytes(), b"legacy data")
+                self.assertEqual((pending / "download.part").read_bytes(), b"unpublished data")
+                self.assertEqual((canonical / other["path"] / "data.txt").read_text(), self.value)
+                manager.verify_record(root, "wildfire", other)
+
+    def test_root_alias_uninstall_retains_modified_and_unowned_files(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                first = self.install(root=canonical)
+                modified = canonical / first["path"]
+                (modified / "data.txt").write_bytes(b"operator modification")
+                second = self.install(root=canonical, update=True)
+                unowned = (canonical / second["path"]).parent / "operator.txt"
+                unowned.write_bytes(b"unowned file")
+                result = manager.uninstall(root, "ebmud")
+                self.assertEqual(result["removed"], [])
+                self.assertEqual((modified / "data.txt").read_bytes(), b"operator modification")
+                self.assertEqual(unowned.read_bytes(), b"unowned file")
+                result = manager.uninstall(root, "ebmud", purge=True)
+                self.assertEqual(result["removed"], [str(modified.parent)])
+                self.assertFalse(modified.exists())
+                self.assertEqual(unowned.read_bytes(), b"unowned file")
+                self.assertEqual((canonical / second["path"] / "data.txt").read_text(), self.value)
+
+    def test_root_alias_mismatched_receipts_block_purge_without_deselection(self):
+        for form in self.path_forms:
+            for field in ("dataset", "path"):
+                with self.subTest(path_form=form, mismatched_field=field):
+                    root = self.path_root(form, field)
+                    canonical = root.resolve()
+                    record = self.install(root=canonical)
+                    receipt_path = canonical / record["receipt"]
+                    receipt = manager.read_json(receipt_path)
+                    receipt[field] = "wildfire" if field == "dataset" else ".datasets/ebmud/other/content"
+                    manager.write_json(receipt_path, receipt)
+                    before = (canonical / "datasets.json").read_bytes()
+                    damaged = receipt_path.read_bytes()
+                    with self.assertRaisesRegex(ValueError, "mismatched receipt"):
+                        manager.uninstall(root, "ebmud", purge=True)
+                    self.assertEqual((canonical / "datasets.json").read_bytes(), before)
+                    self.assertEqual(receipt_path.read_bytes(), damaged)
+                    self.assertEqual((canonical / record["path"] / "data.txt").read_text(), self.value)
+
+    def test_root_alias_rejects_traversal_and_cross_collection_records(self):
+        for form in self.path_forms:
+            with self.subTest(path_form=form):
+                root = self.path_root(form)
+                canonical = root.resolve()
+                record = self.install(root=canonical)
+                before = (canonical / "datasets.json").read_bytes()
+                for path in ("../outside", ".", str(canonical / record["path"]),
+                             ".datasets/ebmud/../content"):
+                    with self.subTest(relative=path):
+                        with self.assertRaises(ValueError):
+                            manager.contained(root, path)
+                invalid = [dict(record, path=".datasets/ebmud/../content",
+                                receipt=".datasets/ebmud/../receipt.json"),
+                           dict(record, path=record["path"].replace("/ebmud/", "/wildfire/"),
+                                receipt=record["receipt"].replace("/ebmud/", "/wildfire/")),
+                           dict(record, receipt="../outside"),
+                           dict(record, receipt=record["receipt"].replace("receipt.json", "other.json")),
+                           {"path": "wildfire", "legacy": True}]
+                for bad_record in invalid:
+                    with self.subTest(record=bad_record):
+                        with self.assertRaises(ValueError):
+                            manager.record_path(root, "ebmud", bad_record)
+                self.assertEqual((canonical / "datasets.json").read_bytes(), before)
+                self.assertEqual((canonical / record["path"] / "data.txt").read_text(), self.value)
+
+    def assert_link_blocks_purge(self, root, kind, target_inside):
+        """Reject real links before deselection or deletion, preserving both targets."""
+        canonical = root.resolve()
+        record = self.install(root=canonical)
+        content = canonical / record["path"]
+        target = content / "operator-files" if target_inside else canonical.parent / "outside"
+        target.mkdir()
+        marker = target / "operator.txt"
+        marker.write_bytes(b"unowned target bytes")
+        link = content / "linked-directory"
+        if kind == "junction":
+            host = shutil.which("powershell.exe")
+            if not host:
+                self.skipTest("Windows PowerShell is required to create the junction fixture")
+            escaped_link = str(link).replace("'", "''")
+            escaped_target = str(target).replace("'", "''")
+            command = f"New-Item -ItemType Junction -Path '{escaped_link}'"
+            command += f" -Target '{escaped_target}' -ErrorAction Stop | Out-Null"
+            result = subprocess.run([host, "-NoProfile", "-NonInteractive", "-Command", command],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        else:
+            try:
+                link.symlink_to(target, target_is_directory=True)
+            except OSError as error:
+                if getattr(error, "winerror", None) == 1314:
+                    self.skipTest("Windows symlink creation privilege is unavailable")
+                raise
+        try:
+            before = (canonical / "datasets.json").read_bytes()
+            with self.assertRaises(ValueError):
+                manager.uninstall(root, "ebmud", purge=True)
+            self.assertEqual((canonical / "datasets.json").read_bytes(), before)
+            self.assertEqual((content / "data.txt").read_text(), self.value)
+            self.assertEqual(marker.read_bytes(), b"unowned target bytes")
+        finally:
+            if kind == "junction":
+                if link.exists():
+                    link.rmdir()
+            else:
+                link.unlink(missing_ok=True)
+
+    def test_root_alias_symlinks_block_purge_inside_and_outside_root(self):
+        for form in self.path_forms:
+            for inside in (False, True):
+                with self.subTest(path_form=form, target_inside=inside):
+                    root = self.path_root(form, "symlink-" + str(inside))
+                    self.assert_link_blocks_purge(root, "symlink", inside)
+
+    @unittest.skipUnless(os.name == "nt", "Windows junction fixtures")
+    def test_root_alias_junctions_block_purge_inside_and_outside_root(self):
+        for form in self.path_forms:
+            for inside in (False, True):
+                with self.subTest(path_form=form, target_inside=inside):
+                    if inside and not hasattr(Path, "is_junction"):
+                        self.skipTest("Explicit junction detection requires Python 3.12 or newer")
+                    root = self.path_root(form, "junction-" + str(inside))
+                    self.assert_link_blocks_purge(root, "junction", inside)
 
 
 if __name__ == "__main__":

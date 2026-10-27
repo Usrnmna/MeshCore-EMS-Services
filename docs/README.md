@@ -9,6 +9,8 @@ command guides describe the same command behavior; platform setup and paths diff
 | Task | Documentation |
 | --- | --- |
 | Install or upgrade an OS service | [Installation and upgrade guide](../INSTALL.md) |
+| Install and remove packages on a graphical desktop | [Desktop installation and removal](DESKTOP_INSTALLATION.md) |
+| Inspect unified operation ownership and recovery | [Unified installer contracts](UNIFIED_INSTALLER.md) |
 | Send commands and interpret replies | [Linux quick user guide](../meshcore_mqtt_service/BOT_USER_GUIDE.md) · [Windows quick user guide](../meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) |
 | Find exact syntax, fields, errors, and examples | [Linux command reference](../meshcore_mqtt_service/COMMAND_REFERENCE.md) · [Windows command reference](../meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) |
 | Interpret concise replies and notification examples | [All command and subcommand response examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md) · [Response priorities, byte limits, and conditional fields](../meshcore_mqtt_service/RESPONSE_FORMATTING.md) |

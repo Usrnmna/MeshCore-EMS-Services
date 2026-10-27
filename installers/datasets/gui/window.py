@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QTreeWidgetIt
 
 from .catalog import DATASETS, LABELS
 from .discovery import demo_snapshot, inspect
-from .execution import run_batch
+from .privileges import execute_reviewed, inspect_with_authorization
 from .planning import make_plan
 
 
@@ -168,7 +168,7 @@ class DatasetWindow(QMainWindow):
         self.progressBar.setValue(complete)
 
     def scan(self, root, emit):
-        return demo_snapshot(root, self.target) if self.demo else inspect(root, self.target, progress=emit)
+        return demo_snapshot(root, self.target) if self.demo else inspect_with_authorization(root, self.target, emit)
 
     def refresh(self):
         self.invalidate()
@@ -209,7 +209,7 @@ class DatasetWindow(QMainWindow):
         names = ", ".join(LABELS[operation.dataset][0] for operation in plan.operations)
         message = ("SIMULATE " if self.demo else "Execute ") + ("removal" if removing else "installation") + " for: " + names + "?"
         if removing:
-            message += "\nPackage tools and managed data will be removed under the displayed retention policy. Stop consumers first."
+            message += "\nPackage tools and managed data will be removed under the displayed retention policy. Stop EMS through Service Setup and Maintenance first; active or unknown service state blocks removal."
         if QMessageBox.question(self, "Confirm reviewed batch", message,
                                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                                 QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
@@ -218,7 +218,7 @@ class DatasetWindow(QMainWindow):
         self.cancel.clear()
         self.outputTabs.setCurrentWidget(self.logTab)
         self.log(plan.text())
-        self.start(lambda emit, progress: run_batch(plan, folder, self.cancel, emit, progress), self.show_results, executing=True)
+        self.start(lambda emit, progress: execute_reviewed(plan, folder, self.cancel, emit, progress), self.show_results, executing=True)
 
     def show_results(self, results):
         self.plan = None

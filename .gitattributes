@@ -15,7 +15,11 @@
 *.service text eol=lf
 *.cs text eol=lf
 *.ui text eol=lf
+*.desktop text eol=lf
+*.sha256 text eol=lf
 *.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
 *.cmd text eol=crlf
 *.bat text eol=crlf
 *.iss text eol=crlf
@@ -24,8 +28,13 @@
 
 # Preserve binary distributions and media byte-for-byte.
 *.exe -text
+*.run -text
 *.dll -text
+*.so -text
+*.dylib -text
 *.zip -text
+*.tar -text
+*.tgz -text
 *.gz -text
 *.7z -text
 *.bz2 -text
@@ -34,6 +43,7 @@
 *.whl -text
 *.pyd -text
 *.png -text
+*.ico -text
 *.jpg -text
 *.jpeg -text
 *.gif -text

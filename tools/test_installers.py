@@ -137,12 +137,14 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
             (root / "INSTALL.md").write_text("Installation guide")
             (root / "installers/VALIDATION.md").write_text("Validation guide")
             with patch.object(build_installers, "ROOT", root), \
+                    patch.object(build_installers, "source_files", return_value=[root / "INSTALL.md"]), \
                     patch.object(build_installers, "stage_payload", side_effect=lambda path: path.mkdir()), \
                     patch.object(sys, "argv", ["build_installers.py", "--linux-only"]):
                 build_installers.main()
             release = root / "dist" / build_installers.VERSION
             self.assertEqual(len(list(release.glob("*.run"))), 2)
             self.assertEqual(len((release / "SHA256SUMS.txt").read_text().splitlines()), 2)
+            self.assertEqual(len(list(release.glob("*.provenance.json"))), 2)
             self.assertEqual(list((root / "dist").rglob("*.zip")), [])
 
     def test_release_versions_agree_across_platforms_and_installers(self):

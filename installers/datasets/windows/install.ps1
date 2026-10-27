@@ -25,12 +25,20 @@ if ($dataset -notin @('ebmud','basin_plans','flood_impacts','usgs_water','wildfi
 $settingsPath = Join-Path $InstallRoot 'runtime.json'
 if (-not $Root) {
     if (Test-Path -LiteralPath $settingsPath) { $Root = (Get-Content -LiteralPath $settingsPath -Raw | ConvertFrom-Json).root }
-    else { $Root = Join-Path $env:ProgramData 'MeshCore-EMS\data' }
+    else {
+        $retainedRoot = Join-Path ([Environment]::GetFolderPath('ProgramFiles')) ('MeshCore-EMS-Maintenance\retained-roots\' + $dataset + '.txt')
+        if (Test-Path -LiteralPath $retainedRoot -PathType Leaf) {
+            if ((Get-Item -LiteralPath $retainedRoot).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Retained root hint cannot be a reparse point.' }
+            $Root = [IO.File]::ReadAllText($retainedRoot).Trim()
+        } else { $Root = Join-Path $env:ProgramData 'MeshCore-EMS\data' }
+    }
 }
 if (-not [IO.Path]::IsPathRooted($Root)) { throw 'Data root must be absolute.' }
 $Root = [IO.Path]::GetFullPath($Root)
 if (($Root + '\').StartsWith($InstallRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Data root must be outside the maintenance installation.' }
-New-Item -ItemType Directory -Force -Path $Root | Out-Null
+. (Join-Path $payload 'installers\desktop\data_root.ps1')
+$dataRootLease = Enter-MeshCoreDataRoot $Root
+try {
 # Service-first and dataset-first installation both permit LocalService to read data.
 & icacls.exe $Root /grant '*S-1-5-19:(OI)(CI)RX' /Q
 if ($LASTEXITCODE -ne 0) { throw 'Could not grant service read access to the data directory.' }
@@ -68,3 +76,4 @@ $temporarySettings = Join-Path $InstallRoot 'runtime.next.json'
 Publish-RuntimeSettings -TemporarySettings $temporarySettings -SettingsPath $settingsPath
 & $python (Join-Path $payload 'installers\datasets\manage.py') install --dataset $dataset --root $Root --payload $payload
 if ($LASTEXITCODE -ne 0) { throw 'Dataset acquisition failed. Valid existing local data was retained. Use Dataset.exe install to retry.' }
+} finally { Exit-MeshCoreDataRoot $dataRootLease }

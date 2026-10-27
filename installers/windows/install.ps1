@@ -15,6 +15,12 @@ $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
+$maintenanceLease = $null
+if (-not $PrepareOnly) {
+    . (Join-Path $InstallRoot 'installers\desktop\maintenance_lock.ps1')
+    $maintenanceLease = Enter-MeshCoreMaintenance
+}
+try {
 $StateRoot = [IO.Path]::GetFullPath($StateRoot)
 
 function Grant-ServiceApplicationReadAccess {
@@ -23,6 +29,21 @@ function Grant-ServiceApplicationReadAccess {
     # Add executable/read access for LocalService while preserving all other ACLs.
     & icacls.exe $ApplicationRoot /grant '*S-1-5-19:(OI)(CI)RX' /T /Q
     if ($LASTEXITCODE -ne 0) { throw 'Could not grant LocalService access to the application files.' }
+}
+
+function Get-RegistrationStartMode {
+    param($PreviousStartup, [bool]$Staged)
+    # Only fresh installs choose a default; an existing SCM policy is authoritative.
+    if ($null -eq $PreviousStartup) {
+        if ($Staged) { return 'demand' }
+        return 'delayed-auto'
+    }
+    switch ($PreviousStartup.Start) {
+        2 { if ($PreviousStartup.DelayedAutoStart -eq 1) { return 'delayed-auto' }; return 'auto' }
+        3 { return 'demand' }
+        4 { return 'disabled' }
+        default { throw 'Existing service startup policy is unsupported; it was not changed.' }
+    }
 }
 
 # Keep auto in the saved config; the service detects the USB device on each start.
@@ -39,6 +60,11 @@ if (-not $PrepareOnly) {
     if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'Run setup as administrator.' }
     if ($StateRoot -ne (Join-Path $env:ProgramData 'MeshCore-EMS')) { throw 'The Windows service uses ProgramData\MeshCore-EMS.' }
     $existing = Get-Service MeshCoreEMS -ErrorAction SilentlyContinue
+    # Capture the persistent SCM policy before any file replacement or setup.
+    $previousStartup = $null
+    if ($existing) {
+        $previousStartup = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Services\MeshCoreEMS' -Name Start,DelayedAutoStart -ErrorAction SilentlyContinue
+    }
     if ($existing) { Stop-Service MeshCoreEMS; $existing.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(50)) }
 }
 New-Item -ItemType Directory -Force $StateRoot | Out-Null
@@ -108,7 +134,10 @@ try {
         $binaryPath = Join-Path $InstallRoot 'MeshCoreEMS.Service.exe'
         $scStart = New-Object System.Diagnostics.ProcessStartInfo
         $scStart.FileName = Join-Path $env:SystemRoot 'System32\sc.exe'
-        $scStart.Arguments = $verb + ' MeshCoreEMS binPath= "\"' + $binaryPath + '\"" start= delayed-auto obj= "NT AUTHORITY\LocalService" DisplayName= "MeshCore EMS Services"'
+        # New staged installs use demand start. Upgrades preserve the stored SCM
+        # mode, including delayed automatic and disabled, independently of NoStart.
+        $startMode = Get-RegistrationStartMode -PreviousStartup $previousStartup -Staged $NoStart.IsPresent
+        $scStart.Arguments = $verb + ' MeshCoreEMS binPath= "\"' + $binaryPath + '\"" start= ' + $startMode + ' obj= "NT AUTHORITY\LocalService" DisplayName= "MeshCore EMS Services"'
         $scStart.UseShellExecute = $false
         $scStart.CreateNoWindow = $true
         $scProcess = [System.Diagnostics.Process]::Start($scStart)
@@ -117,7 +146,7 @@ try {
         & sc.exe description MeshCoreEMS 'MeshCore EMS v0.9.6-beta serial/BLE/TCP MQTT responder'
         & sc.exe failure MeshCoreEMS reset= 86400 actions= restart/15000/restart/30000/restart/60000
         if ($LASTEXITCODE -ne 0) { throw 'Service recovery setup failed.' }
-        if (-not $NoStart) {
+        if (-not $NoStart -and $startMode -ne 'disabled') {
             Start-Service MeshCoreEMS
             Start-Sleep -Seconds 3
             if ((Get-Service MeshCoreEMS).Status -ne 'Running') { throw 'Service stopped; inspect runtime\service.log and wrapper.log.' }
@@ -128,3 +157,5 @@ try {
 } finally {
     Stop-Transcript | Out-Null
 }
+
+} finally { if ($maintenanceLease) { Exit-MeshCoreMaintenance $maintenanceLease } }

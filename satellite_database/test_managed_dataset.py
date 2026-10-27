@@ -60,6 +60,35 @@ class ManagedDatasetTests(unittest.TestCase):
         self.assertEqual(settings["database"], external / "catalog.sqlite3")
         self.assertFalse(settings["managed_snapshot"])
 
+    def test_installed_shortcut_uses_service_shared_root_without_pinning_generation(self):
+        directory = self.root / "installed-settings"
+        directory.mkdir()
+        default_root = self.root / "old-default-data"
+        values = app.read_json(app.HERE / "settings.json")
+        values.update(database=str(default_root / "satellites/satellites.sqlite3"),
+                      cache_directory=str(default_root / "satellites/raw"),
+                      export_directory=str(default_root / "satellites"))
+        settings_file = directory / "satellite-settings.json"
+        settings_file.write_text(json.dumps(values), encoding="utf-8")
+        (directory / "config.json").write_text(json.dumps({"dataset_root": str(self.root)}), encoding="utf-8")
+        before = settings_file.read_bytes()
+        with patch.object(app.dataset_paths, "data_root", return_value=default_root):
+            settings = app.settings_from(settings_file)
+        self.assertEqual(settings["database"], self.content / "satellites.sqlite3")
+        self.assertTrue(settings["managed_snapshot"])
+        self.assertEqual(settings_file.read_bytes(), before)
+
+    def test_shared_root_does_not_override_an_explicit_external_catalog(self):
+        directory = self.root / "installed-settings"
+        directory.mkdir()
+        external = self.root / "external-catalog"
+        values = app.read_json(app.HERE / "settings.json")
+        values.update(database=str(external / "operator.sqlite3"), cache_directory=str(external / "raw"), export_directory=str(external))
+        settings_file = directory / "satellite-settings.json"
+        settings_file.write_text(json.dumps(values), encoding="utf-8")
+        (directory / "config.json").write_text(json.dumps({"dataset_root": str(self.root)}), encoding="utf-8")
+        self.assertEqual(app.settings_from(settings_file)["database"], external / "operator.sqlite3")
+
     def test_explicit_staging_settings_do_not_redirect_to_published_generation(self):
         candidate = self.root / ".datasets" / "satellites" / "pending" / "content"
         candidate.mkdir(parents=True)

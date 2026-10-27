@@ -304,6 +304,9 @@ def check_publication():
         raise ValueError("Tracked files violate ignore policy:\n" + excluded)
     expected = {
         ".build/probe.log": True,
+        "dist/unified-desktop/KIT.json": True,
+        "MeshCore-EMS-Dataset-Manager.spec": True,
+        "MeshCore-EMS-Service-Setup.spec": True,
         ".env": True,
         "meshcore_mqtt_service/runtime/water_index.sqlite3": True,
         "meshcore_mqtt_service_windows/runtime/water_current.sqlite3": True,
@@ -315,6 +318,11 @@ def check_publication():
         "meshcore_mqtt_service_windows/scripts/floodstatus.py": False,
         "docs/assets/readme-hero.svg": False,
         ".github/workflows/ci.yml": False,
+        ".github/dependabot.yml": False,
+        "installers/desktop/unified_backend.py": False,
+        "installers/datasets/gui/main_window.ui": False,
+        "tests/fixtures/authorization.log": False,
+        "environment.json.example": False,
     }
     for path, should_ignore in expected.items():
         result = subprocess.run(["git", "check-ignore", "--no-index", "--quiet", path], cwd=ROOT)

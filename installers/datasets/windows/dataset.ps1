@@ -10,6 +10,7 @@ removes the package tools. Source invocation remains available for diagnostics.
 param(
     [string]$Action = 'menu',
     [string]$Resume,
+    [string]$ReviewedLock,
     [switch]$Purge
 )
 $ErrorActionPreference = 'Stop'
@@ -17,7 +18,7 @@ try {
     # Validate inside the protected body: PS2EXE can report a parameter attribute
     # binding error without setting a failing process exit code.
     if ($args.Count) { throw ('Unexpected arguments: ' + ($args -join ' ')) }
-    if ($Action -notin @('menu','install','update','verify','status','rollback','uninstall')) { throw 'Unknown dataset action.' }
+    if ($Action -notin @('menu','install','update','verify','status','rollback','uninstall','recover-lock')) { throw 'Unknown dataset action.' }
     if ($Resume -and $Resume -cnotmatch '^[a-f0-9]{32}$') { throw '-Resume requires a 32-character lowercase hexadecimal candidate identifier.' }
     # PS2EXE supplies ScriptRoot for the executable location. The maintained
     # source lives four directories below the installation root instead.
@@ -28,6 +29,7 @@ try {
     }
     if ($Purge -and $Action -ne 'uninstall') { throw '-Purge is valid only with uninstall.' }
     if ($Resume -and $Action -notin @('install','update')) { throw '-Resume requires install or update.' }
+    if (($Action -eq 'recover-lock') -ne [bool]$ReviewedLock -or ($ReviewedLock -and $ReviewedLock -cnotmatch '^[a-f0-9]{64}$')) { throw 'Lock recovery requires an exact reviewed fingerprint.' }
     $settings = Get-Content -LiteralPath (Join-Path $installRoot 'runtime.json') -Raw | ConvertFrom-Json
     if (-not (Test-Path -LiteralPath $settings.python -PathType Leaf)) { throw 'Maintenance runtime missing; rerun the dataset installer.' }
     $manager = Join-Path $installRoot 'payload\installers\datasets\manage.py'
@@ -55,13 +57,23 @@ try {
         }
         $arguments = @($Action, '--dataset', $settings.dataset, '--root', $settings.root, '--payload', (Join-Path $installRoot 'payload'))
         if ($Resume) { $arguments += @('--resume', $Resume) }
+        if ($ReviewedLock) { $arguments += @('--reviewed-lock', $ReviewedLock) }
         if ($Purge) { $arguments += '--purge' }
         # Native stderr is diagnostic output, not a terminating PowerShell error.
         # Preserve the actual child exit code even when it writes to stderr.
-        $ErrorActionPreference = 'Continue'
-        & $settings.python $manager @arguments
-        $code = $LASTEXITCODE
-        $ErrorActionPreference = 'Stop'
+        $lease = $null
+        if ($Action -in @('install','update','rollback','uninstall','recover-lock')) {
+            . (Join-Path $installRoot 'payload\installers\desktop\maintenance_lock.ps1')
+            $lease = Enter-MeshCoreMaintenance
+        }
+        try {
+            $ErrorActionPreference = 'Continue'
+            & $settings.python $manager @arguments
+            $code = $LASTEXITCODE
+        } finally {
+            $ErrorActionPreference = 'Stop'
+            if ($lease) { Exit-MeshCoreMaintenance $lease }
+        }
         if (-not $menu) { exit $code }
         Write-Host ('Operation exit code: ' + $code)
     } while ($menu)

@@ -3,10 +3,15 @@
 set -euo pipefail
 umask 0022
 payload=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd)
+source "$payload/installers/desktop/maintenance_lock.sh"
+meshcore_lock_acquire
+trap meshcore_lock_release EXIT
 dataset=$(cat "$payload/dataset-id.txt")
 case "$dataset" in ebmud|basin_plans|flood_impacts|usgs_water|wildfire|landslide|california_state_parks|satellites) ;; *) echo 'Invalid dataset identifier.' >&2; exit 2 ;; esac
 prefix="/opt/meshcore-ems-data/$dataset"
 data_root=/var/lib/meshcore-ems/data
+retained_root="/var/lib/meshcore-ems-maintenance/retained-roots/$dataset.txt"
+[[ ! -f $retained_root || -L $retained_root ]] || data_root=$(cat "$retained_root")
 [[ ! -f "$prefix/data-root.txt" ]] || data_root=$(cat "$prefix/data-root.txt")
 while (($#)); do
     case "$1" in
@@ -16,9 +21,11 @@ while (($#)); do
 done
 [[ $EUID -eq 0 ]] || { echo 'Run the installer with sudo.' >&2; exit 1; }
 [[ $data_root == /* && $data_root != *$'\n'* ]] || { echo 'Data root must be an absolute path.' >&2; exit 2; }
-data_root=$(realpath -m -- "$data_root")
+data_root=$(realpath -m -s -- "$data_root")
 case "$data_root/" in "$prefix/"*) echo 'Data root must be outside the maintenance installation.' >&2; exit 2 ;; esac
-install -d -m 0755 "$data_root"
+source "$payload/installers/desktop/data_root.sh"
+meshcore_protected_data_root "$data_root"
+data_root=$MESHCORE_PROTECTED_DATA_ROOT
 # Provision the OS Python only when needed. All package dependencies stay private.
 if ! python3 -c 'import sys,venv,ensurepip; assert (3,11) <= sys.version_info < (3,14)' 2>/dev/null; then
     command -v apt-get >/dev/null || { echo 'Python 3.11-3.13 and venv are required.' >&2; exit 1; }

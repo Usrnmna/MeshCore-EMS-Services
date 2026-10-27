@@ -16,6 +16,12 @@ ACTIONS = {
     "missing_packages": "Install All Missing Source Packages",
     "missing_data": "Install All Missing Datasets",
     "uninstall_all": "Uninstall All Dataset Packages and Their Managed Data",
+    "retain_selected": "Uninstall Selected Maintenance Packages; Retain All Dataset Files",
+    "verify_selected": "Verify Selected Datasets",
+    "update_selected": "Update Selected Datasets",
+    "rollback_selected": "Restore Previous Selected Dataset Generations",
+    "repair_selected": "Repair Selected Maintenance Packages; Preserve Valid Data",
+    "recover_selected": "Recover Reviewed Orphaned Dataset Lock; Preserve Data",
 }
 
 
@@ -84,6 +90,10 @@ class Plan:
         if self.action.startswith("uninstall"):
             lines.append("Removal includes package tools and managed data. Stop dataset consumers first.")
             lines.append("Modified, unowned and legacy files are retained under the existing policy. Purge is disabled.")
+        elif self.action == "retain_selected":
+            lines.append("Only maintenance packages are removed. Active data, rollback generations and datasets.json remain discoverable; reinstall tools to maintain them.")
+        elif self.action in {"update_selected", "rollback_selected"}:
+            lines.append("Consumers must be stopped before changing active dataset generations. Previous/failed generations remain available for recovery.")
         for index, operation in enumerate(self.operations, 1):
             command = subprocess.list2cmdline(operation.command) if self.target == "windows-x64" else shlex.join(operation.command)
             lines.extend([f"{index}. {LABELS[operation.dataset][0]}: {operation.kind} — {operation.reason}", "   " + command])
@@ -110,7 +120,8 @@ def make_plan(snapshot, action, selected, folder, *, demo=False):
     if set(selected) - DATASETS.keys():
         raise ValueError("Unknown selection")
     plan = Plan(action, snapshot.root, snapshot.target, selected, demo=demo)
-    plan.registry_fingerprint = hashlib.sha256(json.dumps(snapshot.registry, sort_keys=True).encode()).hexdigest()
+    plan.registry_fingerprint = hashlib.sha256(json.dumps({"registry": snapshot.registry,
+        "packages": {name: state.package.revision for name, state in snapshot.collections.items()}}, sort_keys=True).encode()).hexdigest()
     states = snapshot.collections
     if action.endswith("selected"):
         targets = set(selected)
@@ -127,9 +138,11 @@ def make_plan(snapshot, action, selected, folder, *, demo=False):
                 plan.skipped.append(f"{name}: package {state.package.state}, data {state.data}. " +
                                     ("Use Install Selected to repair tools; inspect verify/update/rollback for damaged data."
                                      if damaged else "Already present."))
-    removing = action.startswith("uninstall")
+    retaining = action == "retain_selected"
+    maintaining = action in {"verify_selected", "update_selected", "rollback_selected", "recover_selected"}
+    removing = action.startswith("uninstall") or retaining
     requested = set(targets)
-    if not removing:
+    if not removing and not maintaining:
         def include_dependencies(name):
             for dependency in DATASETS[name]:
                 if states[dependency].data != "valid" and dependency not in targets:
@@ -148,15 +161,52 @@ def make_plan(snapshot, action, selected, folder, *, demo=False):
             continue
         if removing:
             outside = set(state.dependents) - targets
-            if outside:
+            if retaining and package.state == "ready" and "retain-data-v1" not in package.capabilities:
+                plan.blocked.append(name + ": installed backend lacks retain-data-v1; repair with a current package before tools-only removal.")
+            elif outside and not retaining:
                 plan.blocked.append(f"{name}: required by active/rollback packages {', '.join(sorted(outside))}. Select dependents explicitly.")
             elif package.state == "ready":
-                plan.operations.append(Operation(name, "uninstall", package.uninstaller,
-                                                 "Remove with the existing native uninstaller", package.prefix))
+                command = package.uninstaller
+                if not retaining and "retain-data-v1" in package.capabilities:
+                    command += ("/REMOVEDATA=1",) if snapshot.target == "windows-x64" else ("--remove-data",)
+                plan.operations.append(Operation(name, "uninstall_tools" if retaining else "uninstall", command,
+                                                 "Retain all data; remove maintenance tools only" if retaining else "Remove with the existing native uninstaller", package.prefix))
             elif package.state == "missing" and not state.managed:
                 plan.skipped.append(name + ": no registered package or managed data")
             else:
                 plan.blocked.append(name + ": maintenance tools are missing/broken; repair the package before removal. " + package.detail)
+            continue
+        if maintaining:
+            verb = action.removesuffix("_selected")
+            if package.state != "ready":
+                plan.blocked.append(name + ": maintenance tools are missing or broken; repair before " + verb)
+            elif action == "recover_selected":
+                if demo:
+                    if not plan.operations:
+                        plan.operations.append(Operation(name, "recover_lock", package.launcher + ("recover-lock", "--reviewed-lock", "0" * 64),
+                                                         "SIMULATED orphan recovery; no lock or process inspection", package.prefix))
+                elif "dataset-lock-recovery-v1" not in package.capabilities:
+                    plan.blocked.append(name + ": backend lacks dataset-lock-recovery-v1; legacy locks require external administrator review")
+                elif plan.operations:
+                    plan.skipped.append(name + ": shared root lock recovery is already handled by the first selected maintenance package")
+                else:
+                    from installers.datasets.manage import inspect_lock_recovery
+                    recovery = inspect_lock_recovery(snapshot.root)
+                    if recovery["recoverable"]:
+                        flag = "-ReviewedLock" if snapshot.target == "windows-x64" else "--reviewed-lock"
+                        plan.operations.append(Operation(name, "recover_lock", package.launcher + ("recover-lock", flag, recovery["revision"]),
+                                                         recovery["detail"], package.prefix))
+                    elif recovery["revision"]:
+                        plan.blocked.append(name + ": " + recovery["detail"])
+                    elif (snapshot.root / ".datasets.lock").exists():
+                        plan.blocked.append(name + ": " + recovery["detail"])
+                    else:
+                        plan.skipped.append(name + ": no interrupted dataset lock exists")
+            elif verb != "update" and not state.managed:
+                plan.blocked.append(name + ": no managed dataset is available for " + verb)
+            else:
+                plan.operations.append(Operation(name, verb, package.launcher + (verb,),
+                                                 "Use the registered independent maintenance backend", package.prefix))
             continue
         if state.data == "broken":
             plan.blocked.append(name + ": active data/status is damaged; inspect verify/update/rollback before installation. " + state.detail)
@@ -164,7 +214,7 @@ def make_plan(snapshot, action, selected, folder, *, demo=False):
         if package.state == "broken" and action.startswith("missing"):
             plan.blocked.append(name + ": incomplete maintenance package; use Install Selected to repair it.")
             continue
-        if package.state == "ready" and state.data == "valid":
+        if package.state == "ready" and state.data == "valid" and action != "repair_selected":
             plan.skipped.append(name + ": tools and active data already valid")
             continue
         if state.data != "valid" and state.dependency_error:
@@ -173,7 +223,7 @@ def make_plan(snapshot, action, selected, folder, *, demo=False):
         reason = "Selected collection" if name in requested else "Required prerequisite"
         if state.data == "unmanaged":
             reason += "; validate/import legacy data without changing the original"
-        if package.state == "ready":
+        if package.state == "ready" and action != "repair_selected":
             plan.operations.append(Operation(name, "install_data", package.launcher + ("install",),
                                              reason + "; acquire missing data using installed tools", package.prefix))
         else:

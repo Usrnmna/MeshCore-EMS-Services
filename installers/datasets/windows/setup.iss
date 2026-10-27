@@ -45,6 +45,7 @@ SignedUninstaller=yes
 #endif
 
 [Files]
+Source: "{#PayloadDir}\installers\desktop\maintenance_lock.ps1"; DestName: "_maintenance_lock.ps1"; Flags: dontcopy
 Source: "{#PayloadDir}\*"; DestDir: "{app}\payload"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#MaintenanceExe}"; DestDir: "{app}"; DestName: "Dataset.exe"; Flags: ignoreversion
 
@@ -70,6 +71,7 @@ Type: files; Name: "{app}\runtime.next.json"
 
 [Code]
 var DatasetPreparationFailed: Boolean;
+#include "..\..\desktop\maintenance_lock.iss"
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var Code: Integer; Parameters: String;
@@ -101,8 +103,11 @@ end;
 function InitializeUninstall(): Boolean;
 var Code: Integer; Parameters: String;
 begin
+  Result := AcquireMaintenance(ExpandConstant('{app}\payload\installers\desktop\maintenance_lock.ps1'));
+  if not Result then exit;
   Parameters := '-NoProfile -NonInteractive -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\payload\installers\datasets\windows\run_logged.ps1') + '" -Action uninstall -InstallRoot "' + ExpandConstant('{app}') + '"';
   if ExpandConstant('{param:PURGE|0}') = '1' then Parameters := Parameters + ' -Purge';
+  if ExpandConstant('{param:REMOVEDATA|0}') = '1' then Parameters := Parameters + ' -RemoveData';
   Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'), Parameters, '', SW_HIDE, ewWaitUntilTerminated, Code) and (Code = 0);
   if not Result then SuppressibleMsgBox('Dataset removal was refused or failed. Data and maintenance tools were retained. Review the logs in ' + ExpandConstant('{app}\logs') + ' and check dependent datasets before retrying.', mbError, MB_OK, IDOK);
 end;

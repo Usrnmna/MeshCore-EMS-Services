@@ -19,6 +19,15 @@ def serial_device(name, vid=None, hwid=""):
 
 
 class ServiceRunnerTests(unittest.TestCase):
+    def test_dataset_root_is_typed_configuration_not_a_credential(self):
+        value = str(Path.cwd() / "reference data")
+        with patch.dict(os.environ, {}, clear=True):
+            runner.load_data_root({"dataset_root": value})
+            self.assertEqual(os.environ["MESHCORE_DATA_DIR"], value)
+        for value in ("relative", str(Path.cwd() / ".datasets/usgs_water/generation"), 12):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                runner.load_data_root({"dataset_root": value})
+
     def test_auto_port_setting_is_case_insensitive_on_both_platforms(self):
         """Automatic selection is a config value, never a platform-specific port name."""
         for platform in ("nt", "posix"):

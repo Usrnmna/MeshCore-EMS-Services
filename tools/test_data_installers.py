@@ -27,6 +27,30 @@ def workspace():
         shutil.rmtree(path)
 
 
+def stage_wrapper_lease_fixture(install_root):
+    """Isolate argument/logging tests from privileged machine-wide lease state.
+
+    These tests verify wrapper entry/exit and child diagnostics. Lease ownership,
+    contention and recovery have separate maintenance-lock tests. This helper
+    never creates a real lease or touches Program Files.
+    """
+    directory = install_root / "payload/installers/desktop"
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "maintenance_lock.ps1").write_text("""param([int]$AcquireForProcess=0, [int]$ReleaseForProcess=0, [string]$TokenOutput='')
+$script:FixtureMaintenanceEvents = Join-Path $PSScriptRoot 'lease-events.txt'
+function Enter-MeshCoreMaintenance {
+    [IO.File]::AppendAllText($script:FixtureMaintenanceEvents, "enter`n")
+    return 'fixture-lease'
+}
+function Exit-MeshCoreMaintenance($Lease) {
+    if ($Lease -ne 'fixture-lease') { throw 'Unexpected fixture lease' }
+    [IO.File]::AppendAllText($script:FixtureMaintenanceEvents, "exit`n")
+}
+if ($AcquireForProcess) { [IO.File]::WriteAllText($TokenOutput, ('f' * 32)) }
+""", encoding="utf-8")
+    return directory / "lease-events.txt"
+
+
 class DataInstallerTests(unittest.TestCase):
     def test_explicit_source_inventory_excludes_downloads_and_service_runtime(self):
         """Live collection pointers, databases and main-service installers never ship."""
@@ -57,7 +81,8 @@ class DataInstallerTests(unittest.TestCase):
             all_files = {p.relative_to(payload).as_posix() for p in payload.rglob("*") if p.is_file()}
             self.assertEqual(all_files, set(metadata["files"]) | {"PAYLOAD-MANIFEST.json"})
             identity = json.loads((payload / "DATA-PACKAGE.json").read_text())
-            self.assertEqual(identity, {"dataset": "landslide", "version": build.VERSION})
+            self.assertEqual(identity, {"dataset": "landslide", "version": build.VERSION,
+                                        "capabilities": ["retain-data-v1", "maintenance-lock-v1", "dataset-lock-recovery-v1"]})
 
     def test_download_only_collections_have_no_bundled_snapshot(self):
         for dataset in ("basin_plans", "flood_impacts", "usgs_water", "satellites"):
@@ -137,6 +162,7 @@ class WindowsMaintenanceTests(unittest.TestCase):
             app = folder / "Dataset Tools With Spaces"
             scripts = app / "payload/installers/datasets/windows"
             scripts.mkdir(parents=True)
+            lease_events = stage_wrapper_lease_fixture(app)
             shutil.copy2(self.executable, app / "Dataset.exe")
             shutil.copy2(build.ROOT / "installers/datasets/windows/dataset.ps1", scripts / "dataset.ps1")
             (scripts.parent / "manage.py").write_text(
@@ -159,6 +185,7 @@ class WindowsMaintenanceTests(unittest.TestCase):
                     expected += ['--purge']
                 self.assertEqual(json.loads(result.stdout.strip()), expected)
                 self.assertIn('diagnostic from child', result.stderr)
+            self.assertEqual(lease_events.read_text().splitlines(), ['enter', 'exit', 'enter', 'exit'])
             source = self.run_powershell(scripts / 'dataset.ps1', 'status')
             self.assertEqual(source.returncode, 0, source.stdout + source.stderr)
             invalid = subprocess.run([str(app / 'Dataset.exe'), 'status', '-Purge'],
@@ -213,6 +240,7 @@ if (-not $failed -or [IO.File]::ReadAllText($settings) -ne 'replacement generati
             install_root = folder / "Maintenance Root With Spaces"
             scripts = install_root / "payload/installers/datasets/windows"
             scripts.mkdir(parents=True)
+            lease_events = stage_wrapper_lease_fixture(install_root)
             runner = build.ROOT / "installers/datasets/windows/run_logged.ps1"
             (scripts / "install.ps1").write_text("""param([string]$InstallRoot,[string]$Root)
 if ($PSVersionTable.PSVersion.Major -ne 5) { exit 99 }
@@ -237,15 +265,18 @@ exit 0
             result = json.loads(next((install_root / "logs").glob("uninstall-*.result.json")).read_text())
             self.assertEqual(result["exit_code"], 0)
             self.assertIn("successful fixture removal", Path(result["stdout"]).read_text())
+            self.assertEqual(lease_events.read_text().splitlines(), ['enter', 'exit', 'enter', 'exit'])
 
     def test_missing_maintenance_script_records_nonzero_result(self):
         with workspace() as folder:
             runner = build.ROOT / "installers/datasets/windows/run_logged.ps1"
+            lease_events = stage_wrapper_lease_fixture(folder)
             result = self.run_powershell(runner, "-Action", "install", "-InstallRoot", str(folder))
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
             status = json.loads(next((folder / "logs").glob("*.result.json")).read_text())
             self.assertEqual(status["exit_code"], 1)
             self.assertIn("maintenance script is missing", Path(status["stderr"]).read_text())
+            self.assertEqual(lease_events.read_text().splitlines(), ['enter', 'exit'])
 
     @unittest.skipUnless((build.ROOT / ".build/inno/ISCC.exe").is_file(), "Local Inno compiler unavailable")
     def test_compiled_setup_failure_and_silent_uninstall_refusal_return_nonzero(self):
@@ -256,10 +287,17 @@ exit 0
             scripts.mkdir(parents=True)
             for filename in ("run_logged.ps1",):
                 shutil.copy2(build.ROOT / "installers/datasets/windows" / filename, scripts / filename)
+            stage_wrapper_lease_fixture(folder)
             shutil.copy2(build.ROOT / "LICENSE", payload / "LICENSE")
             for action in ("install", "uninstall"):
                 (scripts / (action + ".ps1")).write_text("param([string]$InstallRoot)\nexit 7\n", encoding="utf-8")
             template = (build.ROOT / "installers/datasets/windows/setup.iss").read_text()
+            # Retain the real Inno callbacks but isolate their lease worker and
+            # token path from privileged machine state in this per-user fixture.
+            include = (build.ROOT / "installers/desktop/maintenance_lock.iss").read_text()
+            include = include.replace("{autopf}\\MeshCore-EMS-Maintenance\\inno-", "{tmp}\\fixture-inno-")
+            (folder / "maintenance_lock.iss").write_text(include, encoding="utf-8")
+            template = template.replace('..\\..\\desktop\\maintenance_lock.iss', 'maintenance_lock.iss')
             # The production callbacks remain unchanged; this fixture needs no
             # elevation and uses a unique per-user registration for test cleanup.
             template = template.replace("PrivilegesRequired=admin", "PrivilegesRequired=lowest")

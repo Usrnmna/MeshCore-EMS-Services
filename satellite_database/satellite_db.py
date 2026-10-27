@@ -42,12 +42,23 @@ def settings_from(path):
     """
     path = Path(path).resolve()
     settings = read_json(path)
+    # The independent reference application reads the same typed shared-root
+    # setting when launched through the installed service package's shortcut.
+    service_config = path.parent / "config.json"
+    root = dataset_paths.data_root()
+    if path.name == "satellite-settings.json" and service_config.is_file():
+        value = read_json(service_config).get("dataset_root")
+        if value is not None:
+            if not isinstance(value, str) or not Path(value).is_absolute() or ".datasets" in Path(value).parts:
+                raise ValueError("dataset_root must be an absolute shared dataset root")
+            root = Path(value).resolve()
     for key in ("database", "cache_directory", "export_directory"):
         settings[key] = (path.parent / settings[key]).resolve()
     configured = settings["database"].parent
     directory = dataset_paths.resolve(
         "satellites", configured, configured=configured,
-        defaults=(HERE / "../data/satellites",) if path == HERE / "settings.json" else (),
+        defaults=(HERE / "../data/satellites", dataset_paths.data_root() / "satellites") if path.name in {"settings.json", "satellite-settings.json"} else (),
+        root=root,
     )
     if directory != configured:
         settings["database"] = directory / "satellites.sqlite3"
@@ -55,7 +66,7 @@ def settings_from(path):
         settings["export_directory"] = directory
     # Explicit paths inside a generation must also retain snapshot immutability.
     settings["managed_snapshot"] = directory != configured or (
-        settings["database"].is_relative_to(dataset_paths.data_root() / ".datasets" / "satellites")
+        settings["database"].is_relative_to(root / ".datasets" / "satellites")
         and (settings["database"].parent.parent / "receipt.json").is_file()
     )
     for key in ("status_max_age_days", "orbit_max_age_days", "cache_hours", "timeout_seconds", "max_response_bytes", "max_pages"):

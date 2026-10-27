@@ -1,4 +1,8 @@
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '..\desktop\maintenance_lock.ps1')
+$maintenanceLease = Enter-MeshCoreMaintenance
+try {
+$ErrorActionPreference = 'Stop'
 $service = Get-Service MeshCoreEMS -ErrorAction SilentlyContinue
 if ($service) {
     Stop-Service MeshCoreEMS
@@ -7,3 +11,5 @@ if ($service) {
     if ($LASTEXITCODE -ne 0) { throw 'Could not unregister MeshCoreEMS.' }
 }
 Write-Host 'The service was removed. ProgramData\MeshCore-EMS settings and data are retained.'
+
+} finally { Exit-MeshCoreMaintenance $maintenanceLease }

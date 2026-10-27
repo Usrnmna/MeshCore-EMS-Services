@@ -8,13 +8,15 @@ disk; cleanup is an explicit, receipt-scoped uninstall operation.
 from __future__ import annotations
 
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext, ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import uuid
@@ -92,20 +94,167 @@ def registry(root):
 
 
 @contextmanager
+def protected_data_root(root, *, create=False):
+    """Retain a trusted data-root boundary throughout coordinated native mutation.
+
+    POSIX ancestors are root-owned and cannot be modified by other accounts.
+    Windows retains pinned handles and checks ownership/DACLs on the entire
+    existing chain. Unsafe custom locations require a protected graphical
+    selection; existing owners or parent permissions are never repaired here.
+    """
+    root = Path(root).absolute()
+    if not root.is_absolute() or root == Path(root.anchor) or any(part in {".", ".."} for part in root.parts):
+        raise ValueError("A canonical absolute dataset root is required")
+    if os.name == "nt":
+        from installers.desktop.windows_trust import protected_data_root as protect
+        with protect(root, create=create):
+            yield root
+        return
+    for path in (*reversed(root.parents), root):
+        if not path.exists():
+            if not create:
+                raise FileNotFoundError(str(path))
+            path.mkdir(mode=0o755)
+        metadata = path.lstat()
+        if not stat.S_ISDIR(metadata.st_mode) or metadata.st_uid != 0 or metadata.st_mode & 0o022:
+            raise PermissionError("Dataset storage and every ancestor must be root-owned and not group/other writable. Select a protected location in the graphical installer; existing custom directory permissions were not changed.")
+    yield root
+
+
+@contextmanager
 def locked(root):
     """Serialize install, update, rollback and removal across dependent collections.
 
 An interrupted process leaves its lock for deliberate operator recovery. A lock
 is never stolen based on age or PID reuse, and readers do not require the lock.
 """
+    from installers.desktop import locking
+    token = os.environ.get(locking.VARIABLE, "")
+    coordinated = bool(re.fullmatch("[0-9a-f]{32}", token))
+    guard = protected_data_root(root, create=True) if coordinated else nullcontext()
+    with guard:
+        with _locked_record(root, token, coordinated):
+            yield
+
+
+@contextmanager
+def _locked_record(root, token, coordinated):
+    """Write one ownership-backed serialization record inside an already guarded root."""
     root.mkdir(parents=True, exist_ok=True)
     path = root / ".datasets.lock"
-    with path.open("x", encoding="utf-8") as stream:
-        stream.write(f"pid={os.getpid()} started={utc_now()}\n")
+    from installers.desktop import locking
+    value = {"schema": 2, "pid": os.getpid(), "creation": locking.process_identity(os.getpid()),
+             "lease": token if coordinated else "", "coordinated": coordinated, "started": utc_now()}
+    content = (json.dumps(value, sort_keys=True) + "\n").encode("utf-8")
+    if coordinated:
+        locking.create_private_file(path, content)
+    else:
+        # Direct library use has no delegated native work to prove recoverable.
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(content)
     try:
         yield
     finally:
         path.unlink()
+
+
+@contextmanager
+def _recovery_record(root, *, delete=False):
+    """Anchor the exact reviewed lock and prevent path replacement during removal."""
+    from installers.desktop import locking
+    root = Path(root).resolve()
+    with ExitStack() as resources:
+        if os.name == "nt":
+            import ctypes
+            import msvcrt
+            from installers.desktop.authorization import _windows_locked_handle
+            for directory in (*reversed(root.parents), root):
+                handle, close = _windows_locked_handle(directory, directory=True)
+                resources.callback(close, handle)
+            handle, close = _windows_locked_handle(root / ".datasets.lock", directory=False, delete=delete)
+            descriptor = msvcrt.open_osfhandle(handle, os.O_RDONLY | os.O_BINARY)
+            resources.callback(os.close, descriptor)
+            locking._private_owner(root / ".datasets.lock")
+            def remove():
+                from ctypes import wintypes
+                kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+                kernel.SetFileInformationByHandle.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+                value = wintypes.BOOL(True)
+                if not kernel.SetFileInformationByHandle(handle, 4, ctypes.byref(value), ctypes.sizeof(value)):
+                    raise ctypes.WinError(ctypes.get_last_error())
+        else:
+            directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | getattr(os, "O_NOFOLLOW", 0))
+            resources.callback(os.close, directory)
+            metadata = os.fstat(directory)
+            if metadata.st_uid != 0 or metadata.st_mode & 0o022:
+                raise PermissionError("Dataset lock recovery requires a root-owned data directory without group/other write access")
+            descriptor = os.open(".datasets.lock", os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=directory)
+            resources.callback(os.close, descriptor)
+            def remove():
+                before = os.fstat(descriptor)
+                after = os.stat(".datasets.lock", dir_fd=directory, follow_symlinks=False)
+                if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
+                    raise RuntimeError("Dataset lock changed during recovery")
+                os.unlink(".datasets.lock", dir_fd=directory)
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > 4096:
+            raise ValueError("Dataset lock must be a bounded regular file")
+        if os.name != "nt" and (metadata.st_uid != 0 or metadata.st_mode & 0o077):
+            raise PermissionError("Legacy or unprotected dataset lock requires external administrator review")
+        yield descriptor, remove
+
+
+def _inspect_lock_descriptor(descriptor):
+    """Validate current lock ownership and native-child absence without exposing tokens."""
+    from installers.desktop import locking
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    content = os.read(descriptor, 4097)
+    revision = hashlib.sha256(content).hexdigest()
+    try:
+        value = json.loads(content)
+        if not isinstance(value, dict) or set(value) != {"schema", "pid", "creation", "lease", "coordinated", "started"} or value.get("schema") != 2:
+            raise ValueError("Legacy or unknown lock schema cannot be recovered graphically")
+        if type(value["pid"]) is not int or value["pid"] <= 0 or not isinstance(value["creation"], str) or not value["creation"].isdigit() or value["coordinated"] is not True or not isinstance(value["lease"], str) or not re.fullmatch("[0-9a-f]{32}", value["lease"]):
+            raise ValueError("Dataset lock lacks complete privileged owner/lease evidence")
+        if locking._process_state(value["pid"], value["creation"]) != "dead":
+            raise ValueError("Dataset lock owner is still live or inaccessible")
+        if locking._native_process_gate(value["lease"]):
+            raise ValueError("A delegated or potential native maintenance process is still live or inaccessible")
+        return {"revision": revision, "recoverable": True, "detail": "Reviewed schema-2 orphan can be archived; dataset registry, receipts and files remain unchanged."}, content
+    except (OSError, ValueError, RuntimeError, UnicodeError) as error:
+        return {"revision": revision, "recoverable": False, "detail": str(error)}, content
+
+
+def inspect_lock_recovery(root):
+    """Inspect one fixed dataset lock; unknown ownership or legacy records fail closed."""
+    try:
+        with _recovery_record(root) as (descriptor, remove):
+            return _inspect_lock_descriptor(descriptor)[0]
+    except FileNotFoundError:
+        return {"revision": "", "recoverable": False, "detail": "No dataset lock exists."}
+    except (OSError, ValueError, RuntimeError) as error:
+        return {"revision": "", "recoverable": False, "detail": str(error)}
+
+
+def recover_lock(root, expected_revision):
+    """Archive only a reviewed schema-2 orphan under a fresh global maintenance lease."""
+    from installers.desktop import locking
+    if not isinstance(expected_revision, str) or not re.fullmatch("[0-9a-f]{64}", expected_revision):
+        raise ValueError("A reviewed dataset-lock fingerprint is required")
+    with locking.operation_lock():
+        with _recovery_record(root, delete=True) as (descriptor, remove):
+            status, content = _inspect_lock_descriptor(descriptor)
+            if status["revision"] != expected_revision or not status["recoverable"]:
+                raise RuntimeError("Dataset lock evidence changed or remains unsafe: " + status["detail"])
+            root_id = hashlib.sha256(str(Path(root).resolve()).encode()).hexdigest()[:20]
+            archive = locking.maintenance_directory() / ("dataset-lock-" + root_id + "-" + expected_revision + "-" + uuid.uuid4().hex + ".json")
+            locking.create_private_file(archive, content)
+            # Recheck live-process evidence after durable archival, immediately before removal.
+            if not _inspect_lock_descriptor(descriptor)[0]["recoverable"]:
+                raise RuntimeError("Native process evidence changed; dataset lock was retained")
+            remove()
+    return {"recovered": True, "archive": str(archive), "detail": "Orphaned dataset lock archived. Registry, data, receipts and failed candidates were retained. Review the next maintenance operation separately."}
 
 
 def digest(path):
@@ -383,39 +532,96 @@ selection. Dataset consumers must be stopped before intentional removal.
                 "legacy_preserved": str(root / dataset) if (root / dataset).exists() else None}
 
 
+def retain(root, dataset):
+    """Describe retained selection without changing data, receipts or registry.
+
+    Native package uninstall uses this contract when only maintenance tooling is
+    removed. Dataset dependents remain usable because their pinned content stays.
+    Reinstalling the matching maintenance package verifies and reuses that data.
+    """
+    value = registry(Path(root))
+    return {"dataset": dataset, "data_retained": True,
+            "registry": str(Path(root) / "datasets.json"),
+            "selection": value["datasets"].get(dataset, {}),
+            "detail": "All managed, modified, rollback and legacy data remains. Reinstall maintenance tools to update or remove it."}
+
+
+def remember_retained_root(root, dataset):
+    """Keep a protected discovery hint after native package records are removed.
+
+    This hint selects no data and establishes no ownership. Reinstallation must
+    still verify datasets.json and content receipts. Explicit roots take priority.
+    """
+    from installers.desktop import locking
+    if dataset not in DATASETS:
+        raise ValueError("Unknown dataset root hint")
+    root = Path(root).resolve()
+    if not root.is_absolute() or any(ord(character) < 32 for character in str(root)):
+        raise ValueError("Invalid retained root")
+    directory = locking.maintenance_directory() / "retained-roots"
+    try:
+        locking.create_private_directory(directory)
+    except FileExistsError:
+        locking._private_owner(directory)
+    if directory.is_symlink() or (hasattr(directory, "is_junction") and directory.is_junction()):
+        raise ValueError("Retained root hints cannot use linked directories")
+    temporary = directory / (dataset + "." + uuid.uuid4().hex + ".tmp")
+    try:
+        locking.create_private_file(temporary, (str(root) + "\n").encode("utf-8"))
+        os.replace(temporary, directory / (dataset + ".txt"))
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def main(argv=None):
     """Expose the same lifecycle to native wrappers and direct maintenance invocations."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("install", "update", "verify", "status", "rollback", "uninstall"))
+    parser.add_argument("action", choices=("install", "update", "verify", "status", "rollback", "uninstall", "recover-lock"))
     parser.add_argument("--dataset", choices=tuple(DATASETS), required=True)
     parser.add_argument("--root", type=Path, default=default_root())
     parser.add_argument("--payload", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--resume", help="Resume an unchanged failed candidate by its identifier")
     parser.add_argument("--purge", action="store_true", help="Uninstall also removes modified receipt-owned generations")
+    parser.add_argument("--retain-data", action="store_true", help="Uninstall tooling contract: retain every dataset file and registry selection")
+    parser.add_argument("--reviewed-lock", help="Exact reviewed schema-2 dataset-lock fingerprint for recover-lock")
     args = parser.parse_args(argv)
     if args.purge and args.action != "uninstall":
         parser.error("--purge requires uninstall")
+    if args.retain_data and (args.action != "uninstall" or args.purge):
+        parser.error("--retain-data requires uninstall without --purge")
     if args.resume and args.action not in ("install", "update"):
         parser.error("--resume requires install or update")
+    if bool(args.reviewed_lock) != (args.action == "recover-lock"):
+        parser.error("recover-lock requires --reviewed-lock; other operations reject it")
     root, payload = args.root.resolve(), args.payload.resolve()
     try:
-        if args.action in ("install", "update"):
-            result = install(root, args.dataset, payload, args.action == "update", args.resume)
-        elif args.action == "rollback":
-            rollback(root, args.dataset)
-            result = status(root, args.dataset)
-        elif args.action == "uninstall":
-            result = uninstall(root, args.dataset, args.purge)
-        elif args.action == "verify":
-            record = selected(root, registry(root), args.dataset)
-            if record.get("legacy"):
-                raise ValueError("Legacy directory has no ownership receipt; install the data package to validate and import it")
-            verify_record(root, args.dataset, record)
-            result = {"dataset": args.dataset, "verified": True}
-        else:
-            result = status(root, args.dataset)
-        print(json.dumps(result, indent=2))
-        return 0
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from installers.desktop.locking import operation_lock, require_consumers_stopped
+        lease = operation_lock() if args.action in {"install", "update", "rollback", "uninstall", "recover-lock"} else nullcontext()
+        with lease:
+            if args.action in {"update", "rollback"} or (args.action == "uninstall" and not args.retain_data):
+                require_consumers_stopped()
+            if args.action == "recover-lock":
+                result = recover_lock(root, args.reviewed_lock)
+            elif args.action in ("install", "update"):
+                result = install(root, args.dataset, payload, args.action == "update", args.resume)
+            elif args.action == "rollback":
+                rollback(root, args.dataset)
+                result = status(root, args.dataset)
+            elif args.action == "uninstall":
+                result = retain(root, args.dataset) if args.retain_data else uninstall(root, args.dataset, args.purge)
+                if args.retain_data:
+                    remember_retained_root(root, args.dataset)
+            elif args.action == "verify":
+                record = selected(root, registry(root), args.dataset)
+                if record.get("legacy"):
+                    raise ValueError("Legacy directory has no ownership receipt; install the data package to validate and import it")
+                verify_record(root, args.dataset, record)
+                result = {"dataset": args.dataset, "verified": True}
+            else:
+                result = status(root, args.dataset)
+            print(json.dumps(result, indent=2))
+            return 0
     except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
         print("Dataset operation failed: " + str(error), file=sys.stderr)
         return 1

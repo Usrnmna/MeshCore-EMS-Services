@@ -42,6 +42,16 @@ def load_environment(path):
     os.environ.update(values)
 
 
+def load_data_root(config):
+    """Propagate a typed non-secret shared root to service-owned child programs."""
+    value = config.get("dataset_root")
+    if value is None:
+        return
+    if not isinstance(value, str) or not Path(value).is_absolute() or ".datasets" in Path(value).parts or any(ord(c) < 32 for c in value):
+        raise ValueError("dataset_root must be an absolute shared dataset root")
+    os.environ["MESHCORE_DATA_DIR"] = str(Path(value))
+
+
 async def supervise(config, stop_file=None, *, install_signals=True):
     """Cancel the bridge on SIGTERM or SCM stop; allow its finally blocks to run."""
     stop = asyncio.Event()
@@ -87,6 +97,7 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
     config = json.loads(args.config.read_text(encoding="utf-8-sig"))
+    load_data_root(config)
     connection_settings(config)
     service.validate_config(config.get("responder", {"enabled": False}), service.ROOT)
     if config["command_timeout"] <= 0 or config["command_interval"] < 0:

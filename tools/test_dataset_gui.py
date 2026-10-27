@@ -163,6 +163,17 @@ class GuiCoreTests(unittest.TestCase):
         self.install()
         self.assertEqual(self.scan(locations).collections["ebmud"].data, "valid")
 
+    def test_same_version_native_repair_invalidates_reviewed_package_revision(self):
+        prefix, locations = self.package()
+        before = self.scan(locations)
+        old_plan = self.plan(before)
+        identity = (prefix / "payload/DATA-PACKAGE.json").read_bytes()
+        (prefix / "Dataset.exe").write_bytes(b"same-version repaired executable")
+        after = self.scan(locations)
+        self.assertNotEqual(before.collections["ebmud"].package.revision, after.collections["ebmud"].package.revision)
+        self.assertEqual((prefix / "payload/DATA-PACKAGE.json").read_bytes(), identity)
+        self.assertNotEqual(old_plan.registry_fingerprint, self.plan(after).registry_fingerprint)
+
     def test_corrupt_receipt_or_data_is_reported_and_unchanged(self):
         record = self.install()
         path = manage.record_path(self.root, "ebmud", record) / "data.txt"
@@ -362,19 +373,33 @@ class GuiCoreTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "locked"):
             self.execute(plan, lambda *a, **kw: self.fail("scanned"), lambda *a: self.fail("launched"))
 
+    @unittest.skipUnless(os.name == "nt" or getattr(os, "geteuid", lambda: -1)() == 0,
+                         "Protected POSIX lease fixture runs in the separate root-only CI step")
     def test_batch_lock_is_exclusive_across_data_roots(self):
-        with patch.object(execution, "tools_base", return_value=self.folder / "tools"):
+        from installers.desktop import locking
+        def private_fixture(path, content):
+            with Path(path).open("xb") as stream:
+                stream.write(content)
+            if os.name != "nt":
+                Path(path).chmod(0o600)
+        with patch.object(locking, "lock_directory", return_value=self.folder), patch.object(locking, "_secure_directory"), \
+                patch.object(locking, "_private_owner"), patch.object(locking, "create_private_file", side_effect=private_fixture), \
+                patch.object(locking, "create_private_directory", side_effect=lambda path: Path(path).mkdir(mode=0o700)):
             with execution.batch_lock(self.target):
-                with self.assertRaisesRegex(RuntimeError, "Another GUI batch"):
-                    with execution.batch_lock(self.target):
-                        self.fail("Nested lock acquired")
-            self.assertFalse((self.folder / "tools/.gui-manager.lock").exists())
+                with patch.dict(os.environ):
+                    os.environ.pop(locking.VARIABLE, None)
+                    with self.assertRaisesRegex(RuntimeError, "Another maintenance"):
+                        with execution.batch_lock(self.target):
+                            self.fail("Distinct caller acquired the lease")
+            self.assertFalse((self.folder / "lease").exists())
 
     def test_live_subprocess_output_and_nonzero_exit(self):
         command = (sys.executable, "-c", "import sys; print('fixture progress', flush=True); sys.exit(7)")
         operation = planning.Operation("ebmud", "fixture", command, "fixture", self.folder)
         output = []
-        self.assertEqual(execution.run_process(operation, output.append), 7)
+        # Streaming is exercised with a disposable unprivileged Python child;
+        # installed-path protection has separate native metadata/handle tests.
+        self.assertEqual(execution._run_process(operation, output.append), 7)
         self.assertIn("fixture progress", "".join(output))
 
     def test_log_tail_skips_old_runs_and_decodes_utf16(self):

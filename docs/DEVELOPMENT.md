@@ -265,6 +265,10 @@ plus documentation, installer configuration, GUI widget, data-tool, and satellit
 tests on both operating systems. The service matrix selects Python 3.11 and 3.13 on both
 operating systems; the documentation/tools matrix uses Python 3.13. Its dependency
 installation includes the pinned dataset maintenance and GUI runtime requirements.
+The standard-library documentation/publication gate runs before dependency
+installation. The tooling suite also checks root and standalone ignore rules,
+native launcher line endings, and immutable payload attributes through isolated
+Git fixtures.
 Qt widget tests run with the offscreen platform plugin; Linux preparation installs
 the EGL, OpenGL, and keyboard runtime libraries required by Qt.
 Windows compiler installation and tooling tests both use Windows PowerShell 5.1.
@@ -272,6 +276,14 @@ An explicit PS2EXE 1.0.18 import precedes the tooling suite, and the Python exit
 code is propagated to the job. The compiler exercises the dataset maintenance
 entry point; tests requiring a local Inno Setup compiler or
 a native Linux service account remain conditional.
+Wrapper argument and diagnostic fixtures use isolated lease helpers and verify
+balanced entry/exit calls. Machine-wide lease ownership and recovery are tested
+separately; wrapper fixtures do not establish native authorization or lifecycle
+acceptance.
+Linux runs protected lease/recovery and temporary service-account permission
+fixtures in a separate root-only step. The main tooling suite and offscreen Qt
+widget tests remain unprivileged. Privileged fixtures use temporary paths and do
+not install services or modify working-system service configuration.
 Actions use verified commit pins for checkout v7.0.1 and setup-python v7.1.0;
 checkout credentials are not persisted, and workflow permissions are read-only.
 Checks run on pushes, pull requests, and manual dispatch. This workflow performs

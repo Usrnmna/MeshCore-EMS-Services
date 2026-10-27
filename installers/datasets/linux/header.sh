@@ -5,7 +5,8 @@ case "${1:-}" in
         echo 'Install: sudo bash installer.run [--root ABSOLUTE_DATA_ROOT]'
         echo 'Inspect: bash installer.run --check | --extract EMPTY_DIRECTORY'
         echo 'Maintenance: /opt/meshcore-ems-data/@DATASET@/dataset ACTION'
-        echo 'Remove: sudo /opt/meshcore-ems-data/@DATASET@/uninstall [--purge]'; exit 0 ;;
+        echo 'Remove tools and retain data: sudo /opt/meshcore-ems-data/@DATASET@/uninstall'
+        echo 'Explicit managed data removal: uninstall --remove-data [or --purge for modified receipt-owned data]'; exit 0 ;;
 esac
 line=$(awk '/^__MESHCORE_DATA_PAYLOAD__$/{print NR+1; exit}' "$0")
 actual_sha=$(tail -n +"$line" "$0" | sha256sum | cut -d ' ' -f1)

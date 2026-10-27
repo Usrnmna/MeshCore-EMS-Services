@@ -17,6 +17,7 @@ import subprocess
 import tarfile
 
 from package_services import package_files, PACKAGES
+from artifact_provenance import source_hashes, write_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "v0.9.6-beta"
@@ -104,6 +105,9 @@ def stage_payload(destination):
             data = data.replace(b"\r\n", b"\n")
         target.write_bytes(data)
         manifest[relative.as_posix()] = sha(data)
+    capabilities = json.dumps({"schema": 1, "capabilities": ["staged-startup-v1", "settings-v2", "operation-lock-v1"]}, indent=2) + "\n"
+    (destination / "DESKTOP-CAPABILITIES.json").write_text(capabilities, encoding="utf-8")
+    manifest["DESKTOP-CAPABILITIES.json"] = sha(capabilities.encode("utf-8"))
     (destination / "PAYLOAD-MANIFEST.json").write_text(
         json.dumps({"version": VERSION, "files": manifest}, indent=2) + "\n", encoding="utf-8"
     )
@@ -170,8 +174,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--iscc", type=Path, default=ROOT / ".build/inno/ISCC.exe")
     parser.add_argument("--linux-only", action="store_true")
+    parser.add_argument("--output", type=Path, help="Local installer output directory; default dist/VERSION")
     args = parser.parse_args()
-    output = ROOT / "dist" / f"{VERSION}"
+    output = (args.output or ROOT / "dist" / VERSION).resolve()
     output.mkdir(parents=True, exist_ok=True)
     import uuid
 
@@ -181,6 +186,7 @@ def main():
     build = work / ("installers-" + uuid.uuid4().hex[:12])
     build.mkdir()
     payload = build / "payload"
+    input_hashes = source_hashes(source_files(), ROOT)
     stage_payload(payload)
     artifacts = [linux_installer(payload, output, arch) for arch in ("x86_64", "aarch64")]
     if not args.linux_only:
@@ -222,6 +228,11 @@ def main():
     (output / "SHA256SUMS.txt").write_text(
         "".join(f"{sha(path.read_bytes())}  {path.name}\n" for path in artifacts), encoding="utf-8"
     )
+    for artifact in artifacts:
+        if source_hashes(source_files(), ROOT) != input_hashes:
+            raise RuntimeError("Source changed during compilation; rebuild before assembling a desktop kit")
+        target = "windows-x64" if artifact.suffix == ".exe" else ("raspberry-pi-arm64" if "raspberry-pi-arm64" in artifact.name else "linux-x86_64")
+        write_provenance(artifact, "service", source_files(), root=ROOT, target=target)
     print("Payload snapshot:", payload)
     for path in artifacts:
         print(f"{path.relative_to(ROOT)} ({path.stat().st_size:,} bytes)")

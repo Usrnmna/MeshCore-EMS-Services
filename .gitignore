@@ -54,6 +54,7 @@ archive/*.zip
 # Dataset GUI packaging and exported session logs outside the default build folders.
 # Keep the editable .ui form, Python source, requirements and build scripts trackable.
 MeshCore-EMS-Dataset-Manager.spec
+MeshCore-EMS-Service-Setup.spec
 dataset-manager.log
 dataset-manager.log.*
 

@@ -1,5 +1,11 @@
 # Install MeshCore EMS v0.9.6-beta as an OS service
 
+For Windows, Linux and Raspberry Pi graphical desktops, begin with the
+[desktop installation and removal guide](docs/DESKTOP_INSTALLATION.md).
+The platform kit provides one graphical review and execution path while retaining
+independent service and dataset packages. The terminal examples below remain
+available for unattended deployment and development.
+
 After installation, use the [MeshCore user guide](meshcore_mqtt_service/BOT_USER_GUIDE.md) for channel commands and the [detailed command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#settings) for command settings, limits, and response formats. Equivalent [Windows user](meshcore_mqtt_service_windows/BOT_USER_GUIDE.md) and [command](meshcore_mqtt_service_windows/COMMAND_REFERENCE.md) guides are included in the Windows source package.
 
 These **online service installers** include both platform source packages,

@@ -1,6 +1,8 @@
 """Read native package records and verify active data without changing either."""
 
 from dataclasses import dataclass, field
+import hashlib
+import json
 import os
 from pathlib import Path
 import platform
@@ -25,7 +27,13 @@ def native_target():
 def tools_base(target):
     """Return the existing native package location, independent of the data root."""
     if target == "windows-x64":
-        return Path(os.environ.get("ProgramW6432", os.environ.get("ProgramFiles", r"C:\Program Files"))) / "MeshCore-EMS-Data"
+        if os.name == "nt":
+            import ctypes
+            buffer = ctypes.create_unicode_buffer(32768)
+            if ctypes.windll.shell32.SHGetFolderPathW(None, 38, None, 0, buffer):
+                raise OSError("Cannot resolve the protected Program Files directory")
+            return Path(buffer.value) / "MeshCore-EMS-Data"
+        return Path(r"C:\Program Files") / "MeshCore-EMS-Data"
     return Path("/opt/meshcore-ems-data")
 
 
@@ -58,6 +66,8 @@ class Package:
     launcher: tuple[str, ...] = ()
     uninstaller: tuple[str, ...] = ()
     detail: str = ""
+    capabilities: tuple[str, ...] = ()
+    revision: str = ""
 
 
 @dataclass(frozen=True)
@@ -87,6 +97,7 @@ def read_package(name, target, locations, base):
     """
     prefix = base / name
     root = None
+    release = None
     try:
         if target == "windows-x64":
             record = locations.get(name)
@@ -136,8 +147,21 @@ def read_package(name, target, locations, base):
             raise ValueError("Maintenance runtime, manager or launcher is missing")
         if target != "windows-x64" and not all(os.access(path, os.X_OK) for path in required[:3]):
             raise ValueError("Maintenance programs are not executable")
+        capabilities = identity.get("capabilities", [])
+        if not isinstance(capabilities, list) or any(not isinstance(item, str) for item in capabilities):
+            raise ValueError("Invalid native maintenance capabilities")
+        # Same-version native repair can replace runtime selection or maintenance
+        # code without changing display identity. Bind review to those exact bytes.
+        records = [payload / "DATA-PACKAGE.json", payload / "installers/datasets/manage.py",
+                   Path(launcher[0]), Path(uninstaller[0]),
+                   prefix / ("runtime.json" if target == "windows-x64" else "data-root.txt")]
+        fingerprints = {}
+        for path in records:
+            with path.open("rb") as stream:
+                fingerprints[str(path)] = hashlib.file_digest(stream, "sha256").hexdigest()
+        revision = hashlib.sha256(json.dumps({"release": str(release), "files": fingerprints}, sort_keys=True).encode()).hexdigest()
         return Package("ready", prefix, root.resolve(), launcher, uninstaller,
-                       "Package " + str(identity.get("version", "unknown version")))
+                       "Package " + str(identity.get("version", "unknown version")), tuple(sorted(set(capabilities))), revision)
     except (OSError, ValueError, KeyError, TypeError) as error:
         return Package("broken", prefix, root.resolve() if root and root.is_absolute() else None,
                        detail=str(error) + "; rerun the matching setup to repair tools.")

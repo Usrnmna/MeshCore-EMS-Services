@@ -6,6 +6,8 @@
 [![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
+[![Offline verification](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml/badge.svg)](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml)
+
 **Local information, delivered through MeshCore channels.**
 
 MC-EMS-Services turns a MeshCore channel into a command-driven information service
@@ -67,14 +69,19 @@ formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 
 ## Get started
 
+For a graphical desktop, use the [desktop installation and removal workflow](docs/DESKTOP_INSTALLATION.md).
+Dataset selection and service setup share one reviewed graphical workflow. Platform kits
+include the matching native applications and independent installers; native
+platform verification limits are recorded in that guide.
+
 Install the [separate data packages](docs/DATA_PACKAGES.md) needed by the enabled
 features: EBMUD for local GIS, wildfire and landslide references, and the dependent
 water collections for local water context. Each collection has Windows, Linux
 and Raspberry Pi installers and its own uninstaller. Failed updates retain the
 last validated local dataset; service upgrades do not replace data collections.
-The optional [editable dataset manager](docs/DATASET_GUI.md) provides a PyQt6
-checkbox interface for installing missing collections and removing selected
-packages, with a Qt Creator form and a separate manual GUI build.
+The [editable PyQt6 interface](docs/DATASET_GUI.md) coordinates independent
+service and dataset backends. The original dataset form and independent
+Service Setup remain available for maintenance.
 
 ### Essential requirements
 
@@ -116,8 +123,8 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
   Snowpack coverage is California-only, and highway reports cover California routes.
 - Local GIS commands use EBMUD-area snapshots. They do not search every California
   park or establish current access permission, route accessibility, or live conditions.
-  Standalone service ZIPs require `data/ebmud` separately; complete-workspace
-  installers include it. See [GIS deployment](INSTALL.md#gis-source-deployment).
+  Service ZIPs and service installers require the independent EBMUD data package
+  for these lookups. See [GIS deployment](INSTALL.md#gis-source-deployment).
 - `!floodalarm` pins the requested location and checks official alerts every five
   minutes by default for four hours. `conditions` adds supported current-condition
   changes; `status` and `stop` manage monitoring. `!floodwarn` returns a concise one-time alert in a single tagged message.

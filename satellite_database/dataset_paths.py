@@ -34,7 +34,7 @@ def checked_path(root, relative):
     return resolved
 
 
-def resolve(dataset, fallback, *, configured=None, defaults=()):
+def resolve(dataset, fallback, *, configured=None, defaults=(), root=None):
     """Select an active generation, preserving an explicit external data path.
 
     Paths matching a shipped default or the persistent collection alias
@@ -42,7 +42,7 @@ def resolve(dataset, fallback, *, configured=None, defaults=()):
     An absent registry entry retains legacy/source-checkout behavior; an explicit
     inactive entry or an invalid registry fails visibly instead of resurrecting data.
     """
-    root = data_root()
+    root = Path(root).resolve() if root is not None else data_root()
     fallback = Path(fallback).resolve()
     if configured is not None:
         configured = Path(configured).resolve()

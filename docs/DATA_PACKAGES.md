@@ -1,8 +1,14 @@
 # Independent dataset installation and recovery
 
-The optional [editable PyQt6 dataset manager](DATASET_GUI.md) provides checkbox
-selection and batch planning over these existing installers and uninstallers.
-Its GUI can be built separately without recompiling the dataset packages.
+For graphical desktop installation and removal, use the
+[desktop workflow](DESKTOP_INSTALLATION.md). Dataset and service installers
+remain independent; the command examples below support maintenance and unattended
+operation.
+
+The [editable PyQt6 interface](DATASET_GUI.md) provides unified review and
+execution over existing independent backends. Current capability-aware dataset
+artifacts are required for coordinated maintenance. The original dataset-only
+form remains available for independent maintenance.
 
 [Installation](../INSTALL.md) | [Documentation index](README.md) | [Water acquisition details](WATER_DATA_SETUP.md)
 

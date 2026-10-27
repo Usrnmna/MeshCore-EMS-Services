@@ -1,4 +1,6 @@
 # GUI dependencies are separate from every dataset maintenance runtime.
-PyQt6==6.11.0
-PyQt6-Qt6==6.11.0
-PyQt6-sip==13.11.1
+# Both Linux architectures publish manylinux_2_28 wheels for these Qt versions.
+# Debian 12 / Raspberry Pi OS Bookworm provide glibc 2.36; qualify on each target.
+PyQt6==6.7.1
+PyQt6-Qt6==6.7.3
+PyQt6-sip==13.10.0

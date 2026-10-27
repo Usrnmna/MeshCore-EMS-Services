@@ -19,6 +19,7 @@ import tarfile
 import uuid
 
 from build_installers import download_only, water_download_rules
+from artifact_provenance import source_hashes, write_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "v0.9.6-beta"
@@ -56,12 +57,16 @@ def source_inventory(root=ROOT):
         paths.update(path.relative_to(root).as_posix()
                      for path in (root / directory).glob("requirements*.txt"))
     for directory, suffixes in (("installers/datasets/windows", {".ps1", ".cmd", ".iss"}),
-                                ("installers/datasets/linux", {".sh"})):
+                                ("installers/datasets/linux", {".sh"}),
+                                ("installers/desktop", {".sh", ".ps1", ".iss"})):
         for path in (root / directory).iterdir():
             if path.is_file() and path.suffix in suffixes:
                 paths.add(path.relative_to(root).as_posix())
     paths.update(path.relative_to(root).as_posix()
                  for path in (root / "installers/datasets").glob("requirements*.txt"))
+    paths.add("installers/desktop/locking.py")
+    paths.add("installers/desktop/native_environment.py")
+    paths.update({"installers/desktop/staging.py", "installers/desktop/windows_trust.py", "installers/desktop/authorization.py"})
     for path in (root / "docs").rglob("*"):
         if path.is_file() and not any(part.startswith(".") or part == "__pycache__"
                                       for part in path.relative_to(root / "docs").parts):
@@ -84,6 +89,13 @@ def seed_inventory(dataset, root=ROOT):
                   and path.suffix not in {".py", ".pyc", ".pyo"})
 
 
+def provenance_sources(dataset, root=ROOT):
+    """Include payload sources, seeds, and the recipe that selects/compiles them."""
+    return ([root / relative for relative in source_inventory(root)] + seed_inventory(dataset, root)
+            + [root / "tools/build_data_installers.py", root / "tools/build_installers.py",
+               root / "tools/artifact_provenance.py", root / ".gitignore"])
+
+
 def stage_payload(destination, dataset, root=ROOT, version=VERSION):
     """Make an immutable build snapshot and its exact per-file integrity inventory."""
     if dataset not in DATASETS:
@@ -103,7 +115,8 @@ def stage_payload(destination, dataset, root=ROOT, version=VERSION):
         inventory[relative.as_posix()] = digest(data)
     (destination / "dataset-id.txt").write_text(dataset + "\n", encoding="utf-8", newline="\n")
     inventory["dataset-id.txt"] = digest((dataset + "\n").encode())
-    package = json.dumps({"dataset": dataset, "version": version}, indent=2) + "\n"
+    package = json.dumps({"dataset": dataset, "version": version,
+                          "capabilities": ["retain-data-v1", "maintenance-lock-v1", "dataset-lock-recovery-v1"]}, indent=2) + "\n"
     (destination / "DATA-PACKAGE.json").write_text(package, encoding="utf-8", newline="\n")
     inventory["DATA-PACKAGE.json"] = digest(package.encode())
     manifest = {"version": version, "dataset": dataset, "files": inventory}
@@ -160,6 +173,7 @@ def main():
     parser.add_argument("--dataset", action="append", choices=DATASETS)
     parser.add_argument("--version", default=VERSION, help="Independent data release version, for example v1.0.0")
     parser.add_argument("--linux-only", action="store_true")
+    parser.add_argument("--output", type=Path, help="Local dataset installer output directory; default dist/VERSION/datasets")
     parser.add_argument("--iscc", type=Path, default=ROOT / ".build/inno/ISCC.exe")
     parser.add_argument("--sign-tool", metavar="NAME=COMMAND", help="Optional Inno Setup signing tool definition")
     args = parser.parse_args()
@@ -173,13 +187,14 @@ def main():
         if not separator or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", name) or not command.strip():
             parser.error("--sign-tool requires NAME=COMMAND with an alphanumeric tool name")
         signing = [f"/S{name}={command}", f"/DSignToolName={name}"]
-    output = ROOT / "dist" / args.version / "datasets"
+    output = (args.output or ROOT / "dist" / args.version / "datasets").resolve()
     output.mkdir(parents=True, exist_ok=True)
     build = ROOT / ".build" / ("data-installers-" + uuid.uuid4().hex[:12])
     executable = None if args.linux_only else compile_windows_tool(build / "windows-tool", args.version)
     artifacts = []
     for dataset in args.dataset or DATASETS:
         payload = build / dataset / "payload"
+        input_hashes = source_hashes(provenance_sources(dataset), ROOT)
         manifest = stage_payload(payload, dataset, version=args.version)
         for platform in PLATFORMS:
             artifacts.append(linux_installer(payload, output, dataset, platform, args.version))
@@ -189,6 +204,13 @@ def main():
                             f"/DDatasetName={DISPLAY_NAMES[dataset]}", f"/DMaintenanceExe={executable}",
                             str(ROOT / "installers/datasets/windows/setup.iss")], check=True)
             artifacts.append(output / f"MeshCore-EMS-Data-{dataset}-{args.version}-windows-x64-setup.exe")
+        for artifact in artifacts:
+            if not artifact.name.startswith(f"MeshCore-EMS-Data-{dataset}-"):
+                continue
+            if source_hashes(provenance_sources(dataset), ROOT) != input_hashes:
+                raise RuntimeError("Source changed during compilation; rebuild before assembling a desktop kit")
+            target = "windows-x64" if artifact.suffix == ".exe" else ("raspberry-pi-arm64" if "raspberry-pi-arm64" in artifact.name else "linux-x86_64")
+            write_provenance(artifact, "dataset", provenance_sources(dataset), root=ROOT, target=target, dataset=dataset)
         print(f"{dataset}: packaged {len(manifest['files'])} source and seed files", flush=True)
     # Include previously built subsets in the distribution-wide checksum inventory.
     releases = sorted(path for path in output.iterdir() if path.suffix in {".exe", ".run"})

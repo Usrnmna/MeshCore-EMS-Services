@@ -69,6 +69,8 @@ jobs:
             satellite_database/requirements-tracking.txt
             installers/datasets/requirements.txt
             installers/datasets/gui/requirements.txt
+      - name: Check documentation, examples, commands, and publication rules
+        run: python tools/check_documentation.py
       - name: Install headless Qt runtime libraries
         if: runner.os == 'Linux'
         shell: bash
@@ -83,12 +85,22 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: Install-Module -Name ps2exe -RequiredVersion 1.0.18 -Repository PSGallery -Scope CurrentUser -Force -ErrorAction Stop
-      - name: Check documentation, examples, commands, and publication rules
-        run: python tools/check_documentation.py
       - name: Check service and dataset installers, registries, and inventories
         if: runner.os != 'Windows'
         shell: bash
         run: python -m unittest discover -s tools -p "test_*.py"
+      - name: Check protected Linux maintenance fixtures
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          # Only disposable lease and permission fixtures need root. The main
+          # tooling suite and Qt widget checks remain under the desktop user.
+          python_path=$(python -c 'import sys; print(sys.executable)')
+          sudo -- "$python_path" -m unittest \
+            tools.test_maintenance_lock \
+            tools.test_dataset_lifecycle.DatasetLockRecoveryTests \
+            tools.test_dataset_gui.GuiCoreTests.test_batch_lock_is_exclusive_across_data_roots \
+            tools.test_unified_service.NativeStatePermissionTests
       - name: Check service and dataset installers, registries, and inventories (Windows PowerShell)
         if: runner.os == 'Windows'
         shell: powershell

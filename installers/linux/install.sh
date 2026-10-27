@@ -13,6 +13,31 @@ grant_service_venv_access() {
     find "$environment" -type f -exec chmod g+rX,go-w,o-rwx {} +
 }
 
+protect_state_parent() {
+    # The service writes only runtime/. Protect sibling dataset directory names
+    # from service-account replacement while preserving service-group traversal.
+    local directory=$1 service_group=$2
+    chown root:"$service_group" "$directory"
+    chmod 0750 "$directory"
+}
+
+configure_startup_policy() {
+    # Retain upgrade policy; only a fresh non-staged installation enables boot.
+    local previous_policy=$1 existing_service=$2 start_requested=$3
+    if ((existing_service)); then
+        case "$previous_policy" in
+            enabled|enabled-runtime) systemctl enable meshcore-ems.service ;;
+            disabled) systemctl disable meshcore-ems.service ;;
+            masked|masked-runtime) echo 'Existing masked service policy retained.' ;;
+            *) echo 'Existing startup policy retained without enabling the service.' ;;
+        esac
+    elif ((start_requested)); then
+        systemctl enable meshcore-ems.service
+    else
+        systemctl disable meshcore-ems.service
+    fi
+}
+
 # Detect the USB radio at each service start instead of saving today's tty number.
 port=''
 transport=''
@@ -39,6 +64,9 @@ done
 [[ -z $channel || -z $channels_config ]] || { echo 'Use --channel or --channels-config, not both.' >&2; exit 2; }
 [[ -z $channels_config || -f $channels_config ]] || { echo 'Channels JSON file does not exist.' >&2; exit 2; }
 [[ $EUID -eq 0 ]] || { echo 'Run this installer with sudo.' >&2; exit 1; }
+source "$source_dir/installers/desktop/maintenance_lock.sh"
+meshcore_lock_acquire
+trap meshcore_lock_release EXIT
 [[ -d /run/systemd/system ]] || { echo 'A running systemd Linux installation is required.' >&2; exit 1; }
 command -v apt-get >/dev/null || { echo 'This installer supports Debian/Ubuntu/Raspberry Pi OS with apt.' >&2; exit 1; }
 [[ ${port,,} != auto ]] || port='auto'
@@ -55,7 +83,7 @@ id meshcore-ems >/dev/null 2>&1 || useradd --system --user-group --home-dir /var
 usermod -a -G dialout meshcore-ems
 install -d -m 0755 /opt/meshcore-ems/releases
 install -d -m 0750 -o root -g meshcore-ems /etc/meshcore-ems
-install -d -m 0750 -o meshcore-ems -g meshcore-ems /var/lib/meshcore-ems
+install -d -m 0750 -o root -g meshcore-ems /var/lib/meshcore-ems
 # Build in its final path because virtual environments contain absolute paths.
 release=$(mktemp -d /opt/meshcore-ems/releases/v0.9.6-beta.XXXXXXXX)
 cp -a "$source_dir/." "$release/"
@@ -75,6 +103,9 @@ args=(--root "$release" --state /var/lib/meshcore-ems --config-dir /etc/meshcore
 previous=$(readlink -f /opt/meshcore-ems/current 2>/dev/null || true)
 was_active=0
 systemctl is-active --quiet meshcore-ems.service && was_active=1
+previous_startup=$(systemctl is-enabled meshcore-ems.service 2>/dev/null || true)
+had_service=0
+systemctl cat meshcore-ems.service >/dev/null 2>&1 && had_service=1
 changed_link=0
 start_attempted=0
 config_backup=''
@@ -113,8 +144,7 @@ if python3 -c 'import json,sys; sys.exit(json.load(open("/etc/meshcore-ems/confi
     apt-get install -y bluez
     systemctl enable --now bluetooth.service
 fi
-chown meshcore-ems:meshcore-ems /var/lib/meshcore-ems
-chmod o-rwx /var/lib/meshcore-ems
+protect_state_parent /var/lib/meshcore-ems meshcore-ems
 # Public reference roots must remain traversable after service-first installation.
 install -d -m 0755 /var/lib/meshcore-ems/data
 # Dataset installers own data permissions; service upgrades must not recursively
@@ -140,14 +170,18 @@ changed_link=1
 install -m 0644 "$release/installers/linux/meshcore-ems.service" /etc/systemd/system/meshcore-ems.service
 install -m 0755 "$release/installers/linux/satellite-catalog" /usr/local/bin/meshcore-satellites
 systemctl daemon-reload
-systemctl enable meshcore-ems.service
+configure_startup_policy "$previous_startup" "$had_service" "$start_service"
 if ((start_service)); then
+    if [[ $previous_startup == masked || $previous_startup == masked-runtime ]]; then
+        echo 'Existing service is masked; it remains stopped.'
+    else
     start_attempted=1
     systemctl start meshcore-ems.service
     sleep 3
     if ! systemctl is-active --quiet meshcore-ems.service; then
         echo 'Service did not stay running. Inspect: journalctl -u meshcore-ems -n 50' >&2
         false
+    fi
     fi
 fi
 trap - ERR

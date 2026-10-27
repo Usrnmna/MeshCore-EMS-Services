@@ -29,6 +29,7 @@ CloseApplications=no
 SetupLogging=yes
 
 [Files]
+Source: "{#PayloadDir}\installers\desktop\maintenance_lock.ps1"; DestName: "_maintenance_lock.ps1"; Flags: dontcopy
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
@@ -46,10 +47,13 @@ Type: filesandordirs; Name: "{app}\python"
 [Code]
 var PortPage, EndpointPage: TInputQueryWizardPage;
     TransportPage: TInputOptionWizardPage;
+#include "..\desktop\maintenance_lock.iss"
 
 function InitializeUninstall(): Boolean;
 var Code: Integer;
 begin
+  Result := AcquireMaintenance(ExpandConstant('{app}\installers\desktop\maintenance_lock.ps1'));
+  if not Result then exit;
   Result := Exec(ExpandConstant('{sys}\WindowsPowerShell\v1.0\powershell.exe'),
     '-NoProfile -ExecutionPolicy Bypass -File "' + ExpandConstant('{app}\installers\windows\uninstall.ps1') + '"',
     '', SW_HIDE, ewWaitUntilTerminated, Code) and (Code = 0);

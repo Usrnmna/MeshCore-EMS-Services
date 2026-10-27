@@ -1,11 +1,21 @@
 # Editable dataset manager
 
+Packaged desktop operation is described in the
+[graphical installation and removal guide](DESKTOP_INSTALLATION.md).
+The source and build commands below are developer procedures.
+
+The default launch opens unified Installation and Maintenance, reusing the
+Dataset Manager foundation. See [ownership and recovery](UNIFIED_INSTALLER.md).
+The independent dataset interface remains available through `--datasets-only`;
+the form-specific instructions below describe that interface.
+
 The PyQt6 dataset manager provides checkbox selection, installation planning,
 conservative removal, progress and logs for all eight reference collections.
 Its ordinary Qt Widgets form is editable in Qt Creator. The interface uses the
 existing dataset installers, maintenance launchers and native uninstallers.
-No dataset installer rebuild is required to use the GUI with compatible existing
-artifacts. A GUI build does not install datasets or acquire provider data.
+Current backend capabilities are required for coordinated operations. Legacy
+artifacts require an explicit current-artifact repair before those operations.
+A GUI build does not install datasets or acquire provider data.
 
 ## Start from source
 
@@ -33,22 +43,25 @@ python3 -m venv .venv-dataset-gui
 also installs the executable packager. A compatible Qt wheel, system graphics
 libraries and a desktop display are required on Linux/Pi. This is not a headless
 Raspberry Pi interface. Native GUI availability must be checked on the target.
-The pinned PyQt6/Qt6 Linux wheels require glibc 2.39 or newer, including on ARM64;
-older Linux/Pi distributions require a separately qualified compatible Qt pin or
-an OS upgrade. Python version alone is insufficient to establish compatibility.
+The desktop build pins PyQt6 6.7.1 and Qt 6.7.3, whose Linux x86_64 and ARM64
+wheels use a glibc 2.28 baseline. This retains the Debian 12/Bookworm service
+targets without requiring a newer operating system. Wheel metadata establishes
+the binary baseline; desktop graphics, authorization and physical Raspberry Pi
+operation still require native qualification. Python version alone is
+insufficient to establish compatibility.
 
 Demo mode generates states and operations in memory. It performs no native package
 discovery, downloads, installation, deletion or privileged execution. Saving a log
 is an explicit file export. Close the demo and omit `--demo` for real status:
 
 ```powershell
-.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --installers dist/v0.9.6-beta/datasets
+.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --datasets-only --installers dist/v0.9.6-beta/datasets
 ```
 
 Use `--root ABSOLUTE_PATH` to select a nondefault data root. The two editable path
 fields also select the data root and existing installer directory. The source
-launcher defaults to `dist/v0.9.6-beta/datasets`; the packaged executable defaults
-to a `datasets` folder beside the executable. Both can be changed in the GUI.
+launcher defaults to `dist/v0.9.6-beta`; the packaged executable defaults
+to its own directory and discovers adjacent installer folders. Both can be changed in the GUI.
 The native tools path and the package's recorded data root appear in row details.
 
 ## Select, review and execute
@@ -63,13 +76,14 @@ The native tools path and the package's recorded data root appear in row details
 6. Review the Live log and Results tabs, then refresh status. **Save Log / Results**
    exports the current visible log and per-item results.
 
-Status and planning can run without elevation when files are readable. Execution
-requires an administrator PowerShell on Windows, or a root/sudo desktop terminal
-on Linux/Pi. Launch the same source command or executable from that terminal and
-review the plan again. The application does not store passwords or silently
-elevate. Display access for a root GUI depends on the desktop's X11/Wayland policy;
-use an administrator-approved desktop launch mechanism. Existing terminal
-installers remain usable on hosts without an elevated graphical session.
+Status and planning run as the desktop user when files are readable. Executing a
+reviewed plan requests native authorization for a separate worker: Windows UAC
+or a Linux/Pi desktop polkit authentication agent. The Qt window remains in the
+desktop session. Passwords are handled by the operating system's authorization
+dialog. Missing authorization support or cancellation is reported without
+claiming installation success. Stop EMS through the separate Service Setup
+window before removing datasets; removal is blocked while a consumer is active
+or its stopped state cannot be established.
 
 ### Meaning of each action
 

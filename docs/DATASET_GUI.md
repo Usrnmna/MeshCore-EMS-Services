@@ -255,6 +255,10 @@ demo startup check can also be run with `--demo --smoke-test`; set
 `QT_QPA_PLATFORM=offscreen` when no visible window is desired. The smoke check only
 loads the form and simulated rows, then exits.
 
+The [October 26 hosted verification record](../installers/VALIDATION.md#hosted-github-actions-october-26-2026)
+includes all six offscreen widget tests on both Windows and Ubuntu, alongside
+the GUI core and dataset-manager suites.
+
 Automated fixtures establish planning, state interpretation, cancellation and
 failure reporting without using real provider data. They do not establish native
 installation privileges, interactive desktop behavior on Linux/Pi, provider access,

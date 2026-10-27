@@ -27,7 +27,7 @@ command guides describe the same command behavior; platform setup and paths diff
 | Service and command functions | [Linux function reference](../meshcore_mqtt_service/FUNCTION_REFERENCE.md) · [Windows function reference](../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md) |
 | Water and wildfire implementation details | [Water/flood function reference](../meshcore_mqtt_service/WATER_FUNCTION_REFERENCE.md) · [Wildfire/smoke/fuel function reference](../meshcore_mqtt_service/WILDFIRE_FUNCTION_REFERENCE.md) |
 | Installer configuration and distribution functions | [Tool function reference](../tools/FUNCTION_REFERENCE.md) |
-| Recorded software checks and unverified deployment boundaries | [Installer and service validation](../installers/VALIDATION.md) |
+| Passing hosted CI, recorded software checks, and remaining deployment limits | [Installer and service validation](../installers/VALIDATION.md#hosted-github-actions-october-26-2026) |
 | Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.6 - Beta comparison](../RELEASE_v0.9.6-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
 | Local historical recovery snapshots | [Recovery archive guidance](../archive/README.md) |
 

@@ -107,6 +107,10 @@ unattended service operation. Restart after configuration changes.
 
 ## Coverage and important limits
 
+Hosted Windows/Linux software checks passed all 10 jobs on October 26, 2026.
+The [verification record](installers/VALIDATION.md#hosted-github-actions-october-26-2026)
+identifies the tested revision, scope, conditional skips, and remaining limitations.
+
 - Bare city names default to California. Several commands accept US city/state,
   ZIP, or GPS input; air quality and river lookups require coordinates.
   Snowpack coverage is California-only, and highway reports cover California routes.

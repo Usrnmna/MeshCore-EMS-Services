@@ -1,5 +1,48 @@
 # Installer and service validation
 
+## Hosted GitHub Actions: October 26, 2026
+
+The [Offline verification run](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421774997)
+completed successfully with **all 10 jobs passing** for commit
+[`79e2be47758347ff352de561f05ae84b9786561c`](https://github.com/Usrnmna/MeshCore-EMS-Services/commit/79e2be47758347ff352de561f05ae84b9786561c).
+
+| Hosted scope | Result |
+| --- | --- |
+| Both service packages on Windows and Ubuntu, using Python 3.11 and 3.13: eight jobs | Passed |
+| Documentation, installer tools, offscreen GUI widgets, data tools, and satellites on Windows and Ubuntu: two jobs | Passed |
+
+The [Windows tooling job](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421774997/job/121917710024)
+reported 120 tests with three skips; the
+[Ubuntu tooling job](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421774997/job/121917709821)
+reported 120 tests with eight skips. Each platform also passed the five offline
+data and satellite suites: 20 Basin Plan, 22 flood-impact, 88 USGS Water, five
+EBMUD, and 31 satellite tests. The six offscreen GUI widget tests ran on both
+platforms, and the Windows short/long-path regression subcases were not skipped.
+
+Conditional coverage remains explicit. Windows skipped the POSIX permission,
+native Linux service-account permission, and optional Inno Setup fixture checks.
+Ubuntu skipped the five Windows PowerShell checks, Windows ACL and junction
+checks, and the native Linux service-account permission check. A successful job
+does not establish that these conditional checks ran.
+
+The associated [GitHub Actions dependency check](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421781294)
+and [pip dependency check](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421781382)
+also completed successfully for the same commit.
+
+Hosted results establish the configured software checks for this revision. They
+do not establish native Raspberry Pi/ARM64 execution, production service
+installation or reboot recovery, physical USB/BLE/TCP radio behavior, RF or
+recipient delivery, continuous four-hour monitoring, current provider availability,
+complete fresh acquisition of every dataset, interactive desktop behavior, or
+real GUI install/remove qualification. This workflow does not rebuild, sign, or
+publish release artifacts; the Windows distributions remain unsigned. Earlier
+native qualification retains its recorded source/artifact scope and is not
+automatically extended to later builds. Later revisions require their own checks.
+
+The dated records below describe evidence available at each checkpoint. This
+hosted result supersedes their earlier pending-CI status without replacing their
+artifact-specific evidence or deployment and hardware limitations.
+
 ## Compiled Windows dataset tools
 
 Windows dataset packages include `Dataset.exe`, compiled from the maintained
@@ -229,13 +272,14 @@ limit. Synthetic provider values and fixed timestamps do not describe live condi
   combinations, maintained dependency paths and 65 ignore/retention cases pass
   local checks. No tracked files are excluded by the ignore rules.
 
-The CI configuration selects Python 3.11 and 3.13 on Windows and Linux; these
-hosted jobs have not been executed by this documentation update. Local tests used
-Python 3.13 with the declared dependencies and existing system libraries. Native
-Linux/ARM64, local Python 3.11, service installation/reboot, physical radio and
-recipient delivery, continuous four-hour monitoring, and current provider
-availability remain unverified. No acquisition, release rebuild, GitHub push or
-GitBook publication was performed. Earlier entries retain their historical results.
+At this October 21 checkpoint, the configured Windows/Linux Python 3.11 and 3.13
+hosted jobs had not yet run. Local tests used Python 3.13 with the declared
+dependencies and existing system libraries. Native Linux/ARM64, local Python
+3.11, service installation/reboot, physical radio and recipient delivery,
+continuous four-hour monitoring, and current provider availability were outside
+that checkpoint's verification. No acquisition, release rebuild, GitHub push or
+GitBook publication was performed. The October 26 hosted record above supersedes
+this earlier pending-CI status; the dated local evidence remains historical.
 
 
 
@@ -264,10 +308,12 @@ Earlier entries below record the command sets and artifacts checked at those tim
 
 The GitHub workflow and Dependabot configuration were checked locally for YAML
 structure, action pins, repository paths, and documented offline test commands.
-GitHub-hosted Windows/Linux jobs have not yet run. Local verification used an
-isolated environment with declared dependencies and access to existing system
+GitHub-hosted Windows/Linux jobs had not yet run at this October 20 checkpoint;
+the October 26 hosted record above provides the later result. Local verification
+used an isolated environment with declared dependencies and access to existing system
 libraries. Native Linux/ARM64, installed-service lifecycle, physical radio or
-recipient delivery, and continuous four-hour monitoring remain unverified.
+recipient delivery, and continuous four-hour monitoring were outside that
+checkpoint's verification.
 Release artifacts were not rebuilt or republished during this documentation pass;
 the historical artifact results below do not validate a new distribution.
 

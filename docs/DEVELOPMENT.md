@@ -276,8 +276,10 @@ Actions use verified commit pins for checkout v7.0.1 and setup-python v7.1.0;
 checkout credentials are not persisted, and workflow permissions are read-only.
 Checks run on pushes, pull requests, and manual dispatch. This workflow performs
 no provider acquisition, radio operation, OS-service installation, deployment,
-or release publication. Local verification does not establish hosted success;
-GitHub Actions results must be checked for each published revision.
+or release publication. All 10 hosted jobs passed on October 26, 2026 for commit
+`79e2be47`. The [hosted verification record and remaining limitations](../installers/VALIDATION.md#hosted-github-actions-october-26-2026)
+identify the exact revision, run, conditional skips, and scope of that evidence.
+Each later published revision requires its own GitHub Actions result.
 
 `.github/dependabot.yml` covers GitHub Actions and all maintained pip requirement
 directories, including `installers/datasets/gui/requirements.txt` and its

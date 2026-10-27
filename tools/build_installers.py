@@ -234,8 +234,15 @@ def main():
         target = "windows-x64" if artifact.suffix == ".exe" else ("raspberry-pi-arm64" if "raspberry-pi-arm64" in artifact.name else "linux-x86_64")
         write_provenance(artifact, "service", source_files(), root=ROOT, target=target)
     print("Payload snapshot:", payload)
+    resolved_root = ROOT.resolve()
     for path in artifacts:
-        print(f"{path.relative_to(ROOT)} ({path.stat().st_size:,} bytes)")
+        resolved_path = path.resolve()
+        try:
+            display_path = resolved_path.relative_to(resolved_root)
+        except ValueError:
+            # --output may legitimately select a directory outside the project.
+            display_path = resolved_path
+        print(f"{display_path} ({path.stat().st_size:,} bytes)")
 
 
 if __name__ == "__main__":

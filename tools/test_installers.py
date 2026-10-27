@@ -1,7 +1,8 @@
 """Validate upgrade preservation and release payload boundaries without OS installation."""
 
 import importlib.util
-from contextlib import closing
+from contextlib import closing, redirect_stdout
+import io
 import json
 import os
 from pathlib import Path
@@ -129,23 +130,90 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def _build_fixture(self, root, output=None):
+        """Build tiny source archives through the real CLI and capture reporting.
+
+        Preserve the supplied root spelling so alias tests exercise production
+        normalization rather than hiding the mismatch inside the fixture.
+        """
+        (root / "installers").mkdir()
+        (root / "INSTALL.md").write_text("Installation guide")
+        (root / "installers/VALIDATION.md").write_text("Validation guide")
+        arguments = ["build_installers.py", "--linux-only"]
+        if output is not None:
+            arguments += ["--output", str(output)]
+        captured = io.StringIO()
+        with patch.object(build_installers, "ROOT", root), \
+                patch.object(build_installers, "source_files", return_value=[root / "INSTALL.md"]), \
+                patch.object(build_installers, "stage_payload", side_effect=lambda path: path.mkdir()), \
+                patch.object(sys, "argv", arguments), redirect_stdout(captured):
+            build_installers.main()
+        return captured.getvalue()
+
     def test_build_distributes_os_installers_separately(self):
         """A release build emits architecture-specific installers without an aggregate archive."""
         with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            (root / "installers").mkdir()
-            (root / "INSTALL.md").write_text("Installation guide")
-            (root / "installers/VALIDATION.md").write_text("Validation guide")
-            with patch.object(build_installers, "ROOT", root), \
-                    patch.object(build_installers, "source_files", return_value=[root / "INSTALL.md"]), \
-                    patch.object(build_installers, "stage_payload", side_effect=lambda path: path.mkdir()), \
-                    patch.object(sys, "argv", ["build_installers.py", "--linux-only"]):
-                build_installers.main()
+            root = Path(folder).resolve()
+            output = self._build_fixture(root)
             release = root / "dist" / build_installers.VERSION
             self.assertEqual(len(list(release.glob("*.run"))), 2)
             self.assertEqual(len((release / "SHA256SUMS.txt").read_text().splitlines()), 2)
             self.assertEqual(len(list(release.glob("*.provenance.json"))), 2)
             self.assertEqual(list((root / "dist").rglob("*.zip")), [])
+            for artifact in release.glob("*.run"):
+                self.assertIn(f"{artifact.relative_to(root)} ({artifact.stat().st_size:,} bytes)", output)
+
+    def test_build_reports_external_output_directory_as_absolute_paths(self):
+        """An explicitly selected output outside ROOT must not fail final reporting."""
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder).resolve()
+            root = workspace / "source project"
+            root.mkdir()
+            destination = workspace / "external output with spaces"
+            output = self._build_fixture(root, destination)
+            artifacts = list(destination.glob("*.run"))
+            self.assertEqual(len(artifacts), 2)
+            for artifact in artifacts:
+                self.assertIn(f"{artifact.resolve()} ({artifact.stat().st_size:,} bytes)", output)
+                self.assertTrue(artifact.with_name(artifact.name + ".provenance.json").is_file())
+
+    @unittest.skipUnless(os.name == "nt", "Windows short/long path aliases")
+    def test_build_reports_short_root_alias_relative_to_canonical_root(self):
+        """A real 8.3 ROOT and resolved long output refer to the same directory."""
+        from test_dataset_manager import windows_short_path
+
+        with tempfile.TemporaryDirectory(prefix="Installer paths with spaces ") as folder:
+            root = Path(folder).resolve()
+            alias = windows_short_path(root)
+            self.assertEqual(alias.resolve(), root)
+            output = self._build_fixture(alias)
+            artifacts = list((root / "dist" / build_installers.VERSION).glob("*.run"))
+            self.assertEqual(len(artifacts), 2)
+            for artifact in artifacts:
+                self.assertIn(f"{artifact.relative_to(root)} ({artifact.stat().st_size:,} bytes)", output)
+
+    @unittest.skipUnless(os.name == "nt", "Windows junction path alias")
+    def test_build_reports_junction_root_relative_to_canonical_root(self):
+        """Exercise canonical reporting even when the volume has no 8.3 aliases."""
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder).resolve()
+            root = workspace / "source project with spaces"
+            root.mkdir()
+            alias = workspace / "project alias"
+            command = "New-Item -ItemType Junction -Path '{}' -Target '{}' -ErrorAction Stop | Out-Null".format(
+                str(alias).replace("'", "''"), str(root).replace("'", "''"))
+            result = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", command],
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            try:
+                self.assertEqual(alias.resolve(), root)
+                output = self._build_fixture(alias)
+                artifacts = list((root / "dist" / build_installers.VERSION).glob("*.run"))
+                self.assertEqual(len(artifacts), 2)
+                for artifact in artifacts:
+                    self.assertIn(f"{artifact.relative_to(root)} ({artifact.stat().st_size:,} bytes)", output)
+            finally:
+                alias.rmdir()
 
     def test_release_versions_agree_across_platforms_and_installers(self):
         """Current release metadata must agree without rewriting historical release notes."""

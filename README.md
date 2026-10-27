@@ -6,6 +6,8 @@
 [![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
+[![Offline verification](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml/badge.svg)](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml)
+
 **Local information, delivered through MeshCore channels.**
 
 MC-EMS-Services turns a MeshCore channel into a command-driven information service

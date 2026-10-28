@@ -1,76 +1,39 @@
-# Version 0.9.6 - Beta
+# MeshCore EMS v0.9.6-beta
 
-Release identifier: `v0.9.6-beta`. Build date: October 21, 2026.
+Release packages refreshed October 27, 2026.
 
-This distribution packages the current source with 31 dedicated MeshCore command
-programs in each platform package. It includes the water commands, flood alert
-lifecycle handling, wildfire and landslide monitoring, and concise tagged replies
-documented in the [command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md)
-and [response examples](meshcore_mqtt_service/RESPONSE_EXAMPLES.md).
+MeshCore EMS connects MeshCore channels to environmental information and monitoring services, with water commands, flood alerts, wildfire and landslide monitoring, and concise tagged replies.
 
-## Included behavior and upgrade considerations
+## Choose one download
 
-- Command replies fit one tagged message of at most 150 UTF-8 bytes. Priority
-  information and material uncertainty precede optional fields. Full supported
-  structured records remain available through local JSON and snapshot interfaces.
-- Flood notifications retain independent lifecycle and uncertainty states, with
-  priority ordering and a five-second minimum gap. Shared radio command spacing
-  defaults to five seconds; contention and transmission time can add delay.
-- Water collection programs and maintained configuration are included. Generated
-  Basin Plan, flood-impact and USGS downloads remain local and require the
-  [independent dataset installers](docs/DATA_PACKAGES.md).
-- All eight reference collections have separate Windows x64, Linux x86_64 and
-  Raspberry Pi ARM64 installers and uninstallers. Updates validate an isolated
-  candidate before activation; failed acquisition retains the selected local
-  dataset. Main service installation and removal preserve independent datasets.
-- Persistent subscriptions remain service-owned. Standalone command invocation
-  does not create a subscription.
-- Windows dataset maintenance uses a PS2EXE-compiled `Dataset.exe` with a console
-  menu and scriptable actions. Readable dataset names and grouped Start menu
-  shortcuts simplify access; package IDs, data paths and preservation rules remain
-  unchanged. Setup and removal retain their native Inno Setup executables.
-
-Upgrades preserve existing configuration and channel assignments. Assign any
-newly available commands to the intended channels and restart the service.
-Existing configurations retain their radio spacing; set `command_interval` to
-`5` explicitly to use the current default. Refer to the
-[installation guide](INSTALL.md) and platform release notes for configuration details.
-
-## Packages and installers
-
-| Artifact | Target |
+| Operating system | Unified installer package |
 | --- | --- |
-| `meshcore_mqtt_service.zip` | Linux source package, including Raspberry Pi ARM64 |
-| `meshcore_mqtt_service_windows.zip` | Windows source package |
-| `MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.9.6-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+ x86_64 with systemd |
-| `MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run` | Raspberry Pi OS 64-bit, Bookworm or newer, with systemd |
+| Windows 10/11, 64-bit | `MeshCore-EMS-v0.9.6-beta-Windows-x64.zip` |
+| Debian 12+ or Ubuntu 24.04+, x86_64 | `MeshCore-EMS-v0.9.6-beta-Linux-x86_64.tar.gz` |
+| Raspberry Pi OS 64-bit, Bookworm or newer | `MeshCore-EMS-v0.9.6-beta-Raspberry-Pi-ARM64.tar.gz` |
 
-The three online installers are distributed separately under `dist/v0.9.6-beta/`.
-The 24 independent data installers are under its `datasets/` directory, with a
-separate `SHA256SUMS.txt`. The dataset guide identifies required collections,
-dependency order, custom data roots, update/rollback commands and removal rules.
-Both source ZIPs and their individual SHA-256 files are also copied there for a
-self-contained release inventory; current ZIPs remain available under `dist/`.
-No combined installer archive is produced. Each source package contains
-`VERSION.txt`; Windows assembly and file versions use `0.9.6.0`.
+Each archive contains the unified graphical **Installation and Maintenance** application, its service installer, all eight optional dataset installers, and installation guides. Service Setup remains available inside the archive as an independent fallback. Dataset selection and maintenance use the included tools.
 
-`SHA256SUMS.txt` covers the three installers. `RELEASE-ASSET-SHA256SUMS.txt`
-covers the release artifacts, documentation, and verification record, excluding
-the checksum inventory itself. `VERIFICATION.json` records actual test results,
-artifact hashes, source comparisons, and verification limits. Its companion
-`VERIFICATION.json.sha256` identifies that report.
+## Install
 
-Installers obtain runtime dependencies online. Standalone source packages need
-shared reference data separately for local GIS queries. Runtime state, private
-configuration, environments and generated water downloads are excluded.
+1. Download the archive matching the operating system and extract the **entire** archive. Keep executables beside their supporting folders.
+2. Open the extracted folder. On Windows, launch `dataset-manager/MeshCore-EMS-Dataset-Manager.exe`. On Linux or Raspberry Pi, open `1-Installation.desktop` and use the file manager's **Allow Launching** action if required.
+3. Select the service and required datasets, confirm connections, credentials, channel assignments and startup settings, then review the operation, execute it and approve the operating-system authorization prompt.
 
-## Verification boundaries
+A graphical desktop, internet access and administrator authorization are required. Linux/Pi require systemd and a working polkit session agent with `pkexec`. Runtime dependencies and some data are downloaded during installation. Companion radio channel preparation, physical connections and Bluetooth pairing remain separate device or operating-system steps. Detailed instructions are included in `START-HERE.md` and the archive's `docs/` folder.
 
-The [validation record](installers/VALIDATION.md) distinguishes offline tests,
-artifact inspection and actual Windows/Ubuntu WSL lifecycle checks. Its native
-qualification section records installed service-account reads after failed data
-updates and ownership-aware removal. No Raspberry Pi host was available. Services
-were installed without starting the radio bridge; reboot recovery, physical radio
-delivery and current provider availability remain unverified. The Windows
-installer is unsigned. This local rebuild does not publish a GitHub release.
+## Included behavior and upgrades
+
+- Each platform provides 31 dedicated MeshCore command programs. Tagged command replies fit at most 150 UTF-8 bytes; supported structured records remain available through local JSON and snapshot interfaces.
+- Flood notifications retain independent lifecycle and uncertainty states, priority ordering and a five-second minimum gap. Shared command spacing defaults to five seconds; transmission and contention can add delay.
+- Water collection programs and maintained configuration are included. Basin Plan, flood-impact and USGS downloads remain local; select their dataset components in the unified interface.
+- Eight reference collections retain independent installers, uninstallers and update lifecycles. Updates validate a candidate before activation; failed acquisition retains the selected dataset. Main service installation and removal preserve independent datasets.
+- Persistent scheduling and subscriptions remain service-owned. Standalone lookups do not create subscriptions. Windows dataset maintenance retains its compiled `Dataset.exe` console menu, scriptable actions and native setup/removal tools.
+
+Upgrades preserve existing configuration and channel assignments. Assign new commands to the intended channels and restart the service. Existing configurations retain their radio spacing; `command_interval` must be set to `5` explicitly to adopt the current default. This rebuild also corrects Windows-generated installer metadata line endings so payload hashes match the actual bytes.
+
+## Checksums and verification
+
+`SHA256SUMS.txt` covers the three OS archives, these notes and `VERIFICATION.zip`. The verification ZIP contains the recorded build results, source provenance and detailed test evidence. These extra files are optional for installation.
+
+The October 27 rebuild recorded 3,638 passed and 52 skipped test executions, with no failures or errors in the selected final runs. Packaged demo startup and archive inventories passed. Windows installers are unsigned. ARM64 builds and checks used QEMU emulation; physical Raspberry Pi operation remains unverified. Native privilege prompts, clean-system installation/removal, reboot, live providers, external MQTT and physical device/radio integration remain unverified for this rebuild. Optional ARM64 WebP/TIFF image-plugin dependencies also remain unqualified; details are in the verification ZIP.

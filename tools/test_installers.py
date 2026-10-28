@@ -130,6 +130,22 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
             )
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_staged_payload_hashes_match_generated_files(self):
+        """Generated metadata and normalized source retain their recorded byte hashes."""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            source = root / "example.sh"
+            source.write_bytes(b"#!/bin/sh\r\nexit 0\r\n")
+            payload = root / "payload"
+            with patch.object(build_installers, "ROOT", root), \
+                    patch.object(build_installers, "source_files", return_value=[source]):
+                build_installers.stage_payload(payload)
+            manifest = json.loads((payload / "PAYLOAD-MANIFEST.json").read_text())
+            self.assertEqual((payload / "example.sh").read_bytes(), b"#!/bin/sh\nexit 0\n")
+            for relative, expected in manifest["files"].items():
+                with self.subTest(file=relative):
+                    self.assertEqual(build_installers.sha((payload / relative).read_bytes()), expected)
+
     def _build_fixture(self, root, output=None):
         """Build tiny source archives through the real CLI and capture reporting.
 

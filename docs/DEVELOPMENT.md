@@ -300,6 +300,19 @@ grouping keeps each shared dependency's service, dataset, and GUI requirement
 changes in review together when constraints permit. Updates require review and
 verification. No automatic merge or release process is configured.
 
+The tooling job installs `.github/requirements-ci.txt`, which includes both
+service manifests and the maintained data/GUI runtime requirements. PyYAML is a
+CI-only dependency for configuration regression tests. Service jobs continue to
+install each package's own requirements independently.
+
+CI retains command output under `.build/ci-reports/` and uploads these logs even
+when a check fails, with separate artifacts per matrix job and 14-day retention.
+The report runner preserves command failures. Reports contain test diagnostics;
+build outputs, local planning documents, and runtime databases are not uploaded.
+Dependabot also monitors the CI requirements. Qt runtime updates are grouped
+together, while other shared Python updates retain grouping by dependency name.
+Minor/patch action updates are grouped; major action updates remain separate.
+
 Official references: [checkout](https://github.com/actions/checkout),
 [Python setup](https://github.com/actions/setup-python), and
 [Dependabot options](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference).

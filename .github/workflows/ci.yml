@@ -37,12 +37,21 @@ jobs:
           cache: pip
           cache-dependency-path: ${{ matrix.package }}/requirements.txt
       - name: Install service dependencies
-        run: python -m pip install -r ${{ matrix.package }}/requirements.txt
+        run: python tools/run_ci_check.py .build/ci-reports/install.log python -m pip install -r ${{ matrix.package }}/requirements.txt
       - name: Check service dependency compatibility
-        run: python -m pip check
+        run: python tools/run_ci_check.py .build/ci-reports/dependencies.log python -m pip check
       - name: Verify every command program and offline service behavior
         working-directory: ${{ matrix.package }}
-        run: python -m unittest discover -s tests -p "test_*.py"
+        run: python ../tools/run_ci_check.py ../.build/ci-reports/service-tests.log python -m unittest discover -s tests -p "test_*.py"
+      - name: Retain service diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: service-${{ matrix.package }}-${{ matrix.os }}-py${{ matrix.python }}
+          path: .build/ci-reports/*.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
 
   documentation-and-tools:
     name: Documentation and tools / ${{ matrix.os }}
@@ -63,14 +72,16 @@ jobs:
           python-version: '3.13'
           cache: pip
           cache-dependency-path: |
+            .github/requirements-ci.txt
             meshcore_mqtt_service/requirements.txt
+            meshcore_mqtt_service_windows/requirements.txt
             data/flood_impacts/requirements.txt
             data/usgs_water/requirements.txt
             satellite_database/requirements-tracking.txt
             installers/datasets/requirements.txt
             installers/datasets/gui/requirements.txt
       - name: Check documentation, examples, commands, and publication rules
-        run: python tools/check_documentation.py
+        run: python tools/run_ci_check.py .build/ci-reports/documentation.log python tools/check_documentation.py
       - name: Install headless Qt runtime libraries
         if: runner.os == 'Linux'
         shell: bash
@@ -78,9 +89,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends libegl1 libopengl0 libxkbcommon0
       - name: Install offline verification dependencies
-        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt -r installers/datasets/gui/requirements.txt
+        run: python tools/run_ci_check.py .build/ci-reports/install.log python -m pip install -r .github/requirements-ci.txt
       - name: Check tooling dependency compatibility
-        run: python -m pip check
+        run: python tools/run_ci_check.py .build/ci-reports/dependencies.log python -m pip check
       - name: Install pinned Windows dataset test compiler
         if: runner.os == 'Windows'
         shell: powershell
@@ -88,7 +99,7 @@ jobs:
       - name: Check service and dataset installers, registries, and inventories
         if: runner.os != 'Windows'
         shell: bash
-        run: python -m unittest discover -s tools -p "test_*.py"
+        run: python tools/run_ci_check.py .build/ci-reports/tool-tests.log python -m unittest discover -s tools -p "test_*.py"
       - name: Check protected Linux maintenance fixtures
         if: runner.os == 'Linux'
         shell: bash
@@ -96,7 +107,7 @@ jobs:
           # Only disposable lease and permission fixtures need root. The main
           # tooling suite and Qt widget checks remain under the desktop user.
           python_path=$(python -c 'import sys; print(sys.executable)')
-          sudo -- "$python_path" -m unittest \
+          sudo -- "$python_path" tools/run_ci_check.py .build/ci-reports/protected-tests.log "$python_path" -m unittest \
             tools.test_maintenance_lock \
             tools.test_dataset_lifecycle.DatasetLockRecoveryTests \
             tools.test_dataset_gui.GuiCoreTests.test_batch_lock_is_exclusive_across_data_roots \
@@ -106,14 +117,23 @@ jobs:
         shell: powershell
         run: |
           Import-Module -Name ps2exe -RequiredVersion 1.0.18 -ErrorAction Stop
-          python -m unittest discover -s tools -p "test_*.py"
+          python tools/run_ci_check.py .build/ci-reports/tool-tests.log python -m unittest discover -s tools -p "test_*.py"
           exit $LASTEXITCODE
       - name: Check offline data tools and satellite catalog
         shell: bash
         run: |
           for suite in data/basin_plans data/flood_impacts data/usgs_water data/ebmud satellite_database; do
-            python -m unittest discover -s "$suite" -p 'test_*.py' || exit $?
+            python tools/run_ci_check.py ".build/ci-reports/$(basename "$suite").log" python -m unittest discover -s "$suite" -p 'test_*.py' || exit $?
           done
+      - name: Retain documentation and tooling diagnostics
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: documentation-and-tools-${{ matrix.os }}
+          path: .build/ci-reports/*.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
 
 # Checks use fixtures, offscreen Qt widgets, and loopback MQTT. No provider
 # acquisition, radio operation, production installation, deployment, or release

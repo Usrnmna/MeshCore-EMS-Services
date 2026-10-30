@@ -169,6 +169,7 @@ distinguish catalog evidence from real-time transmission or reception.
 | `python tools/build_installers.py` | `--iscc PATH`, `--linux-only`, `--output PATH` | Build current-version OS installers; neither installs nor publishes them. |
 | `python installers/configure.py` | Required `--root`, `--state`, `--config-dir`, `--platform {windows,linux}`; optional `--port`, `--transport {serial,ble,tcp}`, `--tcp-host`, `--tcp-port`, `--ble-address`, `--channel`, `--channels-config` | Merge installed settings, preserve operator state, and create backups without opening a radio or starting a service. |
 | `python tools/check_documentation.py` | No options | Check source command/subcommand and tagged-example coverage, exact response byte counts, local links, badge counts, paired reference parity, and publication exclusions. |
+| `python tools/run_ci_check.py` | `REPORT COMMAND [ARGUMENT ...]` | Run a command without a shell, stream combined output to the console and report file, and preserve failure status. |
 
 The [installation guide](../INSTALL.md) lists Windows installer parameters,
 Linux installer options, extraction/check modes, uninstall behavior, preservation,

@@ -1,0 +1,9 @@
+# CI tooling only; runtime dependency pins remain in their maintained manifests.
+-r ../meshcore_mqtt_service/requirements.txt
+-r ../meshcore_mqtt_service_windows/requirements.txt
+-r ../data/flood_impacts/requirements.txt
+-r ../data/usgs_water/requirements.txt
+-r ../satellite_database/requirements-tracking.txt
+-r ../installers/datasets/requirements.txt
+-r ../installers/datasets/gui/requirements.txt
+PyYAML==6.0.3

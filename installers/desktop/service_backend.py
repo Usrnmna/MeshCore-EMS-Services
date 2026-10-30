@@ -29,7 +29,8 @@ ACTIONS = {"install", "configure", "status", "start", "stop", "diagnostics", "un
 TARGETS = {"windows-x64", "linux-x86_64", "raspberry-pi-arm64"}
 SECRET = re.compile(r"MESHCORE_CHANNEL_KEY_[A-Z0-9_]+\Z")
 CREDENTIALS = {"AIRNOW_API_KEY", "MESHCORE_MQTT_USERNAME", "MESHCORE_MQTT_PASSWORD"}
-SETTINGS = {"transport", "serial_port", "tcp_host", "tcp_port", "ble_address", "channel", "channels", "credentials", "clear_credentials", "mqtt", "dataset_root", "commands", "programs"}
+HISTORY_FIELDS = {"channel_history", "history_credentials", "history_clear_credentials"}
+SETTINGS = {"transport", "serial_port", "tcp_host", "tcp_port", "ble_address", "channel", "channels", "credentials", "clear_credentials", "mqtt", "dataset_root", "commands", "programs"} | HISTORY_FIELDS
 
 
 def safe_text(value, label, maximum=4096):
@@ -111,7 +112,7 @@ def validate_request(request):
     allowed = {"kind", "action", "target"}
     if action in {"install", "configure"}:
         allowed |= {"settings", "start"}
-        validate_settings(request.get("settings", {}))
+        validate_settings(core_settings(request.get("settings", {})))
         if type(request.get("start", False)) is not bool:
             raise ValueError("Invalid start selection")
     if action == "install":
@@ -135,6 +136,118 @@ def merge_credentials(current, settings):
         result.pop(key, None)
     result.update({key: value for key, value in settings.get("credentials", {}).items() if value})
     return result
+
+
+def core_settings(settings):
+    """Remove the request-only optional bundle before mandatory validation/dispatch."""
+    if not isinstance(settings, dict):
+        raise ValueError("Invalid service settings")
+    return {key: value for key, value in settings.items() if key not in HISTORY_FIELDS}
+
+
+def history_supported(root):
+    """A damaged optional capability declaration cannot disable core operations."""
+    try:
+        if "channel-history-v1" not in installed_capabilities(root):
+            return False
+        modules = [Path(root) / name / "channel_history.py" for name in ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")]
+        modules = [path for path in modules if path.is_file()]
+        if not modules:
+            return False
+        for path in modules:
+            trusted_installed(path, root)
+        return True
+    except Exception:
+        return False
+
+
+def core_key_names(config):
+    """Return private credential references belonging to the required registry."""
+    return {spec.get("secret_env") for spec in config.get("responder", {}).get("channels", {}).values()
+            if isinstance(spec, dict) and spec.get("type") == "private"}
+
+
+def validate_history(candidate, secrets, package):
+    """Load the installed optional schema lazily, with a temporary secret environment."""
+    import importlib.util
+    path = Path(package) / "channel_history.py"
+    module_name = "_desktop_history_schema_" + hashlib.sha256(str(path).encode()).hexdigest()[:12]
+    previous = dict(os.environ)
+    previous_module = sys.modules.get(module_name)
+    sys.path.insert(0, str(package))
+    try:
+        for key in list(os.environ):
+            if key in CREDENTIALS or SECRET.fullmatch(key):
+                os.environ.pop(key)
+        os.environ.update(secrets)
+        spec = importlib.util.spec_from_file_location(module_name, path)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module.validate_history_config(candidate)
+    finally:
+        if previous_module is None:
+            sys.modules.pop(module_name, None)
+        else:
+            sys.modules[module_name] = previous_module
+        os.environ.clear(); os.environ.update(previous)
+        sys.path.pop(0)
+
+
+def prepare_history(current, candidate, secrets, settings, package, *, supported=True):
+    """Accept optional settings and key edits atomically after core candidate review.
+
+    Rejected raw optional values never enter core credential maps, child process
+    environments or diagnostic redaction. Reasons are fixed text to avoid echoing
+    credentials from validators. Preserved settings may become unavailable after
+    an otherwise valid core edit; this does not veto that edit.
+    """
+    requested = bool(HISTORY_FIELDS & settings.keys())
+    accepted = {}
+    result, saved = copy.deepcopy(candidate), dict(secrets)
+    status = "not_applied" if requested else "preserved"
+    reason = "Recording settings preserved."
+    if requested:
+        try:
+            if not supported:
+                raise ValueError("unsupported")
+            if "channel_history" not in settings:
+                raise ValueError("missing override")
+            override = settings["channel_history"]
+            trial = copy.deepcopy(candidate)
+            trial["channel_history"] = copy.deepcopy(override)
+            updates = settings.get("history_credentials", {})
+            clears = settings.get("history_clear_credentials", [])
+            if not isinstance(updates, dict) or not isinstance(clears, list) or len(updates) > 1 or len(clears) > 1:
+                raise ValueError("invalid credential bundle")
+            channel = (override.get("channel") or {}) if isinstance(override, dict) else {}
+            selected = channel.get("secret_env") if channel.get("type") == "private" else None
+            used = core_key_names(current) | core_key_names(candidate)
+            for key in [*updates, *clears]:
+                if not isinstance(key, str) or not SECRET.fullmatch(key) or key != selected or key in used:
+                    raise ValueError("credential is not recording-only")
+            # Validate raw optional text here, never through the mandatory path.
+            for value in updates.values():
+                if not isinstance(value, str) or len(value) > 4096 or any(ord(c) < 32 for c in value):
+                    raise ValueError("unsafe optional credential")
+            trial_secrets = merge_credentials(saved, {"credentials": updates, "clear_credentials": clears})
+            validate_history(trial, trial_secrets, package)
+            accepted = {key: copy.deepcopy(settings[key]) for key in HISTORY_FIELDS if key in settings}
+            return trial, trial_secrets, accepted, {"status": "applied", "reason": "Recording settings applied.", "available": True}
+        except Exception:
+            reason = ("Recording settings not applied: the installed backend lacks channel-history-v1."
+                      if not supported else "Recording settings not applied: invalid selection, optional credential or unavailable history validator.")
+    available = False
+    section = result.get("channel_history", {})
+    if isinstance(section, dict) and section.get("enabled") is True:
+        try:
+            if not supported:
+                raise ValueError("unsupported")
+            validate_history(result, saved, package)
+            available = True
+        except Exception:
+            reason += " Saved recording is unavailable with the effective core settings."
+    return result, saved, accepted, {"status": status, "reason": reason, "available": available}
 
 
 def redact(text, credentials):
@@ -378,15 +491,18 @@ def configuration_summary(config):
     preview, receipt_error = {"changes": [], "conflicts": []}, ""
     try:
         receipt = integrations.read_receipt(config)
-        _, _, conflicts = integrations.revert_changes(value, receipt)
+        _, _, conflicts = revert_settings_changes(value, receipt)
         preview["conflicts"] = conflicts
         for entry in receipt["changes"]:
+            if isinstance(entry, dict) and isinstance(entry.get("path"), list) and entry["path"][:1] == ["channel_history"] and "channel_history" in conflicts:
+                continue
             if integrations.node(value, entry["path"]) == entry["after"]:
                 preview["changes"].append({"path": ".".join(entry["path"]), "current": entry["after"], "restore": entry["before"]})
     except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError):
         receipt_error = "The local integration receipt requires recovery from a retained backup; its ownership cannot be inferred."
     return {"connection": value.get("connection", {}), "serial_port": value.get("serial_port", "auto"),
             "channels": channels, "mqtt": safe_mqtt,
+            "channel_history": history_summary(value.get("channel_history")),
             "dataset_root": value.get("dataset_root", ""),
             "commands": {name: {"enabled": bool(spec.get("channels")), "channels": list(spec.get("channels", [])), "script": spec.get("script", ""),
                                 "owner": "operator-program" if spec.get("script", "").startswith("programs/") else "service-package"}
@@ -395,22 +511,169 @@ def configuration_summary(config):
             "deconfiguration_error": receipt_error}
 
 
+def history_summary(section):
+    """Return only non-secret optional settings; never inspect history storage."""
+    if not isinstance(section, dict):
+        return {"enabled": False}
+    result = {key: copy.deepcopy(section[key]) for key in ("enabled", "channel_id") if key in section}
+    channel = section.get("channel")
+    if isinstance(channel, dict):
+        result["channel"] = {key: copy.deepcopy(channel[key]) for key in ("name", "type", "slot", "secret_env", "mqtt_export") if key in channel}
+    return result
+
+
+def revert_settings_changes(current, receipt):
+    """Isolate identifiable optional receipt errors while retaining core errors.
+
+    Each history entry is attempted against a private copy. A damaged optional
+    entry is retained as a conflict; no partial restoration reaches the candidate.
+    The original core receipt validator remains authoritative for all other paths.
+    """
+    optional, core = [], copy.deepcopy(receipt)
+    core["changes"] = []
+    for entry in receipt["changes"]:
+        path = entry.get("path") if isinstance(entry, dict) else None
+        if isinstance(path, list) and path[:1] == ["channel_history"]:
+            optional.append(entry)
+        else:
+            core["changes"].append(entry)
+    candidate, retained, conflicts = integrations.revert_changes(current, core)
+    for entry in optional:
+        try:
+            restored, pending, errors = integrations.revert_changes(candidate,
+                {"schema": 1, "changes": [entry], "disabled_commands": {}})
+            candidate = restored
+            retained["changes"].extend(pending["changes"])
+            conflicts.extend(errors)
+        except (ValueError, KeyError, TypeError, AttributeError, IndexError):
+            retained["changes"].append(copy.deepcopy(entry))
+            conflicts.append("channel_history")
+    return candidate, retained, conflicts
+
+
+def record_settings_changes(before, after, receipt):
+    """Retain damaged optional provenance without obstructing core receipt updates.
+
+    Only identifiable history entries receive this isolation. Invalid mandatory
+    receipt data retains the existing failure behavior.
+    """
+    core = copy.deepcopy(receipt)
+    core["changes"] = []
+    damaged = []
+    for entry in receipt["changes"]:
+        path = entry.get("path") if isinstance(entry, dict) else None
+        if isinstance(path, list) and path[:1] == ["channel_history"]:
+            valid_path = all(isinstance(part, str) for part in path)
+            valid_nodes = all(isinstance(entry.get(key), dict)
+                and type(entry[key].get("present")) is bool
+                and (not entry[key]["present"] or "value" in entry[key]) for key in ("before", "after"))
+            if not valid_path or not valid_nodes:
+                damaged.append(copy.deepcopy(entry))
+                continue
+        core["changes"].append(entry)
+    result = integrations.record_changes(before, after, core)
+    result["changes"].extend(damaged)
+    return result
+
+
+def history_candidate(current, settings):
+    """Apply only reviewed core registry edits for optional source validation."""
+    candidate = copy.deepcopy(current)
+    if "channels" in settings:
+        candidate["responder"]["channels"] = copy.deepcopy(settings["channels"]["channels"])
+    elif settings.get("channel"):
+        registry = candidate.get("responder", {}).get("channels", {})
+        if len(registry) == 1:
+            spec = next(iter(registry.values()))
+            spec["name"] = settings["channel"]
+            if spec.get("type") != "private":
+                spec["type"] = "existing"
+    return candidate
+
+
+def bundled_history_package(target):
+    """Return the application-owned schema used to preview matching new artifacts."""
+    name = "meshcore_mqtt_service_windows" if target == "windows-x64" else "meshcore_mqtt_service"
+    return (Path(sys._MEIPASS) / "defaults" / name if getattr(sys, "frozen", False)
+            else Path(__file__).resolve().parents[2] / name)
+
+
+def incoming_history_supported(record, target):
+    """Require matching application-owned preview inputs for optional install edits."""
+    try:
+        package = bundled_history_package(target)
+        sources = record.get("source_sha256", {})
+        return "channel-history-v1" in record.get("capabilities", []) and all(
+            sources.get(package.name + "/" + name) == hashlib.sha256((package / name).read_bytes()).hexdigest()
+            for name in ("config.json", "channels.py", "channel_history.py"))
+    except Exception:
+        return False
+
+
+def review_history(settings, installed, target, *, supported, demo=False, incoming=False):
+    """Return a credential-free optional preview without opening history storage."""
+    summary = installed.get("settings", {})
+    current = {"responder": {"channels": summary.get("channels", {}).get("channels", {})},
+               "channel_history": summary.get("channel_history", {"enabled": False})}
+    package = bundled_history_package(target)
+    secrets = {}
+    try:
+        if not demo and supported:
+            root, _, config, _, platform = installed_paths(target)
+            config_path = config / "config.json"
+            if config_path.is_file():
+                current = json.loads(config_path.read_text(encoding="utf-8-sig"))
+            elif incoming:
+                current = json.loads((package / "config.json").read_text(encoding="utf-8-sig"))
+            else:
+                raise FileNotFoundError("installed configuration unavailable")
+            secrets = merge_credentials(read_credentials(config), core_settings(settings))
+            validate_settings({"credentials": secrets})
+            if not incoming:
+                package = root / ("meshcore_mqtt_service_windows" if platform == "windows" else "meshcore_mqtt_service")
+                trusted_installed(package / "channel_history.py", root)
+        return prepare_history(current, history_candidate(current, settings), secrets, settings, package, supported=supported)[3]
+    except Exception:
+        return {"status": "not_applied" if HISTORY_FIELDS & settings.keys() else "preserved",
+                "reason": "Recording settings not applied: optional settings validation is unavailable.", "available": False}
+
+
 def configure_installed(target, settings, emit):
     """Run the installed validator under its private interpreter; request secrets stay private."""
     root, state, config, python, platform = installed_paths(target)
+    validate_settings(core_settings(settings))
     if {"dataset_root", "commands", "programs"} & settings.keys() and "settings-v2" not in installed_capabilities(root):
         raise RuntimeError("The installed maintenance backend predates unified settings. Review a service update/repair with the current native installer first.")
     program = trusted_installed(root / "installers/desktop/service_backend.py", root)
     if not python.is_file():
         raise RuntimeError("The installed service runtime is missing; run service installation/repair first")
     trusted_runtime(python, root)
-    credentials = read_credentials(config)
-    credentials.update(settings.get("credentials", {}))
+    current = json.loads((config / "config.json").read_text(encoding="utf-8-sig"))
+    credentials = merge_credentials(read_credentials(config), core_settings(settings))
+    validate_settings({"credentials": credentials})
+    package = root / ("meshcore_mqtt_service_windows" if platform == "windows" else "meshcore_mqtt_service")
+    _, credentials, accepted, history_outcome = prepare_history(current, history_candidate(current, settings), credentials,
+        settings, package, supported=history_supported(root))
+    selected = {**core_settings(settings), **accepted}
+    has_core = any(value for key, value in core_settings(settings).items())
+    if HISTORY_FIELDS & settings.keys() and not accepted and not has_core:
+        return {"core_outcome": "preserved", "history_outcome": history_outcome}
     with private_temporary_directory("meshcore-settings-") as temporary:
         path = Path(temporary) / "settings.json"
-        write_private_file(path, content=json.dumps(settings).encode("utf-8"))
-        run_native([python, "-I", "-B", program, "--apply-settings", path], emit, credentials=credentials)
+        write_private_file(path, content=json.dumps(selected).encode("utf-8"))
+        report = run_native([python, "-I", "-B", program, "--apply-settings", path], emit, credentials=credentials)
     validate_installed(target, emit)
+    # Current installed workers return structured optional outcomes on the final
+    # line. Legacy workers preserve their original core success semantics.
+    result = {"core_outcome": "applied", "history_outcome": history_outcome}
+    try:
+        child_result = json.loads(report.splitlines()[-1])
+        if isinstance(child_result, dict) and "history_outcome" in child_result:
+            result = child_result
+    except (ValueError, IndexError, AttributeError):
+        pass
+    emit(result["history_outcome"]["reason"])
+    return result
 
 
 def validate_installed(target, emit):
@@ -477,7 +740,7 @@ def apply_settings(settings, target=None):
     opened. Existing programs, unknown future settings and blank secrets survive.
     """
     from installers import configure
-    validate_settings(settings)
+    validate_settings(core_settings(settings))
     target = target or native_target()
     root, state, config_dir, python, platform = installed_paths(target)
     config_path = config_dir / "config.json"
@@ -510,13 +773,18 @@ def apply_settings(settings, target=None):
         candidate["dataset_root"] = str(Path(settings["dataset_root"]))
     integrations.configure_commands(candidate, settings, receipt)
     created = integrations.stage_programs(candidate, settings, config_dir)
-    secrets = merge_credentials(read_credentials(config_dir), settings)
+    secrets = merge_credentials(read_credentials(config_dir), core_settings(settings))
     try:
         validate_candidate(candidate, secrets, package, platform)
     except BaseException:
         for path in created:
             path.unlink(missing_ok=True)
         raise
+    candidate, secrets, accepted_history, history_outcome = prepare_history(current, candidate, secrets, settings, package,
+        supported=history_supported(root))
+    has_core = any(value for key, value in core_settings(settings).items())
+    if HISTORY_FIELDS & settings.keys() and not accepted_history and not has_core:
+        return {"core_outcome": "preserved", "history_outcome": history_outcome}
     backup = configure.backup_state(config_path, state)
     environment_path = config_dir / "environment.json"
     if environment_path.exists():
@@ -526,7 +794,7 @@ def apply_settings(settings, target=None):
     # The service is stopped. If either sibling publication fails, restore both
     # original files while retaining the recovery snapshot for inspection.
     receipt_path = config_dir / integrations.RECEIPT
-    receipt = integrations.record_changes(current, candidate, receipt)
+    receipt = record_settings_changes(current, candidate, receipt)
     originals = {path: (path.read_bytes(), path.stat()) if path.exists() else None
                  for path in (environment_path, config_path, receipt_path)}
     try:
@@ -552,6 +820,7 @@ def apply_settings(settings, target=None):
             path.unlink(missing_ok=True)
         raise
     print("Service settings validated and saved. Recovery snapshot: " + str(backup))
+    return {"core_outcome": "applied" if has_core else "preserved", "history_outcome": history_outcome}
 
 
 def validate_candidate(candidate, secrets, package, platform):
@@ -586,7 +855,7 @@ def deconfigure_settings(target=None):
     root, state, config, python, platform = installed_paths(target)
     config_path = config / "config.json"
     current = json.loads(config_path.read_text(encoding="utf-8-sig"))
-    candidate, receipt, conflicts = integrations.revert_changes(current, integrations.read_receipt(config))
+    candidate, receipt, conflicts = revert_settings_changes(current, integrations.read_receipt(config))
     package = root / ("meshcore_mqtt_service_windows" if platform == "windows" else "meshcore_mqtt_service")
     validate_candidate(candidate, read_credentials(config), package, platform)
     backup = configure.backup_state(config_path, state)
@@ -713,14 +982,25 @@ def _perform(request, emit, cancel=None):
         return {"status": status, "detail":"Service removed. Configuration, credentials, datasets, runtime databases and recovery material were retained."}
     # Configure operations stop this service before changing the saved state.
     if action == "configure":
+        settings = request.get("settings", {})
+        if HISTORY_FIELDS & settings.keys() and not any(core_settings(settings).values()):
+            current = json.loads((config / "config.json").read_text(encoding="utf-8-sig"))
+            saved = read_credentials(config)
+            validate_settings({"credentials": saved})
+            package = root / ("meshcore_mqtt_service_windows" if platform == "windows" else "meshcore_mqtt_service")
+            _, _, accepted, outcome = prepare_history(current, current, saved, settings, package, supported=history_supported(root))
+            if not accepted:
+                return {"core_outcome": "preserved", "history_outcome": outcome,
+                        "detail": "Recording settings not applied; service state and settings preserved."}
         status = control("status", target, emit)
         if "Not installed" in status or "LoadState=not-found" in status:
             raise RuntimeError("Install services before saving configuration")
         control("stop", target, emit)
-    configure_installed(target, request.get("settings", {}), emit)
+    outcomes = configure_installed(target, request.get("settings", {}), emit) or {}
     if request.get("start", False):
         control("start", target, emit)
-    return {"status": control("status", target, emit), "detail":"Service installation/settings completed. A running service does not establish radio delivery.", "settings": configuration_summary(config)}
+    return {"status": control("status", target, emit), "detail":"Service installation/settings completed. A running service does not establish radio delivery.", "settings": configuration_summary(config),
+            "capabilities": ["channel-history-v1"] if history_supported(root) else [], **outcomes}
 
 
 if __name__ == "__main__":
@@ -736,4 +1016,4 @@ if __name__ == "__main__":
                 raise SystemExit("Invalid installed target")
             print(json.dumps(deconfigure_settings(sys.argv[2])))
         else:
-            apply_settings(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")))
+            print(json.dumps(apply_settings(json.loads(Path(sys.argv[2]).read_text(encoding="utf-8")))))

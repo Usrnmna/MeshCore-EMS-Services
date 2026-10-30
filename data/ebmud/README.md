@@ -8,6 +8,11 @@ library. Service spatial queries require Shapely and pyproj; permanent polygon
 repair requires Shapely. Current counts for the twelve datasets appear below.
 See the [utility function reference](FUNCTION_REFERENCE.md) for maintenance APIs.
 
+Installed deployments use the [independent EBMUD data package](../../docs/DATA_PACKAGES.md).
+The direct paths and refresh/repair commands below describe an unmanaged source
+checkout. Managed dataset generations are immutable; use their package updater
+instead of editing or refreshing an active generation in place.
+
 | File | Contents |
 | --- | --- |
 | [trails.geojson](trails.geojson) | 39 trail features, including geometry and all published attributes. |
@@ -119,12 +124,13 @@ datasets through each platform package's local GIS modules. The data directory
 is configured in that package's `gis_settings.json`. Named attributes return
 focused information; `info` requests full details. Filtered `near` queries select
 qualifying features before distance ranking, and an omitted radius returns only
-the closest match. These query changes do not modify the reference files. Complete
-workspace installers rebuilt on October 11, 2026 include these datasets, the
-GIS commands, polygon repairs, and preserved originals. Rebuilding does not refresh
-remote data; retrieval dates remain in the manifest. Standalone service source ZIPs
-exclude this shared directory. A program using these files needs a data path
-that matches its installation layout.
+the closest match. These queries do not modify the reference files. Current
+service installers and source ZIPs exclude shared reference data; install the
+independent EBMUD package for its snapshot, polygon repairs, and preserved
+originals. The October 11, 2026 complete-workspace installers used the earlier
+bundled-data layout. Rebuilding application artifacts does not refresh remote
+data; retrieval dates remain in the manifest. A program using these files needs
+a data path that matches its installation layout.
 
 ## Useful attributes
 

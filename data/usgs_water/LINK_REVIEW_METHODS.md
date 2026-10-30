@@ -1,10 +1,16 @@
 # Supplemental station addresses and unresolved routing
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 The supplemental review investigates stations with latest readings but no usable
 primary NLDI river address. The first review contains 54 stations. It supports
 nine additional routing links and five static nonnetwork feature addresses.
 The remaining cases retain contradictory, missing, or coastal source evidence.
-The [station review catalog](LINK_REVIEW.md) contains individual decisions and
+The station review catalog (`LINK_REVIEW.md`) contains individual decisions and
 all published address candidates.
 The later [original-agency investigation](AGENCY_REVIEW_METHODS.md) examines
 the 11 conflicting and 26 uncorroborated cases, adding 13 supported static
@@ -13,7 +19,7 @@ For the preserved current-reading snapshot, routing coverage increased from
 632 to 641 of 686 stations. The nine additions contributed 987 station-to-reach
 relationships and 230 station-to-CalWater-basin candidate relationships.
 These are repeated station associations, not counts of new physical waterways
-or distinct flooded basins. The [validation results](link_review_verification.json)
+or distinct flooded basins. The validation results (`link_review_verification.json`)
 identify the exact observation and routing generations.
 
 ## Sources and evidence strength

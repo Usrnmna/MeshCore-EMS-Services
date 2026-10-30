@@ -1,6 +1,12 @@
 # Regional dataset organization
 
-The [regional review index](REVIEW.md) is the entry point for manual inspection.
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
+The regional review index (`REVIEW.md`) is the entry point for manual inspection.
 Every Regional Water Board has a README, a dataset `catalog.csv`, and a source
 `resources.csv`. Central Valley also has separate directories and catalogs for
 the Sacramento and San Joaquin River Basins and the Tulare Lake Basin.

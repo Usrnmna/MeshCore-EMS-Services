@@ -14,19 +14,23 @@ packages or runtime databases from the Linux service folder.
 
 ## OS service installers
 
-Current distribution version: `v0.9.6-beta`.
+Current distribution version: `v0.9.8-beta`.
 
-Online installation packages support Windows x64,
-Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
-include the complete workspace and reference data, and connect to the configured companion node
-under Windows Services or systemd. See the [installation guide](../INSTALL.md).
+Online installation packages support Windows x64, Raspberry Pi ARM64, and
+Linux x86_64. They provision Python and dependencies, install the maintained
+service and reference-tool source, and connect to the configured companion
+under Windows Services or systemd. Reference datasets have independent installers.
+See the [installation guide](../INSTALL.md) and [dataset setup](../docs/DATA_PACKAGES.md).
 
 Source-folder launchers support interactive operation. The current source has
 31 commands, including the five [local GIS commands](#local-gis-commands).
 The source includes nine wildfire commands, three landslide commands, and the
 location-based water commands. Existing release artifacts retain the command set
 recorded in their validation; rebuild from this source to include later changes.
-Installers include shared datasets. Service ZIPs include the wildfire and landslide reference seeds; EBMUD data remains a separate download.
+Service installers and standalone ZIPs exclude shared reference datasets.
+Install the independent EBMUD, wildfire, landslide, or water collections required
+by the enabled features. Full source checkouts retain their maintained reference
+seeds; downloaded water generations remain local.
 See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
@@ -53,6 +57,8 @@ or rerunning the installer. Restart after edits.
 - `radio_connection.py`: connection validation, transport selection, and bounded cleanup.
 - `check_live.py`: optional radio/MQTT diagnostic; run only while the service is stopped.
 - `runtime/`: local request history and subscriptions; preserve during upgrades.
+- `channel_history.py`, `CHANNEL_HISTORY.md`: optional 24-hour reception history,
+  stored separately below `runtime/channel_history/` and disabled by default.
 
 ## Radio connection settings
 
@@ -148,7 +154,7 @@ command continues to list USB serial devices only.
 | `!firewarn` | Zone/location | Red Flag Warnings and Fire Weather Watches |
 | `!firedata` | Category and zone/location | Supporting observations, detections, outlooks and reference features |
 | `!firealarm` | on location, status, off | Temporary wildfire-change monitoring |
-| `!slidewarn` | ZIP, city, GPS | California NWS alerts mentioning landslide/debris-flow hazards |
+| `!slidewarn` | ZIP, city, GPS | California/Nevada NWS alerts mentioning landslide/debris-flow hazards |
 | `!slidealarm` | on location, status, off | Temporary California and Nevada landslide-alert monitoring |
 | `!slideinfo` | ZIP, city, GPS | Nearest eligible California USGS monitoring station |
 | `!smoke` | ZIP, city/state, GPS | Point smoke coverage and nearby air quality |
@@ -170,10 +176,11 @@ Detailed input formats, sources, responses, and limitations are documented below
 Interactive source-folder operation requires 64-bit Python 3.11 or newer.
 
 1. Open this folder and run **setup.cmd** once on a new computer.
-2. Run **run.cmd** to start the bundled broker and radio responder.
-3. Configure the radio connection. The default serial mode detects one attached
-   USB device; BLE and TCP settings are described above.
-4. Send `!status` or `!time` on **#autatestbot** from another MeshCore node.
+2. Configure the radio connection and matching channel settings. The default
+   serial mode detects one attached USB device; BLE and TCP settings are above.
+3. Run **run.cmd** to start the bundled broker and radio responder.
+4. Send `!status` or `!time` on an assigned channel, `#autatestbot` by default,
+   from another MeshCore node.
 
 Example reply: `@Alice Local command service is running.`
 
@@ -260,8 +267,9 @@ Edit the `responder.commands` map in this copy's config.json and restart:
 
 Matching is exact and case-sensitive after trimming outer whitespace. Scripts must
 be existing .py files inside this folder or the configured external
-`program_directory`; use `programs/NAME.py` for external programs. Arguments are fixed configuration values;
-received text is never executed as a shell command. The script runs in this folder
+`program_directory`; use `programs/NAME.py` for external programs. Arguments
+combine fixed configuration values with validated input for commands that declare
+an input type. Received text is never executed as a shell command. The script runs in this folder
 using this copy's Python environment. Print the answer to stdout without an @ prefix.
 
 The service saves the sender name from the channel message before executing the
@@ -334,9 +342,11 @@ They use sample provider data and a real loopback broker with simulated radio ev
 These checks do not establish physical radio delivery or installation and reboot
 behavior on target hardware.
 
-The optional read-only check_live.py disables
-the responder and requires one discovered COM device and a free configured broker port.
-Run it with `.venv\Scripts\python.exe check_live.py` while the bridge is stopped.
+The optional `check_live.py` diagnostic disables the responder, uses the
+configured serial, BLE, or TCP connection and requires a free configured local
+broker port. It issues only the read-only `infos` radio query, while writing
+local bridge runtime state. Run it with `.venv\Scripts\python.exe check_live.py`
+while the bridge is stopped.
 
 Pinned dependencies are in [requirements.txt](requirements.txt). Review the internal
 CLI adapter when changing dependencies. The tests and live check exit and stop their brokers;
@@ -743,7 +753,8 @@ python -m unittest discover -s tests -p "test_snowpack.py"
 ## ZIP package
 
 The distribution ZIP includes this service folder, command scripts,
-configuration, launchers, setup scripts, tests, and documentation. Local Python
+configuration, launchers, setup scripts, tests, and platform documentation.
+Shared reference datasets require independent installation. Local Python
 environments, runtime databases, and generated bytecode caches are excluded.
 After extraction, follow the setup/launcher instructions above to install the
 pinned dependencies. Existing local runtime files are not included in the ZIP.
@@ -1058,8 +1069,8 @@ preserves the last good data on source failure. `!firealarm on CAZ272` enables
 four-hour monitoring; `status` and `off` inspect or cancel it.
 
 See [wildfire commands, datasets, configuration and maintenance](WILDFIRE_GUIDE.md).
-The package includes the complete zone seed; live observations require network
-access. Existing installations must assign the new commands to channels after
+Installed services and standalone ZIPs use the independent wildfire data
+package for the complete zone seed; live observations require network access. Existing installations must assign the new commands to channels after
 upgrading. Forecast zones are not evacuation zones, and an absent fire record
 is not evidence that a fire has been extinguished.
 
@@ -1090,3 +1101,10 @@ evidence and flags source or identity changes; map proximity never authorizes a 
 The [source-access retry](WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
 recovered the historical reports and OneRain inventory. Refresh checks static
 operator aliases without retaining historical levels or enabling unsupported links.
+
+## Optional channel history
+
+[Channel recording and read-only access](CHANNEL_HISTORY.md) describes configurable
+public/private recording, the rolling 24-hour window, installer controls, Python
+queries, and explicit failure/coverage limits. Recording does not own commands
+or subscriptions.

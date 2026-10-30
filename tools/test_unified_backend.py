@@ -70,6 +70,49 @@ class UnifiedTests(unittest.TestCase):
         self.assertNotEqual(first["digest"], second["digest"])
         self.assertNotIn("supersecret", self.plan(service_action="configure", settings={"credentials": {"AIRNOW_API_KEY": "supersecret"}})["text"])
 
+    def test_history_credentials_are_hidden_and_missing_capability_is_optional(self):
+        plan = unified.build_plan(dict(self.intent, service_action="configure", settings={"channel_history": {"enabled": True, "channel_id": "missing"}, "history_credentials": {"MESHCORE_CHANNEL_KEY_ONLY": "private-key-value"}}), self.snapshot, self.service)[0]
+        self.assertFalse(plan["blocked"])
+        self.assertNotIn("private-key-value", plan["text"])
+        self.assertEqual(plan["history_outcome"]["status"], "not_applied")
+        self.assertIn("Not applied", plan["text"])
+
+    def test_rejected_history_only_plan_has_no_service_restart_or_save(self):
+        plan = unified.build_plan(dict(self.intent, service_action="configure", settings={"channel_history": {"enabled": True, "channel_id": "missing"}}), self.snapshot, self.service)[0]
+        self.assertEqual(plan["steps"], [])
+        self.assertFalse(plan["blocked"])
+
+    def test_review_explains_recording_target_retention_and_restart_without_storage_read(self):
+        self.service["capabilities"].append("channel-history-v1")
+        self.service["settings"] = {"channel_history": {"enabled": False}, "channels": {"channels": {"public": {"name": "Public", "type": "public", "mqtt_export": True}}}}
+        plan = self.plan(service_action="configure", settings={"channel_history": {"enabled": True, "channel_id": "public"}})
+        self.assertIn("86400 seconds", plan["text"])
+        self.assertIn("Public (public)", plan["text"])
+        self.assertIn("channel_history.sqlite3", plan["text"])
+        self.assertIn("stop: yes", plan["text"])
+        self.assertIn("restart: yes", plan["text"])
+
+    def test_optional_preview_failure_does_not_invalidate_reviewed_core_digest(self):
+        settings = {"credentials": {"AIRNOW_API_KEY": "new"}, "channel_history": {"enabled": False}}
+        with patch.object(unified.service, "review_history", return_value={"status": "applied", "reason": "applied", "available": True}):
+            before = self.plan(service_action="configure", settings=settings)
+        with patch.object(unified.service, "review_history", return_value={"status": "not_applied", "reason": "unavailable", "available": False}):
+            after = self.plan(service_action="configure", settings=settings)
+        self.assertEqual(before["digest"], after["digest"])
+
+    def test_review_rejected_optional_fields_are_never_promoted_during_execution(self):
+        self.service["state"] = "stopped"
+        settings = {"credentials": {"AIRNOW_API_KEY": "new"}, "channel_history": {"enabled": False}}
+        with patch.object(unified.service, "review_history", return_value={"status": "not_applied", "reason": "unsupported", "available": False}):
+            plan = self.plan(service_action="configure", settings=settings)
+        requests = []
+        def perform(request, emit, cancel):
+            requests.append(request)
+            return {}
+        with patch.object(unified.service, "snapshot", return_value=self.service), patch.object(unified.service, "perform", side_effect=perform):
+            unified.run_plan(plan, None, lambda _: None, threading.Event())
+        self.assertEqual(requests[0]["settings"], {"credentials": {"AIRNOW_API_KEY": "new"}})
+
     def test_unknown_requests_and_arbitrary_commands_rejected(self):
         for extra in ({"command": "anything"}, {"dataset_action": "purge"}, {"startup": "evil"}, {"start": "yes"}):
             with self.assertRaises(ValueError):

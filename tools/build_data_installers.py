@@ -20,9 +20,11 @@ import uuid
 
 from build_installers import download_only, water_download_rules
 from artifact_provenance import source_hashes, write_provenance
+from distribution_policy import is_local_reference, validate_tree
+from build_documentation import render_document
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9.6-beta"
+VERSION = "v0.9.8-beta"
 DATASETS = ("ebmud", "basin_plans", "flood_impacts", "usgs_water", "wildfire",
             "landslide", "california_state_parks", "satellites")
 DISPLAY_NAMES = dict(zip(DATASETS, ("EBMUD", "Basin Plans", "Flood Reference", "USGS Water",
@@ -75,7 +77,8 @@ def source_inventory(root=ROOT):
         paths.update(path.relative_to(root).as_posix() for path in (root / directory).glob("*.md"))
     # The same maintained download-only policy applies to generated reports and data.
     rules = water_download_rules()
-    return sorted(relative for relative in paths if not download_only(Path(relative), rules))
+    return sorted(relative for relative in paths
+                  if not is_local_reference(relative) and not download_only(Path(relative), rules))
 
 
 def seed_inventory(dataset, root=ROOT):
@@ -93,7 +96,7 @@ def provenance_sources(dataset, root=ROOT):
     """Include payload sources, seeds, and the recipe that selects/compiles them."""
     return ([root / relative for relative in source_inventory(root)] + seed_inventory(dataset, root)
             + [root / "tools/build_data_installers.py", root / "tools/build_installers.py",
-               root / "tools/artifact_provenance.py", root / ".gitignore"])
+               root / "tools/artifact_provenance.py", root / "tools/distribution_policy.py", root / "tools/build_documentation.py", root / ".gitignore"])
 
 
 def stage_payload(destination, dataset, root=ROOT, version=VERSION):
@@ -107,6 +110,8 @@ def stage_payload(destination, dataset, root=ROOT, version=VERSION):
                 for path in seed_inventory(dataset, root)]
     for source, relative in sources:
         data = source.read_bytes()
+        if relative.as_posix() == "data/ebmud/README.md":
+            data = render_document(source, root, {path for path, _ in sources}).encode("utf-8")
         if source.suffix == ".sh":
             data = data.replace(b"\r\n", b"\n")
         target = destination / relative
@@ -126,6 +131,7 @@ def stage_payload(destination, dataset, root=ROOT, version=VERSION):
 
 def linux_installer(payload, output, dataset, platform, version=VERSION):
     """Produce a self-contained source bundle with checksum and inspection commands."""
+    validate_tree(payload)
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w:gz") as archive:
         for path in sorted(payload.rglob("*")):

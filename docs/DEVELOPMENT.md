@@ -14,7 +14,7 @@ MQTT topics, use the [architecture guide](ARCHITECTURE.md). The
 | `satellite_database/` | Independent satellite catalog program, settings, schema, and tests. |
 | `data/` | Maintained EBMUD/State Parks references, satellite exports, wildfire seed, and download-on-demand water collection tools; water generations remain local. |
 | [`tools/package_services.py`](../tools/package_services.py) | Builds both distribution ZIPs from current source and checks shared-code parity. |
-| `dist/` | Generated installation ZIPs; rebuild after source changes. |
+| `dist/` | Local service/data installers, source ZIPs, native GUI bundles and assembled OS archives; rebuild after included source or documentation changes. |
 | [`archive/`](../archive/README.md) | Local historical recovery backups, excluded from version control. |
 
 The service folders are the maintained installation sources. Shared command code
@@ -101,8 +101,10 @@ Git tracking does not remove its local copy or rewrite historical commits.
 
 ## Python function documentation
 
-Every maintained application function, including methods and nested callbacks,
-is described in the component references. Test helpers are excluded.
+Component function references describe service, command, data, satellite, and
+packaging entry points. Source docstrings remain authoritative for nontrivial
+functions and desktop helpers; test helpers are excluded from the published
+function-reference inventories.
 
 - [Linux service and commands](../meshcore_mqtt_service/FUNCTION_REFERENCE.md)
 - [Windows service and commands](../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md)
@@ -130,6 +132,8 @@ Both service folders include tests for:
 - A real loopback MQTT broker with simulated radio events.
 - Flood-alarm timing, expiry, renewal, background workers, and restart persistence.
 - Installed service configuration and unattended startup behavior.
+- Optional history admission, identity, 24-hour retention, committed restart
+  persistence, read APIs, and isolation from required service behavior.
 
 Automated tests use sample provider data and simulated radio events. They do not
 establish physical radio delivery, live four-hour monitoring, or installation and
@@ -167,6 +171,16 @@ edit when delivering updated packages. Existing versioned artifacts and their
 validation records describe the source snapshot used for that build; a repository
 documentation edit does not update those artifacts.
 
+## v0.9.8-beta local release layout
+
+Use `.build/release-v0.9.8-beta/` for isolated build staging and
+`dist/v0.9.8-beta/` for versioned service/data outputs. The final release folder
+is `dist/github-release-v0.9.8-beta-20261029/`; its OS archives and verification
+materials are described in the [release guide](../RELEASE_v0.9.8-beta.md).
+The [release verification record](RELEASE_v0.9.8-beta_VERIFICATION.md) identifies
+actual tests, build environments, artifact integrity checks, and remaining limits.
+These local procedures do not commit, tag, publish, or upload artifacts.
+
 ## Documentation maintenance
 
 The root README introduces capabilities and the end-user workflow. Platform
@@ -199,7 +213,9 @@ not represent live CI results or hardware validation.
 Run `python tools/prepare_wildfire_data.py` to update and mirror the complete
 NWS boundary seed. Review `data/wildfire/manifest.json` and polygon changes.
 Dynamic observations belong to package runtime directories and are excluded
-from distributions. Both standalone ZIPs include their wildfire seed and guide.
+from distributions. Both standalone ZIPs include the wildfire guide and lookup/refresh code.
+Reference seeds are supplied by independent dataset installers; source checkouts
+retain the mirrored seed files used by maintenance and parity checks.
 
 Run `python -m unittest discover -s tests -p test_wildfire.py` and
 `python -m unittest discover -s tests -p test_command_programs.py` from each
@@ -254,23 +270,35 @@ checker compares registrations, GIS fields, wildfire categories, subscription
 controls, terminal flags, local links, paired guides, source-derived function
 indexes, badge counts, and Git publication rules. It also verifies all 309 tagged
 [response examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md) per package,
-including exact UTF-8 byte counts and command/field/category/control coverage. Links to deliberately ignored
-water catalogs are recognized as generated destinations, not asserted to be
-present after a fresh clone. Their setup instructions remain linked.
+including exact UTF-8 byte counts and command/field/category/control coverage.
+Generated water catalogs and separate reference-data files are identified by
+dataset-relative paths; their setup instructions remain linked. They are not
+asserted to be present in documentation bundles or after a fresh clone.
 
 ## GitHub configuration and dependency review
 
-`.github/workflows/ci.yml` defines offline Linux/Windows checks for both packages,
-plus documentation, installer configuration, GUI widget, data-tool, and satellite
-tests on both operating systems. The service matrix selects Python 3.11 and 3.13 on both
-operating systems; the documentation/tools matrix uses Python 3.13. Its dependency
-installation includes the pinned dataset maintenance and GUI runtime requirements.
+`.github/workflows/ci.yml` defines offline checks on Windows x64, Linux x86_64,
+and the hosted Ubuntu ARM64 runner for both service packages. Documentation,
+installer configuration, GUI widget, data-tool, and satellite checks use the same
+three target environments. The service matrix selects Python 3.11 and 3.13;
+the documentation/tools matrix uses Python 3.13. Dependency installation includes
+the pinned CI, dataset maintenance, and GUI runtime requirements. Checkouts omit
+local planning material, and distribution/version tests verify its exclusion.
+The configured ARM64 jobs require their own successful hosted run; configuration
+alone is not evidence of execution or physical Raspberry Pi acceptance.
 The standard-library documentation/publication gate runs before dependency
 installation. The tooling suite also checks root and standalone ignore rules,
 native launcher line endings, and immutable payload attributes through isolated
 Git fixtures.
-Qt widget tests run with the offscreen platform plugin; Linux preparation installs
-the EGL, OpenGL, and keyboard runtime libraries required by Qt.
+Qt widget tests require the offscreen platform plugin; Linux preparation installs
+the EGL, OpenGL, and keyboard runtime libraries required by Qt. An explicit Qt
+startup gate prevents missing GUI dependencies from appearing as optional skips.
+Each tooling runner also installs the pinned build requirements, freezes Service
+Setup and Dataset Manager, and runs the synthetic packaged GUI/history verifier
+against those executables. Both Linux service payloads are assembled and their
+compressed checksums, file manifests, version, and history capability are checked.
+These Ubuntu-host CI applications are not Debian 12 release builds. They are not
+uploaded, installed, or used as evidence of physical Raspberry Pi operation.
 Windows compiler installation and tooling tests both use Windows PowerShell 5.1.
 An explicit PS2EXE 1.0.18 import precedes the tooling suite, and the Python exit
 code is propagated to the job. The compiler exercises the dataset maintenance
@@ -288,13 +316,14 @@ Actions use verified commit pins for checkout v7.0.1 and setup-python v7.1.0;
 checkout credentials are not persisted, and workflow permissions are read-only.
 Checks run on pushes, pull requests, and manual dispatch. This workflow performs
 no provider acquisition, radio operation, OS-service installation, deployment,
-or release publication. All 10 hosted jobs passed on October 26, 2026 for commit
+or release publication. The earlier 10-job workflow passed on October 26, 2026 for commit
 `79e2be47`. The [hosted verification record and remaining limitations](../installers/VALIDATION.md#hosted-github-actions-october-26-2026)
 identify the exact revision, run, conditional skips, and scope of that evidence.
 Each later published revision requires its own GitHub Actions result.
 
 `.github/dependabot.yml` covers GitHub Actions and all maintained pip requirement
-directories, including `installers/datasets/gui/requirements.txt` and its
+directories, including `.github/requirements-ci.txt`,
+`installers/datasets/gui/requirements.txt` and its
 `requirements-build.txt` packaging dependencies. Cross-directory dependency
 grouping keeps each shared dependency's service, dataset, and GUI requirement
 changes in review together when constraints permit. Updates require review and

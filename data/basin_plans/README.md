@@ -6,9 +6,16 @@ This repository distributes the download programs, curated configuration, tests
 and documentation. Downloaded datasets, generation pointers, generated catalogs
 and validation reports are local outputs excluded from Git. Follow the
 [fresh-clone water-data setup](../../docs/WATER_DATA_SETUP.md) before using offline
-queries. Links to generated catalogs and reports below become available after
+queries. Generated catalogs and reports below become available after
 the relevant download or validation command completes. Historical investigation
 counts describe development evidence, not files included with the repository.
+Historical generation paths can differ from later acquisitions; packaged
+documentation contains the guides without those local outputs.
+
+Installed deployments use the [independent dataset packages](../../docs/DATA_PACKAGES.md).
+The direct acquisition commands below describe source-checkout maintenance;
+managed generations remain immutable and must be updated through their package
+updater. Each failed managed update retains the prior validated selection.
 
 For gauge measurements, verified source-network connections, and scenario-based
 CalWater overlays, see the separate [flood-impact reference pilot](../flood_impacts/README.md).
@@ -20,17 +27,17 @@ published regional feature layers and tables, the queryable statewide layers and
 tables, original regional file geodatabases, item resources, source metadata, and
 the portal's directly linked PDF documentation.
 
-Start with the [regional review folders](REVIEW.md) for readable dataset filenames,
+Start with the regional review folders (`REVIEW.md`) for readable dataset filenames,
 a README and CSV catalog for every region and plan, and separate CalWater levels.
 Each region also has searchable geographic names and a separate tributary/parent
 relationship table. [Relationship tables](RELATIONSHIPS.md) connect waterbodies
 to beneficial uses, reachcodes, grouped features, CalWater hierarchy, and source
 provenance, retaining missing and ambiguous matches.
 The [organization guide](ORGANIZATION.md) explains names, catalogs, and offline rebuilding.
-The [complete source inventory](INVENTORY.md) links every original archived dataset
-and native geodatabase. [sources.json](sources.json) selects the active snapshot and
+The complete source inventory (`INVENTORY.md`) links every original archived dataset
+and native geodatabase. `sources.json` selects the active snapshot and
 its corresponding review generation.
-The [native geodatabase inventory](NATIVE_INVENTORY.md) separately lists the tables
+The native geodatabase inventory (`NATIVE_INVENTORY.md`) separately lists the tables
 and feature classes stored in the original ZIPs, including count comparisons with
 the service exports. Its report identifies the snapshot that was inspected.
 

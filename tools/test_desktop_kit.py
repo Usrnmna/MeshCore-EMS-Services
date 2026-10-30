@@ -84,6 +84,31 @@ class DesktopKitTests(unittest.TestCase):
         if hasattr(gui, "source_files"):
             names = {p.relative_to(gui.ROOT).as_posix() for p in gui.source_files()}
             self.assertIn("installers/desktop/authorization.py", names)
+            for name in ('backend', 'process', 'state', 'widgets', 'window'):
+                self.assertIn('installers/desktop/history_' + name + '.py', names)
+            for package in ('meshcore_mqtt_service', 'meshcore_mqtt_service_windows'):
+                for name in ('config.json', 'channel_history.py', 'channels.py'):
+                    self.assertIn(package + '/' + name, names)
+                self.assertFalse(json.loads((gui.ROOT / package / 'config.json').read_text())['channel_history']['enabled'])
+            self.assertFalse(any('runtime' in Path(name).parts or name.endswith(('.sqlite3', '-wal', '-shm')) for name in names))
+
+    def test_incoming_history_capability_matches_staged_preview_schema(self):
+        import build_installers
+        from artifact_provenance import write_provenance
+        from installers.desktop.service_backend import incoming_history_supported
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = [gui.ROOT / 'meshcore_mqtt_service' / name for name in ('config.json', 'channels.py', 'channel_history.py')]
+            with patch.object(build_installers, 'source_files', return_value=sources):
+                build_installers.stage_payload(root / 'payload')
+            capabilities = json.loads((root / 'payload/DESKTOP-CAPABILITIES.json').read_text())['capabilities']
+            self.assertIn('channel-history-v1', capabilities)
+            artifact = root / 'fixture.run'; artifact.write_bytes(b'not executable')
+            record = json.loads(write_provenance(artifact, 'service', sources, root=gui.ROOT, target='linux-x86_64').read_text())
+            self.assertEqual(record['capabilities'], capabilities)
+            self.assertTrue(incoming_history_supported(record, 'linux-x86_64'))
+            record['source_sha256']['meshcore_mqtt_service/channels.py'] = '0' * 64
+            self.assertFalse(incoming_history_supported(record, 'linux-x86_64'))
 
     def test_archive_retains_executable_modes_without_chmod_commands(self):
         import build_desktop_kit as kit

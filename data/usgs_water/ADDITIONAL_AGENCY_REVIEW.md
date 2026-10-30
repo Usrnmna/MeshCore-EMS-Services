@@ -1,5 +1,11 @@
 # Additional official maps and records for 24 unresolved stations
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 Review date: 2026-10-20 UTC. All 24 stations were checked against USGS inventory
 pages and additional official records or map leads. Four new metadata
 relationships are supported across three stations. The active local review
@@ -61,7 +67,7 @@ agency record or physical connection exists.
 
 The four sources used in new maintained rules have full citations in
 [SOURCES.md](SOURCES.md#additional-official-maps-and-station-records).
-The generated [catalog](LOCAL_REVIEW.md) links selected metadata receipts,
+The generated catalog (`LOCAL_REVIEW.md`) links selected metadata receipts,
 retrieval dates, original response hashes, decisions and relationships.
 
 Additional research sources and leads:
@@ -123,5 +129,5 @@ verified successfully. The audit reported zero encoding flags, selection
 mismatches or current identical-body discrepancies.
 
 The observation and routing pointers are unchanged. See the
-[machine-readable validation report](local_review_verification.json) for
+machine-readable validation report (`local_review_verification.json`) for
 generation identifiers, source status, counts and verification limits.

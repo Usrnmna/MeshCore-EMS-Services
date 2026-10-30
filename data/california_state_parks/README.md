@@ -4,23 +4,32 @@
 
 Local snapshots from the [California State Parks GIS Data page](https://www.parks.ca.gov/?page_id=29682) are available for Python programs in this project. Attribution: California State Parks, Department of Parks and Recreation.
 
-The collection contains **11 dataset types and 56,650 features**, with 31 distinct published downloads plus 11 assembled GeoJSON collections. Park-boundary geometry repairs are recorded separately; downloaded source archives and raw service-response pages are preserved. No MeshCore command registration or installer artifact was changed for this acquisition.
+The maintained snapshot contains **11 dataset types and 56,650 features**, with
+31 distinct published downloads plus 11 assembled GeoJSON collections.
+Park-boundary geometry repairs are recorded separately; downloaded source archives
+and raw service-response pages are preserved. This collection has no registered
+MeshCore command. Installed deployments use the optional
+[independent California State Parks data package](../../docs/DATA_PACKAGES.md).
+Service installers and standalone source ZIPs exclude the reference bytes.
 
 ## Dataset inventory
 
+Paths are relative to the selected collection. The documentation bundle contains
+the guides without the collection's reference bytes.
+
 | Dataset key | Features | Geometry | Contents |
 | --- | ---: | --- | --- |
-| [`park_boundaries`](geojson/park_boundaries.geojson) | 461 | MultiPolygon, Polygon | Park unit boundaries; names, unit numbers, and classification. |
-| [`routes`](geojson/routes.geojson) | 13,139 | LineString, MultiLineString | Route segments, names, categories, classes, types, and source length fields. |
-| [`buildings`](geojson/buildings.geojson) | 3,246 | Point | Building reference points and classification attributes. |
-| [`structures`](geojson/structures.geojson) | 35,067 | Point | Structure reference points and classification attributes. |
-| [`picnic_grounds`](geojson/picnic_grounds.geojson) | 1,466 | Point | Picnic/day-use reference points and classifications. |
-| [`campgrounds`](geojson/campgrounds.geojson) | 531 | Point | Campground points, names, classifications, and what3words addresses. |
-| [`parking`](geojson/parking.geojson) | 2,359 | Point | Parking points, names, use types, and trailhead attributes. |
-| [`park_entry_points`](geojson/park_entry_points.geojson) | 288 | Point | Park entrances, addresses, management status, website/map links, and coordinates. |
-| [`field_divisions`](geojson/field_divisions.geojson) | 4 | Polygon | Administrative division polygons. |
-| [`districts`](geojson/districts.geojson) | 21 | Polygon | Administrative district polygons and division relationships. |
-| [`sectors`](geojson/sectors.geojson) | 68 | Polygon, MultiPolygon | Administrative sector polygons and district/division relationships. |
+| `park_boundaries` (`geojson/park_boundaries.geojson`) | 461 | MultiPolygon, Polygon | Park unit boundaries; names, unit numbers, and classification. |
+| `routes` (`geojson/routes.geojson`) | 13,139 | LineString, MultiLineString | Route segments, names, categories, classes, types, and source length fields. |
+| `buildings` (`geojson/buildings.geojson`) | 3,246 | Point | Building reference points and classification attributes. |
+| `structures` (`geojson/structures.geojson`) | 35,067 | Point | Structure reference points and classification attributes. |
+| `picnic_grounds` (`geojson/picnic_grounds.geojson`) | 1,466 | Point | Picnic/day-use reference points and classifications. |
+| `campgrounds` (`geojson/campgrounds.geojson`) | 531 | Point | Campground points, names, classifications, and what3words addresses. |
+| `parking` (`geojson/parking.geojson`) | 2,359 | Point | Parking points, names, use types, and trailhead attributes. |
+| `park_entry_points` (`geojson/park_entry_points.geojson`) | 288 | Point | Park entrances, addresses, management status, website/map links, and coordinates. |
+| `field_divisions` (`geojson/field_divisions.geojson`) | 4 | Polygon | Administrative division polygons. |
+| `districts` (`geojson/districts.geojson`) | 21 | Polygon | Administrative district polygons and division relationships. |
+| `sectors` (`geojson/sectors.geojson`) | 68 | Polygon, MultiPolygon | Administrative sector polygons and district/division relationships. |
 
 ## Files and provenance
 
@@ -29,7 +38,7 @@ The collection contains **11 dataset types and 56,650 features**, with 31 distin
 - `raw_geojson/`: unmodified GeoJSON response bodies from the service queries. Each page was requested by an explicit object-ID batch using read-only ArcGIS query POST requests.
 - `originals/`: the original assembled park-boundary GeoJSON, preserved byte-for-byte before repair.
 - `metadata/`: ArcGIS item descriptions, layer schemas, domains, coordinate systems, service inventories, and before/after count and ID responses.
-- [`sources.json`](sources.json): dataset paths, URLs, timestamps, counts, SHA-256 values, raw-file relationships, and integrity entries for every acquired reference file.
+- `sources.json`: dataset paths, URLs, timestamps, counts, SHA-256 values, raw-file relationships, and integrity entries for every acquired reference file.
 - `source/`: the original GIS page including its complete terms, the download inventory, catalog/export receipts, and validation reports.
 - [`DATA_DICTIONARY.md`](DATA_DICTIONARY.md): source field names, aliases, types, and available field domains. Detailed subtype definitions remain in the layer JSON.
 - [`reference.py`](reference.py): standard-library-only local loading and integrity checks. Importing it performs no network request.
@@ -54,7 +63,7 @@ These are observed source-format differences, not missing GeoJSON pages. Origina
 
 Shapely validation identified **48 invalid park-boundary polygon features** in the source export. They were repaired in the local `geojson/park_boundaries.geojson` with `shapely.make_valid` using the default linework method. All **461 park-boundary geometries are now valid and nonempty**. All 413 previously valid geometries, feature IDs, attributes, order, and counts remain unchanged. No parts were discarded, and all repaired outputs remain Polygon or MultiPolygon. The original assembled file is retained under `originals/`; raw service pages and native archives remain unchanged.
 
-The original defects appear in [`source/geometry_validation.json`](source/geometry_validation.json); per-feature repair reasons, types, area diagnostics, library versions, and original hashes appear in [`source/park_boundaries_repair.json`](source/park_boundaries_repair.json). Area diagnostics use square degrees and are not acreage measurements. **23 repaired features change the planar filled-area diagnostic by more than 1%**; the largest change is a 26.4% decrease for Bodie SHP feature 9483. Nested shells and self-intersections make the original interior ambiguous. These features are flagged in the repair report for map review before boundary-sensitive decisions. Topological validity does not verify the intended filled area. The manifest and loader point to the repaired local copy. Original acquisition receipts describe the pre-repair export; `geometry_repair` records the subsequent derivation. All eleven current GeoJSON collections have valid, nonempty, non-null geometries under the recorded checks. A future download can reintroduce defects. Geometric validity does not establish current public access, ownership, or legal boundary accuracy.
+The original defects appear in `source/geometry_validation.json`; per-feature repair reasons, types, area diagnostics, library versions, and original hashes appear in `source/park_boundaries_repair.json`. Area diagnostics use square degrees and are not acreage measurements. **23 repaired features change the planar filled-area diagnostic by more than 1%**; the largest change is a 26.4% decrease for Bodie SHP feature 9483. Nested shells and self-intersections make the original interior ambiguous. These features are flagged in the repair report for map review before boundary-sensitive decisions. Topological validity does not verify the intended filled area. The manifest and loader point to the repaired local copy. Original acquisition receipts describe the pre-repair export; `geometry_repair` records the subsequent derivation. All eleven current GeoJSON collections have valid, nonempty, non-null geometries under the recorded checks. A future download can reintroduce defects. Geometric validity does not establish current public access, ownership, or legal boundary accuracy.
 
 Native park/route/facility files use EPSG:3857; native administrative files use EPSG:3310. The GeoJSON exports are two-dimensional EPSG:4326 service query results. Native route archives retain the source Z/M dimensions; GeoJSON copies are not substitutes for those dimensions. Length/area attributes retain source units and are not recalculated when the service returns geographic coordinates. Consult layer metadata before interpreting units or coded attributes.
 
@@ -73,7 +82,13 @@ for feature in parks["features"]:
     print(feature["properties"].get("UNITNAME"))
 ```
 
-The loader locates data relative to its own module and verifies byte size, SHA-256, feature counts, and unique object IDs. A different snapshot directory can be selected with `load_dataset("routes", data_directory=absolute_path)`. Missing or changed files raise exceptions; no remote fallback occurs.
+The loader locates source-checkout data relative to its own module and verifies
+byte size, SHA-256, feature counts, and unique object IDs. A different snapshot
+directory can be selected with `load_dataset("routes", data_directory=absolute_path)`.
+For an installed data package, resolve its active content directory through the
+dataset registry and pass that directory explicitly; this loader does not discover
+managed generations automatically. Missing or changed files raise exceptions;
+no remote fallback occurs.
 
 For an existing platform command program under either `scripts/` directory, resolve the project root using `Path(__file__).resolve().parents[2]` and read `data/california_state_parks/sources.json`. For a program directly inside a platform package, use `.parents[1]`. Standalone service ZIPs do not contain this shared directory. A plain JSON loading example is:
 
@@ -98,7 +113,7 @@ This verifies all indexed files and loads each dataset. It does not refresh data
 
 ## Attribution and reuse terms
 
-The original terms are preserved in [`source/gis_data_page.html`](source/gis_data_page.html). CSP requires attribution, restricts sale and alteration, describes free personal/public-sector distribution, and requires prior permission for commercial use. Source warranty, currency, and liability disclaimers also apply. Consult the original terms and contact `geodata@parks.ca.gov` where approval is required. The repository license does not replace the data terms.
+The original terms are preserved in `source/gis_data_page.html`. CSP requires attribution, restricts sale and alteration, describes free personal/public-sector distribution, and requires prior permission for commercial use. Source warranty, currency, and liability disclaimers also apply. Consult the original terms and contact `geodata@parks.ca.gov` where approval is required. The repository license does not replace the data terms.
 
 ## Loader function reference
 

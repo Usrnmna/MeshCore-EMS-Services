@@ -18,6 +18,7 @@ command guides describe the same command behavior; platform setup and paths diff
 | Query water conditions or manage flood monitoring | [Water guide](../meshcore_mqtt_service/WATER_GUIDE.md) · [NOAA station-identity and threshold evidence](../meshcore_mqtt_service/WATER_STATION_REVIEW.md) |
 | Query wildfire, smoke, fuel danger, or landslide information | [Wildfire and smoke guide](../meshcore_mqtt_service/WILDFIRE_GUIDE.md) · [California/Nevada landslide guide](../meshcore_mqtt_service/LANDSLIDE_GUIDE.md) |
 | Run or troubleshoot a platform package | [Linux setup and operation](../meshcore_mqtt_service/README.md) · [Windows setup and operation](../meshcore_mqtt_service_windows/README.md) |
+| Configure optional 24-hour channel recording and read recent messages | [Channel history settings, viewer and Python API](../meshcore_mqtt_service/CHANNEL_HISTORY.md) |
 | Assign channels, protect private keys, or add command programs | [Linux multi-channel guide](../meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md) · [Windows multi-channel guide](../meshcore_mqtt_service_windows/MULTI_CHANNEL_GUIDE.md) |
 
 ## Connections, implementation, and maintenance
@@ -29,8 +30,9 @@ command guides describe the same command behavior; platform setup and paths diff
 | Service and command functions | [Linux function reference](../meshcore_mqtt_service/FUNCTION_REFERENCE.md) · [Windows function reference](../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md) |
 | Water and wildfire implementation details | [Water/flood function reference](../meshcore_mqtt_service/WATER_FUNCTION_REFERENCE.md) · [Wildfire/smoke/fuel function reference](../meshcore_mqtt_service/WILDFIRE_FUNCTION_REFERENCE.md) |
 | Installer configuration and distribution functions | [Tool function reference](../tools/FUNCTION_REFERENCE.md) |
-| Passing hosted CI, recorded software checks, and remaining deployment limits | [Installer and service validation](../installers/VALIDATION.md#hosted-github-actions-october-26-2026) |
-| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.6 - Beta comparison](../RELEASE_v0.9.6-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
+| Check the current local release and target-platform limits | [v0.9.8-beta release verification](RELEASE_v0.9.8-beta_VERIFICATION.md) |
+| Inspect earlier software and deployment evidence | [Installer and service validation](../installers/VALIDATION.md) |
+| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.8 - Beta comparison](../RELEASE_v0.9.8-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
 | Local historical recovery snapshots | [Recovery archive guidance](../archive/README.md) |
 
 ## Data and separate reference tools
@@ -56,3 +58,13 @@ California State Parks and satellite resources are separate reference tools. The
 presence does not register additional MeshCore commands. Supplier receipts and
 versioned distributions preserve historical evidence; maintained guides describe
 the source tree and identify snapshot-specific results where applicable.
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.
+The [implementation verification record](CHANNEL_HISTORY_VERIFICATION.md) retains
+the earlier automated failure-isolation results and their native deployment and
+hardware limits. Current release checks are recorded separately above.

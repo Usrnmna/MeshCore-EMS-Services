@@ -9,6 +9,7 @@ from pathlib import Path
 import hashlib
 import json
 import zipfile
+from distribution_policy import validate_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGES = ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")
@@ -41,6 +42,8 @@ COMMON = {
     "check_live.py",
     "service_runner.py",
     "channels.py",
+    "channel_history.py",
+    "CHANNEL_HISTORY.md",
     "channel_setup.py",
     "radio_connection.py",
     "MULTI_CHANNEL_GUIDE.md",
@@ -74,7 +77,7 @@ def package_files(name):
     for spec in config["responder"]["commands"].values():
         if base / spec["script"] not in files:
             raise ValueError(f"Configured script omitted from package: {spec['script']}")
-    return sorted(files)
+    return validate_paths(files, ROOT)
 
 
 def main():
@@ -106,6 +109,8 @@ def main():
         "requirements.txt",
         "gis_settings.json",
         "channels.py",
+        "channel_history.py",
+        "CHANNEL_HISTORY.md",
         "channel_setup.py",
     "radio_connection.py",
         "MULTI_CHANNEL_GUIDE.md",

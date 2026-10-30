@@ -1,9 +1,11 @@
 """Protect publication and checkout rules without changing the working index."""
 
+import io
 import os
 from pathlib import Path
 import shutil
 import subprocess
+import tarfile
 import tempfile
 import unittest
 
@@ -32,13 +34,25 @@ class RepositoryConfigurationTests(unittest.TestCase):
             "environment.json.backup",
             ".datasets/ebmud/generation/content/manifest.json",
             "datasets.json",
+            "docs/superpowers/plans/release.md",
+            "docs/superpowers/specs/channel-history.md",
+            "runtime/channel_history/channel_history.sqlite3",
+            "meshcore_mqtt_service/runtime/channel_history/status.json",
+            "meshcore_mqtt_service_windows/runtime/channel_history/channel_history.sqlite3-wal",
+            "meshcore-history-example/request.json",
+            "meshcore-desktop-example/result.json",
+            ".cache/release-v098/ci-config-audit.md",
         }
         retained = {
-            ".github/workflows/ci.yml", ".github/dependabot.yml",
+            ".github/workflows/ci.yml", ".github/dependabot.yml", ".github/requirements-ci.txt",
             "installers/desktop/unified_backend.py", "installers/desktop/maintenance_lock.ps1",
             "installers/datasets/gui/main_window.ui", "installers/datasets/gui/requirements-build.txt",
             "docs/DESKTOP_INSTALLATION.md", "tests/fixtures/authorization.log",
             "environment.json.example", "environment.json.template", "data/usgs_water/local_review_rules.json",
+            "docs/CHANNEL_HISTORY_VERIFICATION.md", "meshcore_mqtt_service/CHANNEL_HISTORY.md",
+            "installers/desktop/history_backend.py", "tools/test_history_process.py",
+            "tests/fixtures/meshcore-history-example/request.json",
+            "tests/fixtures/reference.sqlite3", "data/satellites/satellites.sqlite3",
         }
         self.assertEqual(ignored_paths(ROOT, sorted(excluded | retained)), excluded)
 
@@ -70,6 +84,8 @@ class RepositoryConfigurationTests(unittest.TestCase):
             "kit/application.ico": ("unset", "unspecified"),
             "data/usgs_water/inventory/generation/source.py": ("unset", "lf"),
             "data/usgs_water/README.md": ("set", "lf"),
+            "tests/fixtures/reference.sqlite3": ("unset", "unspecified"),
+            "data/reference/receipt.zip": ("unset", "unspecified"),
         }
         result = subprocess.run(["git", "check-attr", "-z", "--stdin", "text", "eol"], cwd=ROOT,
                                 input="\0".join(expected).encode() + b"\0", capture_output=True, check=True)
@@ -79,6 +95,36 @@ class RepositoryConfigurationTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertEqual(actual[path, "text"], text)
                 self.assertEqual(actual[path, "eol"], eol)
+
+    def test_local_planning_documents_are_not_tracked(self):
+        """Keep planning files local without deleting or opening their contents."""
+        result = subprocess.run(
+            ["git", "ls-files", "--", "docs/superpowers"], cwd=ROOT,
+            capture_output=True, check=True,
+        )
+        self.assertEqual(result.stdout, b"", "Local planning files must be removed from the index only")
+
+    def test_git_archives_exclude_even_force_added_planning_documents(self):
+        """Exercise export-ignore in a disposable tree without creating a commit."""
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            subprocess.run(["git", "init", "--quiet", str(directory)], check=True, capture_output=True)
+            shutil.copy2(ROOT / ".gitattributes", directory / ".gitattributes")
+            for relative in ("docs/superpowers/plans/private.md", "docs/superpowers/specs/private.md",
+                             "docs/CHANNEL_HISTORY_VERIFICATION.md", "README.md"):
+                path = directory / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("Fixture documentation.\n", encoding="utf-8")
+            subprocess.run(["git", "add", "--force", "."], cwd=directory, check=True, capture_output=True)
+            tree = subprocess.check_output(["git", "write-tree"], cwd=directory).decode().strip()
+            data = subprocess.check_output(["git", "archive", "--format=tar", tree], cwd=directory)
+            with tarfile.open(fileobj=io.BytesIO(data)) as archive:
+                names = set(archive.getnames())
+            self.assertFalse(any(name == "docs/superpowers" or name.startswith("docs/superpowers/")
+                                 for name in names), names)
+            self.assertIn("docs/CHANNEL_HISTORY_VERIFICATION.md", names)
+            self.assertIn("README.md", names)
+            self.assertTrue((directory / "docs/superpowers/plans/private.md").is_file())
 
 
 if __name__ == "__main__":

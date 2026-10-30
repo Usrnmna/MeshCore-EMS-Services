@@ -50,13 +50,17 @@ in JSON results and continue to work with `!fire INCIDENT-ID`.
 
 ## Geography and interpretation
 
-The bundled seed contains 186 complete NWS fire-weather polygons retrieved on
+The reference seed contains 186 complete NWS fire-weather polygons retrieved on
 October 20, 2026. Selection uses at least one hectare of intersection with the
 California state reference boundary, rejecting tiny boundary slivers. Selected
 polygons are not clipped at the state line. CAZ272 includes the Nevada side of
 Lake Tahoe; NVZ420 is included because it intersects California. Exact
 boundary points can belong to multiple zones and all matches are retained.
 The source polygon version and checksum are recorded in `data/wildfire/manifest.json`.
+Full source checkouts retain matching seed copies in both platform folders.
+Service installers and standalone service ZIPs use the independent wildfire
+data package; install it before relying on zone-based lookups. See
+[dataset installation](../docs/DATA_PACKAGES.md).
 
 These are **NWS fire-weather forecast zones**. They are not evacuation zones,
 CAL FIRE administrative units, dispatch areas, predictive service areas, or

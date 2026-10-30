@@ -26,6 +26,33 @@ spec.loader.exec_module(configure)
 
 
 class InstallerTests(unittest.TestCase):
+    def test_history_is_not_a_required_backup_input(self):
+        with tempfile.TemporaryDirectory() as folder:
+            state = Path(folder)
+            config_path = state / 'config.json'
+            config_path.write_text('{}')
+            runtime = state / 'runtime'
+            history = runtime / 'channel_history'
+            history.mkdir(parents=True)
+            broken = history / 'channel_history.sqlite3'
+            broken.write_bytes(b'corrupt optional history')
+            with closing(sqlite3.connect(runtime / 'bridge.sqlite3')) as db:
+                db.execute('create table events (value text)')
+                db.execute("insert into events values ('retained')")
+                db.commit()
+            saved = configure.backup_state(config_path, state)
+            self.assertFalse((saved / 'channel_history.sqlite3').exists())
+            self.assertEqual(broken.read_bytes(), b'corrupt optional history')
+            with closing(sqlite3.connect(saved / 'bridge.sqlite3')) as db:
+                self.assertEqual(db.execute('select value from events').fetchone()[0], 'retained')
+
+    def test_history_is_in_source_inventory_without_runtime_data(self):
+        names = {p.relative_to(ROOT).as_posix() for p in build_installers.source_files()}
+        for package in ('meshcore_mqtt_service','meshcore_mqtt_service_windows'):
+            self.assertIn(package+'/channel_history.py',names)
+            self.assertIn(package+'/CHANNEL_HISTORY.md',names)
+        self.assertFalse(any('/runtime/' in name for name in names))
+
     @unittest.skipUnless(sys.platform.startswith("linux") and getattr(os, "geteuid", lambda: -1)() == 0,
                          "Native Linux root permission integration test")
     def test_private_venv_is_readable_by_service_account_without_write_access(self):
@@ -234,7 +261,7 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
     def test_release_versions_agree_across_platforms_and_installers(self):
         """Current release metadata must agree without rewriting historical release notes."""
         version = build_installers.VERSION
-        self.assertEqual(version, "v0.9.6-beta")
+        self.assertEqual(version, "v0.9.8-beta")
         numeric = version.removeprefix("v").split("-")[0] + ".0"
         for package in build_installers.PACKAGES:
             self.assertEqual((ROOT / package / "VERSION.txt").read_text().strip(), version)
@@ -652,7 +679,7 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
             "docs/README.md",
             "docs/ARCHITECTURE.md",
             "docs/DEVELOPMENT.md",
-            "RELEASE_v0.9.6-beta.md",
+            "RELEASE_v0.9.8-beta.md",
             "AGENTS.md",
             ".gitignore",
             ".gitattributes",

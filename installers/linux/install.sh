@@ -85,7 +85,7 @@ install -d -m 0755 /opt/meshcore-ems/releases
 install -d -m 0750 -o root -g meshcore-ems /etc/meshcore-ems
 install -d -m 0750 -o root -g meshcore-ems /var/lib/meshcore-ems
 # Build in its final path because virtual environments contain absolute paths.
-release=$(mktemp -d /opt/meshcore-ems/releases/v0.9.6-beta.XXXXXXXX)
+release=$(mktemp -d /opt/meshcore-ems/releases/v0.9.8-beta.XXXXXXXX)
 cp -a "$source_dir/." "$release/"
 chmod 0755 "$release"
 python3 -m venv "$release/.venv"
@@ -185,6 +185,6 @@ if ((start_service)); then
     fi
 fi
 trap - ERR
-printf 'Installed v0.9.6-beta. Settings: /etc/meshcore-ems/config.json\n'
+printf 'Installed v0.9.8-beta. Settings: /etc/meshcore-ems/config.json\n'
 printf 'Status: systemctl status meshcore-ems\nLogs: journalctl -u meshcore-ems -f\n'
 printf 'The service manager status does not establish radio reception.\n'

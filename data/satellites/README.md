@@ -3,7 +3,12 @@
 [Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
 
 The [satellite catalog program](../../satellite_database/README.md) stores its
-database, exports, and source cache in this directory.
+database, exports, and source cache in this directory for source-checkout use.
+Installed deployments use the [independent Satellites data package](../../docs/DATA_PACKAGES.md),
+which selects an immutable generation through the shared dataset registry.
+Service installers and standalone service ZIPs do not carry this catalog.
+Refresh managed data through its package updater; direct catalog mutation is
+rejected for a managed generation.
 
 - **`satellites.sqlite3`**: primary database for local programs and SQL queries.
 - **`satellites.json`**: readable snapshot with satellites, supported operations,

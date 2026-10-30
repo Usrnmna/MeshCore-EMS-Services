@@ -18,6 +18,12 @@ from radio_connection import connection_settings, select_serial_port, validate_s
 ENVIRONMENT_KEYS = {"AIRNOW_API_KEY", "MESHCORE_MQTT_USERNAME", "MESHCORE_MQTT_PASSWORD"}
 
 
+def check_history(config):
+    """Report optional readiness without starting a writer or failing core checks."""
+    service.optional_history(config)
+    return dict(service.HISTORY_STATUS)
+
+
 def load_environment(path):
     """Read optional credentials without accepting interpreter/path overrides."""
     if path is None or not path.exists():
@@ -112,6 +118,9 @@ def main(argv=None):
     import meshcore, paho.mqtt.client, amqtt, serial, skyfield.api  # noqa: F401
 
     if args.check:
+        history = check_history(config)
+        if history['state'] == 'unavailable':
+            print("Optional channel history is unavailable; core configuration checks are unaffected.")
         print("Service configuration and dependencies are ready.")
         return 0
     service.RUNTIME = args.state_dir.resolve()

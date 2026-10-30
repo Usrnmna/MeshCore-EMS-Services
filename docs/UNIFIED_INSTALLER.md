@@ -43,8 +43,10 @@ New native wrappers and workers share a process-creation-bound lease. Legacy
 tools cannot be made cooperative by a GUI-only lock. Current-artifact repair is
 required before invoking them in coordinated mutations. Dataset capabilities are
 `maintenance-lock-v1` and `retain-data-v1`; service capabilities are
-`operation-lock-v1`, `settings-v2` and `staged-startup-v1`. Missing capabilities
-produce blockers rather than assumed support.
+`operation-lock-v1`, `settings-v2` and `staged-startup-v1`. Missing required
+capabilities produce blockers. The optional `channel-history-v1` capability
+identifies recording support; its absence is reported without blocking valid
+core maintenance. See [optional recording controls](../meshcore_mqtt_service/CHANNEL_HISTORY.md#installer-controls-and-viewer).
 
 Windows installed-code execution also requires protected owners and ACLs for
 code and its ancestors. Held native handles prevent replacement races. Unsafe
@@ -116,3 +118,10 @@ and UI paths. WSL, Xvfb and QEMU ARM64 do not establish native desktop authoriza
 reboot behavior, clean-system lifecycle, physical Pi performance, USB/BLE access
 or radio integration. Distribution verification reports identify actual run
 results and artifacts. Older reports do not qualify changed binaries.
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.

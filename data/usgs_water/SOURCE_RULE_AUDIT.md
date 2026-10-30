@@ -1,5 +1,11 @@
 # Source-rule encoding and selection audit
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 The audit covers every configured local-review source, metadata excerpt,
 and string value in `local_review_rules.json`. Current counts are recorded in
 the generation-bound audit and active catalog. It includes
@@ -15,9 +21,9 @@ documents the byte-identical source responses and differing local rules.
 
 Every local-review refresh automatically records fresh source receipts and
 per-source comparison results in a generation-bound `source_rule_audit.json`.
-The [active catalog](LOCAL_REVIEW.md) links the canonical audit, whose hash is
+The active catalog (`LOCAL_REVIEW.md`) links the canonical audit, whose hash is
 covered by the generation manifest. A
-[latest convenience copy](source_rule_audit.json) is replaced after publication.
+latest convenience copy (`source_rule_audit.json`) is replaced after publication.
 Source access failures
 remain distinct from literal mismatches. Unavailable documents cannot be
 declared free of selection problems merely because their configured rules pass
@@ -30,7 +36,7 @@ inaccessible IID pages and the Tulare County directory. Comparison of all five
 published local-review generations found only the previously corrected Modesto
 rule corruption and its corresponding identical-body selection discrepancy.
 Current refresh results and validation counts are recorded in the generated
-audit and [local-review verification](local_review_verification.json).
+audit and local-review verification (`local_review_verification.json`).
 
 No source literals were loosened, punctuation substituted, station IDs inferred,
 or uncertain matches promoted. Existing accepted metadata relationships and all

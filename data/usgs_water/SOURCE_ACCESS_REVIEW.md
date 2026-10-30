@@ -1,5 +1,11 @@
 # Source-access retries and alternate official records
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 ## Five-source retry and additional records
 
 All five sources that failed in generation `20261020T065925Z_d164e82b` were
@@ -8,7 +14,7 @@ metadata, the Tulare LAFCO directory, and the Lake County hitch survey.
 The initial retry recovered Havasu metadata. Both IID pages and the Tulare
 directory returned HTTP 403; the Lake County request timed out.
 The completed refresh recovered both Havasu and the original Lake County survey.
-Results are recorded in the [active source catalog](LOCAL_REVIEW.md):
+Results are recorded in the active source catalog (`LOCAL_REVIEW.md`):
 
 | Retried source | Final result |
 | --- | --- |
@@ -92,7 +98,7 @@ timestamps. No station relationship or routing edge was added. Observation
 generation `20261020T043137Z_10d7f799` still contains the same 1,307 latest
 readings; routing generation `20261020T053050Z_23024208` is unchanged.
 No historical level or discharge data was saved. The
-[validation report](local_review_verification.json) records these checks and
+validation report (`local_review_verification.json`) records these checks and
 their limits.
 
 ## Earlier investigation of three persistent failures
@@ -110,7 +116,7 @@ relationships for other stations remain separate; the
 supported roles and identifiers. All 24 hydrography addresses in the local review
 remain unresolved.
 
-The [active catalog](LOCAL_REVIEW.md) links the immutable source receipts and
+The active catalog (`LOCAL_REVIEW.md`) links the immutable source receipts and
 `relationships/source_alternatives.csv`. That table associates each original
 source with its reviewed alternate, exact URLs, retrieval status, interpretation
 scope and limitations. It is a source relationship table, not a waterway topology
@@ -187,7 +193,7 @@ metadata generations are preserved. Full reports are processed in memory;
 historical level/discharge measurements are not saved. Current observations,
 tributary tables, routing and CalWater categories are unchanged.
 
-The [validation report](local_review_verification.json) records replay of the
+The validation report (`local_review_verification.json`) records replay of the
 station and source relationship tables, source availability, manifest hashes,
 regional exports and current-only retention. See
 [refresh commands and evidence limits](LOCAL_REVIEW_METHODS.md).
@@ -204,9 +210,9 @@ The [Modesto Irrigation District La Grange page](https://www.mid.org/water/water
 was rechecked on 2026-10-20 UTC. The response was 114,552 bytes with SHA-256
 `dd106ca901bcc42d1321ac9dc04390aeb9671562eb956cd437fc77fab3680efa`.
 This is identical to both the
-[earlier successful receipt](local_review/20261020T062115Z_4fee573d/evidence/modesto_dam.json)
+earlier successful receipt (`local_review/20261020T062115Z_4fee573d/evidence/modesto_dam.json`)
 and the
-[later failed-selection receipt](local_review/20261020T062754Z_f6acc328/evidence/modesto_dam.json).
+later failed-selection receipt (`local_review/20261020T062754Z_f6acc328/evidence/modesto_dam.json`).
 **No agency wording change was observed.** The previous interpretation of the
 mismatch as changed source wording was incorrect.
 

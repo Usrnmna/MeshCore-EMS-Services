@@ -7,9 +7,12 @@ The same Python program runs on Windows and Linux. Database creation, lookup,
 status evidence, and JSON/CSV export require only Python 3.11 or newer.
 Skyfield is optional and only needed to calculate position and antenna direction.
 
-The supplied database and exports are in [`../data/satellites/`](../data/satellites/README.md).
-This is a standalone reference tool; no MQTT command, radio transmission, or
-scheduled/background task is installed.
+Source-checkout database and export paths are described in
+[`../data/satellites/`](../data/satellites/README.md). Installed deployments acquire
+the catalog through the [independent Satellites data package](../docs/DATA_PACKAGES.md).
+The service installer supplies the reference-tool source and launcher, while the
+dataset package owns catalog acquisition and updates. This tool registers no
+MeshCore command, radio transmission, or scheduled task.
 
 ## Scope
 
@@ -46,8 +49,16 @@ Being included does not prove public uplink access or that a decoder is availabl
 
 ## Quick start
 
-Run these commands from the MC-EMS-Services folder. On Linux, use `python3`
-if `python` does not select Python 3.11 or newer.
+The following commands maintain an unmanaged source-checkout catalog. Run from
+the MC-EMS-Services folder. On Linux, use `python3` if `python` does not select
+Python 3.11 or newer.
+
+For a managed installation, use the dataset package's `update` operation, then
+read the active catalog through the installed launcher. Managed `refresh`,
+`export`, and `import-observations` calls are rejected to preserve generation
+integrity. `list`, `show`, `summary`, and `position` remain read operations;
+managed `summary` displays the saved coverage report. Explicit external catalogs
+retain the source-checkout behavior below.
 
 ```console
 python satellite_database/satellite_db.py refresh
@@ -210,7 +221,9 @@ rotator control, Doppler radio tuning and RF reception are not implemented.
 
 ## Reading the database from another program
 
-The SQLite file is `data/satellites/satellites.sqlite3`. Useful tables:
+The source-checkout SQLite file is `data/satellites/satellites.sqlite3`.
+Installed settings resolve the selected immutable generation; use that active
+path for read-only consumers. Useful tables:
 
 | Table/view | Purpose |
 | --- | --- |

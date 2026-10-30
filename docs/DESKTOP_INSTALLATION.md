@@ -12,6 +12,14 @@ are online installers, including when some reference data is included. Native
 Linux desktop authorization requires a working polkit session agent and `pkexec`.
 Headless systems retain the separate [terminal installation path](../INSTALL.md).
 
+## Select the current archive
+
+The [v0.9.8-beta local release guide](../RELEASE_v0.9.8-beta.md) lists the Windows
+x64 ZIP, Linux x86_64 tar archive, and Raspberry Pi ARM64 tar archive. Each OS kit
+contains both desktop applications, its service installer, and eight independent
+dataset installers. Local assembly does not establish publication or native
+acceptance; inspect the [release verification record](RELEASE_v0.9.8-beta_VERIFICATION.md).
+
 ## Install from a desktop
 
 1. Download the matching kit and extract the **whole** archive through the file
@@ -134,3 +142,10 @@ artifact hashes to all current build inputs. Kit assembly checks both inventorie
 rejects stale/missing provenance, verifies target-specific installer checksums,
 and writes a complete kit inventory and archive checksum. These local checks
 establish byte integrity and freshness, not publisher authenticity.
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.

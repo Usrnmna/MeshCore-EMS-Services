@@ -34,7 +34,7 @@ class WindowTests(unittest.TestCase):
                 cls.application.setFont(QFont(families[0], 10))
 
     def setUp(self):
-        self.window = DatasetWindow(ROOT / ".build/demo-data", ROOT / "dist/v0.9.6-beta/datasets", "windows-x64", demo=True)
+        self.window = DatasetWindow(ROOT / ".build/demo-data", ROOT / "dist/v0.9.8-beta/datasets", "windows-x64", demo=True)
         self.window.show()
         self.wait_idle()
 

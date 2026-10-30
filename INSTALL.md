@@ -1,4 +1,4 @@
-# Install MeshCore EMS v0.9.6-beta as an OS service
+# Install MeshCore EMS v0.9.8-beta as an OS service
 
 For Windows, Linux and Raspberry Pi graphical desktops, begin with the
 [desktop installation and removal guide](docs/DESKTOP_INSTALLATION.md).
@@ -26,16 +26,24 @@ updates. Neither GIS nor satellite refresh is scheduled automatically.
 
 ## Choose an installer
 
+The v0.9.8-beta local release is assembled under
+`dist/github-release-v0.9.8-beta-20261029/`. Select the matching OS archive from the
+[release guide](RELEASE_v0.9.8-beta.md) and extract it completely. Its desktop kit
+contains native graphical applications, a service installer, and eight independent
+dataset installers. These are locally prepared artifacts; publication is a
+separate action. The service-installer filenames inside those kits are:
+
 | File | Target |
 | --- | --- |
-| `MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
-| `MeshCore-EMS-v0.9.6-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
+| `MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
+| `MeshCore-EMS-v0.9.8-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
+| `MeshCore-EMS-v0.9.8-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
-Outputs are under `dist/v0.9.6-beta/`, alongside `SHA256SUMS.txt`.
-Each operating-system installer is distributed separately. Download only the
-installer matching the target system; installation and validation guides are
-available as separate files alongside the checksums.
+The service build outputs are under `dist/v0.9.8-beta/`, alongside
+`SHA256SUMS.txt`; dataset artifacts are in its `datasets/` subdirectory.
+Inside a desktop kit, service installers are under `dataset-manager/service-installers/`
+and dataset installers under `dataset-manager/datasets/`. The terminal examples
+below also work with the individual installer copied to a local folder.
 The Linux packages are executable, self-extracting online installers; they install
 the OS's native Python and dependency wheels for the target architecture. They
 are not precompiled/frozen Python applications. Other Linux distributions and
@@ -84,7 +92,7 @@ publisher release.
 For unattended installation from an administrator terminal:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
+MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
 ```
 
 Add `/NOSTART=1` to register without starting now (automatic startup remains enabled).
@@ -118,8 +126,8 @@ Windows wizard: select **Wi-Fi / TCP**, then enter the node IP and port; or sele
 preserves the installed connection. Unattended examples:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
+MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
+MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
 ```
 
 Direct PowerShell setup exposes `-Transport`, `-SerialPort`, `-TcpHost`, `-TcpPort`,
@@ -130,8 +138,8 @@ under that account before relying on unattended BLE operation.
 Linux (use the ARM64 filename on Raspberry Pi):
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
+sudo bash MeshCore-EMS-v0.9.8-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
+sudo bash MeshCore-EMS-v0.9.8-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
 ```
 
 For BLE, the Linux installer installs BlueZ and enables its service. Pair/trust
@@ -152,9 +160,9 @@ it cannot verify pairing, service-account Bluetooth access, or TCP reachability.
 Run the matching installer with Bash. Automatic USB serial detection is the default:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run --port auto
+sudo bash MeshCore-EMS-v0.9.8-beta-raspberry-pi-arm64.run --port auto
 # Intel/AMD:
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --port auto
+sudo bash MeshCore-EMS-v0.9.8-beta-linux-x86_64.run --port auto
 ```
 
 Use `--port auto` to rescan USB serial devices at each start. A new installation
@@ -200,6 +208,19 @@ Inspect either Linux installer without installing or making system changes:
 bash installer.run --check
 bash installer.run --extract ./empty-directory
 ```
+
+## Optional channel recording
+
+Channel history is disabled by default. The graphical service settings can enable
+recording for one existing service channel or a separate recording-only channel.
+The companion must already contain that channel. Applying settings and restarting
+the service is explicit; opening the viewer does not apply pending edits.
+
+The [channel history guide](meshcore_mqtt_service/CHANNEL_HISTORY.md) documents
+private-key references, the rolling 24-hour reception window, retained committed
+records, protected read access, the desktop viewer, the local Python interface,
+and loss/overload limits. Recording adds no radio command or operating-system
+service. Optional history storage is separate from required configuration backups.
 
 ## Add programs without rebuilding the installer
 
@@ -417,7 +438,10 @@ Build, extraction, configuration and lifecycle tests do not prove a successful
 administrator installation, native Raspberry Pi operation, serial driver support,
 or radio delivery. A running service process does not prove that a remote node
 received a response. See the build validation report shipped with the release
-artifacts for the checks actually performed.
+artifacts for the checks actually performed. The maintained
+[v0.9.8-beta verification record](docs/RELEASE_v0.9.8-beta_VERIFICATION.md)
+distinguishes local software/build checks from native deployment and physical
+radio acceptance.
 
 Upstream packaging references: [CPython NuGet packages](https://docs.python.org/3.13/using/windows.html#the-nuget-org-packages),
 [Inno Setup](https://jrsoftware.org/isinfo.php), and

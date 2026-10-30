@@ -19,6 +19,17 @@ def serial_device(name, vid=None, hwid=""):
 
 
 class ServiceRunnerTests(unittest.TestCase):
+    def test_optional_history_validation_does_not_change_core_check(self):
+        self.assertEqual(runner.check_history({'channel_history': {'enabled':True,'channel_id':'missing'}})['state'], 'unavailable')
+        self.assertEqual(runner.check_history({})['state'], 'disabled')
+
+    def test_disabled_history_does_not_import_optional_module_or_touch_storage(self):
+        import sys
+        with patch.dict(sys.modules, {'channel_history':None}):
+            self.assertEqual(service.optional_history({}), (None,None))
+            self.assertEqual(service.optional_history({'channel_history':{'enabled':True}}),(None,None))
+            self.assertEqual(service.HISTORY_STATUS['state'],'unavailable')
+
     def test_dataset_root_is_typed_configuration_not_a_credential(self):
         value = str(Path.cwd() / "reference data")
         with patch.dict(os.environ, {}, clear=True):

@@ -38,7 +38,7 @@ support; the builder fails if that version is unavailable. PS2EXE is required
 only on the build host. Inno Setup's default location is
 `.build/inno/ISCC.exe`; `--iscc PATH` selects another compiler. Builds create
 isolated snapshots under `.build/data-installers-*` and write artifacts and
-`SHA256SUMS.txt` to `dist/v0.9.6-beta/datasets/`. No service installation,
+`SHA256SUMS.txt` to `dist/v0.9.8-beta/datasets/`. No service installation,
 dataset refresh, or publishing occurs during a build. Rebuild after the last
 change to any included maintenance source or reference seed.
 `--version` permits an individual collection to receive a new release independently
@@ -129,12 +129,39 @@ generations and does not bypass dependency checks.
 
 ## Artifact inspection and target qualification
 
+### ARM64 desktop image plugins
+
+The pinned Qt 6.7.3 ARM64 wheel's WebP/TIFF plugins reference older codec SONAMEs
+that are absent from Bookworm. The desktop builder uses
+`tools/build_arm64_image_plugins.py` to rebuild only those two plugins from the
+checksum-pinned Qt 6.7.3 source and matching ARM64 SDK. The Qt/PyQt runtime pins
+remain unchanged. Rebuilt plugins link to Bookworm's WebP and TIFF libraries;
+their codec dependencies and redistribution notices accompany the application.
+No compatibility symlink substitutes one library ABI for another.
+
+An isolated ARM64 Debian 12 build environment requires `build-essential`,
+`cmake`, `ninja-build`, `pkg-config`, `p7zip-full`, `binutils`, `patchelf`,
+`libgl-dev`, `libegl-dev`, `libwebp-dev=1.2.4-0.2+deb12u1`, and
+`libtiff-dev=4.5.0-6+deb12u4`. The existing native desktop build commands prepare
+and reuse the checked plugin output. Download hashes, source locations, library
+versions, and copied-file hashes are recorded with the GUI's build evidence.
+The ARM64 preparation does not run for Windows or Linux x86_64 builds.
+
+Release verification must decode fixed WebP and TIFF images through the actual
+frozen applications and check dimensions and pixels. A supported-format listing
+or dependency filename alone does not prove decoding. On ARM64, loaded plugin
+and codec paths must belong to the extracted application. Run the final kit in
+a clean Bookworm runtime without relying on its compiler/SDK environment.
+QEMU execution provides emulation evidence, not physical Raspberry Pi validation.
+
+### Installer payloads
+
 Linux/Pi artifacts support inspection without administrator privileges or
 installation:
 
 ```sh
-bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run --check
-bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run --extract empty-directory
+bash MeshCore-EMS-Data-ebmud-v0.9.8-beta-linux-x86_64.run --check
+bash MeshCore-EMS-Data-ebmud-v0.9.8-beta-linux-x86_64.run --extract empty-directory
 ```
 
 Automated tests cover the separate artifact matrix, payload integrity,

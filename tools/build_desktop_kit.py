@@ -15,6 +15,8 @@ import tarfile
 import build_data_installers as data_builder
 import build_dataset_gui as gui_builder
 import build_installers as service_builder
+from distribution_policy import validate_tree
+from build_documentation import copy_documentation
 from artifact_provenance import file_hash, verify_provenance
 from installers.datasets.gui.discovery import native_target
 from installers.datasets.gui.planning import installer_artifact
@@ -129,6 +131,7 @@ def desktop_entry(title, relative):
 def make_archive(folder, target):
     """Use tar for Linux so extraction retains native executable/link metadata."""
     folder = Path(folder)
+    validate_tree(folder)
     if target == "windows-x64":
         return Path(shutil.make_archive(str(folder), "zip", folder.parent, folder.name))
     path = Path(str(folder) + ".tar.gz")
@@ -187,9 +190,10 @@ def build(output, dataset_gui, service_gui, service_installers, dataset_installe
         entries.append(f"{digest}  {copied.name}\n")
     (dataset_folder / "SHA256SUMS.txt").write_text("".join(entries), encoding="utf-8")
     (output / "START-HERE.md").write_text(start_guide(target), encoding="utf-8")
-    (output / "docs").mkdir()
-    for name in ("DESKTOP_INSTALLATION.md", "UNIFIED_INSTALLER.md", "DATA_PACKAGES.md", "DATASET_GUI.md"):
-        shutil.copy2(ROOT / "docs" / name, output / "docs" / name)
+    copy_documentation(ROOT, output / "documentation")
+    with (output / "START-HERE.md").open("a", encoding="utf-8") as guide:
+        guide.write("\n[Complete installation and maintenance documentation]"
+                    "(documentation/docs/DESKTOP_INSTALLATION.md).\n")
     shutil.copy2(ROOT / "LICENSE", output / "LICENSE")
     if target != "windows-x64":
         for label, title, relative in (

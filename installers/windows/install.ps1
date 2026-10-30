@@ -143,7 +143,7 @@ try {
         $scProcess = [System.Diagnostics.Process]::Start($scStart)
         $scProcess.WaitForExit()
         if ($scProcess.ExitCode -ne 0) { throw 'Windows service registration failed.' }
-        & sc.exe description MeshCoreEMS 'MeshCore EMS v0.9.6-beta serial/BLE/TCP MQTT responder'
+        & sc.exe description MeshCoreEMS 'MeshCore EMS v0.9.8-beta serial/BLE/TCP MQTT responder'
         & sc.exe failure MeshCoreEMS reset= 86400 actions= restart/15000/restart/30000/restart/60000
         if ($LASTEXITCODE -ne 0) { throw 'Service recovery setup failed.' }
         if (-not $NoStart -and $startMode -ne 'disabled') {
@@ -152,7 +152,7 @@ try {
             if ((Get-Service MeshCoreEMS).Status -ne 'Running') { throw 'Service stopped; inspect runtime\service.log and wrapper.log.' }
         }
     }
-    Write-Host 'MeshCore EMS v0.9.6-beta installation prepared successfully.'
+    Write-Host 'MeshCore EMS v0.9.8-beta installation prepared successfully.'
     Write-Host "Configuration and data: $StateRoot"
 } finally {
     Stop-Transcript | Out-Null

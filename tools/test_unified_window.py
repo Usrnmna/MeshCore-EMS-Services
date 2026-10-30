@@ -63,6 +63,22 @@ class UnifiedWindowTests(unittest.TestCase):
         self.assertEqual(self.window.datasetTree.topLevelItemCount(), 8)
         self.assertGreaterEqual(self.window.serviceAction.findData("check_connection"), 0)
 
+    def test_history_pending_registry_uses_unified_channels_and_invalidates_review(self):
+        widget = self.window.serviceForm.historySettings
+        self.assertIsNotNone(widget)
+        widget.load({"enabled": True, "channel_id": "default"}, {"default": {"name": "Public", "type": "public", "mqtt_export": True}}, True)
+        widget.applyCheck.setChecked(True)
+        self.window.applyChannels.setChecked(True)
+        self.window.channelTable.item(0, 0).setText("renamed")
+        self.window.plan = {"reviewed": True}
+        widget.enabledCheck.setChecked(False)
+        self.assertIsNone(self.window.plan)
+        widget.enabledCheck.setChecked(True)
+        self.window.serviceAction.setCurrentIndex(2)
+        settings = self.window.intent()["settings"]
+        self.assertEqual(settings["channels"]["channels"].keys(), {"renamed"})
+        self.assertEqual(settings["channel_history"], {"invalid": True})
+
     def test_demo_recovery_history_never_reads_host_journals(self):
         with patch("installers.desktop.unified_backend.recovery_history", create=True,
                    side_effect=AssertionError("demo must not inspect journals")):

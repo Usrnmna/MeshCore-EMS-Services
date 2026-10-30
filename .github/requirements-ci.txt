@@ -1,0 +1,2 @@
+# Workflow parsing for repository configuration regression checks.
+PyYAML==6.0.3

@@ -1,6 +1,12 @@
 # Local operating-agency evidence and unresolved stations
 
-The [local review catalog](LOCAL_REVIEW.md) investigates all 24 unresolved
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
+The local review catalog (`LOCAL_REVIEW.md`) investigates all 24 unresolved
 addresses from the preceding original-agency review. Fourteen metadata relationships
 are supported for ten stations: the original nine Fontana relationships and
 Victoria Canal CDEC alias, three historical diversion roles for Big Creek and
@@ -146,5 +152,5 @@ exports and alternate-source rows, confirms no hydrography address was introduce
 retained observation generation with at most one value per time series.
 For generations containing an automatic audit, validation also replays the audit
 against its pinned historical manifests.
-See [validation results](local_review_verification.json) and
+See validation results (`local_review_verification.json`) and
 [source citations](SOURCES.md).

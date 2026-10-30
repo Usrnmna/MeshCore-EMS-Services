@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.9.6.0")]
-[assembly: AssemblyFileVersion("0.9.6.0")]
-[assembly: AssemblyInformationalVersion("v0.9.6-beta")]
+[assembly: AssemblyVersion("0.9.8.0")]
+[assembly: AssemblyFileVersion("0.9.8.0")]
+[assembly: AssemblyInformationalVersion("v0.9.8-beta")]
 
 internal static class StartService
 {

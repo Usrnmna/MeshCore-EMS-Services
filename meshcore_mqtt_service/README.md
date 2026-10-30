@@ -27,19 +27,23 @@ serialized, rate-limited command path. Radio events also publish to MQTT.
 
 ## OS service installers
 
-Current distribution version: `v0.9.6-beta`.
+Current distribution version: `v0.9.8-beta`.
 
-Online installation packages support Windows x64,
-Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
-include the complete workspace and reference data, and connect to the configured companion node
-under Windows Services or systemd. See the [installation guide](../INSTALL.md).
+Online installation packages support Windows x64, Raspberry Pi ARM64, and
+Linux x86_64. They provision Python and dependencies, install the maintained
+service and reference-tool source, and connect to the configured companion
+under Windows Services or systemd. Reference datasets have independent installers.
+See the [installation guide](../INSTALL.md) and [dataset setup](../docs/DATA_PACKAGES.md).
 
 Source-folder launchers support interactive operation. The current source has
 31 commands, including the five [local GIS commands](#local-gis-commands).
 The source includes nine wildfire commands, three landslide commands, and the
 location-based water commands. Existing release artifacts retain the command set
 recorded in their validation; rebuild from this source to include later changes.
-Installers include shared datasets. Service ZIPs include the wildfire and landslide reference seeds; EBMUD data remains a separate download.
+Service installers and standalone ZIPs exclude shared reference datasets.
+Install the independent EBMUD, wildfire, landslide, or water collections required
+by the enabled features. Full source checkouts retain their maintained reference
+seeds; downloaded water generations remain local.
 See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
@@ -66,6 +70,8 @@ or rerunning the installer. Restart after edits.
 - `radio_connection.py`: connection validation, transport selection, and bounded cleanup.
 - `check_live.py`: optional radio/MQTT diagnostic; run only while the service is stopped.
 - `runtime/`: local request history and subscriptions; preserve during upgrades.
+- `channel_history.py`, `CHANNEL_HISTORY.md`: optional 24-hour reception history,
+  stored separately below `runtime/channel_history/` and disabled by default.
 
 ## Radio connection settings
 
@@ -161,7 +167,7 @@ command continues to list USB serial devices only.
 | `!firewarn` | Zone/location | Red Flag Warnings and Fire Weather Watches |
 | `!firedata` | Category and zone/location | Supporting observations, detections, outlooks and reference features |
 | `!firealarm` | on location, status, off | Temporary wildfire-change monitoring |
-| `!slidewarn` | ZIP, city, GPS | California NWS alerts mentioning landslide/debris-flow hazards |
+| `!slidewarn` | ZIP, city, GPS | California/Nevada NWS alerts mentioning landslide/debris-flow hazards |
 | `!slidealarm` | on location, status, off | Temporary California and Nevada landslide-alert monitoring |
 | `!slideinfo` | ZIP, city, GPS | Nearest eligible California USGS monitoring station |
 | `!smoke` | ZIP, city/state, GPS | Point smoke coverage and nearby air quality |
@@ -225,7 +231,8 @@ Included scripts provide status, shared-zone time, AQI, traffic, river, UV, heat
 flood-alert, and snowpack results. Flood monitoring is handled by `!floodalarm`. Extend the map
 with custom phrases/scripts. Matching is exact and case-sensitive after trimming
 outer whitespace.
-Substrings, extra arguments and unknown phrases do not execute anything. Only decoded
+Substrings and unknown phrases do not execute anything. Commands accept extra
+input only through their declared input type and validation rules. Only decoded
 messages received on a channel assigned to that command trigger scripts; direct messages, raw
 packet logs and MQTT event replays do not.
 
@@ -353,8 +360,9 @@ Tests also cover the lookup scripts with sample provider data, flood-alarm timin
 and persistence, and unattended service configuration. These checks do not establish
 physical radio delivery or installation and reboot behavior on target hardware.
 `check_live.py` provides an optional read-only radio/MQTT check: it disables the
-responder, uses the configured radio connection and an unused local broker port, and
-runs only MQTT infos.
+responder, uses the configured radio connection and a free configured local
+broker port, and runs only MQTT `infos`. It writes local bridge runtime state
+while leaving radio settings unchanged.
 
 Pinned dependencies are listed in [requirements.txt](requirements.txt). The adapter
 uses internal async CLI interfaces; check compatibility when changing dependencies.
@@ -762,7 +770,8 @@ python -m unittest discover -s tests -p "test_snowpack.py"
 ## ZIP package
 
 The distribution ZIP includes this service folder, command scripts,
-configuration, launchers, setup scripts, tests, and documentation. Local Python
+configuration, launchers, setup scripts, tests, and platform documentation.
+Shared reference datasets require independent installation. Local Python
 environments, runtime databases, and generated bytecode caches are excluded.
 After extraction, follow the setup/launcher instructions above to install the
 pinned dependencies. Existing local runtime files are not included in the ZIP.
@@ -1077,8 +1086,8 @@ preserves the last good data on source failure. `!firealarm on CAZ272` enables
 four-hour monitoring; `status` and `off` inspect or cancel it.
 
 See [wildfire commands, datasets, configuration and maintenance](WILDFIRE_GUIDE.md).
-The package includes the complete zone seed; live observations require network
-access. Existing installations must assign the new commands to channels after
+Installed services and standalone ZIPs use the independent wildfire data
+package for the complete zone seed; live observations require network access. Existing installations must assign the new commands to channels after
 upgrading. Forecast zones are not evacuation zones, and an absent fire record
 is not evidence that a fire has been extinguished.
 
@@ -1109,3 +1118,10 @@ evidence and flags source or identity changes; map proximity never authorizes a 
 The [source-access retry](WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
 recovered the historical reports and OneRain inventory. Refresh checks static
 operator aliases without retaining historical levels or enabling unsupported links.
+
+## Optional channel history
+
+[Channel recording and read-only access](CHANNEL_HISTORY.md) describes configurable
+public/private recording, the rolling 24-hour window, installer controls, Python
+queries, and explicit failure/coverage limits. Recording does not own commands
+or subscriptions.

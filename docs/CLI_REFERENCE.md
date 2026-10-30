@@ -1,16 +1,10 @@
 # Terminal commands and maintenance options
 
-Radio messages and terminal commands have separate interfaces. Radio replies are
-one tagged message of at most 150 UTF-8 bytes. [Tagged examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md)
+Radio messages and terminal commands use different argument conventions. Radio
+replies contain one tagged message of at most 150 UTF-8 bytes. [Tagged examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md)
 and [conditional response fields](../meshcore_mqtt_service/RESPONSE_FORMATTING.md)
 describe presentation; supported local JSON/snapshot modes retain structured data.
-
-Radio and terminal invocations use different argument conventions. Radio replies are
-one tagged message of at most 150 UTF-8 bytes. [Tagged examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md)
-and [conditional response fields](../meshcore_mqtt_service/RESPONSE_FORMATTING.md)
-describe presentation; supported local JSON/snapshot modes retain structured data.
-
-Radio and terminal invocations use different argument conventions. The paired
+The paired
 [radio command and subcommand reference](../meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
 documents all 31 registered MeshCore commands. This guide lists operator,
 maintenance, collection, and satellite interfaces. Library helpers without an
@@ -30,9 +24,9 @@ service, schedule or subscription.
 
 | Program | Arguments and behavior |
 | --- | --- |
-| `installers/datasets/gui/main.py` | Opens unified graphical maintenance. `--datasets-only` retains the independent dataset form. Optional `--demo` simulates without host discovery or installation. `--root PATH` selects the data root; `--installers PATH` selects existing native artifacts. `--smoke-test` requires `--demo`. See the [editable GUI guide](DATASET_GUI.md). |
+| `installers/datasets/gui/main.py` | Opens unified graphical maintenance. `--datasets-only` retains the independent dataset form. Optional `--demo` simulates without host discovery or installation. `--root PATH` selects the data root; `--installers PATH` selects existing native artifacts. `--smoke-test` requires `--demo`; optional `--smoke-report PATH` writes synthetic check results as JSON and requires both flags. See the [editable GUI guide](DATASET_GUI.md). |
 | `tools/build_dataset_gui.py` | Build a GUI for the current OS/architecture. Optional `--output PATH` selects a new output directory; `--installers PATH` copies the eight existing checked artifacts for that target without rebuilding them. `--service` builds the separate service setup application instead. |
-| `installers/desktop/service_main.py` | Separate service configuration and maintenance GUI. Optional `--installers PATH` selects native service artifacts. `--demo` simulates operations; `--smoke-test` requires demo mode. The internal `--desktop-worker PATH` protocol is reserved for native authorization and is not an end-user command. |
+| `installers/desktop/service_main.py` | Separate service configuration and maintenance GUI. Optional `--installers PATH` selects native service artifacts. `--demo` simulates operations; `--smoke-test` requires demo mode and optional `--smoke-report PATH` writes synthetic JSON evidence. The internal `--desktop-worker PATH` protocol is reserved for native authorization and is not an end-user command. |
 | `tools/build_desktop_kit.py` | Developer packaging only. Required `--output PATH`, `--dataset-gui PATH` and `--service-gui PATH` select a new kit and fresh matching native applications. Optional `--service-installers PATH` and `--dataset-installers PATH` select independently built artifacts; all must pass checksum and current-source provenance checks. |
 | `tools/build_data_installers.py` | Repeatable `--dataset ID` selects packages; omission builds all eight. `--linux-only` builds distinct Linux x86_64 and Raspberry Pi ARM64 installers. `--iscc PATH` selects the Inno Setup compiler. Optional `--output PATH` selects a local staging directory; `--sign-tool NAME=COMMAND` enables signing of Windows installers and uninstallers. |
 | `installers/datasets/manage.py` | Positional `install`, `update`, `verify`, `status`, `rollback`, `uninstall` or `recover-lock`; required `--dataset ID`; optional `--root PATH` and `--payload PATH`. `--resume ID` resumes an unchanged install/update candidate. `--retain-data` supplies the uninstall retention contract, preserving dataset files and registry selections. `--purge` applies only to uninstall and includes modified receipt-owned generations. `recover-lock` requires the exact `--reviewed-lock HASH` fingerprint; the graphical recovery workflow performs inspection and authorization. |
@@ -60,8 +54,10 @@ Manual location parsers instead accept the `help` query documented below.
 
 The [multi-channel guide](../meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md) covers
 private-key environment variables, channel identity, external Python programs,
-upgrade preservation, and installed paths. MQTT command JSON is a separate
-[integration interface](ARCHITECTURE.md#mqtt-interface), not a radio subcommand.
+upgrade preservation, and installed paths. MQTT command JSON uses the separate
+[integration interface](ARCHITECTURE.md#mqtt-interface).
+[Channel history reads](../meshcore_mqtt_service/CHANNEL_HISTORY.md#local-python-reads)
+use a local Python API or the desktop viewer; they add no radio command or service.
 
 ## Dedicated lookup programs
 
@@ -167,6 +163,8 @@ distinguish catalog evidence from real-time transmission or reception.
 | --- | --- | --- |
 | `python tools/package_services.py` | No options | Verify shared-package parity and build both standalone ZIPs with SHA-256 files. |
 | `python tools/build_installers.py` | `--iscc PATH`, `--linux-only`, `--output PATH` | Build current-version OS installers; neither installs nor publishes them. |
+| `python tools/build_arm64_image_plugins.py` | Required `--output PATH`; optional `--cache PATH`, `--bundle PATH` | Build pinned Qt 6.7.3 WebP/TIFF plugins against Bookworm codecs in an isolated ARM64 environment. `--cache` selects checksum-verified source archives; `--bundle` replaces only the two plugins and adds their codec closure to an already frozen application before its enclosing manifest is generated. Normal GUI builds perform these steps automatically. |
+| `python .github/scripts/arm64_gui_ci.py` | Required mode `prepare` or `frozen`; internal `--inside` | Run ARM64 CI plugin preparation or frozen application verification in a Bookworm container. `--inside` selects the unprivileged container worker and is supplied by the helper itself; normal runner invocations omit it. |
 | `python installers/configure.py` | Required `--root`, `--state`, `--config-dir`, `--platform {windows,linux}`; optional `--port`, `--transport {serial,ble,tcp}`, `--tcp-host`, `--tcp-port`, `--ble-address`, `--channel`, `--channels-config` | Merge installed settings, preserve operator state, and create backups without opening a radio or starting a service. |
 | `python tools/check_documentation.py` | No options | Check source command/subcommand and tagged-example coverage, exact response byte counts, local links, badge counts, paired reference parity, and publication exclusions. |
 

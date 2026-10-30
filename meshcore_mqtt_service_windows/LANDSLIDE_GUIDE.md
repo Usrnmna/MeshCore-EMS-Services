@@ -43,7 +43,7 @@ Resolved places represent one point, not an entire city or ZIP area.
 !slideinfo near Castro Valley
 ```
 
-The bundled California and Nevada polygons check every resolved location,
+The reference California and Nevada polygons check every resolved location,
 including GPS and ZIP results. Coverage includes both sides of Lake Tahoe, Reno,
 Carson City, Las Vegas, Elko, and other Nevada locations. Points outside these
 two states are rejected. Exact polygon boundary points are accepted. Ordinary channel assignment, sender cooldown, tagged replies, and
@@ -141,7 +141,7 @@ notifications. Full alert text and normal official warning channels remain neces
 
 ## USGS station catalog and provenance
 
-The bundled catalog contains the 13 California entries on the
+The reviewed reference catalog contains the 13 California entries on the
 [USGS Landslide Monitoring Stations page](https://www.usgs.gov/programs/landslide-hazards/science/landslide-monitoring-stations),
 reviewed on October 20, 2026. Twelve are eligible for nearest-station ranking;
 Highway 50 is marked discontinued. Listed status does not establish working telemetry.
@@ -167,8 +167,10 @@ are included in this release. USGS measurements are preliminary and subject to r
 `data/landslide/manifest.json` records source URLs, selection rules, review date,
 notes, and SHA-256 hashes for the station catalog and California/Nevada reference polygons.
 The boundaries come from the public US State and County ArcGIS layer using
-`STUSPS='CA'` and `STUSPS='NV'`. Both packages include byte-identical references and verify their
-hashes before use. Reference updates require review, paired file replacement,
+`STUSPS='CA'` and `STUSPS='NV'`. Both platform source folders retain byte-identical
+references and verify their hashes before use. Service installers and standalone
+ZIPs require the [independent landslide data package](../docs/DATA_PACKAGES.md).
+Reference updates require review, paired source-file replacement,
 updated hashes/date, and the tests below; runtime lookups do not scrape USGS pages.
 
 ## Standalone operation, upgrades, and verification

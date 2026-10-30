@@ -55,12 +55,12 @@ discovery, downloads, installation, deletion or privileged execution. Saving a l
 is an explicit file export. Close the demo and omit `--demo` for real status:
 
 ```powershell
-.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --datasets-only --installers dist/v0.9.6-beta/datasets
+.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --datasets-only --installers dist/v0.9.8-beta/datasets
 ```
 
 Use `--root ABSOLUTE_PATH` to select a nondefault data root. The two editable path
 fields also select the data root and existing installer directory. The source
-launcher defaults to `dist/v0.9.6-beta`; the packaged executable defaults
+launcher defaults to `dist/v0.9.8-beta`; the packaged executable defaults
 to its own directory and discovers adjacent installer folders. Both can be changed in the GUI.
 The native tools path and the package's recorded data root appear in row details.
 
@@ -231,7 +231,7 @@ To make a single distributable directory containing the GUI and the **already
 built** dataset installers for that target:
 
 ```powershell
-.\.venv-dataset-gui\Scripts\python.exe tools/build_dataset_gui.py --installers dist/v0.9.6-beta/datasets --output dist/dataset-manager/windows-bundle
+.\.venv-dataset-gui\Scripts\python.exe tools/build_dataset_gui.py --installers dist/v0.9.8-beta/datasets --output dist/dataset-manager/windows-bundle
 ```
 
 Use the Linux/Pi environment's Python for the same command on its native target.
@@ -267,7 +267,11 @@ Linux/Pi use `.venv-dataset-gui/bin/python` for widget tests. The widget suite u
 Qt's offscreen platform and writes a preview under `.build/`. A source or packaged
 demo startup check can also be run with `--demo --smoke-test`; set
 `QT_QPA_PLATFORM=offscreen` when no visible window is desired. The smoke check only
-loads the form and simulated rows, then exits.
+checks the form and generated synthetic state, then exits. Unified maintenance
+and Service Setup also exercise recording controls and the history viewer against
+temporary fixtures. Optional `--smoke-report PATH` writes the structured result
+and requires `--demo --smoke-test`. These checks do not discover or modify installed
+services, access real history, or request native authorization.
 
 The [October 26 hosted verification record](../installers/VALIDATION.md#hosted-github-actions-october-26-2026)
 includes all six offscreen widget tests on both Windows and Ubuntu, alongside
@@ -282,3 +286,10 @@ qualified separately on disposable native test hosts.
 Design references: [Qt Creator form editing](https://doc.qt.io/qtcreator/creator-using-qt-designer.html),
 [Qt worker threads](https://doc.qt.io/qt-6/qthread.html), and
 [PyInstaller packaging](https://pyinstaller.org/en/stable/usage.html).
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.

@@ -1,5 +1,11 @@
 # Source citations and retrieval evidence
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 ## USGS monitoring locations, series and current observations
 
 **U.S. Geological Survey.** *Water Data for the Nation: California; modern Water
@@ -53,7 +59,7 @@ tables, CalWater Watersheds 2.2.1.*
 
 - [Basin Plan Portal](https://www.waterboards.ca.gov/resources/data_databases/basin_plan_portal.html)
 - [CalWater source service](https://gispublic.waterboards.ca.gov/portalserver/rest/services/Hosted/CalWater/FeatureServer)
-- [Existing complete local source inventory](../basin_plans/INVENTORY.md)
+- Existing complete local source inventory (`../basin_plans/INVENTORY.md`)
 - [Published relationship keys and hierarchy evidence](../basin_plans/RELATIONSHIPS.md)
 
 **NOAA National Weather Service and U.S. Geological Survey.** *Existing Russian
@@ -135,7 +141,7 @@ These records support static station-to-feature addresses only. Collection
 The [review methods](LINK_REVIEW_METHODS.md) document acceptance requirements,
 uncertainty and spatial QA tolerances. The initial review preserves 214 source
 receipts, 150 candidate rows and 15 original nonnetwork features; the
-[validation report](link_review_verification.json) records verified counts.
+validation report (`link_review_verification.json`) records verified counts.
 No observation or historical level download is part of this investigation.
 
 ## Original-agency investigation of conflicting and missing addresses
@@ -176,7 +182,7 @@ that no valid waterway address exists.
 The downloaded DBF, SHP, SHX and PRJ files match the publisher's byte counts and
 MD5 values. The enclosed XML metadata has the published byte count but a
 different MD5. That publisher metadata discrepancy is retained explicitly in
-[agency verification](agency_review_verification.json); the XML is not used
+agency verification (`agency_review_verification.json`); the XML is not used
 to decide station addresses. Raw-response SHA-256 receipts verify the exact
 downloaded bytes independently. The original XML is preserved without repair.
 
@@ -192,7 +198,7 @@ See [agency-review methods](AGENCY_REVIEW_METHODS.md) for the 13 static addresse
 
 ## Local operating-agency investigation
 
-Retrieved 2026-10-20 UTC. The [station review and source catalog](LOCAL_REVIEW.md)
+Retrieved 2026-10-20 UTC. The station review and source catalog (`LOCAL_REVIEW.md`)
 lists all 34 configured URLs, publishers, selected metadata, retrieval results and
 station-specific findings. Sources with failed retrievals provide no accepted
 relationship evidence.
@@ -220,7 +226,7 @@ Additional contextual sources include the U.S. Bureau of Reclamation, Imperial
 Irrigation District, Madera Irrigation District, Modesto Irrigation District,
 Lake County, Tulare County, DWR bathymetry metadata and Wildlands' Liberty Island
 project description. Their exact citations and retrieval gaps are retained in
-the [source catalog](LOCAL_REVIEW.md). Facility descriptions without an exact
+the source catalog (`LOCAL_REVIEW.md`). Facility descriptions without an exact
 station cross-reference do not establish station identity or routing.
 
 Only reviewed metadata excerpts are retained from these reports and pages.

@@ -38,7 +38,7 @@ class ServiceDesktopTests(unittest.TestCase):
     def test_installer_selection_checks_target_digest_and_ambiguity(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            artifact = root / "MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe"
+            artifact = root / "MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe"
             artifact.write_bytes(b"fixture")
             digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
             (root / "SHA256SUMS.txt").write_text(digest + "  " + artifact.name + "\n")
@@ -88,6 +88,97 @@ class ServiceConfigurationTests(unittest.TestCase):
         root, state, config = test_installers.InstallerTests().fixture(folder)
         configure.configure(root,state,config,"linux")
         return root,state,config,root/".venv/bin/python","linux"
+
+    def test_history_settings_roundtrip_and_invalid_mixed_bundle_is_not_published(self):
+        from installers import configure
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder); root, state, config, _, _ = paths
+            # Optional schema belongs to the installed package, not the desktop kit.
+            import shutil
+            shutil.copy2(Path(__file__).resolve().parents[1] / "meshcore_mqtt_service/channel_history.py", root / "meshcore_mqtt_service/channel_history.py")
+            with patch.object(backend, "installed_paths", return_value=paths), patch.object(backend, "history_supported", return_value=True):
+                result = backend.apply_settings({"channel_history": {"enabled": True, "channel_id": "default"}}, "linux-x86_64")
+                self.assertEqual(result["history_outcome"]["status"], "applied")
+                saved = json.loads((config / "config.json").read_text())
+                self.assertEqual(saved["channel_history"], {"enabled": True, "channel_id": "default"})
+                result = backend.apply_settings({"tcp_host": "192.168.1.5", "transport": "tcp", "channel_history": {"enabled": True, "channel_id": "missing"}, "history_credentials": {"ANY": "unsafe\nvalue"}}, "linux-x86_64")
+                after = json.loads((config / "config.json").read_text())
+                self.assertEqual(after["connection"]["host"], "192.168.1.5")
+                self.assertEqual(after["channel_history"], saved["channel_history"])
+                self.assertEqual(result["core_outcome"], "applied")
+                self.assertEqual(result["history_outcome"]["status"], "not_applied")
+                self.assertNotIn("ANY", json.loads((config / "environment.json").read_text()))
+
+    def test_invalid_history_only_request_does_not_write_or_backup(self):
+        from installers import configure
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder); root, state, config, _, _ = paths
+            before = {p: p.read_bytes() for p in config.iterdir() if p.is_file()}
+            with patch.object(backend, "installed_paths", return_value=paths), patch.object(backend, "history_supported", return_value=True), patch.object(configure, "backup_state", side_effect=AssertionError("invalid optional-only request must not back up")):
+                result = backend.apply_settings({"channel_history": {"enabled": True, "channel_id": "missing"}}, "linux-x86_64")
+            self.assertEqual(result["history_outcome"]["status"], "not_applied")
+            self.assertEqual({p: p.read_bytes() for p in config.iterdir() if p.is_file()}, before)
+
+    def test_optional_history_receipt_error_retains_history_but_recovers_core(self):
+        from installers import configure
+        from installers.desktop import service_integrations
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder); root, state, config, _, _ = paths
+            with patch.object(backend, "installed_paths", return_value=paths):
+                backend.apply_settings({"mqtt": {"host": "broker", "port": 1883, "tls": False, "local_broker": False}}, "linux-x86_64")
+                current = json.loads((config / "config.json").read_text())
+                current["channel_history"] = {"enabled": True, "channel_id": "default"}
+                configure.write_json(config / "config.json", current)
+                receipt = service_integrations.read_receipt(config)
+                receipt["changes"].append({"path": ["channel_history"], "before": 3, "after": {"present": True, "value": current["channel_history"]}})
+                configure.write_json(config / service_integrations.RECEIPT, receipt)
+                result = backend.deconfigure_settings("linux-x86_64")
+                saved = json.loads((config / "config.json").read_text())
+                self.assertEqual(saved["channel_history"], current["channel_history"])
+                self.assertEqual(saved["mqtt"]["host"], "127.0.0.1")
+                self.assertIn("channel_history", result["conflicts"])
+
+    def test_optional_database_is_retained_and_excluded_from_required_backups(self):
+        from installers import configure
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder); root, state, config, _, _ = paths
+            directory = state / "runtime/channel_history"; directory.mkdir()
+            history = directory / "channel_history.sqlite3"; history.write_bytes(b"corrupt optional store")
+            with patch.object(backend, "installed_paths", return_value=paths):
+                backend.apply_settings({"credentials": {"AIRNOW_API_KEY": "new"}}, "linux-x86_64")
+                backend.deconfigure_settings("linux-x86_64")
+            self.assertEqual(history.read_bytes(), b"corrupt optional store")
+            self.assertFalse(list((state / "backups").rglob("channel_history.sqlite3")))
+
+    def test_optional_fields_never_enter_mandatory_credential_merge(self):
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder)
+            real = backend.merge_credentials
+            def merge(current, settings):
+                self.assertFalse(backend.HISTORY_FIELDS & settings.keys())
+                return real(current, settings)
+            with patch.object(backend, "installed_paths", return_value=paths), patch.object(backend, "merge_credentials", side_effect=merge):
+                result = backend.apply_settings({"credentials": {"AIRNOW_API_KEY": "new"}, "channel_history": {"invalid": True}, "history_credentials": {"BAD": "unsafe\ntext"}}, "linux-x86_64")
+            self.assertEqual(result["history_outcome"]["status"], "not_applied")
+
+    def test_core_channel_removal_and_key_clear_are_not_vetoed_by_old_history(self):
+        from installers import configure
+        with tempfile.TemporaryDirectory() as folder:
+            paths = self.fixture(folder); root, state, config, _, _ = paths
+            current = json.loads((config / "config.json").read_text())
+            current["responder"]["channels"]["default"] = {"name": "Private", "type": "private", "secret_env": "MESHCORE_CHANNEL_KEY_OLD", "mqtt_export": True}
+            current["channel_history"] = {"enabled": True, "channel_id": "default"}
+            configure.write_json(config / "config.json", current)
+            configure.write_json(config / "environment.json", {"MESHCORE_CHANNEL_KEY_OLD": "00" * 16})
+            settings = {"channels": {"channels": {"other": {"name": "Public", "type": "public", "mqtt_export": True}},
+                        "command_channels": {name: ["other"] for name in current["responder"]["commands"]}},
+                        "clear_credentials": ["MESHCORE_CHANNEL_KEY_OLD"]}
+            with patch.object(backend, "installed_paths", return_value=paths):
+                result = backend.apply_settings(settings, "linux-x86_64")
+            self.assertEqual(result["core_outcome"], "applied")
+            self.assertFalse(result["history_outcome"]["available"])
+            self.assertEqual(json.loads((config / "config.json").read_text())["channel_history"], current["channel_history"])
+            self.assertEqual(json.loads((config / "environment.json").read_text()), {})
 
     def test_graphical_settings_preserve_programs_credentials_and_runtime(self):
         from installers import configure

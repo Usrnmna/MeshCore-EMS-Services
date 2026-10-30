@@ -1,5 +1,35 @@
 # Release notes
 
+## v0.9.8-beta - October 29, 2026 UTC
+
+Local release preparation includes the existing 31 dedicated commands, graphical
+installation and maintenance, independent dataset packages, and optional
+24-hour channel recording. No commit, tag, publication, or upload is implied by
+these notes.
+
+- Adds disabled-by-default reception history for one configured channel, with
+  separate bounded SQLite storage, restart persistence for committed records,
+  exact read-time expiry, and explicit gaps on overload or storage failure.
+- Adds a read-only viewer and Python read API. Protected reads use native
+  authorization when needed; pending settings are not applied by opening history.
+  Direct messages, offline-message recovery, and delivery guarantees are excluded.
+- Preserves core routing, dedicated command entry points, service-owned
+  subscriptions, package ownership, and existing configuration on upgrade.
+- Includes reviewed graphical install/update/repair/removal, optional settings,
+  and recovery workflows across independent service and dataset backends.
+- Updates current package and documentation versions to `v0.9.8-beta`, with
+  Windows file metadata `0.9.8.0`. Source ZIPs, service/data installers, and native
+  desktop applications have distinct build and verification boundaries.
+
+See the [local release guide](RELEASE_v0.9.8-beta.md),
+[channel history guide](meshcore_mqtt_service/CHANNEL_HISTORY.md), and
+[current release verification](docs/RELEASE_v0.9.8-beta_VERIFICATION.md)
+for artifacts, operating instructions, actual results, and remaining native limits.
+
+Earlier entries below retain the versions, behavior, and verification recorded
+for their original development snapshots. Historical mode descriptions do not
+supersede the current command reference or establish the current release's tests.
+
 ## v0.9.6-beta - October 21, 2026
 
 - Packages the current 31-command source, water tooling, flood lifecycle handling,

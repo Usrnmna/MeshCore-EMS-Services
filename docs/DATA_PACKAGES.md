@@ -42,18 +42,18 @@ landslide updates do not scrape new content or infer unreviewed station facts.
 
 ## Install
 
-Artifacts are built under `dist/v0.9.6-beta/datasets/`, with `SHA256SUMS.txt`:
+Artifacts are built under `dist/v0.9.8-beta/datasets/`, with `SHA256SUMS.txt`:
 
 ```text
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-windows-x64-setup.exe
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-linux-x86_64.run
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-raspberry-pi-arm64.run
+MeshCore-EMS-Data-<identifier>-v0.9.8-beta-windows-x64-setup.exe
+MeshCore-EMS-Data-<identifier>-v0.9.8-beta-linux-x86_64.run
+MeshCore-EMS-Data-<identifier>-v0.9.8-beta-raspberry-pi-arm64.run
 ```
 
 Run the matching Windows EXE as administrator. Linux/Pi installation, for example:
 
 ```console
-sudo bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run
+sudo bash MeshCore-EMS-Data-ebmud-v0.9.8-beta-linux-x86_64.run
 ```
 
 Windows Installed Apps lists `MeshCore EMS Services` and independent
@@ -201,9 +201,13 @@ with their own installer before dependent collections can pin them.
 Allow space for the active collection, new candidate and retained rollback versions.
 The known local-copy estimate is checked before acquisition; provider output size
 is not assumed to be bounded by that estimate. Disk exhaustion still leaves active
-data unchanged. A hard process termination may leave `.datasets.lock`; inspect its
-PID and timestamp and confirm no maintenance process remains before manually
-removing that lock. Never remove a live process's lock.
+data unchanged. A hard process termination may leave `.datasets.lock`. Current
+locks carry process-creation and participant evidence. Use the desktop
+**Recover a reviewed interrupted dataset operation** action after inspecting
+Recovery history; it archives a verified orphan lock and preserves the registry
+and datasets. Live or unknown processes block recovery. A PID or old timestamp
+alone does not establish that removal is safe. Legacy locks require administrator
+investigation. See [ownership and recovery](UNIFIED_INSTALLER.md#failure-and-retention).
 
 Failed candidates and older versions are deliberately retained. There is no
 automatic age-based cleanup. Manual cleanup requires inspection of active/previous
@@ -220,7 +224,11 @@ of the main service uninstaller. Linux/Pi:
 sudo /opt/meshcore-ems-data/ebmud/uninstall
 ```
 
-Default removal deselects the collection and removes receipt-owned, unmodified
+The desktop action **Uninstall selected maintenance packages; retain datasets**
+removes only the maintenance package and preserves every dataset file and registry
+selection. Reinstall matching tools before further maintenance.
+
+Default native removal deselects the collection and removes receipt-owned, unmodified
 generations. Modified directories, unowned files, legacy directories and incomplete
 candidates without receipts are retained and reported. Active or rollback
 dependencies prevent removal. Remove dependent water packages in reverse order.

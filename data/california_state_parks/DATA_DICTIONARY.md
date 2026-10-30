@@ -1,10 +1,15 @@
 # California State Parks field dictionary
 
+Dataset file paths below are relative to the selected California State Parks
+collection. They require its reference data in a source checkout or the
+[independent data package](../../docs/DATA_PACKAGES.md); the documentation
+bundle itself does not contain those data files.
+
 Fields below are copied from the downloaded ArcGIS layer schemas. Coded-value and subtype definitions remain authoritative in each layer JSON. Property names and values are preserved in GeoJSON; no inferred policy fields are added.
 
 ## Park boundaries
 
-Schema: [`park_boundaries/layer.json`](metadata/park_boundaries/layer.json)
+Schema: `metadata/park_boundaries/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -19,7 +24,7 @@ Schema: [`park_boundaries/layer.json`](metadata/park_boundaries/layer.json)
 
 ## Recreational routes
 
-Schema: [`routes/layer.json`](metadata/routes/layer.json)
+Schema: `metadata/routes/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -41,7 +46,7 @@ Schema: [`routes/layer.json`](metadata/routes/layer.json)
 
 ## Buildings
 
-Schema: [`buildings/layer.json`](metadata/buildings/layer.json)
+Schema: `metadata/buildings/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -57,7 +62,7 @@ Schema: [`buildings/layer.json`](metadata/buildings/layer.json)
 
 ## Structures
 
-Schema: [`structures/layer.json`](metadata/structures/layer.json)
+Schema: `metadata/structures/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -73,7 +78,7 @@ Schema: [`structures/layer.json`](metadata/structures/layer.json)
 
 ## Picnic grounds / day-use areas
 
-Schema: [`picnic_grounds/layer.json`](metadata/picnic_grounds/layer.json)
+Schema: `metadata/picnic_grounds/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -89,7 +94,7 @@ Schema: [`picnic_grounds/layer.json`](metadata/picnic_grounds/layer.json)
 
 ## Campgrounds
 
-Schema: [`campgrounds/layer.json`](metadata/campgrounds/layer.json)
+Schema: `metadata/campgrounds/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -106,7 +111,7 @@ Schema: [`campgrounds/layer.json`](metadata/campgrounds/layer.json)
 
 ## Parking
 
-Schema: [`parking/layer.json`](metadata/parking/layer.json)
+Schema: `metadata/parking/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -124,7 +129,7 @@ Schema: [`parking/layer.json`](metadata/parking/layer.json)
 
 ## Park entry points
 
-Schema: [`park_entry_points/layer.json`](metadata/park_entry_points/layer.json)
+Schema: `metadata/park_entry_points/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -150,7 +155,7 @@ Schema: [`park_entry_points/layer.json`](metadata/park_entry_points/layer.json)
 
 ## Field divisions
 
-Schema: [`field_divisions/layer.json`](metadata/field_divisions/layer.json)
+Schema: `metadata/field_divisions/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -166,7 +171,7 @@ Schema: [`field_divisions/layer.json`](metadata/field_divisions/layer.json)
 
 ## Districts
 
-Schema: [`districts/layer.json`](metadata/districts/layer.json)
+Schema: `metadata/districts/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |
@@ -183,7 +188,7 @@ Schema: [`districts/layer.json`](metadata/districts/layer.json)
 
 ## Sectors
 
-Schema: [`sectors/layer.json`](metadata/sectors/layer.json)
+Schema: `metadata/sectors/layer.json`
 
 | Field | Alias | ArcGIS type | Domain |
 | --- | --- | --- | --- |

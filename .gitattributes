@@ -26,6 +26,10 @@
 .gitignore text eol=lf
 .gitattributes text eol=lf
 
+# Local planning material must not enter Git source archives.
+/docs/superpowers export-ignore
+/docs/superpowers/** export-ignore
+
 # Preserve binary distributions and media byte-for-byte.
 *.exe -text
 *.run -text

@@ -718,3 +718,10 @@ and writes no data. Each lookup retains its selected generation for the operatio
 | `data_root()` | Resolve the persistent root from `MESHCORE_DATA_DIR`, the runtime directory sibling, or the platform default. |
 | `checked_path(root, relative)` | Reject absolute, traversing, and symlink-escaping registry paths. |
 | `resolve(dataset, fallback, *, configured=None, defaults=())` | Select the active registry generation for default paths and collection aliases. Preserve explicit custom paths; absent entries allow legacy fallback, while explicit removal or invalid registry data fails visibly. |
+
+## Optional channel history
+
+[Channel recording and read-only access](CHANNEL_HISTORY.md) describes configurable
+public/private recording, the rolling 24-hour window, installer controls, Python
+queries, and explicit failure/coverage limits. Recording does not own commands
+or subscriptions.

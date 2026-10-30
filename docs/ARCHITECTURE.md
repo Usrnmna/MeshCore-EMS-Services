@@ -19,23 +19,25 @@ MeshCore Companion Node
         | one USB serial, BLE, or TCP connection
         v
 service.py
-    | decoded events, subject to channel export policy
-    v
-MQTT broker --> responder.py --> Dedicated scripts/*.py --> Provider API or local GIS
-    |                |                    ^                          |
-    |                |                    +------ lookup data -------+
-    |                | tagged reply through serialized bridge command path
-    |                v
-    |           service.py --> Companion Node --> Originating MeshCore channel
-    |
-    +--> Permitted external subscribers
+    +--> responder.py --> Dedicated scripts/*.py --> Provider API or local GIS
+    |        |
+    |        +--> Serialized reply --> Companion --> Originating channel
+    +--> MQTT export policy --> Broker --> Permitted external subscribers
+    +..> Nonblocking history offer --> Optional SQLite history worker
+                                          |
+                                          +--> Read-only Python API / viewer
 ```
 
-The responder receives channel events through MQTT, selects an allowed command,
+The responder receives decoded channel events directly from the bridge, selects an allowed command,
 and returns tagged reply parts through the bridge to the originating channel.
 The broker may be bundled locally or configured externally. The flood monitor
 runs within the responder and owns persistent subscriptions; a standalone lookup
 cannot enroll one. See [monitoring behavior](../meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-floodalarm).
+
+Optional [channel history](../meshcore_mqtt_service/CHANNEL_HISTORY.md) observes
+received events after normal routing. Recording uses a bounded nonblocking
+offer and a separate SQLite worker; storage failures and overload never add a
+wait to routing, radio fetches, or shutdown. Admission does not guarantee commit.
 
 ## Included programs and services
 
@@ -52,6 +54,7 @@ Both platform packages contain the same service components:
 | --- | --- | --- |
 | MeshCore/MQTT bridge | `service.py` | Owns the selected serial, BLE, or TCP connection, publishes radio events, accepts restricted MQTT commands, and manages the durable event outbox. |
 | Channel registry/setup | `channels.py`, `channel_setup.py` | Validates program assignments, verifies radio identities, controls MQTT export, and explicitly provisions empty slots. |
+| Optional channel history | `channel_history.py` | Records one configured channel through bounded nonblocking admission and a separate SQLite worker; exposes read-only local queries. Disabled by default. |
 | Channel responder | `responder.py` | Validates channel commands, records requests, runs approved scripts, and sends rate-limited replies to the requesting channel. |
 | Flood monitor | `flood_alarm.py` | Pins a verified location and categorical baseline, checks official alerts and optional conditions every five minutes, and expires subscriptions after four hours. |
 | Installed service runner | `service_runner.py` | Runs unattended with a configured serial, BLE, or TCP connection, external settings, persistent state, and rotating logs. |
@@ -83,6 +86,7 @@ Both platform packages contain the same service components:
 | MQTT client ID | `meshcore-usb-bridge` | `meshcore-windows-bridge` |
 | Python environment | `.venv-linux/` | `.venv/` |
 | Runtime database | `runtime/bridge.sqlite3` | `runtime/bridge.sqlite3` |
+| Optional history database | `runtime/channel_history/channel_history.sqlite3` | `runtime/channel_history/channel_history.sqlite3` |
 | Default channel | `#autatestbot` | `#autatestbot` |
 | Serial port selection | `auto` | `auto` |
 | Serial speed | 115200 baud | 115200 baud |

@@ -1,12 +1,18 @@
 # Basin Plan relationship tables
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 The separate [flood-impact reference pilot](../flood_impacts/README.md) adds
 USGS-directed reach connections, NOAA gauge links and stage scenarios, and derived
 CalWater intersections. Its [methodology](../flood_impacts/METHODS.md) distinguishes
 published tributary associations from hydraulic connectivity. All tables below
 remain intact and independently refreshable.
 
-The [regional review index](REVIEW.md) links the combined collection and each
+The regional review index (`REVIEW.md`) links the combined collection and each
 region/plan. Relationship tables are regenerated with every refresh and offline
 organization build. They supplement byte-identical source exports; they do not
 change source attributes, geometry, native ZIPs, or raw response evidence.

@@ -26,6 +26,40 @@ class ServiceWindowTests(unittest.TestCase):
     def test_default_upgrade_preserves_transport_broker_channels_and_secrets(self):
         self.assertEqual(self.window.settings(), {"credentials":{},"clear_credentials":[]})
 
+    def test_optional_invalid_history_keeps_valid_core_settings_available(self):
+        self.assertIsNotNone(self.window.historySettings)
+        self.window.historySettings.load({"enabled": True, "channel_id": "missing"}, {}, True)
+        self.window.historySettings.applyCheck.setChecked(True)
+        self.window.transport.setCurrentIndex(2)
+        self.window.tcpHost.setText("host")
+        result = self.window.settings()
+        self.assertEqual(result["tcp_host"], "host")
+        self.assertIn("channel_history", result)
+        self.assertIn("Not applied", self.window.historySettings.savedLabel.text())
+
+    def test_history_view_import_failure_does_not_claim_maintenance_task(self):
+        self.window.open_history()
+        self.assertIsNone(self.window.task)
+        self.assertTrue(all(button.isEnabled() for button in self.window.buttons))
+
+    def test_recording_can_be_selected_for_a_matching_repair_artifact(self):
+        import tempfile
+        import json
+        import hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            artifact = root / "MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe"
+            artifact.write_bytes(b"fixture")
+            digest = hashlib.sha256(b"fixture").hexdigest()
+            (root / "SHA256SUMS.txt").write_text(digest + "  " + artifact.name)
+            artifact.with_name(artifact.name + ".provenance.json").write_text(json.dumps({"artifact_sha256": digest, "target": "windows-x64", "capabilities": ["channel-history-v1"]}))
+            self.window.demo = False
+            self.window.historySettings.load({}, {}, False)
+            self.window.folderEdit.setText(str(root))
+            self.window.check_history_installer()
+            self.assertTrue(self.window.historySettings.applyCheck.isEnabled())
+            self.assertIsNone(self.window.task)
+
     def test_only_selected_transport_fields_are_sent(self):
         self.window.transport.setCurrentIndex(2)
         self.window.tcpHost.setText("192.168.1.2")

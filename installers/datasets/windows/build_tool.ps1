@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$Source,
     [Parameter(Mandatory=$true)][string]$Output,
-    [string]$Version = '0.9.6.0'
+    [string]$Version = '0.9.8.0'
 )
 $ErrorActionPreference = 'Stop'
 try {

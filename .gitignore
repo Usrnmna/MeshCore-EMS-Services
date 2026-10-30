@@ -21,6 +21,11 @@ node_modules/
 playwright-report/
 test-results/
 
+# Local planning documents and disposable desktop authorization sessions.
+/docs/superpowers/
+/meshcore-desktop-*/
+/meshcore-history-*/
+
 # Generated dependency metadata and optional local pip caches
 *.egg-info/
 pip-wheel-metadata/

@@ -2,7 +2,7 @@
 
 ![Illustrative same-channel exchanges on #autatestbot: !snowpack Truckee returns an @Alice snow-depth and snowfall report; !floodwarn Sacramento returns an @Alice point-scoped NWS flood-alert report. Values are examples, not live conditions.](docs/assets/readme-hero.svg)
 
-[![Distribution version v0.9.6-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.6-beta.md)
+[![Distribution version v0.9.8-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.8-beta.md)
 [![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
@@ -31,12 +31,15 @@ Replies return to the same channel with the sender's name.
 | **California and Nevada landslide information** | Official alerts mentioning landslide hazards, temporary monitoring, and nearby USGS research stations. | `!slidewarn`, `!slidealarm`, `!slideinfo` |
 | 🗺️ **Offline local maps** | Recorded trail policies, recreation amenities, peak elevations, park details, and mapped boundaries in the EBMUD area. | `!trail`, `!rec`, `!peak`, `!park`, `!boundary` |
 | 🕒 **Service checks** | Responder availability and the configured local time. | `!status`, `!time` |
+| **Optional channel history** | Review received messages from one configured channel within a rolling 24-hour window. | Desktop viewer and local Python API |
 
 Multiple Public, hashtag, or private channels can have different command
 assignments. Operators can add Python command programs after installation.
 An optional MQTT interface supports integrations and controlled event export.
 See [channel and program setup](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md)
-and the [MQTT interface](docs/ARCHITECTURE.md#mqtt-interface).
+and the [MQTT interface](docs/ARCHITECTURE.md#mqtt-interface). Optional
+[channel history](meshcore_mqtt_service/CHANNEL_HISTORY.md) is disabled by default.
+It records received channel messages locally; direct messages are excluded.
 
 ## From channel message to useful reply
 
@@ -71,8 +74,10 @@ formats, flood-monitor renewal, GIS searches, and missing or shortened replies.
 
 For a graphical desktop, use the [desktop installation and removal workflow](docs/DESKTOP_INSTALLATION.md).
 Dataset selection and service setup share one reviewed graphical workflow. Platform kits
-include the matching native applications and independent installers; native
-platform verification limits are recorded in that guide.
+include matching native applications and independent installers. The
+[v0.9.8-beta local release guide](RELEASE_v0.9.8-beta.md) lists the three OS archives
+and their contents; [release verification](docs/RELEASE_v0.9.8-beta_VERIFICATION.md)
+records actual checks and remaining target-platform limits.
 
 Install the [separate data packages](docs/DATA_PACKAGES.md) needed by the enabled
 features: EBMUD for local GIS, wildfire and landslide references, and the dependent
@@ -97,7 +102,7 @@ Service Setup remain available for maintenance.
 ### Install and send the first command
 
 1. Follow the [installation guide](INSTALL.md) for Windows x64, Linux x86_64,
-   or Raspberry Pi ARM64. The distribution version is `v0.9.6-beta`.
+   or Raspberry Pi ARM64. The distribution version is `v0.9.8-beta`.
 2. Select USB serial, BLE, or TCP and configure the permitted channels and commands.
    USB serial autodetection is the default; attach one supported device or select
    an explicit port. Complete BLE pairing through the operating system first.
@@ -114,9 +119,10 @@ unattended service operation. Restart after configuration changes.
 
 ## Coverage and important limits
 
-Hosted Windows/Linux software checks passed all 10 jobs on October 26, 2026.
-The [verification record](installers/VALIDATION.md#hosted-github-actions-october-26-2026)
-identifies the tested revision, scope, conditional skips, and remaining limitations.
+The [v0.9.8-beta verification record](docs/RELEASE_v0.9.8-beta_VERIFICATION.md)
+identifies the current local source and artifact checks. Earlier
+[hosted and installer results](installers/VALIDATION.md) apply to their named
+revisions and environments.
 
 - Bare city names default to California. Several commands accept US city/state,
   ZIP, or GPS input; air quality and river lookups require coordinates.
@@ -142,8 +148,13 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
 - Local radio acceptance does not confirm remote reception. Software tests do not
   establish physical delivery, live four-hour monitoring, or target-device installation
   and reboot behavior. See [recorded validation](installers/VALIDATION.md).
-- Installers are online installers; the Windows installer is unsigned. API keys,
-  credentials, and private channel keys require protected local configuration.
+- Installers require network access; Windows binaries are unsigned unless the
+  artifact evidence states otherwise. API keys, credentials, private channel keys,
+  and optional channel-history storage require protected local access.
+- Channel history covers receptions while recording is available. Storage failure,
+  overload, or uncommitted records at shutdown can leave gaps. It does not recover
+  offline traffic or guarantee remote delivery; the [history guide](meshcore_mqtt_service/CHANNEL_HISTORY.md)
+  defines retention and access limits.
 
 ## Explore further
 
@@ -155,6 +166,7 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
 | Install, upgrade, and configure channels | [Installation](INSTALL.md) / [Channel assignments and custom programs](meshcore_mqtt_service/MULTI_CHANNEL_GUIDE.md) |
 | Operate a platform package | [Linux operation](meshcore_mqtt_service/README.md) / [Windows operation](meshcore_mqtt_service_windows/README.md) |
 | Understand connections and integrations | [Architecture and MQTT](docs/ARCHITECTURE.md) |
+| Enable optional recording or inspect recent receptions | [Channel history settings, viewer and Python access](meshcore_mqtt_service/CHANNEL_HISTORY.md) |
 | Maintain, test, or package the source | [Development guide](docs/DEVELOPMENT.md) |
 | Load or maintain local map data | [EBMUD datasets](data/ebmud/README.md) / [California State Parks collection](data/california_state_parks/README.md) |
 | Inspect statewide basin and beneficial-use reference data | [Basin Plan offline collection](data/basin_plans/README.md) / [Download datasets after cloning](docs/WATER_DATA_SETUP.md) |
@@ -164,7 +176,7 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
 | Query water conditions and manage flood subscriptions | [Water command guide](meshcore_mqtt_service/WATER_GUIDE.md) / [Station identity and threshold review](meshcore_mqtt_service/WATER_STATION_REVIEW.md) |
 | Query landslide-related alerts and station metadata | [Landslide guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md) |
 | Use the separate satellite catalog | [Satellite database tools](satellite_database/README.md) / [Stored catalog and exports](data/satellites/README.md) |
-| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.6 - Beta highlights](RELEASE_v0.9.6-beta.md) / [Documentation index](docs/README.md) |
+| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.8 - Beta highlights](RELEASE_v0.9.8-beta.md) / [Documentation index](docs/README.md) |
 
 The California State Parks collection and satellite catalog are separate reference
 resources; they are not registered MeshCore commands. Their guides describe data

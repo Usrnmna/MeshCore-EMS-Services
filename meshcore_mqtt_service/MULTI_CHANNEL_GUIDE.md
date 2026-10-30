@@ -279,14 +279,14 @@ correct channels, provisioning is unnecessary.
 Linux import example:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
+sudo bash MeshCore-EMS-v0.9.8-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
 ```
 
 Use the corresponding ARM64 installer on Raspberry Pi. Windows setup provides an
 optional channels-JSON path field. An administrator can also use:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
+MeshCore-EMS-v0.9.8-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
 ```
 
 The old `--channel` / `/CHANNEL` option is only for a single-channel configuration;
@@ -680,3 +680,10 @@ accepted `!floodalarm` enrollment requires a verified official-alert baseline.
 The service owns monitoring; direct Python invocations cannot enroll subscriptions.
 See [deployment, retention, and settings](WATER_GUIDE.md) and the
 [complete command/subcommand index](COMMAND_REFERENCE.md#subcommand-index).
+
+## Optional channel history
+
+[Channel recording and read-only access](CHANNEL_HISTORY.md) describes configurable
+public/private recording, the rolling 24-hour window, installer controls, Python
+queries, and explicit failure/coverage limits. Recording does not own commands
+or subscriptions.

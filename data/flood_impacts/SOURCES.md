@@ -1,5 +1,11 @@
 # Flood-reference sources and attribution
 
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
 Initial acquisition: **2026-10-20 UTC (2026-10-19 Pacific)**. Exact request URLs,
 headers, retrieval timestamps, byte counts, and hashes are in each generation's
 `raw/*.receipt.json`. The regional `relationships/dataset_provenance.csv` provides
@@ -73,7 +79,7 @@ Watersheds 2.2.1.*
 
 - [Original Basin Plan portal](https://www.waterboards.ca.gov/resources/data_databases/basin_plan_portal.html)
 - [CalWater source service](https://gispublic.waterboards.ca.gov/portalserver/rest/services/Hosted/CalWater/FeatureServer)
-- [Complete local source inventory](../basin_plans/INVENTORY.md)
+- Complete local source inventory (`../basin_plans/INVENTORY.md`)
 - [Relationship methodology and keys](../basin_plans/RELATIONSHIPS.md)
 - [Existing preservation and refresh documentation](../basin_plans/README.md)
 

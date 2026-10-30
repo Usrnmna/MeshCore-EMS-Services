@@ -1,6 +1,12 @@
 # Original-agency address review
 
-The [agency-review catalog](AGENCY_REVIEW.md) investigates the 11 conflicting
+Dataset and generated-report paths below identify local acquisition outputs.
+They require the corresponding collection, generation, or validation run
+described in [water-data setup](../../docs/WATER_DATA_SETUP.md). Packaged
+documentation contains the guides; historical generation paths may differ
+from later acquisitions.
+
+The agency-review catalog (`AGENCY_REVIEW.md`) investigates the 11 conflicting
 addresses and 26 stations without corroborated addresses from the initial
 supplemental review. It resolves **13 static feature addresses**: six conflicts
 and seven previously uncorroborated cases. These features have no usable
@@ -67,7 +73,7 @@ feature IDs and station-specific offsets are in the catalog's relationship CSV.
 ## Remaining cases
 
 The 24 unresolved cases remain individually listed with source evidence.
-The subsequent [local operating-agency investigation](LOCAL_REVIEW.md) adds
+The subsequent local operating-agency investigation (`LOCAL_REVIEW.md`) adds
 fourteen metadata relationships for ten stations without resolving their
 hydrography addresses or changing the decisions below:
 

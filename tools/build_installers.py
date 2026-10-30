@@ -18,9 +18,11 @@ import tarfile
 
 from package_services import package_files, PACKAGES
 from artifact_provenance import source_hashes, write_provenance
+from distribution_policy import is_local_reference, validate_paths, validate_tree
+from build_documentation import render_document
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9.6-beta"
+VERSION = "v0.9.8-beta"
 
 
 def water_download_rules():
@@ -57,7 +59,7 @@ def source_files():
         for p in (
             "README.md",
             "RELEASE_NOTES.md",
-            "RELEASE_v0.9.6-beta.md",
+            "RELEASE_v0.9.8-beta.md",
             "INSTALL.md",
             "LICENSE",
             "AGENTS.md",
@@ -73,6 +75,7 @@ def source_files():
             relative = path.relative_to(ROOT)
             if (
                 not path.is_file()
+                or is_local_reference(relative)
                 or any(p.startswith(".") or p in {"__pycache__", "runtime"} for p in relative.parts)
                 or path.suffix in {".pyc", ".pyo"}
                 or path.name.endswith(("-wal", "-shm"))
@@ -88,24 +91,27 @@ def source_files():
             ):
                 continue
             files.add(path)
-    return sorted(files)
+    return validate_paths(files, ROOT)
 
 
 def stage_payload(destination):
     """Create an isolated build snapshot with normalized shell files and an integrity manifest."""
     destination.mkdir(parents=True, exist_ok=False)
     manifest = {}
-    for path in source_files():
+    inputs = source_files()
+    for path in inputs:
         relative = path.relative_to(ROOT)
         target = destination / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         data = path.read_bytes()
+        if relative.as_posix() == "data/ebmud/README.md":
+            data = render_document(path, ROOT, set(inputs)).encode("utf-8")
         # Linux scripts must have LF line endings even when built from Windows Git.
         if path.suffix in {".sh", ".service"} or path.name == "satellite-catalog":
             data = data.replace(b"\r\n", b"\n")
         target.write_bytes(data)
         manifest[relative.as_posix()] = sha(data)
-    capabilities = json.dumps({"schema": 1, "capabilities": ["staged-startup-v1", "settings-v2", "operation-lock-v1"]}, indent=2) + "\n"
+    capabilities = json.dumps({"schema": 1, "capabilities": ["staged-startup-v1", "settings-v2", "operation-lock-v1", "channel-history-v1"]}, indent=2) + "\n"
     (destination / "DESKTOP-CAPABILITIES.json").write_text(capabilities, encoding="utf-8", newline="\n")
     manifest["DESKTOP-CAPABILITIES.json"] = sha(capabilities.encode("utf-8"))
     (destination / "PAYLOAD-MANIFEST.json").write_text(
@@ -115,6 +121,7 @@ def stage_payload(destination):
 
 def linux_installer(payload, output, arch):
     """Write a checksum-protected self-extracting Linux installer for the selected architecture."""
+    validate_tree(payload)
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w:gz") as archive:
         for path in sorted(payload.rglob("*")):
@@ -133,14 +140,14 @@ set -euo pipefail
 expected_arch="@ARCH@"
 expected_sha="@SHA@"
 case "${1:-}" in
-    --help) echo 'MeshCore EMS v0.9.6-beta online installer (@ARCH@)'
+    --help) echo 'MeshCore EMS v0.9.8-beta online installer (@ARCH@)'
         echo 'sudo bash installer.run [--transport serial|tcp|ble] [--port auto|DEVICE] [--tcp-host IP --tcp-port 5000] [--ble-address ADDRESS] [--channel NAME | --channels-config FILE] [--no-start]'
         echo 'Inspection: bash installer.run --check | --extract EMPTY_DIRECTORY'; exit 0 ;;
 esac
 line=$(awk '/^__MESHCORE_PAYLOAD__$/{print NR+1; exit}' "$0")
 actual_sha=$(tail -n +"$line" "$0" | sha256sum | cut -d ' ' -f1)
 [[ $actual_sha == "$expected_sha" ]] || { echo 'Installer payload checksum mismatch.' >&2; exit 1; }
-if [[ ${1:-} == --check ]]; then echo 'v0.9.6-beta @ARCH@: payload checksum verified'; exit 0; fi
+if [[ ${1:-} == --check ]]; then echo 'v0.9.8-beta @ARCH@: payload checksum verified'; exit 0; fi
 if [[ ${1:-} == --extract ]]; then
     destination=${2:?Specify an empty destination directory}
     mkdir -p -- "$destination"

@@ -24,13 +24,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, ubuntu-24.04-arm]
         python: ['3.11', '3.13']
         package: [meshcore_mqtt_service, meshcore_mqtt_service_windows]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/superpowers/
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python }}
@@ -47,28 +51,34 @@ jobs:
   documentation-and-tools:
     name: Documentation and tools / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     env:
       QT_QPA_PLATFORM: offscreen
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, ubuntu-24.04-arm]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/superpowers/
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.13'
           cache: pip
           cache-dependency-path: |
+            .github/requirements-ci.txt
             meshcore_mqtt_service/requirements.txt
             data/flood_impacts/requirements.txt
             data/usgs_water/requirements.txt
             satellite_database/requirements-tracking.txt
             installers/datasets/requirements.txt
             installers/datasets/gui/requirements.txt
+            installers/datasets/gui/requirements-build.txt
       - name: Check documentation, examples, commands, and publication rules
         run: python tools/check_documentation.py
       - name: Install headless Qt runtime libraries
@@ -78,14 +88,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends libegl1 libopengl0 libxkbcommon0
       - name: Install offline verification dependencies
-        run: python -m pip install -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt -r installers/datasets/gui/requirements.txt
+        run: python -m pip install -r .github/requirements-ci.txt -r meshcore_mqtt_service/requirements.txt -r data/flood_impacts/requirements.txt -r data/usgs_water/requirements.txt -r satellite_database/requirements-tracking.txt -r installers/datasets/requirements.txt -r installers/datasets/gui/requirements.txt
       - name: Check tooling dependency compatibility
         run: python -m pip check
+      - name: Prepare Debian 12 ARM64 image plugins for source checks
+        if: runner.os == 'Linux' && runner.arch == 'ARM64'
+        shell: bash
+        run: |
+          sudo apt-get install --yes --no-install-recommends libwebp7 libwebpdemux2 libwebpmux3 libtiff6
+          python .github/scripts/arm64_gui_ci.py prepare
+      - name: Require offscreen Qt for desktop widget checks
+        run: python -c "from PyQt6.QtWidgets import QApplication; app = QApplication([]); assert app.platformName() == 'offscreen', app.platformName()"
+      - name: Check release versions and exclusions without local planning documents
+        run: python -m unittest tools.test_repository_configuration tools.test_ci_configuration tools.test_distribution_policy tools.test_release_version
       - name: Install pinned Windows dataset test compiler
         if: runner.os == 'Windows'
         shell: powershell
         run: Install-Module -Name ps2exe -RequiredVersion 1.0.18 -Repository PSGallery -Scope CurrentUser -Force -ErrorAction Stop
-      - name: Check service and dataset installers, registries, and inventories
+      - name: Check desktop history, authorization, installers, and inventories
         if: runner.os != 'Windows'
         shell: bash
         run: python -m unittest discover -s tools -p "test_*.py"
@@ -101,7 +121,7 @@ jobs:
             tools.test_dataset_lifecycle.DatasetLockRecoveryTests \
             tools.test_dataset_gui.GuiCoreTests.test_batch_lock_is_exclusive_across_data_roots \
             tools.test_unified_service.NativeStatePermissionTests
-      - name: Check service and dataset installers, registries, and inventories (Windows PowerShell)
+      - name: Check desktop history, authorization, installers, and inventories (Windows PowerShell)
         if: runner.os == 'Windows'
         shell: powershell
         run: |
@@ -114,7 +134,70 @@ jobs:
           for suite in data/basin_plans data/flood_impacts data/usgs_water data/ebmud satellite_database; do
             python -m unittest discover -s "$suite" -p 'test_*.py' || exit $?
           done
+      - name: Install pinned frozen desktop build dependencies
+        run: python -m pip install -r installers/datasets/gui/requirements-build.txt
+      - name: Check frozen build dependency compatibility
+        run: python -m pip check
+      - name: Build and smoke nonrelease frozen desktop applications
+        id: frozen-desktop
+        timeout-minutes: 20
+        shell: python {0}
+        run: |
+          import hashlib
+          import io
+          import json
+          import os
+          from pathlib import Path
+          import platform
+          import re
+          import subprocess
+          import sys
+          import tarfile
 
+          sys.path.insert(0, str(Path.cwd()))
+          from installers.desktop.version import VERSION
+
+          if platform.system() == 'Linux' and platform.machine().lower() in {'aarch64', 'arm64'}:
+              subprocess.run([sys.executable, '.github/scripts/arm64_gui_ci.py', 'frozen'], check=True)
+              raise SystemExit(0)
+
+          # Ubuntu-host bundles validate frozen dispatch on their runner. They
+          # are not Debian 12 release builds and are never uploaded or installed.
+          evidence = Path('.build/ci-frozen').resolve()
+          evidence.mkdir(parents=True)
+          for kind, name in (('dataset', 'MeshCore-EMS-Dataset-Manager'),
+                             ('service', 'MeshCore-EMS-Service-Setup')):
+              output = evidence / kind
+              build = [sys.executable, 'tools/build_dataset_gui.py', '--output', str(output)]
+              if kind == 'service':
+                  build.append('--service')
+              subprocess.run(build, check=True)
+              executable = output / name / (name + ('.exe' if os.name == 'nt' else ''))
+              smoke = [sys.executable, 'tools/test_packaged_history.py',
+                       '--application', str(executable), '--expected-version', VERSION,
+                       '--output', str(evidence / (kind + '-history.json'))]
+              if kind == 'dataset':
+                  smoke.append('--include-datasets-only')
+              subprocess.run(smoke, check=True)
+          subprocess.run([sys.executable, 'tools/build_installers.py', '--linux-only',
+                          '--output', str(evidence / 'service-installers')], check=True)
+          artifacts = list((evidence / 'service-installers').glob('*.run'))
+          assert len(artifacts) == 2, 'Both Linux service payloads must be built'
+          for artifact in artifacts:
+              header, payload = artifact.read_bytes().split(b'\n__MESHCORE_PAYLOAD__\n', 1)
+              expected = re.search(rb'expected_sha="([0-9a-f]{64})"', header)[1].decode()
+              assert hashlib.sha256(payload).hexdigest() == expected, artifact.name
+              with tarfile.open(fileobj=io.BytesIO(payload), mode='r:gz') as archive:
+                  manifest = json.load(archive.extractfile('PAYLOAD-MANIFEST.json'))
+                  assert manifest['version'] == VERSION, artifact.name
+                  assert set(archive.getnames()) == set(manifest['files']) | {'PAYLOAD-MANIFEST.json'}
+                  for name, digest in manifest['files'].items():
+                      assert hashlib.sha256(archive.extractfile(name).read()).hexdigest() == digest, name
+                  capabilities = json.load(archive.extractfile('DESKTOP-CAPABILITIES.json'))
+                  assert 'channel-history-v1' in capabilities['capabilities']
+
+# All checkouts omit local planning material. ARM64 uses a native hosted runner;
+# it does not establish physical Raspberry Pi, radio, or desktop-session behavior.
 # Checks use fixtures, offscreen Qt widgets, and loopback MQTT. No provider
 # acquisition, radio operation, production installation, deployment, or release
 # publication runs in this workflow.

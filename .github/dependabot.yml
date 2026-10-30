@@ -9,6 +9,7 @@ updates:
     open-pull-requests-limit: 5
   - package-ecosystem: pip
     directories:
+      - /.github
       - /meshcore_mqtt_service
       - /meshcore_mqtt_service_windows
       - /data/flood_impacts

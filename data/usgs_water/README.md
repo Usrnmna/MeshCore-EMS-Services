@@ -6,9 +6,16 @@ This repository distributes the download programs, curated configuration, tests
 and documentation. Downloaded datasets, generation pointers, generated catalogs
 and validation reports are local outputs excluded from Git. Follow the
 [fresh-clone water-data setup](../../docs/WATER_DATA_SETUP.md) before using offline
-queries. Links to generated catalogs and reports below become available after
+queries. Generated catalogs and reports below become available after
 the relevant download or validation command completes. Historical investigation
 counts describe development evidence, not files included with the repository.
+Historical generation paths can differ from later acquisitions; packaged
+documentation contains the guides without those local outputs.
+
+Installed deployments use the [independent dataset packages](../../docs/DATA_PACKAGES.md).
+The direct acquisition commands below describe source-checkout maintenance;
+managed generations remain immutable and must be updated through their package
+updater. Each failed managed update retains the prior validated selection.
 
 This offline collection inventories monitoring locations throughout California
 and downloads the latest available **gage height (00065)** and **discharge
@@ -21,15 +28,15 @@ using the existing flood-reference collection, not a geographic download limit.
 All nine Water Board review regions have readable station files, GeoJSON,
 READMEs, and catalogs. The six CalWater hierarchy levels remain separate.
 
-- [Current inventory and counts](INVENTORY.md)
-- [Current observation snapshot](OBSERVATIONS.md)
-- [Statewide waterway links](NETWORK.md)
-- [Statewide downstream and tributary tables](ROUTING.md)
-- [Supplemental station-link decisions and unresolved cases](LINK_REVIEW.md)
+- Current inventory and counts (`INVENTORY.md`)
+- Current observation snapshot (`OBSERVATIONS.md`)
+- Statewide waterway links (`NETWORK.md`)
+- Statewide downstream and tributary tables (`ROUTING.md`)
+- Supplemental station-link decisions and unresolved cases (`LINK_REVIEW.md`)
 - [Supplemental address evidence and refresh procedure](LINK_REVIEW_METHODS.md)
-- [Original-agency investigation of 37 unresolved stations](AGENCY_REVIEW.md)
+- Original-agency investigation of 37 unresolved stations (`AGENCY_REVIEW.md`)
 - [Agency evidence, resolved static addresses and limitations](AGENCY_REVIEW_METHODS.md)
-- [Local operating-agency investigation of the remaining 24 stations](LOCAL_REVIEW.md)
+- Local operating-agency investigation of the remaining 24 stations (`LOCAL_REVIEW.md`)
 - [Local metadata relationships, evidence limits and refresh](LOCAL_REVIEW_METHODS.md)
 - [Additional official maps and records: all 24 unresolved cases](ADDITIONAL_AGENCY_REVIEW.md)
 - [Five-source access retries and alternate official records](SOURCE_ACCESS_REVIEW.md)
@@ -37,11 +44,11 @@ READMEs, and catalogs. The six CalWater hierarchy levels remain separate.
 - [Routing, potential basin connections and limitations](ROUTING_METHODS.md)
 - [Relationship and interpretation methods](METHODS.md)
 - [Agency citations and acquisition evidence](SOURCES.md)
-- [Machine-readable validation results](verification.json)
-- [Statewide routing validation results](routing_verification.json)
-- [Station-link review validation results](link_review_verification.json)
-- [Original-agency review validation results](agency_review_verification.json)
-- [Local operating-agency validation results](local_review_verification.json)
+- Machine-readable validation results (`verification.json`)
+- Statewide routing validation results (`routing_verification.json`)
+- Station-link review validation results (`link_review_verification.json`)
+- Original-agency review validation results (`agency_review_verification.json`)
+- Local operating-agency validation results (`local_review_verification.json`)
 
 ## Current-value retention
 
@@ -126,7 +133,8 @@ leading zeroes. Named creeks, rivers, canals, reservoirs, and watershed attribut
 remain in the source records and CalWater catalogs. Missing names are not invented.
 
 The active paths are resolved through `inventory.json`, `observations.json`,
-`network.json`, `link_review.json`, `agency_review.json`, and `routing.json`.
+`network.json`, `link_review.json`, `agency_review.json`, `local_review.json`,
+and `routing.json`.
 Each points to a checksummed manifest. Current readings are offered
 as CSV and Parquet; station locations and original attributes are compressed
 GeoJSON. Join values to stations with `monitoring_location_id = station_id`, and

@@ -6,9 +6,16 @@ This repository distributes the download programs, curated configuration, tests
 and documentation. Downloaded datasets, generation pointers, generated catalogs
 and validation reports are local outputs excluded from Git. Follow the
 [fresh-clone water-data setup](../../docs/WATER_DATA_SETUP.md) before using offline
-queries. Links to generated catalogs and reports below become available after
+queries. Generated catalogs and reports below become available after
 the relevant download or validation command completes. Historical investigation
 counts describe development evidence, not files included with the repository.
+Historical generation paths can differ from later acquisitions; packaged
+documentation contains the guides without those local outputs.
+
+Installed deployments use the [independent dataset packages](../../docs/DATA_PACKAGES.md).
+The direct acquisition commands below describe source-checkout maintenance;
+managed generations remain immutable and must be updated through their package
+updater. Each failed managed update retains the prior validated selection.
 
 This collection connects named waterways, monitoring gauges, published downstream
 flow connections, stage-based inundation scenarios, and the portions of CalWater
@@ -17,14 +24,14 @@ compressed GeoJSON supports offline GIS inspection.
 
 The initial pilot covers the Russian River near Healdsburg and downstream toward
 Guerneville in the **North Coast** region. The complete statewide Basin Plan
-collection remains in [its existing regional organization](../basin_plans/REVIEW.md).
+collection remains in its existing regional organization (`../basin_plans/REVIEW.md`).
 Flood analysis outside this pilot is explicitly **not yet assessed**.
 
-[Active regional catalog and CalWater categories](REVIEW.md) ·
+Active regional catalog and CalWater categories (`REVIEW.md`) ·
 [Methods and table definitions](METHODS.md) · [Sources and citations](SOURCES.md)
 
-Saved examples: [23-foot Healdsburg what-if report](example_minor_stage_report.json)
-and [latest verification evidence](verification.json). Both identify their source
+Saved examples: 23-foot Healdsburg what-if report (`example_minor_stage_report.json`)
+and latest verification evidence (`verification.json`). Both identify their source
 generations and evaluation times; they are not automatically refreshed reports.
 
 ## Available evidence

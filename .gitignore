@@ -165,6 +165,7 @@ Desktop.ini
 /data/usgs_water/LOCAL_REVIEW.md
 
 # Local verification caches and reports
+/docs/superpowers/
 .hypothesis/
 .benchmarks/
 junit-results.xml

@@ -68,6 +68,8 @@ def source_inventory(root=ROOT):
     paths.add("installers/desktop/native_environment.py")
     paths.update({"installers/desktop/staging.py", "installers/desktop/windows_trust.py", "installers/desktop/authorization.py"})
     for path in (root / "docs").rglob("*"):
+        if path.relative_to(root).parts[:2] == ("docs", "superpowers"):
+            continue
         if path.is_file() and not any(part.startswith(".") or part == "__pycache__"
                                       for part in path.relative_to(root / "docs").parts):
             paths.add(path.relative_to(root).as_posix())

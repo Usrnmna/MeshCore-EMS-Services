@@ -304,6 +304,7 @@ def check_publication():
         raise ValueError("Tracked files violate ignore policy:\n" + excluded)
     expected = {
         ".build/probe.log": True,
+        "docs/superpowers/plans/example.md": True,
         "dist/unified-desktop/KIT.json": True,
         "MeshCore-EMS-Dataset-Manager.spec": True,
         "MeshCore-EMS-Service-Setup.spec": True,

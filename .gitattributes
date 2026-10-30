@@ -98,3 +98,7 @@
 # Local managed generations are immutable even when they contain source copies.
 # Ignore rules exclude these paths; attributes also protect explicitly added files.
 **/.datasets/** -text -whitespace
+
+# Local planning notes are not distribution documentation.
+/docs/superpowers export-ignore
+/docs/superpowers/** export-ignore

@@ -73,6 +73,7 @@ def source_files():
             relative = path.relative_to(ROOT)
             if (
                 not path.is_file()
+                or relative.parts[:2] == ("docs", "superpowers")
                 or any(p.startswith(".") or p in {"__pycache__", "runtime"} for p in relative.parts)
                 or path.suffix in {".pyc", ".pyo"}
                 or path.name.endswith(("-wal", "-shm"))

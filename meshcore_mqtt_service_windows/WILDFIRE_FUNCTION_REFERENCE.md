@@ -7,12 +7,15 @@ Descriptions retain important side effects and source constraints. Implementatio
 documentation does not establish live-provider, installed-service, or physical
 radio validation. Persistent monitoring remains owned by the existing service.
 
+
 <a id="wildfire_service-py"></a>
+
 ## wildfire_service.py
 
 [Source](wildfire_service.py).
 
 Service-owned wildfire refresh and persistent, channel-scoped subscriptions.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -29,11 +32,13 @@ Service-owned wildfire refresh and persistent, channel-scoped subscriptions.
 | `async WildfireAlarms.run(self)` | Check due subscriptions until cancellation; log failures and sleep when no work is due. |
 
 <a id="scripts-wildfire_lookup-py"></a>
+
 ## scripts/wildfire_lookup.py
 
 [Source](scripts/wildfire_lookup.py).
 
 Shared wildfire queries; dedicated programs select their own command behavior.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -47,6 +52,10 @@ Shared wildfire queries; dedicated programs select their own command behavior.
 | `matches(incident, geometry, point=None, radius=None)` | Match full perimeters independently of origin, with a separate proximity mode. |
 | `health(store, names, config, now)` | Describe acquisition freshness separately from source observation timestamps. |
 | `report(command, text, store, config=None, now=None)` | Return structured results and source health; never enroll a subscription. |
+| `report.selected(r)` | Implement report.selected within this module; see source for the local contract. |
+| `fire_detail(incident, field, statuses, config, now)` | Describe one recorded field with its own source, time and cached health. |
+| `format_fire_detail(data)` | Keep identity and all qualifications intact or explicitly withhold output. |
+| `format_fire_detail.stamp(value)` | Implement format fire detail.stamp within this module; see source for the local contract. |
 | `moment(value)` | Render UTC observations in the shared configured reply timezone. |
 | `context_line(category, feature)` | Provide source-specific, unit-labelled context without inventing a composite risk score. |
 | `format_report(data, config=None)` | Return one focused result, prioritizing alerts and degraded-source status. |
@@ -54,11 +63,13 @@ Shared wildfire queries; dedicated programs select their own command behavior.
 | `main(command, argv=None)` | Run one dedicated command, optionally emitting JSON or explicitly refreshing local data. |
 
 <a id="scripts-wildfire_refresh-py"></a>
+
 ## scripts/wildfire_refresh.py
 
 [Source](scripts/wildfire_refresh.py).
 
 Refresh validated wildfire snapshots; standalone execution never starts a scheduler.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -68,11 +79,13 @@ Refresh validated wildfire snapshots; standalone execution never starts a schedu
 | `main(argv=None)` | Perform a bounded refresh, cache-status inspection, or GeoJSON export. |
 
 <a id="scripts-wildfire_settings-py"></a>
+
 ## scripts/wildfire_settings.py
 
 [Source](scripts/wildfire_settings.py).
 
 Wildfire configuration shared by standalone programs and the service worker.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -81,11 +94,13 @@ Wildfire configuration shared by standalone programs and the service worker.
 | `database_path()` | Resolve installed state independently from the application/source directory. |
 
 <a id="scripts-wildfire_sources-py"></a>
+
 ## scripts/wildfire_sources.py
 
 [Source](scripts/wildfire_sources.py).
 
 Bounded public-source clients. Only complete, validated batches are returned.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -98,11 +113,13 @@ Bounded public-source clients. Only complete, validated batches are returned.
 | `Client.alerts(self)` | Fetch all pages for the four-state region; cancelled/expired filtering is downstream. |
 
 <a id="scripts-wildfire_spatial-py"></a>
+
 ## scripts/wildfire_spatial.py
 
 [Source](scripts/wildfire_spatial.py).
 
 Whole-zone geographic operations for California and interstate fire coverage.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -113,11 +130,13 @@ Whole-zone geographic operations for California and interstate fire coverage.
 | `distance_miles(geometry, latitude, longitude)` | Measure from the query location using a local azimuthal-equidistant projection. |
 
 <a id="scripts-wildfire_store-py"></a>
+
 ## scripts/wildfire_store.py
 
 [Source](scripts/wildfire_store.py).
 
 Atomic source snapshots and spatial candidates; SQLite connections stay local.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -134,11 +153,13 @@ Atomic source snapshots and spatial candidates; SQLite connections stay local.
 | `Store.lease(self, seconds=600)` | Exclude competing writers; expiry recovers a killed bounded refresh process. |
 
 <a id="scripts-fire_environment-py"></a>
+
 ## scripts/fire_environment.py
 
 [Source](scripts/fire_environment.py).
 
 Point-based smoke and fuel-danger reports with independently qualified evidence.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -158,11 +179,13 @@ Point-based smoke and fuel-danger reports with independently qualified evidence.
 | `main(command, argv=None)` | Run a read-only command, with optional explicit bounded refresh and full JSON. |
 
 <a id="scripts-fire_environment_sources-py"></a>
+
 ## scripts/fire_environment_sources.py
 
 [Source](scripts/fire_environment_sources.py).
 
 Observed smoke and fire-danger adapters; preserve provider times and metadata.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -173,11 +196,13 @@ Observed smoke and fire-danger adapters; preserve provider times and metadata.
 | `fems(client, station_ids)` | Fetch optional hourly modeled fuel moisture for explicitly configured stations. |
 
 <a id="scripts-fire_weather-py"></a>
+
 ## scripts/fire_weather.py
 
 [Source](scripts/fire_weather.py).
 
 NWS fire-weather product parsing and zone-based alert interpretation.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -188,86 +213,103 @@ NWS fire-weather product parsing and zone-based alert interpretation.
 | `compact_period(period)` | Select fire-relevant fields while retaining terrain labels and wind reference height. |
 
 <a id="scripts-firezone-py"></a>
+
 ## scripts/firezone.py
 
 [Source](scripts/firezone.py).
 
 Dedicated !firezone command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-fires-py"></a>
+
 ## scripts/fires.py
 
 [Source](scripts/fires.py).
 
 Dedicated !fires command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-fire-py"></a>
+
 ## scripts/fire.py
 
 [Source](scripts/fire.py).
 
 Dedicated !fire command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-firewx-py"></a>
+
 ## scripts/firewx.py
 
 [Source](scripts/firewx.py).
 
 Dedicated !firewx command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-firewarn-py"></a>
+
 ## scripts/firewarn.py
 
 [Source](scripts/firewarn.py).
 
 Dedicated !firewarn command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-firedata-py"></a>
+
 ## scripts/firedata.py
 
 [Source](scripts/firedata.py).
 
 Dedicated !firedata command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-firealarm-py"></a>
+
 ## scripts/firealarm.py
 
 [Source](scripts/firealarm.py).
 
 Dedicated !firealarm command program; persistent monitoring belongs to the service.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-smoke-py"></a>
+
 ## scripts/smoke.py
 
 [Source](scripts/smoke.py).
 
 Dedicated !smoke point lookup; scheduling remains service-owned.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 
 <a id="scripts-firedanger-py"></a>
+
 ## scripts/firedanger.py
 
 [Source](scripts/firedanger.py).

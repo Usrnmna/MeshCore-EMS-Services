@@ -1,5 +1,40 @@
 # Installer and service validation
 
+<a id="v099-beta-source-verification"></a>
+## v0.9.9-beta source verification — November 9, 2026
+
+Current source adds 19 commands and extends existing selectors. Release version
+metadata now targets v0.9.9-beta. Existing binaries and archives have not been
+rebuilt; older validation entries below retain their historical revisions.
+
+Both complete service suites passed 1,315 tests each on the Windows host with
+Python 3.13, including dedicated command registrations and existing flood alerts.
+The USGS maintenance suite passed all 88 tests using an existing system Python
+with the required maintenance dependencies. Shared archive regressions cover
+all eight supported generation kinds and preserve detached-candidate, integrity
+and active-pointer safeguards. No datasets were acquired or operational generations
+updated by these checks.
+
+Additional completed offline checks:
+
+| Check | Result |
+| --- | --- |
+| Installer, GUI and tooling fixtures | 310 tests run; OK, 28 platform/conditional skips. |
+| Flood/shared archive regressions | 59 tests passed, including four new publication-contract tests. |
+| Pre-dependency publication gate | 8 tests passed with third-party site packages disabled. |
+| Shared package parity | 207 files matched; 215 Linux-package and 218 Windows-package inventory entries verified without building archives. |
+| Documentation | 50 commands; 662 tagged examples; 502 focused signatures; local links and publication policy passed. |
+
+The tooling suite builds disposable compiler fixtures only. It does not constitute
+a release build. Source-version metadata is aligned, but native launcher/setup
+binaries and release archives still require rebuilding. The review also verified
+restricted-reference exclusions in root and standalone Git rules, byte-preserving
+attributes, unchanged command registrations and current CI configuration. Hosted CI
+has not run for these changes. Host fixtures do not verify native clean installation, reboot, live
+providers, hosted CI, representative large-dataset performance or physical radio
+operation. W10 remains paused and modelling blocked; existing flood-alert features
+remain available. Release builds and publication are separate work.
+
 ## Hosted GitHub Actions: October 26, 2026
 
 The [Offline verification run](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/runs/40421774997)

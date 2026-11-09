@@ -42,18 +42,18 @@ landslide updates do not scrape new content or infer unreviewed station facts.
 
 ## Install
 
-Artifacts are built under `dist/v0.9.6-beta/datasets/`, with `SHA256SUMS.txt`:
+Artifacts are built under `dist/v0.9.9-beta/datasets/`, with `SHA256SUMS.txt`:
 
 ```text
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-windows-x64-setup.exe
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-linux-x86_64.run
-MeshCore-EMS-Data-<identifier>-v0.9.6-beta-raspberry-pi-arm64.run
+MeshCore-EMS-Data-<identifier>-v0.9.9-beta-windows-x64-setup.exe
+MeshCore-EMS-Data-<identifier>-v0.9.9-beta-linux-x86_64.run
+MeshCore-EMS-Data-<identifier>-v0.9.9-beta-raspberry-pi-arm64.run
 ```
 
 Run the matching Windows EXE as administrator. Linux/Pi installation, for example:
 
 ```console
-sudo bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run
+sudo bash MeshCore-EMS-Data-ebmud-v0.9.9-beta-linux-x86_64.run
 ```
 
 Windows Installed Apps lists `MeshCore EMS Services` and independent
@@ -266,3 +266,19 @@ failed updates, service-account reads and removal. The
 test device is unavailable; ARM64 package and dependency checks do not establish
 native Raspberry Pi operation. Automated tests and WSL execution do not establish
 reboot behavior, current provider availability or physical radio delivery.
+
+## Runtime consumers and restricted local references
+
+Installed State Parks references support `!statepark`, `!entrance`, `!camp`,
+`!parking`, the Parks portion of `!facility`, and geographic containment.
+EBMUD references retain the original GIS commands and supply supported facility
+attributes. Basin Plan and water generations provide names, beneficial uses,
+recorded parents, exact stations and reviewed directed relationships. Satellite
+catalog installation supports `!sat` and `!satfreq`; predictions require eligible
+orbital records and additional datum-qualified local terrain.
+
+`!data` reports selected generations and bounded integrity/freshness checks; it
+does not acquire, repair or activate collections. Locally enrolled B01–B11 restricted
+references are not additional automatic dataset installers. Their readers retain
+reference-only isolation, and neither model readiness nor satellite precision
+conversion is enabled by their presence. See [isolation rules](COMMAND_IMPLEMENTATION.md#restricted-reference-isolation-and-paused-modelling).

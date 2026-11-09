@@ -198,3 +198,12 @@ Schema: [`sectors/layer.json`](metadata/sectors/layer.json)
 | last_edited_date | last_edited_date | esriFieldTypeDate |  |
 | Shape__Area | Shape__Area | esriFieldTypeDouble |  |
 | Shape__Length | Shape__Length | esriFieldTypeDouble |  |
+
+## Runtime identity and classification handling
+
+Service queries retain park unit identifiers, entrance OBJECTIDs and site FIDs as
+different source identities. Exact source classes drive campground, parking and
+facility filters; missing/new values remain unknown. Name collisions and multiple
+entrances require explicit selection. The original EBMUD `!park` command remains
+distinct from the State Parks `!statepark` command. See the
+[complete selectors](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-statepark).

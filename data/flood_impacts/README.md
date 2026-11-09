@@ -1,5 +1,15 @@
 # Offline flood-impact reference
 
+## Current service consumers
+
+W10 modelling and further scenario expansion are paused. Existing `!floodwarn`, `!floodstatus` and `!floodalarm` retain their established behavior. Internal evidence/discovery/scenario/hazard/readiness helpers are not MeshCore commands; there is no `!floodref` or `!rivertrend`. Restricted references do not enable model readiness. The shared archive also serves existing USGS maintenance tools, whose publication contracts remain supported.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.
+
+
 [Documentation index](../../docs/README.md) | [Terminal commands and all maintenance options](../../docs/CLI_REFERENCE.md).
 
 This repository distributes the download programs, curated configuration, tests

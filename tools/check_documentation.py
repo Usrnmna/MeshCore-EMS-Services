@@ -304,6 +304,8 @@ def check_publication():
         raise ValueError("Tracked files violate ignore policy:\n" + excluded)
     expected = {
         ".build/probe.log": True,
+        ".local-data-staging/B03/evidence.xml": True,
+        "custom-data/.reference-only/reference-catalog.json": True,
         "docs/superpowers/plans/example.md": True,
         "dist/unified-desktop/KIT.json": True,
         "MeshCore-EMS-Dataset-Manager.spec": True,
@@ -315,6 +317,10 @@ def check_publication():
         "data/basin_plans/snapshots/example/sources.json": True,
         "data/flood_impacts/static/example/manifest.json": True,
         "data/usgs_water/local_review_rules.json": False,
+        "data/flood_impacts/test_archive_publication.py": False,
+        "meshcore_mqtt_service/scripts/reference_catalog.py": False,
+        "RELEASE_v0.9.9-beta.md": False,
+        "docs/COMMAND_IMPLEMENTATION.md": False,
         "meshcore_mqtt_service/WATER_STATION_REVIEW.json": False,
         "meshcore_mqtt_service_windows/scripts/floodstatus.py": False,
         "docs/assets/readme-hero.svg": False,

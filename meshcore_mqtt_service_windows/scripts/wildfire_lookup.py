@@ -4,6 +4,7 @@ import argparse
 from datetime import datetime
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import sys
@@ -27,8 +28,10 @@ COMMANDS = {"firezone", "fires", "fire", "firewx", "firewarn", "firedata", "fire
 def parse_query(command, text):
     """Validate radio syntax without HTTP, filesystem mutations, or shell interpretation."""
     command = command.lstrip("!")
+    if any(not c.isprintable() for c in text) or len(text.encode('utf-8')) > 220:
+        raise ValueError("Invalid wildfire command")
     text = " ".join(text.split())
-    if command not in COMMANDS or len(text) > 220:
+    if command not in COMMANDS:
         raise ValueError("Invalid wildfire command")
     result = {"command": command, "target": text, "radius": None, "action": "lookup"}
     if text in {"", "help"}:
@@ -63,7 +66,14 @@ def parse_query(command, text):
     if target.startswith("--"):
         raise ValueError("Terminal options are not accepted in radio queries.")
     if command == "fire":
-        if not target or not re.fullmatch(r"[A-Za-z0-9{} .,'_-]+", target):
+        match = re.fullmatch(r"field (acreage|containment|perimeter|updated) (id|name) (.+)", target, re.I)
+        if match:
+            result.update(field=match[1].lower(), identity=match[2].lower(), target=match[3], literal=text)
+            target = result['target']
+        elif target.lower().startswith(('id ', 'name ')):
+            mode, target = target.split(' ', 1)
+            result.update(identity=mode.lower(), target=target, literal=text)
+        if not target or target.startswith('--') or not re.fullmatch(r"[A-Za-z0-9{} .,'_-]+", target):
             raise ValueError("Use !fire INCIDENT-ID or an unambiguous incident name.")
     elif re.fullmatch(r"[A-Za-z]{2}Z\d{3}", target):
         result["target"] = target.upper()
@@ -157,6 +167,7 @@ def historical_incidents(store):
     """Return last-seen local observations for explicit detail lookup, never the current list."""
     observations = {"incidents": {}, "egp": {}}
     captured = {}
+    captured_by_source = {}
     for source in observations:
         rows = store.db.execute("SELECT captured,body FROM history WHERE source=? ORDER BY captured DESC", (source,))
         for seen, body in rows:
@@ -165,9 +176,10 @@ def historical_incidents(store):
                 if key not in observations[source]:
                     observations[source][key] = feature
                     captured[key] = max(captured.get(key, 0), seen)
+                    captured_by_source.setdefault(key, {})[source] = seen
     result = incidents(store, {s: list(v.values()) for s, v in observations.items()})
     for key, incident in result.items():
-        incident.update(last_seen=captured[key], historical=True)
+        incident.update(last_seen=captured[key], source_last_seen=captured_by_source[key], historical=True)
     return result
 
 
@@ -208,12 +220,25 @@ def report(command, text, store, config=None, now=None):
     output = {"query": query, "generated_at": now}
     if command == "fire":
         all_incidents = incidents(store)
+        retained = None
+        if query.get('identity'):
+            literal = query['literal'].casefold()
+            retained = historical_incidents(store)
+            current_and_history = list(all_incidents.values()) + list(retained.values())
+            if any(literal == str(o.get('name')).casefold() for r in current_and_history for o in r['observations'] if o.get('name')):
+                raise ValueError('Selector matches an incident name; use explicit name or incident ID')
         target = query["target"].strip("{}").casefold()
-        found = [r for r in all_incidents.values() if target in
-                 {r["id"].casefold(), r["display_id"].casefold(), str(r["name"]).casefold()}]
-        if not found:
-            found = [r for r in historical_incidents(store).values() if target in
-                     {r["id"].casefold(), r["display_id"].casefold(), str(r["name"]).casefold()}]
+        def selected(r):
+            ids = {r['id'].casefold(), str(r['display_id']).strip('{}').casefold()}
+            names = {str(o.get('name')).casefold() for o in r['observations'] if o.get('name')}
+            return target in (ids if query.get('identity') == 'id' else names if query.get('identity') == 'name' else ids | names)
+        found = [r for r in all_incidents.values() if selected(r)]
+        if retained is not None:
+            # Explicit selection must consider distinct retained identities too;
+            # current-feed membership does not disambiguate an incident name.
+            found += [r for key, r in retained.items() if key not in all_incidents and selected(r)]
+        elif not found:
+            found = [r for r in historical_incidents(store).values() if selected(r)]
         if len(found) != 1:
             raise ValueError("Incident not listed or name ambiguous; use an incident ID from !fires.")
         output["incidents"] = found
@@ -259,7 +284,109 @@ def report(command, text, store, config=None, now=None):
             output["features"] = [f for f in store.features(name, geometry.bounds)
                                   if f.get("geometry") and shape(f["geometry"]).intersects(geometry)]
     output["sources"] = health(store, source_names, config, now)
+    if command == 'fire' and query.get('field'):
+        record = output['incidents'][0]
+        if query['field'] == 'perimeter':
+            for feature in store.features('perimeters'):
+                p = feature['properties']
+                links = []
+                for key in ('attr_IrwinID', 'poly_IRWINID'):
+                    try:
+                        links.append(identifier(p[key]))
+                    except (KeyError, ValueError, TypeError, AttributeError):
+                        links.append(None)
+                if record['id'] in links and all(p.get(k) for k in ('attr_IrwinID', 'poly_IRWINID')) and links[0] != links[1]:
+                    record = dict(record, perimeter_link_conflict=True)
+        output['detail'] = fire_detail(record, query['field'], output['sources'], config, now)
     return output
+
+
+def fire_detail(incident, field, statuses, config, now):
+    """Describe one recorded field with its own source, time and cached health."""
+    status = {item['source']: item for item in statuses}
+    source_updated = None
+    if field == 'perimeter':
+        records = incident['perimeters']
+        source = 'perimeters'
+        values = [timestamp(f['properties'].get('poly_PolygonDateTime')) for f in records]
+        updates = [timestamp(f['properties'].get('poly_DateCurrent')) for f in records]
+        source_updated = updates[0] if updates and all(v == updates[0] for v in updates) else None
+        observed = values[0] if values and all(v == values[0] for v in values) else None
+        value = observed
+        conflict = len(set(values)) > 1 or bool(incident.get('perimeter_link_conflict'))
+        for record in records:
+            properties = record['properties']
+            a, b = properties.get('attr_IrwinID'), properties.get('poly_IRWINID')
+            if a and b:
+                try:
+                    conflict = conflict or identifier(a) != identifier(b)
+                except (ValueError, TypeError, AttributeError):
+                    conflict = True
+        if conflict:
+            value = observed = source_updated = None
+    else:
+        key = {'acreage': 'acres', 'containment': 'containment', 'updated': 'updated'}[field]
+        value = incident.get(key)
+        source = incident['field_sources'][key]
+        observed = incident['field_times'][key]
+        values = {o[key] for o in incident['observations'] if o.get(key) is not None}
+        conflict = len(values) > 1
+    health_status = status.get(source, {})
+    fetched = health_status.get('fetched')
+    if incident.get('historical') and source != 'perimeters':
+        fetched = incident['source_last_seen'].get(source)
+    freshness = ('unknown' if observed is None else 'future' if observed > now else
+                 'stale' if now - observed > config['stale_after'] else 'recent')
+    relevant = ('incidents', 'egp', 'perimeters') if field == 'perimeter' else ('incidents', 'egp')
+    partial = any(status.get(s, {}).get('stale', True) or status.get(s, {}).get('error') or
+                  (status.get(s, {}).get('fetched') or 0) > now for s in relevant)
+    return dict(field=field, value=value, source=source, observed=observed, freshness=freshness,
+                source_updated=source_updated,
+                acquisition=fetched, cache_stale=health_status.get('stale', True) or fetched is None or now-fetched > config['stale_after'],
+                cache_future=fetched is not None and fetched > now, partial=partial,
+                source_failed=bool(health_status.get('error')), conflict=conflict,
+                historical=bool(incident.get('historical')), last_seen=incident.get('last_seen'),
+                perimeter_count=len(incident['perimeters']) if field == 'perimeter' else None)
+
+
+def format_fire_detail(data):
+    """Keep identity and all qualifications intact or explicitly withhold output."""
+    d, record = data['detail'], data['incidents'][0]
+    def stamp(value):
+        if value is None:
+            return '?'
+        try:
+            return datetime.utcfromtimestamp(value).strftime('%Y%m%dT%H%M%SZ')
+        except (ValueError, OverflowError, OSError):
+            return 'invalid'
+    if d['field'] in {'perimeter', 'updated'}:
+        value = stamp(d['value'])
+    else:
+        value = '?' if d['value'] is None else f"{d['value']:g}" + ('ac' if d['field'] == 'acreage' else '%')
+    flags = ['cached', d['freshness']]
+    if d['cache_stale']:
+        flags.append('cache stale')
+    if d['source_failed']:
+        flags.append('source failed')
+    if d['cache_future']:
+        flags.append('fetch future')
+    if d['partial']:
+        flags.append('partial')
+    if d['conflict']:
+        flags.append('conflict')
+    if d['historical']:
+        flags.append('retained;status unknown')
+        flags.append('last-seen '+stamp(d['last_seen']))
+    if d.get('source_updated') is not None:
+        flags.append('map-update='+stamp(d['source_updated']))
+    if d['field'] == 'perimeter' and not d['perimeter_count'] and not d['conflict']:
+        flags.append('no mapped perimeter')
+    text = (f"{record['id']} {d['field']}={value};{d['source']} obs={stamp(d['observed'])};"
+            f"fetch={stamp(d['acquisition'])};" + ','.join(flags))
+    budget = 150-len(('@'+os.environ.get('MESHCORE_SENDER', 'Reader')+' ').encode())
+    if len(text.encode()) > budget:
+        return 'Qualified detail too long; use local --json.'
+    return text
 
 
 def moment(value):
@@ -318,10 +445,12 @@ def format_report(data, config=None):
     """Return one focused result, prioritizing alerts and degraded-source status."""
     query, command = data["query"], data["query"]["command"]
     if data.get("help"):
-        return {"fire": "Use !fire INCIDENT-ID or NAME from !fires.",
+        return {"fire": "!fire ID or NAME; field acreage/containment/perimeter/updated id/name TARGET.",
                 "firealarm": "Use !firealarm on ZONE/LOCATION, status, or off.",
                 "firedata": "Use !firedata CATEGORY ZONE/LOCATION. Categories are listed in the command guide."}.get(
                     command, f"Use !{command} ZONE, ZIP, CITY STATE, or LAT LON.")
+    if command == 'fire' and data.get('detail'):
+        return format_fire_detail(data)
     degraded = any(s["stale"] or s.get("error") for s in data.get("sources", []))
     caveat = " Data limited." if degraded else ""
     zones = ",".join(z["id"] for z in data.get("zones", []))
@@ -429,6 +558,9 @@ def main(command, argv=None):
     parser.add_argument("--db", type=str, default=str(settings.database_path()))
     parser.add_argument("query", nargs="*")
     args = parser.parse_args(argv)
+    if command == 'fire' and args.json and os.environ.get('MESHCORE_REQUEST_ID'):
+        print('JSON is local-only.')
+        return 0
     if args.monitor:
         if command != "firealarm":
             parser.error("--monitor is only supported by firealarm.py")
@@ -444,6 +576,15 @@ def main(command, argv=None):
             data = {"query": parse_query(command, query), "help": True}
         else:
             with Store(args.db) as store:
+                if command == 'fire' and parse_query(command, query).get('field'):
+                    store.db.execute('BEGIN')
+                    deadline = time.monotonic() + 3
+                    store.db.set_progress_handler(lambda: int(time.monotonic() > deadline), 10000)
+                    try:
+                        if store.db.execute('PRAGMA quick_check(1)').fetchone()[0] != 'ok':
+                            raise ValueError('Wildfire cache integrity failure')
+                    finally:
+                        store.db.set_progress_handler(None, 0)
                 data = report(command, query, store, config)
         if args.json:
             print(encode(monitor_snapshot(data) if args.monitor else data))
@@ -457,6 +598,9 @@ def main(command, argv=None):
         text = "Wildfire data unavailable or query invalid: " + str(exc)
         if args.json:
             print(encode({"error": text}))
+        elif command == 'fire' and ' '.join(args.query).lower().startswith('field '):
+            budget = 150-len(('@'+os.environ.get('MESHCORE_SENDER', 'Reader')+' ').encode())
+            print(text if len(text.encode()) <= budget else 'Wildfire detail unavailable; refine query.')
         else:
             print(text + ". Use wildfire_refresh.py to initialize the cache if needed.")
         return 0 if not args.json else 1

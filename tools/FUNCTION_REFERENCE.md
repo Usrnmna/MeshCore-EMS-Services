@@ -23,6 +23,7 @@ that a live service, device, or provider was tested.
 - [package_services.py](#package-services-py)
 - [build_installers.py](#build-installers-py)
 
+
 <a id="installers-configure-py"></a>
 
 ## ../installers/configure.py
@@ -30,6 +31,7 @@ that a live service, device, or provider was tested.
 [Source](../installers/configure.py)
 
 Initialize installed settings/data without replacing operator state on upgrade. Save a default responder.timezone for legacy installs and preserve an operator's existing shared timezone.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -49,6 +51,7 @@ Initialize installed settings/data without replacing operator state on upgrade. 
 
 Build standalone service ZIPs from current source, without local state. Run from anywhere: python tools/package_services.py Shared implementations must agree; resolve differences before packaging rather than silently distributing two versions. Platform-specific files stay separate.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `package_files(name)` | Return the explicit distributable inventory; reject missing files or scripts. |
@@ -64,12 +67,13 @@ Build online Windows x64 and Linux x86_64/ARM64 installers from this workspace. 
 
 | Function signature | Purpose and behavior |
 | --- | --- |
+| `water_download_rules()` | Read the existing root-anchored download-only policy without requiring Git. |
+| `download_only(relative, rules)` | Apply those collection-specific directory/file rules and explicit exceptions. |
 | `sha(data)` | Return the SHA-256 digest used by payload manifests and download checks. |
 | `source_files()` | Collect maintained source, documentation, and data without runtime state or environments. Include the linked topic guides and artwork, release comparison, repository instructions, root Git metadata, and archive guidance; exclude recovery ZIPs. |
 | `stage_payload(destination)` | Create an isolated build snapshot with normalized shell files and an integrity manifest. |
 | `linux_installer(payload, output, arch)` | Write a checksum-protected self-extracting Linux installer for the selected architecture. |
 | `main()` | Build platform installers and checksums locally; never install or publish them. |
-
 
 ## prepare_wildfire_data.py
 
@@ -85,6 +89,9 @@ exclusions and exceptions from `.gitignore`. `download_only()` applies that
 specific publication policy without requiring Git during a distribution build.
 Generated water snapshots are excluded; curated inputs remain in the payload.
 
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main()` | Download validated polygons; publish identical seeds only after all checks pass. |
 
 ## check_documentation.py
 
@@ -107,3 +114,11 @@ Generated water snapshots are excluded; curated inputs remain in the payload.
 | `check_cli_options(paths)` | Require every literal argparse flag/subcommand from maintained entry points in the CLI guide. |
 | `check_publication()` | Keep generated/private files out of Git and retain required maintained sources. |
 | `main()` | Run offline documentation gates and report checks separately from generated links. |
+
+## Current release verification contracts
+
+`package_services.package_files` includes every dedicated script and package test.
+`check_documentation` verifies command indices, tagged response byte counts, focused
+water/wildfire signatures, links and publication exclusions. Installer fixtures
+include `reference_policy.py`; GUI default-command tests compare names and programs
+with both package configurations. See [command verification boundaries](../docs/COMMAND_IMPLEMENTATION.md#verification-and-package-boundaries).

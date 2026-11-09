@@ -60,7 +60,9 @@ bytecode/tool caches, coverage reports, build/distribution directories, credenti
 recovery backups, interrupted archive/export writes, and GIS refresh staging/locks.
 All four ignore files exclude managed `.datasets/` generations, `datasets.json`
 activation registries, registry temporary writes, and `.datasets.lock` maintenance
-locks, including standalone service and satellite copies. Environment `.example`
+locks, including standalone service and satellite copies. Restricted `.reference-only/`
+trees, local `.local-data-staging/` downloads, and GUI locks remain excluded in
+standalone copies as well. Environment `.example`
 and `.template` files remain publishable. Source Python,
 configuration templates, tests, function references, reference SQLite/JSON/CSV data,
 and retained raw source receipts remain trackable. Ignore rules do not remove
@@ -77,7 +79,8 @@ Python and Markdown files continue to receive whitespace checks.
 CSV and JSONL files outside protected reference-data directories use LF endings;
 SQLite `.db` files, compressed archives, wheels, and Python extensions retain
 binary bytes. Managed `.datasets/` generations bypass text conversion, including
-archived source copies.
+archived source copies. Restricted `.reference-only/` trees and acquisition staging
+also preserve exact bytes, including XML evidence, catalogs and rollback receipts.
 
 Immutable Basin Plan, flood-reference and USGS generation directories override
 the text exceptions, including archived `build_code/*.py` and README copies.
@@ -252,7 +255,7 @@ python -m unittest discover -s satellite_database -p "test_*.py"
 Run full `tests/` discovery separately in each service package. The documentation
 checker compares registrations, GIS fields, wildfire categories, subscription
 controls, terminal flags, local links, paired guides, source-derived function
-indexes, badge counts, and Git publication rules. It also verifies all 309 tagged
+indexes, badge counts, and Git publication rules. It also verifies all 331 tagged
 [response examples](../meshcore_mqtt_service/RESPONSE_EXAMPLES.md) per package,
 including exact UTF-8 byte counts and command/field/category/control coverage. Links to deliberately ignored
 water catalogs are recognized as generated destinations, not asserted to be
@@ -266,7 +269,11 @@ tests on both operating systems. The service matrix selects Python 3.11 and 3.13
 operating systems; the documentation/tools matrix uses Python 3.13. Its dependency
 installation includes the pinned dataset maintenance and GUI runtime requirements.
 The standard-library documentation/publication gate runs before dependency
-installation. The tooling suite also checks root and standalone ignore rules,
+installation. An additional standard-library gate checks the shared water archive's
+publication contracts, command/helper inclusion and paired-source parity before
+dependency installation. These checks use temporary fixtures and inventory reads;
+they neither acquire datasets nor build release archives. The tooling suite also
+checks root and standalone ignore rules,
 native launcher line endings, and immutable payload attributes through isolated
 Git fixtures.
 Qt widget tests run with the offscreen platform plugin; Linux preparation installs
@@ -327,3 +334,16 @@ Local `.env.example` and `.env.*.example` templates remain trackable. Credential
 backups matching `environment.json.*` are excluded except named distributable
 examples/templates. Root-level logs and all rotated `*.log.*` variants remain
 local; nested reference receipts and test fixtures are not blanket-ignored.
+
+## Current command and maintenance regressions
+
+Use the [implementation contracts](COMMAND_IMPLEMENTATION.md) when changing shared
+parsers or source readers. Verify both platform suites, `tools` fixtures, and the
+affected data suites in separate processes. `data/flood_impacts/test_archive_publication.py`
+protects the shared USGS publication contract; it must remain green even while W10
+development is paused. Tests use isolated generations and must not acquire datasets.
+
+Run `python tools/check_documentation.py` after changing forms, examples or focused
+function signatures. New runtime scripts must be present in both package inventories,
+and each MeshCore command must retain a unique dedicated program. Release builds
+require separate provenance and native-platform checks; fixture success is not deployment.

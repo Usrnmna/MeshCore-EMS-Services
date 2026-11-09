@@ -5,7 +5,7 @@ Radio replies use one tagged message, with no details or paging. See the
 
 Detailed guides: [Water and flood](WATER_GUIDE.md) | [Wildfire and smoke](WILDFIRE_GUIDE.md) | [Landslides](LANDSLIDE_GUIDE.md).
 
-Reply examples: [All commands and subcommands](RESPONSE_EXAMPLES.md) � [Response policy and conditional fields](RESPONSE_FORMATTING.md).
+Reply examples: [All commands and subcommands](RESPONSE_EXAMPLES.md) · [Response policy and conditional fields](RESPONSE_FORMATTING.md).
 
 Documentation: [MeshCore user guide](BOT_USER_GUIDE.md) | [Detailed command reference](COMMAND_REFERENCE.md) | [Function implementation reference](FUNCTION_REFERENCE.md).
 
@@ -27,19 +27,19 @@ serialized, rate-limited command path. Radio events also publish to MQTT.
 
 ## OS service installers
 
-Current distribution version: `v0.9.6-beta`.
+Current source release target: `v0.9.9-beta`; release builds remain pending.
 
 Online installation packages support Windows x64,
 Raspberry Pi ARM64, and Linux x86_64. They install Python/dependencies automatically,
-include the complete workspace and reference data, and connect to the configured companion node
+include maintained program sources and independent data-management tools, and connect to the configured companion node
 under Windows Services or systemd. See the [installation guide](../INSTALL.md).
 
 Source-folder launchers support interactive operation. The current source has
-31 commands, including the five [local GIS commands](#local-gis-commands).
+50 commands, including the five [local GIS commands](#local-gis-commands).
 The source includes nine wildfire commands, three landslide commands, and the
 location-based water commands. Existing release artifacts retain the command set
 recorded in their validation; rebuild from this source to include later changes.
-Installers include shared datasets. Service ZIPs include the wildfire and landslide reference seeds; EBMUD data remains a separate download.
+Dataset payloads are independently installed; service ZIPs contain programs and guides, not downloaded reference generations. Select the required data packages before querying their coverage.
 See [deployment requirements](../INSTALL.md#gis-source-deployment).
 
 ## Multiple channels and program assignments
@@ -120,7 +120,7 @@ console does not establish background-service access. Close other applications
 holding the node connection. BLE service-account access still requires testing
 on the target computer and adapter.
 
-`timeout` bounds connection establishment in seconds (default 30; range 1�300).
+`timeout` bounds connection establishment in seconds (default 30; range 1–300).
 The bridge also bounds its initial device query. After a detected radio disconnect,
 the installed service manager restarts the process and rechecks the channel
 bindings. Source-folder launchers require a manual restart. There is no automatic
@@ -145,7 +145,7 @@ command continues to list USB serial devices only.
 | `!status` | None | Local service health |
 | `!time` | None | Current time in the shared timezone |
 | `!aqi` | Latitude and longitude | AirNow PM2.5 AQI and nearest monitor |
-| `!traffic` | California route number 1–999 | Active Caltrans highway restrictions |
+| `!traffic` | California route number 1â€“999 | Active Caltrans highway restrictions |
 | `!rivers` | Latitude and longitude | CDEC/NOAA river stations within 15 miles |
 | `!uv` | Coordinates, US ZIP, or city and state | Current UV index and risk category |
 | `!lightning` | Coordinates, US ZIP, or city and state | NWS lightning potential in the next 24h, stated chance, adjustable timezone |
@@ -1109,3 +1109,23 @@ evidence and flags source or identity changes; map proximity never authorizes a 
 The [source-access retry](WATER_STATION_REVIEW.md#archived-source-and-onerain-access-retry)
 recovered the historical reports and OneRain inventory. Refresh checks static
 operator aliases without retaining historical levels or enabling unsupported links.
+
+## Expanded command families
+
+The 50 registered commands include channel-aware `!help`, read-only `!data` status,
+State Parks identity/entrance/campground/parking references, cross-collection
+facilities, exact gauges, reviewed connectivity, beneficial uses, satellite
+catalog/frequency/pointing/pass queries, `!where`, NWS `!weather`, and `!brief`.
+Existing trail, waterway, basin, wildfire-detail and landslide-station queries
+also support focused selectors. The [command reference](COMMAND_REFERENCE.md#command-index)
+contains accepted forms, exact identifiers, bounds, and source qualifications.
+
+Start with `!help`, then `!help !COMMAND` and `!data DATASET` when a dependency
+is unavailable. Registration does not guarantee installed data, provider health,
+current coverage or availability on every channel. Upgrade-preserved channel
+assignments may leave new commands unassigned until configured.
+
+W10 flood modelling remains paused. No `!floodref` or `!rivertrend` command is
+registered. Existing `!floodwarn`, `!floodstatus`, and service-owned `!floodalarm`
+remain available. Restricted elevation/environmental references cannot enable
+modelling or satellite precision conversions.

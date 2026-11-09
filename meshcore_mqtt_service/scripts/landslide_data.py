@@ -15,6 +15,16 @@ from . import dataset_paths
 DATA = Path(__file__).resolve().parents[1] / "data" / "landslide"
 
 
+def reference_bytes(path):
+    """Bound reference reads before JSON decoding, including concurrently growing files."""
+    limit = 1024 * 1024 if path.name in {'manifest.json', 'stations.json'} else 32 * 1024 * 1024
+    with path.open('rb') as stream:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise ValueError('Landslide reference size limit exceeded')
+    return raw
+
+
 def reference():
     """Pin the current installed generation before consulting the immutable cache."""
     return _reference(dataset_paths.resolve("landslide", DATA))
@@ -23,15 +33,29 @@ def reference():
 @lru_cache(maxsize=2)
 def _reference(directory):
     """Load curated reference files only after verifying their published package checksums."""
-    manifest = json.loads((directory / "manifest.json").read_bytes())
+    manifest = json.loads(reference_bytes(directory / "manifest.json"))
+    if (not isinstance(manifest, dict) or type(manifest.get('schema_version')) is not int or
+            manifest['schema_version'] != 1 or type(manifest.get('station_count')) is not int):
+        raise ValueError('Incompatible landslide station catalog')
     contents = {}
     for name in ("california.geojson", "nevada.geojson", "stations.json"):
-        raw = (directory / name).read_bytes()
+        raw = reference_bytes(directory / name)
         if hashlib.sha256(raw).hexdigest() != manifest["sha256"][name]:
             raise ValueError("Landslide reference checksum mismatch: " + name)
         contents[name] = json.loads(raw)
-    boundaries = [shape(contents[name]["features"][0]["geometry"])
-                  for name in ("california.geojson", "nevada.geojson")]
+    stations = contents['stations.json']
+    if (not isinstance(stations, list) or len(stations) > 5000 or len(stations) != manifest['station_count'] or
+            any(not isinstance(s, dict) or not isinstance(s.get('id'), str) or not s['id'] for s in stations)):
+        raise ValueError('Invalid landslide station catalog')
+    boundaries = []
+    for name in ('california.geojson', 'nevada.geojson'):
+        collection = contents[name]
+        features = collection.get('features') if isinstance(collection, dict) else None
+        if (not isinstance(features, list) or len(features) != 1 or not isinstance(features[0], dict) or
+                not isinstance(features[0].get('geometry'), dict) or
+                features[0]['geometry'].get('type') not in {'Polygon', 'MultiPolygon'}):
+            raise ValueError('Invalid California/Nevada boundary collection')
+        boundaries.append(shape(features[0]['geometry']))
     if any(boundary.is_empty or not boundary.is_valid for boundary in boundaries):
         raise ValueError("Invalid California/Nevada boundary")
     boundary = unary_union(boundaries)

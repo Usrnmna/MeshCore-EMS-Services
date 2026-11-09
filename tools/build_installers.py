@@ -20,7 +20,7 @@ from package_services import package_files, PACKAGES
 from artifact_provenance import source_hashes, write_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9.6-beta"
+VERSION = "v0.9.9-beta"
 
 
 def water_download_rules():
@@ -57,7 +57,7 @@ def source_files():
         for p in (
             "README.md",
             "RELEASE_NOTES.md",
-            "RELEASE_v0.9.6-beta.md",
+            "RELEASE_v0.9.9-beta.md",
             "INSTALL.md",
             "LICENSE",
             "AGENTS.md",
@@ -134,14 +134,14 @@ set -euo pipefail
 expected_arch="@ARCH@"
 expected_sha="@SHA@"
 case "${1:-}" in
-    --help) echo 'MeshCore EMS v0.9.6-beta online installer (@ARCH@)'
+    --help) echo 'MeshCore EMS v0.9.9-beta online installer (@ARCH@)'
         echo 'sudo bash installer.run [--transport serial|tcp|ble] [--port auto|DEVICE] [--tcp-host IP --tcp-port 5000] [--ble-address ADDRESS] [--channel NAME | --channels-config FILE] [--no-start]'
         echo 'Inspection: bash installer.run --check | --extract EMPTY_DIRECTORY'; exit 0 ;;
 esac
 line=$(awk '/^__MESHCORE_PAYLOAD__$/{print NR+1; exit}' "$0")
 actual_sha=$(tail -n +"$line" "$0" | sha256sum | cut -d ' ' -f1)
 [[ $actual_sha == "$expected_sha" ]] || { echo 'Installer payload checksum mismatch.' >&2; exit 1; }
-if [[ ${1:-} == --check ]]; then echo 'v0.9.6-beta @ARCH@: payload checksum verified'; exit 0; fi
+if [[ ${1:-} == --check ]]; then echo 'v0.9.9-beta @ARCH@: payload checksum verified'; exit 0; fi
 if [[ ${1:-} == --extract ]]; then
     destination=${2:?Specify an empty destination directory}
     mkdir -p -- "$destination"

@@ -65,6 +65,12 @@ build/
 datasets.json
 datasets.json.*.tmp
 .datasets.lock
+.gui-manager.lock
+
+# Restricted references and acquisition staging remain local in standalone copies.
+.reference-only/
+/.local-data-staging/
+satellite-settings.json.tmp
 
 .refresh-*/
 .test-refresh-*/

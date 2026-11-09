@@ -76,9 +76,9 @@ def validate_config(config, root):
             isinstance(x, str) for x in spec.get("args", [])
         ):
             raise ValueError("Script args must be a list of fixed strings")
-        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query"}:
-            raise ValueError("Command input must be none, coordinates, route_number, location, gis_query, fire_query, slide_query or water_query")
-        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query"} and any(
+        if spec.get("input", "none") not in {"none", "coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query", "text_query"}:
+            raise ValueError("Command input must be none, coordinates, route_number, location, gis_query, fire_query, slide_query, water_query or text_query")
+        if spec.get("input") in {"coordinates", "route_number", "location", "gis_query", "fire_query", "slide_query", "water_query", "text_query"} and any(
             c.isspace() for c in phrase
         ):
             raise ValueError("Commands with arguments must be a single token")
@@ -104,6 +104,11 @@ def match_command(phrase, commands):
         return None
     if re.search(r"^\s*details(?:\s|$)|\s+page\s+\d+\s*$", phrase[len(key):], re.I):
         return key, [], f"Details and paging are not supported. Use {key} with its normal query."
+    if spec.get("input") == "text_query":
+        query = phrase[len(key):].strip(" ")
+        if not all(c.isprintable() for c in query) or len(query.encode("utf-8")) > 150:
+            return key, [], "Query must be printable and at most 150 UTF-8 bytes."
+        return key, [query], None
     if spec.get("input") == "water_query":
         from scripts.water_lookup import parse_query
         query = phrase[len(key):].strip() or "help"
@@ -208,7 +213,8 @@ def parse_message(payload, channel, own_name, config, now):
         return None
     # The companion API carries channel sender names in "Name: message" text.
     sender, separator, phrase = text.partition(": ")
-    sender, phrase = sender.strip(), phrase.rstrip("\0").strip()
+    raw_phrase = phrase.rstrip("\0")
+    sender, phrase = sender.strip(), raw_phrase.strip()
     if (
         not separator
         or not sender
@@ -218,7 +224,15 @@ def parse_message(payload, channel, own_name, config, now):
         or phrase.startswith("@")
     ):
         return None
-    matched = match_command(phrase, config["commands"])
+    # Text queries reject controls even when normal message trimming hides them.
+    token = phrase.split(maxsplit=1)[0] if phrase else ""
+    if config["commands"].get(token, {}).get("input") == "text_query":
+        if not all(c.isprintable() for c in raw_phrase):
+            matched = (token, [], "Query must be printable and at most 150 UTF-8 bytes.")
+        else:
+            matched = match_command(raw_phrase.strip(" "), config["commands"])
+    else:
+        matched = match_command(phrase, config["commands"])
     if matched is None:
         return None
     command, arguments, input_error = matched
@@ -265,6 +279,16 @@ async def run_script(root, spec, request, config):
     for key in list(env):
         if key.startswith("MESHCORE_CHANNEL_KEY_"):
             env.pop(key)
+    # Only the dedicated help command receives a filtered, non-secret command list.
+    env.pop("MESHCORE_HELP_COMMANDS", None)
+    if request.get("command") == "!help":
+        channel_id = request.get("channel_id", "")
+        from scripts.command_dependencies import is_bundled
+        allowed = {name: is_bundled(name, item)
+                   for name, item in config.get("commands", {}).items()
+                   if channel_id in item.get("channels", [])}
+        catalog = json.dumps(allowed)
+        env["MESHCORE_HELP_COMMANDS"] = catalog if len(catalog.encode("utf-8")) <= 16384 else "null"
     env.update(
         MESHCORE_SENDER=request["sender"],
         MESHCORE_REPLY_PARTS="1",

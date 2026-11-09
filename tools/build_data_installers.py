@@ -22,7 +22,7 @@ from build_installers import download_only, water_download_rules
 from artifact_provenance import source_hashes, write_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "v0.9.6-beta"
+VERSION = "v0.9.9-beta"
 DATASETS = ("ebmud", "basin_plans", "flood_impacts", "usgs_water", "wildfire",
             "landslide", "california_state_parks", "satellites")
 DISPLAY_NAMES = dict(zip(DATASETS, ("EBMUD", "Basin Plans", "Flood Reference", "USGS Water",

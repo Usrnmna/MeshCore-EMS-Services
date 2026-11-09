@@ -5,7 +5,7 @@ See [tagged response examples and near searches](RESPONSE_EXAMPLES.md) for offli
 Radio replies use one tagged message, with no details or paging. See the
 [response policy and manual review inventory](RESPONSE_FORMATTING.md).
 
-This reference describes the 31 shipped commands in [config.json](config.json), their radio inputs, response families, and administrator options. Linux and Windows use the same command behavior. Installed channel assignments and settings can differ from these defaults. For a shorter introduction, see the [MeshCore user guide](BOT_USER_GUIDE.md).
+This reference describes the 50 shipped commands in [config.json](config.json), their radio inputs, response families, and administrator options. Linux and Windows use the same command behavior. Installed channel assignments and settings can differ from these defaults. For a shorter introduction, see the [MeshCore user guide](BOT_USER_GUIDE.md).
 
 ## Quick navigation
 
@@ -32,7 +32,7 @@ Send one command as an ordinary channel message on a channel assigned to the bot
 !status
 ```
 
-The service replies on the same channel and prefixes every reply part with the saved sender display name, for example `@Alice`. Do not type the name prefix or quote an entire command in the radio message. Command words are case-sensitive: use `!trail`, not `!Trail`. The shipped configuration has no `!trails` alias and no global `!help` command. Each GIS command accepts `help`; other commands use the syntax documented below.
+The service replies on the same channel and prefixes every reply part with the saved sender display name, for example `@Alice`. Do not type the name prefix or quote an entire command in the radio message. Command words are case-sensitive: use `!trail`, not `!Trail`. The shipped configuration has no `!trails` alias. Use `!help` for channel-aware discovery and `!help !COMMAND` for prerequisite status. Individual commands also expose the help forms documented below.
 
 Defaults that affect visible behavior:
 
@@ -41,7 +41,7 @@ Defaults that affect visible behavior:
 | 30-second sender cooldown per channel | Additional requests during cooldown can be ignored, including after a malformed request. Wait before retrying. |
 | 5-second command transmission spacing | Long or queued replies can take several minutes. Spacing applies between radio transmissions, not just between complete answers. |
 | 150-byte radio reply limit | Every part includes `@sender`. Unicode uses multiple bytes; a 150-byte limit is not a 150-character limit. |
-| Reply cap | One 150-byte message including sender tag; no paging, continuation or omission notices. |
+| Reply cap | One 150-byte message including sender tag; no paging or continuation; bounded new queries disclose partial coverage or require narrower selection. |
 | Message freshness | Messages older than 300 seconds or more than 60 seconds in the future are ignored. |
 | Duplicate detection | Repeated packets do not run the same request again. |
 | Channel assignments | A recognized command on an unassigned channel produces no response. |
@@ -78,7 +78,7 @@ Radio requests cannot supply arbitrary terminal flags such as `--radius`, `--tim
 <a id="command-index"></a>
 ## All commands
 
-| Command | Purpose | Minimal example |
+| Command | Purpose | Example or syntax |
 | --- | --- | --- |
 | [!status](#cmd-status) | Check the local command responder | `!status` |
 | [!time](#cmd-time) | Read the bot host's clock in the configured zone | `!time` |
@@ -112,10 +112,30 @@ Radio requests cannot supply arbitrary terminal flags such as `--radius`, `--tim
 | [!smoke](#cmd-smoke) | Point smoke coverage and nearby air quality | `!smoke 96150` |
 | [!firedanger](#cmd-firedanger) | Local ERC percentile, fuels and warning context | `!firedanger Reno NV` |
 
+| [!help](#cmd-help) | Command discovery | `!help [TOPIC or !COMMAND]` |
+| [!data](#cmd-data) | Dataset and source availability | `!data DATASET` |
+| [!statepark](#cmd-statepark) | California State Parks identity | `!statepark NAME` |
+| [!entrance](#cmd-entrance) | Recorded park entrances | `!entrance PARK` |
+| [!camp](#cmd-camp) | Campground and campsite references | `!camp NAME` |
+| [!parking](#cmd-parking) | Recorded parking references | `!parking NAME` |
+| [!facility](#cmd-facility) | Facility references across collections | `!facility CATEGORY near LAT LON [MILES] [source=ebmud\|parks]` |
+| [!gauge](#cmd-gauge) | Exact station readings | `!gauge AGENCY-STATION-ID [stage\|flow\|source] [series SERIES-ID]` |
+| [!gauges](#cmd-gauges) | Nearby gauge inventory | `!gauges near LAT LON [MILES]` |
+| [!downstream](#cmd-downstream) | Reviewed downstream relationships | `!downstream AGENCY-STATION-ID` |
+| [!tributaries](#cmd-tributaries) | Reviewed tributary relationships | `!tributaries NHDPlusV2:REACH-ID` |
+| [!wateruse](#cmd-wateruse) | Designated beneficial uses | `!wateruse BP:SERVICE/LAYER:OBJECT` |
+| [!sat](#cmd-sat) | Satellite catalog identity and status | `!sat NORAD-ID` |
+| [!satfreq](#cmd-satfreq) | Recorded satellite operation frequencies | `!satfreq NORAD-ID [op OPERATION-ID] [field uplink\|downlink\|mode\|passband\|status]` |
+| [!satpoint](#cmd-satpoint) | Satellite pointing with GIS observer height | `!satpoint NORAD-ID LAT LON [agl METRES] [terrain ID] [orbit ID]` |
+| [!satpass](#cmd-satpass) | Bounded satellite pass prediction | `!satpass NORAD-ID LAT LON [next24h\|hours H] [min DEG] [agl METRES] [terrain ID] [orbit ID] [field start\|peak\|end\|window]` |
+| [!where](#cmd-where) | Geographic identification | `!where LAT LON [park\|basin\|firezone]` |
+| [!weather](#cmd-weather) | NWS point forecasts | `!weather [hourly\|wind] LOCATION` |
+| [!brief](#cmd-brief) | Selected location briefing | `!brief [alerts\|weather\|fire\|water] LOCATION` |
+
 <a id="subcommand-index"></a>
 ## Subcommand and option index
 
-This index lists the complete radio vocabulary in the maintained parsers. Each
+This index summarizes the radio vocabulary; each command section specifies selectors and qualifications. It lists the radio vocabulary in the maintained parsers. Each
 linked section explains outputs, interpretation, failures, and configuration.
 `LOCATION` means a supported location input, `NAME` a local dataset name, and
 `ZONE` an NWS fire-weather zone ID. Placeholder brackets are omitted from messages.
@@ -125,7 +145,7 @@ Terminal flags such as `--json` belong to direct Python invocation, not radio te
 
 | Command | Named fields or category words | Explanation |
 | --- | --- | --- |
-| `!trail` | `dogs`, `horses`, `bikes`, `length`, `difficulty`, `gain`, `surface`, `shade`, `time`, `start`, `areas`, `description`, `info` | [All trail fields and responses](#cmd-trail). |
+| `!trail` | `dogs`, `horses`, `bikes`, `length`, `difficulty`, `gain`, `surface`, `shade`, `time`, `start`, `end`, `areas`, `description`, `info` | [All trail fields and responses](#cmd-trail). |
 | `!rec` | `type`, `parking`, `restrooms`, `water`, `picnic`, `fishing`, `boatlaunch`, `boatrental`, `playground`, `horsetrailers`, `location`, `info` | [All rec fields and responses](#cmd-rec). |
 | `!peak` | `elevation`, `location`, `info` | [All peak fields and responses](#cmd-peak). |
 | `!park` | `status`, `agency`, `trails`, `recreation`, `info` | [All park fields and responses](#cmd-park). |
@@ -152,7 +172,7 @@ Terminal flags such as `--json` belong to direct Python invocation, not radio te
 | --- | --- | --- |
 | `!firezone` | `ZONE` or `LOCATION`; `help` | Whole-zone identity and cached fire-weather alert status. |
 | `!fires` | `ZONE` or `LOCATION`; `near LOCATION within MILES`; `help` | Incident origins and latest mapped perimeters; distance searches use a point. |
-| `!fire` | `INCIDENT-ID` or an unambiguous incident name; `help` | One incident, reported containment, perimeter provenance, or labelled retained history. |
+| `!fire` | `INCIDENT-ID`, `id ID`, `name NAME`, `field acreage/containment/perimeter/updated id ID` or `name NAME`; `help` | One incident, reported containment, perimeter provenance, or labelled retained history. |
 | `!firewx` | `ZONE` or `LOCATION`; `help` | Zone forecast periods and active warning/watch context. |
 | `!firewarn` | `ZONE` or `LOCATION`; `help` | Red Flag Warning and Fire Weather Watch products. |
 | `!firedata` | `CATEGORY ZONE` or `CATEGORY LOCATION`; `help` | A selected supplementary product, with its own source freshness. |
@@ -171,8 +191,8 @@ radius limit. See [wildfire radio syntax](WILDFIRE_GUIDE.md#radio-commands) and
 
 | Command | Accepted forms | Explanation |
 | --- | --- | --- |
-| `!waterway` | `LOCATION`, `help` | Named reaches, supported upstream-basin relationships, and current gauge context. |
-| `!basin` | `LOCATION`, `help` | Containing CalWater hierarchy and Water Board attribution. |
+| `!waterway` | `LOCATION`, `name NAME [region REGION] [source SOURCE]`, `id BP:SOURCE:OBJECT`, `help` | Named reaches, supported upstream-basin relationships, and current gauge context. |
+| `!basin` | `LOCATION`, `parent BP:SOURCE:OBJECT`, `help` | Containing CalWater hierarchy and Water Board attribution. |
 | `!floodstatus` | `LOCATION`, `help` | Official alerts, modeled point footprint, current gauges, and explicit coverage gaps. |
 | `!floodwarn` | `LOCATION`, `help` | Highest-priority official alert; no enrollment or renewal. |
 | `!floodalarm` | `LOCATION`, `conditions LOCATION`, `status`, `stop`, `help` | Official-alert subscription by default; conditions mode adds supported categorical gauge/model/coverage changes. |
@@ -189,11 +209,23 @@ interval is five minutes. See [water commands and subscription lifecycle](WATER_
 | --- | --- | --- |
 | `!slidewarn` | `LOCATION`, `help` | Official California/Nevada point alerts explicitly mentioning landslide hazards. |
 | `!slidealarm` | `on LOCATION`, `status`, `off`, `help` | Service-owned temporary alert monitoring. |
-| `!slideinfo` | `LOCATION`, `near LOCATION`, `help` | Nearest eligible reviewed USGS station metadata; no numeric telemetry. |
+| `!slideinfo` | `LOCATION`, `near LOCATION`, `station ID [instruments [INDEX] or status or source]`, `help` | Nearest eligible reviewed USGS station metadata; no numeric telemetry. |
 
 Landslide locations must resolve inside California or Nevada. The reviewed station
 catalog is Californian, including when the request is in Nevada. See the
 [landslide guide](LANDSLIDE_GUIDE.md) for intervals, expiry, cache behavior, and coverage.
+
+### Expanded selector index
+
+| Family | Selectors and narrowing | Detailed contract |
+| --- | --- | --- |
+| Discovery | Topic/command, dataset, observation and source-cache selection | [Help](#cmd-help), [data](#cmd-data) |
+| Parks and sites | Exact unit/feature IDs, literal names, nearby search, AND-combined type/subtype/use filters | [State Parks](#cmd-statepark), [entrances](#cmd-entrance), [camp](#cmd-camp), [parking](#cmd-parking), [facilities](#cmd-facility) |
+| Trail extensions | Recorded start/end with endpoint ID; `find` and combined dogs/horses/bikes/shade | [Trail](#cmd-trail) |
+| Water references | Exact station/series, source-qualified reach and Basin Plan IDs, region/source, use code and field | [Gauge](#cmd-gauge), [gauges](#cmd-gauges), [downstream](#cmd-downstream), [tributaries](#cmd-tributaries), [waterway](#cmd-waterway), [parent](#cmd-basin), [uses](#cmd-wateruse) |
+| Satellites | NORAD/name, operation/field, orbit/terrain/AGL, pass hours/minimum elevation/event field | [Catalog](#cmd-sat), [frequencies](#cmd-satfreq), [pointing](#cmd-satpoint), [passes](#cmd-satpass) |
+| Fire and stations | Explicit incident ID/name and detail field; exact landslide station/instrument index/status/source | [Incident detail](#cmd-fire), [station metadata](#cmd-slideinfo) |
+| Location context | Containment category/CalWater level, hourly/wind forecast, selected briefing section | [Where](#cmd-where), [weather](#cmd-weather), [brief](#cmd-brief) |
 
 ### Commands without subcommands
 
@@ -201,7 +233,7 @@ catalog is Californian, including when the request is in Nevada. See the
 `!traffic` takes an integer route number from 1 to 999. `!uv`, `!heatadv`,
 `!lightning`, and `!snowpack` take the locations documented in their sections.
 These commands have no radio field selector, paging, or subscription control.
-There is no global `!help` command. Unknown commands are ignored; command words
+Use `!help` for channel-aware discovery and `!help !COMMAND` for prerequisite status. Unknown commands are ignored; command words
 remain lowercase and argument validation is command-specific.
 
 <a id="cmd-status"></a>
@@ -365,6 +397,11 @@ as thunderstorm probability. Each lookup produces one tagged message.
 <a id="cmd-waterway"></a>
 ## !waterway - location waterway status
 
+### Exact named-waterbody selection
+
+Existing location queries remain available. `!waterway name NAME [region REGION] [source SERVICE/LAYER]` selects recorded Basin Plan names; `!waterway id BP:SERVICE/LAYER:OBJECT` selects exact source identity. Preserve object ID zeroes. Duplicate names require disambiguation; name associations do not prove connectivity. Source and region selectors use the installed collection keys and regional categories, with numeric Water Board region selectors also supported.
+
+
 [Tagged response examples](RESPONSE_EXAMPLES.md#example-waterway).
 
 **Syntax:** `!waterway LOCATION`. **Program:** [scripts/waterway.py](scripts/waterway.py).
@@ -374,6 +411,11 @@ establish a downstream connection. Missing routing remains explicit.
 
 <a id="cmd-basin"></a>
 ## !basin - containing watersheds
+
+### Recorded parent relationships
+
+`!basin parent BP:SERVICE/LAYER:OBJECT` requests the immediate recorded CalWater parent. The six levels are Region (HR), Unit (HU), Area (HA), Subarea (HSA), Super Planning Watershed (SPW), and Planning Watershed (PW). These are distinct from Water Board regions. Roots, missing parents, conflicting links and incompatible generations remain explicit; a parent is not inferred by geometry overlap. Existing location containment queries remain available.
+
 
 [Tagged response examples](RESPONSE_EXAMPLES.md#example-basin).
 
@@ -491,7 +533,7 @@ Coverage, resolution, or provider errors can return explanatory text. The config
 <a id="gis-syntax"></a>
 ## Shared GIS query rules
 
-The five GIS commands query **local EBMUD-area datasets**, including their supplied surrounding park layers. They are not a statewide park search. The separately downloaded California State Parks data and satellite catalog are local reference collections and are not registered as MeshCore commands.
+The five GIS commands query **local EBMUD-area datasets**, including their supplied surrounding park layers. They are not a statewide park search. Separate State Parks commands (`!statepark`, `!entrance`, `!camp`, `!parking`) and satellite commands (`!sat`, `!satfreq`, `!satpoint`, `!satpass`) read their independently maintained collections; they do not expand the original EBMUD query scope.
 
 For `!trail`, `!rec`, `!peak`, and `!park`:
 
@@ -522,6 +564,13 @@ GIS input is limited to 150 characters. City names, ZIPs, addresses, and arbitra
 
 <a id="cmd-trail"></a>
 ## !trail --> trail details
+
+### Recorded endpoints and combined filters
+
+`!trail NAME start` and `!trail NAME end` select recorded endpoint roles. If several points match, use `!trail NAME start id ID` or `end id ID` with the returned endpoint OBJECTID_1. Line vertex order and supplementary endpoint descriptions do not establish mapped start/end coordinates.
+
+`!trail find dogs bikes shade near LAT LON [MILES]` AND-combines any distinct subset of `dogs`, `horses`, `bikes`, and `shade` before distance ranking. Shade accepts the recorded categories Equal Parts Shade and Sun, Mostly Shade, or Full Shade. Unknown attributes do not qualify affirmatively. `help endpoints`, `help filters`, `help find`, and `help shade` expose the syntax. Existing name and single-attribute forms remain available.
+
 
 [Tagged response examples](RESPONSE_EXAMPLES.md#example-trail).
 
@@ -976,6 +1025,11 @@ See the [wildfire guide](WILDFIRE_GUIDE.md#radio-commands) for syntax, source in
 <a id="cmd-fire"></a>
 ## !fire - Incident containment and source detail
 
+### Incident detail selectors
+
+`!fire id INCIDENT-ID` and `!fire name NAME` make identity selection explicit. `!fire field acreage|containment|perimeter|updated id INCIDENT-ID` or the corresponding `name NAME` form selects one detail. Acreage uses recorded acres and containment uses recorded percent. Perimeter records retain their own identity and dates; incident timestamps do not date a perimeter. Missing, conflicting, cached, stale and failed source evidence remain qualified at query time. Details do not predict spread, identify evacuation status or establish safe conditions. Existing unambiguous incident-name/ID queries remain available.
+
+
 [Tagged response examples](RESPONSE_EXAMPLES.md#example-fire).
 
 **Example:** `!fire INCIDENT-ID`. **Program:** [scripts/fire.py](scripts/fire.py).
@@ -1079,6 +1133,11 @@ one outage/recovery notification. Standalone Python calls never enroll.
 <a id="cmd-slideinfo"></a>
 ## !slideinfo: California monitoring station information
 
+### Exact station metadata
+
+`!slideinfo station ID [instruments [INDEX]|status|source]` selects an exact recorded station identity; the default selector is `status`. Instrument indices are one-based and select a complete recorded item. Long lists disclose partial results rather than implying omitted instruments are absent. Source/catalog dates describe evidence freshness; catalog status and instrumentation do not establish live telemetry, current station activity, numeric sensor readings or slope-failure likelihood. California catalog results for supported Nevada queries retain the not-local-coverage qualification. Existing location and near forms remain available.
+
+
 [Tagged response examples](RESPONSE_EXAMPLES.md#example-slideinfo).
 
 `!slideinfo LOCATION` (optional `near LOCATION`) returns the nearest eligible
@@ -1095,3 +1154,238 @@ and one reply message. Alarm `--snapshot` is the service's structured interface.
 Settings are under `responder.landslide`; no new API key or OS service is required.
 See the [landslide guide](LANDSLIDE_GUIDE.md) for source selection, cache semantics,
 subscription lifecycle, geographic limits, and upgrade/channel assignment steps.
+
+<a id="cmd-help"></a>
+## !help - command discovery
+
+**Program:** [scripts/command_help.py](scripts/command_help.py).
+
+```text
+!help [TOPIC or !COMMAND]
+```
+
+Lists commands enabled on the requesting channel. Topics are geography, parks, sites, water, fire, weather, landslide, service, satellites, and other. `!help !weather` returns syntax and local prerequisite status. Enabled commands with unavailable dependencies remain distinguishable from unavailable channel assignments. Remote-provider health is not inferred from registration. Standalone invocation without service context reports that channel availability is unknown.
+
+<a id="cmd-data"></a>
+## !data - dataset and source availability
+
+**Program:** [scripts/data_status.py](scripts/data_status.py).
+
+```text
+!data DATASET
+!data water observations
+!data source water
+!data source landslide
+!data source wildfire CATEGORY
+```
+
+Dataset names are `ebmud`, `basin_plans`, `flood_impacts`, `usgs_water`, `wildfire`, `landslide`, `california_state_parks`, and `satellites`. Aliases include `basin`, `flood`, `water`, `parks`, and `satellite`. Reports selected installed generations, explicit removal, integrity failure, incomplete verification, and existing cache freshness. Water observation freshness uses measurement timestamps at query time. Checks are bounded to 64 MiB and four seconds where the shared verification budget applies; an incomplete check is not a certification. Queries do not refresh providers or repair collections.
+
+<a id="cmd-statepark"></a>
+## !statepark - california state parks identity
+
+**Program:** [scripts/statepark.py](scripts/statepark.py).
+
+```text
+!statepark NAME
+!statepark id UNIT
+!statepark near LAT LON
+```
+
+Selects an exact normalized park name or recorded unit identifier from installed California State Parks boundaries and entrance records. Duplicate identities require selection. The near form reports approximate map-boundary distance and any repair uncertainty, not a route or legal access point. Recorded classification does not establish present opening or access status.
+
+<a id="cmd-entrance"></a>
+## !entrance - recorded park entrances
+
+**Program:** [scripts/entrance.py](scripts/entrance.py).
+
+```text
+!entrance PARK
+!entrance unit UNIT
+!entrance id ENTRANCE_ID
+```
+
+Returns the recorded entrance point, source identifier and available address. Multiple entrances require an exact source entrance ID. Park unit IDs and entrance OBJECTIDs are different identifiers. Coordinates come from the entrance feature, never a park centroid. Missing entrance records do not establish that a park has no public entrance.
+
+<a id="cmd-camp"></a>
+## !camp - campground and campsite references
+
+**Program:** [scripts/camp.py](scripts/camp.py).
+
+```text
+!camp NAME
+!camp name LITERAL NAME
+!camp id FID
+!camp unit UNIT
+!camp near LAT LON [MILES]
+```
+
+Uses installed State Parks campground records. Append `type=VALUE` and/or `subtype=VALUE` to ordinary, ID, unit, or near selectors; `name` treats the entire remainder literally and accepts no filters. All filters apply before distance ranking. Types: `developed-family`, `developed-group`, `primitive-family`, `primitive-group`, `environmental`, `hike-bike`, `horse`, `enroute`, `walk-in`, `trail`, `unknown`. Subtypes: `tent-only`, `walk-in`, `boat-in`, `hookups`, `rental-cabins`, `tent-cabins`, `multiple`, `unknown`. `help filters` and `help type GROUP` / `help subtype GROUP` provide bounded vocabulary. Radius must be positive and within `maximum_radius_miles`; an omitted radius uses that configured maximum. These records do not provide vacancies, bookings, current fees or current access.
+
+<a id="cmd-parking"></a>
+## !parking - recorded parking references
+
+**Program:** [scripts/parking.py](scripts/parking.py).
+
+```text
+!parking NAME
+!parking name LITERAL NAME
+!parking id FID
+!parking unit UNIT
+!parking near LAT LON [MILES]
+```
+
+Uses installed State Parks parking points. Append AND-combined `type=VALUE`, `use=VALUE`, and `trailhead=yes|no|unknown` filters before ranking; the literal `name` form has no filters. Types: `vehicle`, `boat`, `equestrian`, `rv-bus-trailer`, `administrative`, `campground-spur`, `unknown`. Uses: `day-fee`, `day-no-fee`, `restroom`, `short-term`, `group-camp`, `overflow`, `admin`, `service`, `unknown`. `help filters`, `help type GROUP`, and `help use GROUP` expose the vocabulary. Radius follows the campground rule. A recorded parking classification or fee category is not present availability, public permission, or a current charge.
+
+<a id="cmd-facility"></a>
+## !facility - facility references across collections
+
+**Program:** [scripts/facility.py](scripts/facility.py).
+
+```text
+!facility CATEGORY near LAT LON [MILES] [source=ebmud|parks]
+```
+
+Categories are `restrooms`, `water`, `picnic`, `visitors`, and `boatlaunch`; the default considers both sources. EBMUD supports restroom, water, picnic and boat-launch attributes; State Parks supports the explicitly classified restroom, visitor and picnic records. Unsupported categories and unavailable collections are disclosed as partial coverage. Filters precede distance ranking. An EBMUD amenity flag identifies a reference site, not an exact building or tap. Source qualifications and nonpublic context remain significant; recorded water does not establish potability or present operation.
+
+<a id="cmd-gauge"></a>
+## !gauge - exact station readings
+
+**Program:** [scripts/gauge.py](scripts/gauge.py).
+
+```text
+!gauge AGENCY-STATION-ID [stage|flow|source] [series SERIES-ID]
+```
+
+Preserves agency namespaces and leading zeroes. Exact inventory identity is required; names and proximity cannot establish provider links. Select a series explicitly when several eligible series remain. Readings retain units, observation time or age, provisional/estimated flags and source qualifications. Supported live adapters are reused; installed last-known observations remain labelled snapshots. Freshness is recalculated at query time. Provider failure, inactivity, stale observations and incompatible units cannot silently become current readings. The `source` selector explains the selected evidence.
+
+<a id="cmd-gauges"></a>
+## !gauges - nearby gauge inventory
+
+**Program:** [scripts/gauges.py](scripts/gauges.py).
+
+```text
+!gauges near LAT LON [MILES]
+```
+
+Discovers inventory stations by map distance, with a positive explicit radius no greater than 50 miles; omission uses the configured nearby radius. Results distinguish inventory-only stations from stations with eligible installed snapshot readings. Discovery does not perform a live reading request for each station. Nearby is not upstream or hydraulically connected. Use the returned exact agency-qualified ID with `!gauge` for an independent reading query.
+
+<a id="cmd-downstream"></a>
+## !downstream - reviewed downstream relationships
+
+**Program:** [scripts/downstream.py](scripts/downstream.py).
+
+```text
+!downstream AGENCY-STATION-ID
+!downstream NHDPlusV2:REACH-ID
+```
+
+Returns a bounded, one-hop downstream exploration of the installed reviewed directed network. A station must have an eligible reviewed station-to-reach link. Reach IDs retain the `NHDPlusV2:` namespace. Repeat an independent query with a returned ID to explore further. Branches, unresolved endpoints, cycles, unsupported directions and partial results remain explicit; no arbitrary branch is selected. A verified terminal is distinct from missing relationship rows. Required routing, inventory, network and review generation pins must agree. This is reference connectivity, not flow travel time or flood propagation.
+
+<a id="cmd-tributaries"></a>
+## !tributaries - reviewed tributary relationships
+
+**Program:** [scripts/tributaries.py](scripts/tributaries.py).
+
+```text
+!tributaries NHDPlusV2:REACH-ID
+!tributaries name NAME [region REGION]
+```
+
+Selects an exact installed reach or exact source waterbody name with an optional regional discriminator. Ambiguous names return stable reach choices. The supported source is NHDPlusV2; there is no inferred cross-source merge. Immediate recorded tributaries use the same generation and directional eligibility checks as downstream queries. Duplicate edges, unresolved rows and bounded partial coverage remain explicit. Name similarity, proximity and geometry overlap do not establish tributary relationships.
+
+<a id="cmd-wateruse"></a>
+## !wateruse - designated beneficial uses
+
+**Program:** [scripts/wateruse.py](scripts/wateruse.py).
+
+```text
+!wateruse BP:SERVICE/LAYER:OBJECT
+!wateruse name NAME [region REGION] [source SERVICE/LAYER]
+!wateruse BP:SERVICE/LAYER:OBJECT use CODE [field name|description|status|notes]
+```
+
+Uses recorded Basin Plan identities and relationships. Preserve source object IDs and leading zeroes. Name selectors can be narrowed by Water Board region and source; unresolved same-named records are not merged. A focused field requires `use CODE`. Results retain use codes, descriptions, designation status, regional context, missing classifications and qualifications. Designated uses are not current water-quality measurements, drinking-water safety, recreational suitability or access permission. Basin Plan associations do not establish directed hydrographic connectivity.
+
+<a id="cmd-sat"></a>
+## !sat - satellite catalog identity and status
+
+**Program:** [scripts/sat.py](scripts/sat.py).
+
+```text
+!sat NORAD-ID
+!sat name NAME
+```
+
+Reads the installed satellite catalog without changing membership or downloading orbital data. NORAD IDs are positive decimal identifiers; exact normalized names and recorded aliases require unambiguous identity. Catalog status is separate from operation status. Conflicts, missing or stale evidence, inactive/retired/discontinued records and unavailable catalogs retain their distinctions. A missing catalog entry does not prove inactivity. Freshness uses evidence timestamps and the installed status policy, not retrieval time or orbital recency. Catalog lookup does not require Skyfield.
+
+<a id="cmd-satfreq"></a>
+## !satfreq - recorded satellite operation frequencies
+
+**Program:** [scripts/satfreq.py](scripts/satfreq.py).
+
+```text
+!satfreq NORAD-ID [op OPERATION-ID] [field uplink|downlink|mode|passband|status]
+!satfreq name NAME [op OPERATION-ID] [field uplink|downlink|mode|passband|status]
+```
+
+Selects recorded operation records belonging to the exact satellite. Incompatible operations require an explicit stable operation ID. Uplink, downlink, beacon and transponder/passband records remain distinct; units, precision, modes/protocols and source direction are retained. Missing frequencies are not synthesized. Operation evidence and satellite evidence have independent status qualifications. Frequency listings do not authorize transmission or prove current RF activity or reception. If the qualified record exceeds radio space, narrow the operation/field or use local structured output.
+
+<a id="cmd-satpoint"></a>
+## !satpoint - satellite pointing with gis observer height
+
+**Program:** [scripts/satpoint.py](scripts/satpoint.py).
+
+```text
+!satpoint NORAD-ID LAT LON [agl METRES] [terrain ID] [orbit ID]
+!satpoint help units
+```
+
+Predicts azimuth from true north clockwise, geometric elevation angle and range using a qualified local orbit and GIS terrain at the observer coordinate. Latitude/longitude are WGS84 degrees; `agl` is antenna height above terrain, defaults to zero and accepts 0–1000 metres. Terrain elevation is converted to WGS84 ellipsoid height only with complete datum evidence and available, non-ballpark local transformations. No flat-earth/zero-height fallback or automatic grid download is used. Terrain-source and orbit ambiguities require selectors. Missing/NoData, stale orbit, incompatible datum or restricted-reference terrain blocks the result. Prediction does not certify visibility, RF activity or terrain-horizon clearance.
+
+<a id="cmd-satpass"></a>
+## !satpass - bounded satellite pass prediction
+
+**Program:** [scripts/satpass.py](scripts/satpass.py).
+
+```text
+!satpass NORAD-ID LAT LON [next24h|hours H] [min DEG] [agl METRES] [terrain ID] [orbit ID] [field start|peak|end|window]
+!satpass help selectors
+!satpass help units
+```
+
+Uses the same qualified GIS observer height and orbit controls as pointing. Search hours are 0.25–24, default 24; the elevation threshold is 0–90 degrees, with a shipped default of 10 degrees. Times are UTC. Start/end are geometric threshold crossings; windows already in progress or clipped by the search horizon remain qualified. Solver work, samples, event counts and reply size are bounded, and incomplete results are disclosed. A GIS elevation sample is not a terrain obstruction horizon. Predicted passes do not establish RF operation, reception, illumination or safe transmission, and do not create schedules or subscriptions.
+
+<a id="cmd-where"></a>
+## !where - geographic identification
+
+**Program:** [scripts/where.py](scripts/where.py).
+
+```text
+!where LAT LON [park|basin|firezone]
+!where LAT LON basin [Region|Unit|Area|Subarea|SPW|PW]
+```
+
+Identifies containment using installed EBMUD/State Parks boundaries, CalWater polygons and supported fire-weather zones. Boundary touches, overlaps, ambiguous matches, incomplete coverage and unavailable collections remain explicit. The six CalWater levels are distinct from Water Board regions. The query accepts coordinates, not an inferred city-wide area. No matching polygon does not prove absence from every real-world jurisdiction. This is map identification, not legal jurisdiction, an evacuation zone, access permission, or a live safety determination.
+
+<a id="cmd-weather"></a>
+## !weather - nws point forecasts
+
+**Program:** [scripts/weather.py](scripts/weather.py).
+
+```text
+!weather [hourly|wind] LOCATION
+```
+
+Accepts coordinates, US ZIP or city/state; bare cities default to California. The default summarizes an eligible forecast period; `hourly` focuses hourly forecast periods and `wind` focuses forecast wind/gust information. Preserve forecast valid times, source update time, units and uncertainty. Old, future-dated, invalid or absent periods remain unavailable; stale cached evidence cannot silently appear current. These are NWS forecasts rather than sensor observations, and the command does not enroll monitoring. Use local JSON for full supported detail.
+
+<a id="cmd-brief"></a>
+## !brief - selected location briefing
+
+**Program:** [scripts/brief.py](scripts/brief.py).
+
+```text
+!brief [alerts|weather|fire|water] LOCATION
+```
+
+Resolves one location and gathers selected alerts, weather, fire and water context; omission requests all four sections. Each section retains its own availability, freshness and source qualification. The radio summary prioritizes essential hazard and uncertainty fields and may require a narrower section. A selected briefing is not an exhaustive hazard inventory or all-clear. It does not run flood modelling, infer evacuation guidance, create subscriptions, or change service scheduling. Local JSON retains the structured section results.

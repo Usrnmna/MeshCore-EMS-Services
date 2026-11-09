@@ -176,3 +176,12 @@ Stage values are not transferred between gauges or datums. Discharge does not
 directly specify flood depth or footprint. Current readings can support official
 threshold review, but these tools do not produce a new flood forecast, arrival
 time estimate, or statewide inundation model.
+
+## Current service consumers
+
+`!gauge`, `!gauges`, `!downstream` and `!tributaries` reuse exact station identities, supported source adapters, reviewed station/reach links and generation-compatible routing. Measurements retain time, units and quality flags; proximity is not upstream. The shared publisher supports inventory, observations, network, routing and all existing review kinds without weakening candidate validation.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

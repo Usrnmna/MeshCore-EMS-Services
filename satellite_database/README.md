@@ -280,3 +280,15 @@ downloads do not demonstrate satellite reception.
 [FUNCTION_REFERENCE.md](FUNCTION_REFERENCE.md) explains every function and method
 in `catalog.py`, `reports.py`, `sources.py`, and `satellite_db.py`, including
 cache writes, SQLite transactions, exports, and command exit statuses.
+
+## MeshCore service consumers
+
+The standalone maintenance tool remains independent. The service packages expose
+dedicated `!sat`, `!satfreq`, `!satpoint` and `!satpass` commands that reuse installed
+catalog records without importing repository-only maintenance tools. Catalog and
+frequency queries need no orbital-tracking dependency. Pointing/pass queries use
+their own qualified local GIS observer-height contract, including explicit datum
+evidence and locally available transformations; standalone tracking options do not
+replace that service contract. No query mutates catalog membership or creates a schedule.
+See [radio forms](../meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-sat) and
+[terrain qualification](../docs/COMMAND_IMPLEMENTATION.md#satellite-terrain-qualification).

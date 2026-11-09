@@ -1,5 +1,6 @@
 """Isolated ownership, review invalidation and recovery tests for orchestration."""
 from contextlib import nullcontext
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -141,9 +142,17 @@ class UnifiedTests(unittest.TestCase):
             unified.validate_request(dict(kind="unified", action="history", target="windows-x64", path="anything"))
 
     def test_initial_commands_are_available_without_importing_service_programs(self):
-        settings = unified.default_settings("windows-x64")
-        self.assertEqual(len(settings["commands"]), 31)
-        self.assertTrue(all(spec["owner"] == "service-package" for spec in settings["commands"].values()))
+        root = Path(__file__).resolve().parents[1]
+        for target, package in (("windows-x64", "meshcore_mqtt_service_windows"),
+                                ("linux-x86_64", "meshcore_mqtt_service"),
+                                ("raspberry-pi-arm64", "meshcore_mqtt_service")):
+            with self.subTest(target=target):
+                commands = json.loads((root / package / "config.json").read_bytes())["responder"]["commands"]
+                settings = unified.default_settings(target)
+                self.assertEqual(set(settings["commands"]), set(commands))
+                for name, spec in settings["commands"].items():
+                    self.assertEqual(spec["script"], commands[name]["script"])
+                    self.assertEqual(spec["owner"], "service-package")
 
 
 if __name__ == "__main__":

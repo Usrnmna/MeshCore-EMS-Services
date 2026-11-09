@@ -322,3 +322,12 @@ call `verify_unchanged()` before returning a result; its supported layer mapping
 excludes annotation-only records. See the
 [Linux GIS functions](../../meshcore_mqtt_service/FUNCTION_REFERENCE.md#scripts-gis-data-py)
 or [Windows GIS functions](../../meshcore_mqtt_service_windows/FUNCTION_REFERENCE.md#scripts-gis-data-py).
+
+## Current service consumers
+
+`!trail` now supports recorded start/end IDs and combined policy/shade filters before distance ranking. Supported amenity flags also feed `!facility`; mapped references do not establish present access or water safety.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

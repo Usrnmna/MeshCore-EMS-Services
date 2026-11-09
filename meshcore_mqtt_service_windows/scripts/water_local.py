@@ -200,8 +200,8 @@ def build_index(config, output=None, collection=None):
     return target
 
 
-def readings(root, now, max_age):
-    """Read the sole latest-value generation; never copy measurements into the spatial index."""
+def readings(root, now, max_age, *, preserve_invalid=False):
+    """Read latest values; optionally retain invalid-row identity and quality for exact lookup."""
     directory, manifest, pointer = generation(
         root, "observations", ["latest_measurements.csv", "series_conditions.csv"]
     )
@@ -212,6 +212,8 @@ def readings(root, now, max_age):
     result = {}
     for row in rows:
         try:
+            if not isinstance(row.get("time"), str):
+                raise ValueError("Missing observation time")
             instant = datetime.fromisoformat(row["time"].replace("Z", "+00:00"))
             if instant.tzinfo is None:
                 raise ValueError("Naive reading time")
@@ -240,7 +242,7 @@ def readings(root, now, max_age):
             )
         except (ValueError, TypeError, KeyError):
             result.setdefault(row.get("station_id", ""), []).append(
-                {"status": "invalid", "time": row.get("time")}
+                dict(row, status="invalid") if preserve_invalid else {"status": "invalid", "time": row.get("time")}
             )
     return result, manifest["inventory_pointer"]
 

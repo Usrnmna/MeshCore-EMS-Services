@@ -23,6 +23,55 @@
     "sender_cooldown": 30,
     "max_pending": 50,
     "commands": {
+      "!data": {
+        "script": "scripts/data_status.py",
+        "args": [],
+        "input": "text_query",
+        "channels": ["default"]
+      },
+      "!facility": {
+        "script": "scripts/facility.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "channels": ["default"]
+      },
+      "!camp": {
+        "script": "scripts/camp.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "channels": ["default"]
+      },
+      "!parking": {
+        "script": "scripts/parking.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "channels": ["default"]
+      },
+      "!statepark": {
+        "script": "scripts/statepark.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "channels": ["default"]
+      },
+      "!entrance": {
+        "script": "scripts/entrance.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "channels": ["default"]
+      },
+      "!help": {
+        "script": "scripts/command_help.py",
+        "args": [],
+        "input": "text_query",
+        "channels": [
+          "default"
+        ]
+      },
       "!status": {
         "script": "scripts/status.py",
         "args": [],
@@ -309,6 +358,125 @@
         "timeout": 45,
         "max_reply_parts": 1,
         "error_reply": "Landslide lookup unavailable. Please try again later.",
+        "channels": [
+          "default"
+        ]
+      },
+      "!gauge": {
+        "script": "scripts/gauge.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Gauge data unavailable; no current reading confirmed."
+      },
+      "!gauges": {
+        "script": "scripts/gauges.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Gauge data unavailable; no current reading confirmed."
+      },
+      "!downstream": {
+        "script": "scripts/downstream.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Connectivity unavailable; no link inferred."
+      },
+      "!tributaries": {
+        "script": "scripts/tributaries.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 90,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ],
+        "error_reply": "Connectivity unavailable; no link inferred."
+      },
+      "!brief": {
+        "script": "scripts/brief.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "max_reply_parts": 1,
+        "channels": ["default"],
+        "error_reply": "Brief unavailable; not all-clear."
+      },
+      "!weather": {
+        "script": "scripts/weather.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 60,
+        "max_reply_parts": 1,
+        "channels": ["default"],
+        "error_reply": "Weather unavailable; no forecast confirmed."
+      },
+      "!where": {
+        "script": "scripts/where.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 60,
+        "max_reply_parts": 1,
+        "channels": ["default"],
+        "error_reply": "Geographic reference unavailable; no containment established."
+      },
+      "!satpass": {
+        "script": "scripts/satpass.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 60,
+        "max_reply_parts": 1,
+        "channels": ["default"],
+        "error_reply": "Pass unavailable; no prediction confirmed."
+      },
+      "!satpoint": {
+        "script": "scripts/satpoint.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 45,
+        "max_reply_parts": 1,
+        "channels": ["default"],
+        "error_reply": "Pointing unavailable; no prediction confirmed."
+      },
+      "!sat": {
+        "script": "scripts/sat.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 15,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ]
+      },
+      "!satfreq": {
+        "script": "scripts/satfreq.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 15,
+        "max_reply_parts": 1,
+        "channels": [
+          "default"
+        ]
+      },
+      "!wateruse": {
+        "script": "scripts/wateruse.py",
+        "args": [],
+        "input": "text_query",
+        "timeout": 60,
+        "max_reply_parts": 1,
         "channels": [
           "default"
         ]

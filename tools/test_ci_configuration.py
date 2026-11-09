@@ -19,6 +19,12 @@ class CiConfigurationTests(unittest.TestCase):
         matrix = workflow['jobs']['services']['strategy']['matrix']
         self.assertEqual(matrix['python'], ['3.11', '3.13'])
         self.assertEqual(matrix['package'], ['meshcore_mqtt_service', 'meshcore_mqtt_service_windows'])
+        steps = workflow['jobs']['documentation-and-tools']['steps']
+        contracts = next(step for step in steps if step.get('name') == 'Check publication and paired package contracts')
+        self.assertIn('tools.test_repository_configuration', contracts['run'])
+        self.assertIn('data.flood_impacts.test_archive_publication', contracts['run'])
+        self.assertLess(steps.index(contracts), next(index for index, step in enumerate(steps)
+                        if step.get('name') == 'Install offline verification dependencies'))
         for job in workflow['jobs'].values():
             self.assertEqual(job['strategy']['matrix']['os'], ['ubuntu-latest', 'windows-latest'])
             self.assertEqual(job['strategy']['fail-fast'], 'false')

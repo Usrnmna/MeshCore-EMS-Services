@@ -234,7 +234,7 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
     def test_release_versions_agree_across_platforms_and_installers(self):
         """Current release metadata must agree without rewriting historical release notes."""
         version = build_installers.VERSION
-        self.assertEqual(version, "v0.9.6-beta")
+        self.assertEqual(version, "v0.9.9-beta")
         numeric = version.removeprefix("v").split("-")[0] + ".0"
         for package in build_installers.PACKAGES:
             self.assertEqual((ROOT / package / "VERSION.txt").read_text().strip(), version)
@@ -350,7 +350,7 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
         # Configuration imports the flood worker and its water helpers; fixture commands remain isolated.
         for source in (ROOT / "meshcore_mqtt_service/scripts").glob("water_*.py"):
             shutil.copyfile(source, package / "scripts" / source.name)
-        for name in ("flood_warn.py", "uv_index.py", "response_text.py"):
+        for name in ("flood_warn.py", "uv_index.py", "response_text.py", "reference_policy.py"):
             shutil.copyfile(ROOT / "meshcore_mqtt_service/scripts" / name, package / "scripts" / name)
         configure.write_json(package / "config.json", defaults)
         shutil.copy2(ROOT / "meshcore_mqtt_service/scripts/dataset_paths.py",
@@ -652,7 +652,7 @@ if ([IO.File]::ReadAllText($file) -ne 'preserved bytes') { throw 'Application by
             "docs/README.md",
             "docs/ARCHITECTURE.md",
             "docs/DEVELOPMENT.md",
-            "RELEASE_v0.9.6-beta.md",
+            "RELEASE_v0.9.9-beta.md",
             "AGENTS.md",
             ".gitignore",
             ".gitattributes",

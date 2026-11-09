@@ -107,3 +107,12 @@ The original terms are preserved in [`source/gis_data_page.html`](source/gis_dat
 | `load_manifest(data_directory=DATA_DIRECTORY)` | Reads local source metadata. |
 | `load_dataset(name, data_directory=DATA_DIRECTORY)` | Returns verified GeoJSON; raises on missing data, hash/size mismatch, or inconsistent counts/IDs. Geometry is unchanged. |
 | `verify_files(data_directory=DATA_DIRECTORY)` | Verifies every manifest-indexed reference file and returns the file count. No network activity. |
+
+## Current service consumers
+
+`!statepark`, `!entrance`, `!camp`, `!parking`, supported `!facility` categories and `!where` consume verified installed layers. Exact identities, complete source qualifications, unknown attributes and partial coverage remain explicit; no reservation or current-access information is inferred.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

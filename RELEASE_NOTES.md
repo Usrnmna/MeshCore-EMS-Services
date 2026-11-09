@@ -1,5 +1,16 @@
 # Release notes
 
+## v0.9.9-beta — source preparation, November 9, 2026
+
+50 dedicated commands extend discovery, park/facility references, exact water
+queries, satellites, geographic identification, NWS forecasts and briefings.
+Existing trail, basin, waterway, wildfire and station selectors are extended.
+The shared water-generation publisher and installer test fixtures retain current
+dependency contracts. W10 modelling remains paused; existing flood alerts remain intact.
+
+[Current additions, migration and verification limits](RELEASE_v0.9.9-beta.md). Release builds
+and publication are pending. Earlier entries below retain their historical scope.
+
 ## v0.9.6-beta - October 21, 2026
 
 - Packages the current 31-command source, water tooling, flood lifecycle handling,

@@ -4,8 +4,9 @@ See [the service guide](README.md) for setup and commands.
 The lightning command is documented under [scripts/lightning.py](#scripts-lightning-py).
 The heat command is documented under [scripts/heat_adv.py](#scripts-heat-adv-py).
 
-This reference covers functions defined in maintained application files, including
-methods and nested callbacks. Test helpers, imported library functions, and generated
+This reference covers core functions in maintained application files, including
+methods and nested callbacks. The module inventory also links newer helpers whose
+complete local contracts remain in source docstrings. Test helpers, imported library functions, and generated
 files are excluded. Signatures show inputs and defaults; explanations describe the
 work and important effects. Update this reference and source docstrings together
 when a function changes. These descriptions are source documentation, not evidence
@@ -18,6 +19,8 @@ that a live service, device, or provider was tested.
 
 These references extend the module summaries below with complete source signatures
 and nested callbacks. Radio syntax belongs to the [command reference](COMMAND_REFERENCE.md#subcommand-index).
+The [implementation guide](../docs/COMMAND_IMPLEMENTATION.md) describes new component
+ownership, evidence rules, satellite terrain and reference-only isolation.
 
 ## Modules
 
@@ -50,6 +53,7 @@ and nested callbacks. Radio syntax belongs to the [command reference](COMMAND_RE
 - [scripts/time_now.py](#scripts-time-now-py)
 - [scripts/uv_index.py](#scripts-uv-index-py)
 
+
 <a id="channel-setup-py"></a>
 
 ## channel_setup.py
@@ -57,6 +61,7 @@ and nested callbacks. Radio syntax belongs to the [command reference](COMMAND_RE
 [Source](channel_setup.py)
 
 List/check radio channels or explicitly provision one configured channel. Stop the service before using the serial port. Listing never prints keys. Normal bridge startup does not call the provisioning operation.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -71,6 +76,7 @@ List/check radio channels or explicitly provision one configured channel. Stop t
 [Source](channels.py)
 
 Channel registry, key validation, radio identity checks and state migration. No radio writes occur here. Provisioning is an explicit channel_setup.py action. Secrets stay in the radio/environment; only their SHA-256 identity is persisted.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -96,6 +102,7 @@ Channel registry, key validation, radio identity checks and state migration. No 
 
 Read-only end-to-end check. Uses the configured serial, BLE, or TCP connection. Requires an idle compatible companion radio and unused localhost port 1883. Opens the configured radio interface and localhost sockets and writes runtime state. Sends no over-the-air messages.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `async check()` | Start a local broker and radio session, issue read-only infos, verify MQTT results, and clean up connections. |
@@ -119,6 +126,27 @@ Persistent flood subscriptions remain on the existing event loop and database.
 | `current(reading)`, `control_current(request)` | Recheck assignment, identity, revision and expiry around asynchronous work. |
 | `check_one()`, `run()` | Check pinned locations; compare official fingerprints and categorical conditions without level history. |
 
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `FloodAlarms.__init__(self, db, channel, identity, config, read, notify, allowed, clock=time.time, monotonic=time.monotonic)` | Create current subscription state, migrate legacy deadlines and enforce channel binding. |
+| `FloodAlarms.row(self, sender)` | Read one subscription without changing the shared connection's row factory. |
+| `FloodAlarms.remember(self, request, now)` | Reserve ordered subscribe/stop revisions at acceptance; stop invalidates pending lookups immediately. |
+| `FloodAlarms.current(self, reading)` | Recheck expiry, identity, revision and assignment after awaits and inside the radio queue. |
+| `FloodAlarms.control_current(self, request)` | Suppress obsolete control acknowledgments while allowing status/help without enrollment. |
+| `async FloodAlarms.control(self, request)` | Baseline an enrollment before acknowledgment; keep monitoring disabled on lookup failure. |
+| `FloodAlarms.acknowledge(self, request)` | Permit scheduled checks only after all acknowledgment parts have been sent. |
+| `FloodAlarms.queue_notices(self, reading, notices, checked_at)` | Replace pending notices by sender/revision/key; queued state is current-only and in memory. |
+| `FloodAlarms.reconcile_pending(self, reading, snapshot)` | Refresh queued evidence and follow replacement IDs even when content is unchanged. |
+| `FloodAlarms.notice_valid(self, item)` | Reject obsolete source state, expired alerts and invalid subscriptions without network I/O. |
+| `FloodAlarms.notification_current(self, reading)` | Guard each radio chunk after the shared send-slot wait, including source freshness. |
+| `FloodAlarms.notification_fresh(self, item)` | Outage notices describe unknown state; other notices require a recent source check. |
+| `async FloodAlarms.send_one(self)` | Send one independent response; the five-second gap begins after all its chunks finish. |
+| `async FloodAlarms.check_one(self)` | Check one due fixed point; retain baselines on failure and report outage/recovery once. |
+| `async FloodAlarms.poll(self)` | Poll independently of notification delays and radio transmission waits. |
+| `async FloodAlarms.deliver(self)` | Serialize independent responses on this channel without blocking polling. |
+| `async FloodAlarms.run(self)` | Keep polling and paced delivery in the existing service's task lifetime. |
+
 <a id="radio-connection-py"></a>
 
 ## radio_connection.py
@@ -126,6 +154,7 @@ Persistent flood subscriptions remain on the existing event loop and database.
 [Source](radio_connection.py)
 
 Connection settings and bounded MeshCore sessions shared by all radio tools.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -144,6 +173,7 @@ Connection settings and bounded MeshCore sessions shared by all radio tools.
 
 Configured channel phrase -> local Python script -> tagged channel response. Read parse_message() for input handling, run_script() for child execution, and Responder.process_one() for queue state and replies. Settings: config.json. Functions that commit SQLite or launch a child process say so in their docstrings.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `validate_config(config, root)` | Validate the shared IANA timezone, enabled responder settings, and script paths; return None or raise before processing messages. |
@@ -159,7 +189,11 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 | `Responder.accept(self, payload, now=None)` | Validate and queue one message unless duplicate, cooling down, or full; return whether it was accepted. |
 | `Responder.update(self, request_id, state, response=None, detail=None)` | Commit request state and diagnostics, retaining the prior response when response is None. |
 | `async Responder.process_one(self, alarm_only=None)` | Process the oldest queued request, expire stale work, run its script and send replies; return False if empty. |
-| `async Responder.read_flood_status(self, location)` | Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status. |
+| `async Responder.read_slide_status(self, target)` | Read a bounded structured point snapshot; subsequent checks reuse enrollment coordinates. |
+| `async Responder.send_slide_change(self, reading, output)` | Route tagged landslide updates through the shared radio queue with a revision guard. |
+| `async Responder.read_fire_status(self, target)` | Resolve enrollment through a bounded child; subsequent checks use fixed zone IDs. |
+| `async Responder.send_fire_change(self, reading, output)` | Recheck subscription validity inside the existing shared radio send queue. |
+| `async Responder.read_flood_status(self, location, mode='alerts')` | Bounded JSON subprocess: API failures cannot be mistaken for a cleared flood status. |
 | `async Responder.send_flood_change(self, reading, output)` | Send tagged flood subscription changes; recheck subscription validity after waiting for the radio's send slot. |
 | `async Responder.run_requests(self, alarm_only=False)` | Drain this worker's queue without blocking the alarm scheduler or acknowledgment worker. |
 | `async Responder.run(self)` | All workers stop with the service; radio sends still use the existing shared rate limiter. |
@@ -171,6 +205,7 @@ Configured channel phrase -> local Python script -> tagged channel response. Rea
 [Source](service.py)
 
 Serial, BLE, or TCP MeshCore connection, MQTT event delivery, and channel-command orchestration. Start reading at main() -> run_mode() -> radio_mode() -> bridge_loop(). Operator settings live in config.json; see README.md for configuration guidance. This module opens serial/network connections and writes runtime/bridge.sqlite3.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -212,9 +247,11 @@ Serial, BLE, or TCP MeshCore connection, MQTT event delivery, and channel-comman
 
 Unattended entry point used by Windows SCM and Linux systemd installers.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `load_environment(path)` | Read optional credentials without accepting interpreter/path overrides. |
+| `load_data_root(config, config_path=None)` | Propagate non-secret dataset and installed satellite settings paths to children. |
 | `async supervise(config, stop_file=None, *, install_signals=True)` | Cancel the bridge on SIGTERM or SCM stop; allow its finally blocks to run. |
 | `async supervise.wait_for_stop()` | Watch the SCM stop file or process signal without blocking other workers. |
 | `main(argv=None)` | Validate installed paths/secrets, optionally check offline, then supervise the service. |
@@ -226,6 +263,7 @@ Unattended entry point used by Windows SCM and Linux systemd installers.
 [Source](scripts/airnow_aqi.py)
 
 Find the nearest AirNow monitoring site and report its PM2.5 AQI. Set AIRNOW_API_KEY in the environment, then pass latitude and longitude: python airnow_aqi.py 37.7749 -122.4194 Request a free AirNow API key at https://docs.airnowapi.org/account/request/. AirNow observations are preliminary and subject to change.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -250,6 +288,7 @@ The command entry point delegates to `water_lookup` for concise alerts; the orig
 
 Flood alerts from the NWS API used by https://www.flashfloodwarn.com/. Uses the standard library; city/ZIP coordinates come from Open-Meteo/GeoNames. Run: python scripts/flood_warn.py Sacramento (or ZIP or LATITUDE LONGITUDE).
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `parse_location(text)` | Reuse UV's shared input parser and relabel usage errors for !floodwarn; performs no HTTP requests. |
@@ -260,8 +299,8 @@ Flood alerts from the NWS API used by https://www.flashfloodwarn.com/. Uses the 
 | `snapshot(text)` | Return comparable alert types plus reply text; failures raise, never become a clear reading. |
 | `format_status(text, events)` | Return the no-flood-events sentence or location followed by one line per active event, using the configured emoji and descriptions; no I/O. |
 | `lookup(text)` | Perform one location lookup through snapshot(text) and return its reply text; propagate lookup errors without changing alarm subscriptions. |
-| `main(argv=None)` | Run concise official alerts through `water_lookup`; optional `--snapshot`/`--json` returns structured current records. |
 | `legacy_main(argv=None)` | Retain the previous type-summary CLI adapter for compatibility tests and existing integrations. |
+| `main(argv=None)` | Run concise official alerts through `water_lookup`; optional `--snapshot`/`--json` returns structured current records. |
 
 <a id="scripts-heat-adv-py"></a>
 
@@ -270,6 +309,7 @@ Flood alerts from the NWS API used by https://www.flashfloodwarn.com/. Uses the 
 [Source](scripts/heat_adv.py)
 
 Look up active NWS heat alerts for GPS coordinates, a US ZIP, or a city/state. Uses only the standard library and the adjacent uv_index.py location parser. Run: python scripts/heat_adv.py Sacramento (or ZIP or LATITUDE LONGITUDE).
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -305,6 +345,23 @@ NWS lightning potential over 24 elapsed hours. All windows use the configurable 
 | `lookup(text, now=None, timezone_name=None)` | Resolve location, fetch NWS point alerts/grid, and format chance/time or clear text. Preserve a known hazard with an incompleteness note if the other source fails; require both sources for a clear reply. |
 | `main(argv=None)` | Read location args and optional standalone timezone; bot replies always use the shared saved zone. Print replies/errors for the responder. |
 
+
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `parse_location(text)` | Validate shared GPS/ZIP/city syntax and give lightning-specific usage errors. |
+| `get_json(url, params=None)` | Fetch JSON with bounded network time; HTTP/network failures never mean clear. |
+| `timestamp(value)` | Parse an aware NWS ISO timestamp into UTC so DST cannot change elapsed hours. |
+| `interval(value)` | Decode NWS start/duration or start/end intervals; reject empty/reversed spans. |
+| `weather_labels(conditions)` | Keep NWS thunder coverage wording, including slight chance and dry attributes. |
+| `forecast_windows(data, now)` | Return (start, end, label) hazards; require fresh weather covering all 24 hours. Missing optional thunder probability/LAL layers are normal. When supplied, positive probabilities and LAL 2-6 also count; rain probability never does. A null weather type inside a condition is NWS's valid no-weather value. |
+| `alert_labels(props)` | Identify convective alerts or explicit lightning hazard text and stated chance. Do not treat wind-only fire alerts or generic preparedness instructions as lightning. Regular-expression matching handles common negations; unlisted phrasing can remain ambiguous. |
+| `alert_windows(data, now)` | Select actual lightning-related point alerts overlapping the requested 24h. Onset is the hazard start, effective is its fallback; ends is preferred to product expiration. Point matching covers NWS polygons and zones server-side. |
+| `merge_windows(windows)` | Combine coincident labels and adjacent identical spans without hiding clear gaps. |
+| `format_window(start, end, zone)` | Display source-window bounds in the selected zone, labeling both sides of DST. |
+| `request_time()` | Use the responder's original request timestamp from stdin; CLI uses current UTC. |
+| `lookup(text, now=None, timezone_name=None)` | Resolve location, fetch NWS point alerts/grid, and format chance/time or clear text. Preserve a known hazard with an incompleteness note if the other source fails; require both sources for a clear reply. |
+| `main(argv=None)` | Read location args and optional standalone timezone; bot replies always use the shared saved zone. Print replies/errors for the responder. |
+
 <a id="scripts-highway-info-py"></a>
 
 ## scripts/highway_info.py
@@ -312,6 +369,7 @@ NWS lightning potential over 24 elapsed hours. All windows use the configurable 
 [Source](scripts/highway_info.py)
 
 Print current Caltrans highway information for a highway number.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -327,6 +385,7 @@ Print current Caltrans highway information for a highway number.
 | `compact_and_wrap(text: str) -> str` | Abbreviate wording and wrap each subsection as a separate text block. |
 | `highway_number(value: str) -> int` | Validate a command-line or prompted highway number. |
 | `fetch_highway_info(number: int) -> str` | Fetch one Caltrans route page, extract active conditions, and return compact text; raise on missing report. |
+| `format_radio_report(number, report)` | Give a safe restriction summary; never cut a location or schedule in half. |
 | `main() -> int` | Read or prompt for a route, print the report, and return 0; return 1 for retrieval or 2 for prompted input errors. |
 
 <a id="scripts-nearby-river-stations-py"></a>
@@ -337,27 +396,29 @@ Print current Caltrans highway information for a highway number.
 
 Find CDEC river-stage stations near a latitude/longitude. The public CDEC RR8 report supplies the fixed-width river-stage rows. NOAA's NWPS API supplies coordinates for the same five-character station identifiers. Timezone display uses the shared reply setting and tzdata where the OS lacks it.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
-| `_PreExtractor.__init__(self)` | Initialize the first-PRE-block parser and its text buffer. |
-| `_PreExtractor.handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]])` | Start collecting the first preformatted report block when its opening tag appears. |
-| `_PreExtractor.handle_endtag(self, tag: str)` | Stop collection after the first closing pre tag. |
-| `_PreExtractor.handle_data(self, data: str)` | Append text only while inside the selected report block. |
-| `_PreExtractor.text(self)` | Return the collected report text without fetching or changing external state. |
-| `_get_text(url: str, timeout: float)` | Download and decode one source response; raise RuntimeError on a network timeout or failure. |
-| `_get_json(url: str, params: dict[str, Any], timeout: float)` | URL-encode parameters, fetch text, and return decoded JSON; raise on malformed JSON. |
-| `_extract_report_text(html: str)` | Extract and normalize the CDEC PRE block; reject pages that lack the expected report. |
-| `_reading(value: str)` | Parse one river-stage field in feet; blank, plus-marker, or invalid data becomes None. |
-| `parse_cdec_report(report_text: str)` | Parse the CDEC fixed-width report into station records. |
-| `haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float)` | Return great-circle distance using mean Earth radius 3,958.761 miles. |
-| `_bounding_box(latitude: float, longitude: float, radius_miles: float)` | Build NOAA's bounding-box query in decimal degrees from a search radius in miles. |
-| `find_nearby_river_stations(latitude: float, longitude: float, radius_miles: float=DEFAULT_RADIUS_MILES, timeout: float=HTTP_TIMEOUT_SECONDS)` | Return RR8 river stations within radius_miles of latitude/longitude. |
-| `_parse_args()` | Read coordinates, radius in miles, HTTP timeout in seconds, and optional compact output mode. |
+| `_PreExtractor.__init__(self) -> None` | Initialize the first-PRE-block parser and its text buffer. |
+| `_PreExtractor.handle_starttag(self, tag: str, attrs: list[tuple[str, str \| None]]) -> None` | Start collecting the first preformatted report block when its opening tag appears. |
+| `_PreExtractor.handle_endtag(self, tag: str) -> None` | Stop collection after the first closing pre tag. |
+| `_PreExtractor.handle_data(self, data: str) -> None` | Append text only while inside the selected report block. |
+| `_PreExtractor.text(self) -> str` | Return the collected report text without fetching or changing external state. |
+| `_get_text(url: str, timeout: float) -> str` | Download and decode one source response; raise RuntimeError on a network timeout or failure. |
+| `_get_json(url: str, params: dict[str, Any], timeout: float) -> dict[str, Any]` | URL-encode parameters, fetch text, and return decoded JSON; raise on malformed JSON. |
+| `_extract_report_text(html: str) -> str` | Extract and normalize the CDEC PRE block; reject pages that lack the expected report. |
+| `_reading(value: str) -> float \| None` | Parse one river-stage field in feet; blank, plus-marker, or invalid data becomes None. |
+| `parse_cdec_report(report_text: str) -> dict[str, Any]` | Parse the CDEC fixed-width report into station records. |
+| `haversine_miles(lat1: float, lon1: float, lat2: float, lon2: float) -> float` | Return great-circle distance using mean Earth radius 3,958.761 miles. |
+| `_bounding_box(latitude: float, longitude: float, radius_miles: float) -> dict[str, Any]` | Build NOAA's bounding-box query in decimal degrees from a search radius in miles. |
+| `find_nearby_river_stations(latitude: float, longitude: float, radius_miles: float=DEFAULT_RADIUS_MILES, timeout: float=HTTP_TIMEOUT_SECONDS) -> list[dict[str, Any]]` | Return RR8 river stations within radius_miles of latitude/longitude. |
+| `_parse_args() -> argparse.Namespace` | Read coordinates, radius in miles, HTTP timeout in seconds, and optional compact output mode. |
 | `parse_report_time(value)` | Parse a dated CDEC issuance using its explicit PST/PDT offset; return None if unknown. |
 | `reading_time(label, issued)` | Resolve an hourly CDEC label to its latest Pacific occurrence before issuance, including DST. |
-| `format_mesh_report(stations: list[dict[str, Any]], radius: float)` | Summarize nearest-first station readings without inventing missing values. |
+| `format_mesh_report(stations: list[dict[str, Any]], radius: float) -> str` | Summarize nearest-first station readings without inventing missing values. |
+| `format_mesh_report.priority(station)` | Implement format mesh report.priority within this module; see source for the local contract. |
 | `format_mesh_report.stage(value)` | Format a stage as feet or N/A without converting missing readings to zero. |
-| `main()` | Fetch nearby stations and print JSON or mesh text; return 1 with JSON error text on expected failures. |
+| `main() -> int` | Fetch nearby stations and print JSON or mesh text; return 1 with JSON error text on expected failures. |
 
 <a id="scripts-snowpack-py"></a>
 
@@ -366,6 +427,7 @@ Find CDEC river-stage stations near a latitude/longitude. The public CDEC RR8 re
 [Source](scripts/snowpack.py)
 
 California snow depth (CDEC sensor 18) and next-24h snowfall (NWS). Standard-library CLI; the MeshCore responder supplies the @sender prefix.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -399,6 +461,9 @@ Local smoke reply only; this does not test the data providers or radio delivery.
 This script executes at module level and defines no Python functions.
 
 
+| Function signature | Purpose and behavior |
+| --- | --- |
+
 <a id="scripts-time-now-py"></a>
 
 ## scripts/time_now.py
@@ -406,6 +471,7 @@ This script executes at module level and defines no Python functions.
 [Source](scripts/time_now.py)
 
 Print the host clock in the shared reply timezone for !time.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -418,6 +484,7 @@ Print the host clock in the shared reply timezone for !time.
 [Source](scripts/uv_index.py)
 
 Current UV Index CLI. UV data: https://currentuvindex.com (CC BY 4.0). Location data: Open-Meteo / GeoNames. Uses only the Python standard library.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -436,6 +503,7 @@ Current UV Index CLI. UV data: https://currentuvindex.com (CC BY 4.0). Location 
 
 Shared reply timezone. The responder exports its saved setting to every program.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `display_timezone(name=None)` | Return an IANA zone from an explicit name, responder environment, or Pacific default. |
@@ -449,6 +517,7 @@ Shared reply timezone. The responder exports its saved setting to every program.
 [Source](scripts/gis_data.py)
 
 Local GIS configuration, query parsing, and verified snapshot access. No network operations are performed. LAYER_FIELDS, PARK_LAYERS, and BOUNDARY_LAYERS centralize source fields and search categories; source URLs and snapshot filenames remain in the shared sources.json manifest. GISUnavailable identifies an unusable local snapshot.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -472,6 +541,7 @@ Local GIS configuration, query parsing, and verified snapshot access. No network
 
 Offline geometry operations in a configured metric projection.
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `Spatial.__init__(self, settings)` | Disable projection downloads and require a projected CRS in meters. |
@@ -488,6 +558,7 @@ Offline geometry operations in a configured metric projection.
 [Source](scripts/gis_lookup.py)
 
 Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -515,6 +586,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 
 [Source](scripts/trail.py)
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `main(argv=None)` | Read a trail query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
@@ -524,6 +596,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 ## scripts/rec.py
 
 [Source](scripts/rec.py)
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -535,6 +608,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 
 [Source](scripts/peak.py)
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `main(argv=None)` | Read a peak query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
@@ -544,6 +618,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 ## scripts/park.py
 
 [Source](scripts/park.py)
+
 
 | Function signature | Purpose and behavior |
 | --- | --- |
@@ -555,6 +630,7 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 
 [Source](scripts/boundary.py)
 
+
 | Function signature | Purpose and behavior |
 | --- | --- |
 | `main(argv=None)` | Read a boundary query and optional --settings path; select the fixed command kind and return the shared GIS exit status. |
@@ -565,12 +641,12 @@ Manual and MeshCore GIS lookups using verified local GeoJSON snapshots.
 
 [Source](scripts/floodalarm.py)
 
-| Function signature | Purpose and behavior |
-| --- | --- |
-| `main(argv=None)` | Print one text snapshot; `--snapshot`/`--json` returns structured output. Standalone use does not enroll a subscription. |
 
 Shared data-maintenance functions are documented in the [EBMUD utility reference](../data/ebmud/FUNCTION_REFERENCE.md).
 
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `main(argv=None)` | Print one text snapshot; `--snapshot`/`--json` returns structured output. Standalone use does not enroll a subscription. |
 
 ## Wildfire functions
 
@@ -708,6 +784,17 @@ See [landslide behavior and maintenance](LANDSLIDE_GUIDE.md).
 | `split_fields(text, separator="; ")` | Split top-level fields while preserving parenthetical and bracketed qualifiers. |
 | `compact_fields(essential, fields=(), sender=None)` | Retain a primary field and distinct complete optional fields without omission notices. |
 
+| Function signature | Purpose and behavior |
+| --- | --- |
+| `counted(count, singular, plural=None)` | Select singular for one and plural otherwise, with optional irregular plural. |
+| `clean_text(text)` | Normalize horizontal whitespace while retaining meaningful lines. |
+| `take_text(text, budget)` | Select a UTF-8 prefix at a line or word boundary when possible. |
+| `split_text(text, budget)` | Produce byte-bounded chunks for explicit local callers. |
+| `tagged_parts(sender, output, limit=MESSAGE_BYTES, max_parts=4)` | Apply exact sender and counter budgets; service calls use one part. |
+| `short_label(value, budget=60)` | Bound variable names without cutting warning/action text. |
+| `split_fields(text, separator='; ')` | Split top-level fields while preserving parenthetical and bracketed qualifiers. |
+| `compact_fields(essential, fields=(), sender=None)` | Retain a primary field and distinct complete optional fields without omission notices. |
+
 ## Installed dataset discovery
 
 [Source](scripts/dataset_paths.py). Registry selection performs no network access
@@ -718,3 +805,92 @@ and writes no data. Each lookup retains its selected generation for the operatio
 | `data_root()` | Resolve the persistent root from `MESHCORE_DATA_DIR`, the runtime directory sibling, or the platform default. |
 | `checked_path(root, relative)` | Reject absolute, traversing, and symlink-escaping registry paths. |
 | `resolve(dataset, fallback, *, configured=None, defaults=())` | Select the active registry generation for default paths and collection aliases. Preserve explicit custom paths; absent entries allow legacy fallback, while explicit removal or invalid registry data fails visibly. |
+
+## Additional runtime modules
+
+| Module | Responsibility |
+| --- | --- |
+| [scripts/basin.py](scripts/basin.py) | Dedicated !basin location command; standalone execution creates no subscription. |
+| [scripts/basin_plan_data.py](scripts/basin_plan_data.py) | Read installed Basin Plan indexes without modifying or acquiring datasets. |
+| [scripts/basin_plan_lookup.py](scripts/basin_plan_lookup.py) | Named Basin Plan references, immediate CalWater parents and designated uses. |
+| [scripts/brief.py](scripts/brief.py) | Dedicated on-demand location briefing; no monitoring enrollment. |
+| [scripts/brief_lookup.py](scripts/brief_lookup.py) | Bounded structured location briefings with whole-item radio reduction. |
+| [scripts/brief_sources.py](scripts/brief_sources.py) | Structured briefing readers; existing caches remain owned by their services. |
+| [scripts/camp.py](scripts/camp.py) | Query campground and site-group reference records for !camp. |
+| [scripts/command_dependencies.py](scripts/command_dependencies.py) | Read-only command dependency checks; no downloads, repairs, or readiness guarantees. |
+| [scripts/command_help.py](scripts/command_help.py) | Show channel-filtered command help; standalone channel availability is unknown. |
+| [scripts/connectivity_lookup.py](scripts/connectivity_lookup.py) | Bounded reference connectivity from verified, reviewed routing generations. |
+| [scripts/data_reporting.py](scripts/data_reporting.py) | Bounded read-only integrity and observation checks for data reporting. |
+| [scripts/data_status.py](scripts/data_status.py) | Read-only status of selected dataset generations and existing wildfire cache. |
+| [scripts/downstream.py](scripts/downstream.py) | Dedicated downstream reference command. |
+| [scripts/entrance.py](scripts/entrance.py) | Query the installed State Parks reference for !entrance. |
+| [scripts/facility.py](scripts/facility.py) | Query installed EBMUD and State Parks facility references for !facility. |
+| [scripts/facility_lookup.py](scripts/facility_lookup.py) | Bounded facility references from independently verified EBMUD and Parks data. |
+| [scripts/fire.py](scripts/fire.py) | Dedicated !fire command program; persistent monitoring belongs to the service. |
+| [scripts/fire_weather.py](scripts/fire_weather.py) | NWS fire-weather product parsing and zone-based alert interpretation. |
+| [scripts/firealarm.py](scripts/firealarm.py) | Dedicated !firealarm command program; persistent monitoring belongs to the service. |
+| [scripts/firedata.py](scripts/firedata.py) | Dedicated !firedata command program; persistent monitoring belongs to the service. |
+| [scripts/fires.py](scripts/fires.py) | Dedicated !fires command program; persistent monitoring belongs to the service. |
+| [scripts/firewarn.py](scripts/firewarn.py) | Dedicated !firewarn command program; persistent monitoring belongs to the service. |
+| [scripts/firewx.py](scripts/firewx.py) | Dedicated !firewx command program; persistent monitoring belongs to the service. |
+| [scripts/flood_catalog.py](scripts/flood_catalog.py) | Read-only CatFIM source adapter for internal W10-B discovery and references. |
+| [scripts/flood_evidence.py](scripts/flood_evidence.py) | W10-A evidence contracts; no scenario selection, forecasts, or hydraulic calculations. |
+| [scripts/flood_geometry.py](scripts/flood_geometry.py) | Bounded, read-only geometry checks for explicitly selected hypothetical scenarios. |
+| [scripts/flood_hazard.py](scripts/flood_hazard.py) | Internal static flood-hazard discovery and point lookup; no command or network. |
+| [scripts/flood_hazard_data.py](scripts/flood_hazard_data.py) | Read reviewed static-hazard collections without acquisition or activation. |
+| [scripts/flood_readiness.py](scripts/flood_readiness.py) | Internal discovery and requirement-scoped environmental input readiness. |
+| [scripts/flood_readiness_data.py](scripts/flood_readiness_data.py) | Bounded local evidence for environmental input assessment; never acquire or activate. |
+| [scripts/flood_reference.py](scripts/flood_reference.py) | Internal flood references; no command entry point, network access, or model execution. |
+| [scripts/flood_reference_data.py](scripts/flood_reference_data.py) | W10-A read-only generation evidence; no catalog queries or scenario selection. |
+| [scripts/floodstatus.py](scripts/floodstatus.py) | Dedicated !floodstatus location command; standalone execution creates no subscription. |
+| [scripts/gauge.py](scripts/gauge.py) | Dedicated exact station lookup. |
+| [scripts/gauge_data.py](scripts/gauge_data.py) | Verified station inventory and compatible last-known observation access. |
+| [scripts/gauge_lookup.py](scripts/gauge_lookup.py) | Exact station and nearby inventory queries with qualified latest observations. |
+| [scripts/gauges.py](scripts/gauges.py) | Dedicated nearby station inventory lookup. |
+| [scripts/parking.py](scripts/parking.py) | Query mapped parking reference records for !parking. |
+| [scripts/parks_sites.py](scripts/parks_sites.py) | Offline campground/site-group and parking-point reference queries. |
+| [scripts/reference_catalog.py](scripts/reference_catalog.py) | Explicit, offline B01/B03-B11 references; no installation or operational discovery. |
+| [scripts/reference_elevation_baseline.py](scripts/reference_elevation_baseline.py) | Pinned B01 geographic DEM references; no source installation or height conversion. |
+| [scripts/reference_elevation_xml.py](scripts/reference_elevation_xml.py) | Pinned, reviewed USGS B03/B04 height declarations for reference-only reads. |
+| [scripts/reference_environment.py](scripts/reference_environment.py) | Bounded B01/B03-B07 references; no acquisition, conversion or model admission. |
+| [scripts/reference_policy.py](scripts/reference_policy.py) | Keep explicit reference collections out of operational dataset consumers. |
+| [scripts/sat.py](scripts/sat.py) | Dedicated satellite reference command; no tracking or transmission. |
+| [scripts/satellite_lookup.py](scripts/satellite_lookup.py) | Bounded read-only satellite identities and operation references; no tracking imports. |
+| [scripts/satellite_passes.py](scripts/satellite_passes.py) | Read-only, bounded satellite pass predictions using W12 observer inputs. |
+| [scripts/satellite_pointing.py](scripts/satellite_pointing.py) | Bounded orbital pointing using exact catalog identity and qualified GIS terrain. |
+| [scripts/satellite_terrain.py](scripts/satellite_terrain.py) | Read local, explicitly qualified GeoTIFF terrain without network or fallback heights. |
+| [scripts/satfreq.py](scripts/satfreq.py) | Dedicated satellite reference command; no tracking or transmission. |
+| [scripts/satpass.py](scripts/satpass.py) | Dedicated !satpass entry point for bounded orbital pass prediction. |
+| [scripts/satpoint.py](scripts/satpoint.py) | Dedicated !satpoint program for GIS-qualified orbital pointing. |
+| [scripts/slidealarm.py](scripts/slidealarm.py) | Dedicated !slidealarm program; scheduling and enrollment belong to the service. |
+| [scripts/slideinfo.py](scripts/slideinfo.py) | Dedicated !slideinfo program; scheduling and enrollment belong to the service. |
+| [scripts/slidewarn.py](scripts/slidewarn.py) | Dedicated !slidewarn program; scheduling and enrollment belong to the service. |
+| [scripts/statepark.py](scripts/statepark.py) | Query the installed State Parks reference for !statepark. |
+| [scripts/stateparks_lookup.py](scripts/stateparks_lookup.py) | Read-only State Parks identity and entrance queries over a pinned snapshot. |
+| [scripts/trail_queries.py](scripts/trail_queries.py) | Recorded trail endpoint choices and AND-filtered EBMUD proximity queries. |
+| [scripts/tributaries.py](scripts/tributaries.py) | Dedicated tributaries reference command. |
+| [scripts/water_agency_review.py](scripts/water_agency_review.py) | Additional official metadata review for the 17 unresolved NOAA identities. |
+| [scripts/water_changes.py](scripts/water_changes.py) | Categorical subscription comparison without storing historical measurement values. |
+| [scripts/water_identifiers.py](scripts/water_identifiers.py) | Review exact NOAA/USGS identifiers without modifying the original inventory. |
+| [scripts/water_local.py](scripts/water_local.py) | Read verified statewide collections using a separate spatial index; originals are read-only. |
+| [scripts/water_lookup.py](scripts/water_lookup.py) | Location-only water status and structured subscription snapshots. |
+| [scripts/water_map_review.py](scripts/water_map_review.py) | Non-authorizing map evidence for the sixteen unresolved NOAA identities. |
+| [scripts/water_notifications.py](scripts/water_notifications.py) | Independent flood notifications with explicit CAP priority and uncertainty. |
+| [scripts/water_operator_records.py](scripts/water_operator_records.py) | Manually reviewed local-operator metadata; never an operational NOAA crosswalk. |
+| [scripts/water_refresh.py](scripts/water_refresh.py) | Refresh reviewed NOAA identities and/or the verified radio spatial index. |
+| [scripts/water_settings.py](scripts/water_settings.py) | Location water-status settings shared by direct programs and the service. |
+| [scripts/water_sources.py](scripts/water_sources.py) | Bounded official point alerts and latest NOAA conditions, with current-only caching. |
+| [scripts/water_vertical_review.py](scripts/water_vertical_review.py) | Check WAC/WAS interpretation metadata without correcting or storing readings. |
+| [scripts/wateruse.py](scripts/wateruse.py) | Dedicated !wateruse executable for installed Basin Plan designations. |
+| [scripts/weather.py](scripts/weather.py) | Dedicated NWS forecast command with no background scheduling. |
+| [scripts/weather_lookup.py](scripts/weather_lookup.py) | One qualified NWS forecast period per stateless weather request. |
+| [scripts/weather_source.py](scripts/weather_source.py) | Bounded NWS transport and current-only forecast caching in the service runtime. |
+| [scripts/where.py](scripts/where.py) | Dedicated geographic identification command; read-only installed references. |
+| [scripts/where_data.py](scripts/where_data.py) | Bounded, read-only containment over existing installed geographic references. |
+| [scripts/where_lookup.py](scripts/where_lookup.py) | Stateless geographic identification with whole-field radio replies. |
+| [scripts/wildfire_lookup.py](scripts/wildfire_lookup.py) | Shared wildfire queries; dedicated programs select their own command behavior. |
+| [scripts/wildfire_refresh.py](scripts/wildfire_refresh.py) | Refresh validated wildfire snapshots; standalone execution never starts a scheduler. |
+| [scripts/wildfire_settings.py](scripts/wildfire_settings.py) | Wildfire configuration shared by standalone programs and the service worker. |
+| [scripts/wildfire_sources.py](scripts/wildfire_sources.py) | Bounded public-source clients. Only complete, validated batches are returned. |
+| [scripts/wildfire_spatial.py](scripts/wildfire_spatial.py) | Whole-zone geographic operations for California and interstate fire coverage. |
+| [scripts/wildfire_store.py](scripts/wildfire_store.py) | Atomic source snapshots and spatial candidates; SQLite connections stay local. |

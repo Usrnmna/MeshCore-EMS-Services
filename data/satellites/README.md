@@ -25,3 +25,12 @@ reception is evidence of operation at that time, not guaranteed transmission now
 
 See the [program instructions](../../satellite_database/README.md) for commands,
 adjustable settings, sources, licensing, schema, status rules and limitations.
+
+## Current service consumers
+
+`!sat` and `!satfreq` query recorded catalog identities, operation frequencies and dated status without catalog mutation. `!satpoint` and `!satpass` additionally require eligible orbital records and explicitly qualified GIS terrain. Catalog membership and orbital recency do not establish RF activity or reception.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

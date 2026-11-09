@@ -55,7 +55,7 @@
       <tspan x="636" dy="19">Sacramento</tspan>
     </text>
     <path d="M44 490H1156" stroke="#355a6a"/>
-    <text x="46" y="532" fill="#e2e8f0" font-size="18" font-weight="600">31 commands</text>
+    <text x="46" y="532" fill="#e2e8f0" font-size="18" font-weight="600">50 commands</text>
     <circle cx="237" cy="526" r="3" fill="#5eead4"/>
     <text x="262" y="532" fill="#e2e8f0" font-size="18">Tagged channel replies</text>
     <circle cx="518" cy="526" r="3" fill="#5eead4"/>

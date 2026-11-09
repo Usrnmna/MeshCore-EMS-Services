@@ -30,7 +30,7 @@ command guides describe the same command behavior; platform setup and paths diff
 | Water and wildfire implementation details | [Water/flood function reference](../meshcore_mqtt_service/WATER_FUNCTION_REFERENCE.md) · [Wildfire/smoke/fuel function reference](../meshcore_mqtt_service/WILDFIRE_FUNCTION_REFERENCE.md) |
 | Installer configuration and distribution functions | [Tool function reference](../tools/FUNCTION_REFERENCE.md) |
 | Passing hosted CI, recorded software checks, and remaining deployment limits | [Installer and service validation](../installers/VALIDATION.md#hosted-github-actions-october-26-2026) |
-| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.6 - Beta comparison](../RELEASE_v0.9.6-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
+| Version changes and migration | [Workspace release notes](../RELEASE_NOTES.md) · [Version 0.9.9 - Beta comparison](../RELEASE_v0.9.9-beta.md) · [Linux package notes](../meshcore_mqtt_service/RELEASE_NOTES.md) · [Windows package notes](../meshcore_mqtt_service_windows/RELEASE_NOTES.md) |
 | Local historical recovery snapshots | [Recovery archive guidance](../archive/README.md) |
 
 ## Data and separate reference tools
@@ -56,3 +56,9 @@ California State Parks and satellite resources are separate reference tools. The
 presence does not register additional MeshCore commands. Supplier receipts and
 versioned distributions preserve historical evidence; maintained guides describe
 the source tree and identify snapshot-specific results where applicable.
+
+## Current command development
+
+- [v0.9.9-beta source preparation](../RELEASE_v0.9.9-beta.md): additions, upgrade behavior and unperformed release checks.
+- [Command implementations and evidence boundaries](COMMAND_IMPLEMENTATION.md): helper ownership, exact identity, freshness, GIS terrain and restricted-reference isolation.
+- [Complete 50-command reference](../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index): accepted selectors and limitations for both packages.

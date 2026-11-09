@@ -25,8 +25,8 @@ identify conditional fields; local JSON retains supported structured source data
 with an optional state. Bare city names default to California. City and ZIP
 results represent one point, not their complete boundaries. Multiple matching
 places require a clarified state or coordinates; floodwarn uses a short clarification prompt. Names are
-not silently resolved by population. These commands do not accept a river name
-as a substitute for a location. `!rivers` selects a station summary independently.
+not silently resolved by population. Location-only forms do not accept a river name
+as a substitute for a location; the explicit name selector uses separate Basin Plan evidence. `!rivers` selects a station summary independently.
 
 ```text
 !waterway 38.61324 -122.83638
@@ -648,3 +648,30 @@ CDEC has priority for WAC/WAS station-elevation metadata. The CW3E value and
 conflict remain visible; an unavailable or wrong-station CDEC record leaves the
 preferred value unavailable. This preference does not establish a datum or
 logger-offset interpretation and does not change current readings.
+
+## Exact stations, names, relationships and uses
+
+The location forms above remain supported. Additional dedicated queries are
+`!gauge AGENCY-ID [stage|flow|source] [series ID]`,
+`!gauges near LAT LON [MILES]`, `!downstream AGENCY-ID` or `NHDPlusV2:ID`,
+`!tributaries NHDPlusV2:ID` or `name NAME [region REGION]`, and
+`!wateruse BP:SERVICE/LAYER:OBJECT` with use/field selection.
+`!waterway name NAME [region REGION] [source SERVICE/LAYER]` and
+`!waterway id BP:SERVICE/LAYER:OBJECT` retain exact Basin Plan identities;
+`!basin parent BP:SERVICE/LAYER:OBJECT` follows the recorded immediate parent.
+See the [complete water command forms](COMMAND_REFERENCE.md#cmd-gauge).
+
+Station agency namespaces and zeroes are significant. Nearby inventory does not
+establish an upstream relationship or a live reading. Live adapter failures never
+promote old snapshots to current observations. Multiple eligible series require
+selection. Readings retain units, timestamps and provisional/estimated flags.
+
+Connectivity uses reviewed links and compatible generation pins; branching,
+unresolved endpoints and terminal evidence remain distinct. Basin Plan names and
+designated beneficial uses are reference associations, not flow connections,
+current quality, potable water, recreational safety or access permission.
+
+`!data water observations` inspects installed measurement freshness without fetching
+new measurements. `!data source water` reports existing cache state. W10 modelling
+is paused; legacy flood alert/status/subscription behavior above remains available.
+Restricted reference catalogs are excluded from operational water sources.

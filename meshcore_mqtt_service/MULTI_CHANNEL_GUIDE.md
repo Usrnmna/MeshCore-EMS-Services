@@ -279,14 +279,14 @@ correct channels, provisioning is unnecessary.
 Linux import example:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
+sudo bash MeshCore-EMS-v0.9.9-beta-linux-x86_64.run --port auto --channels-config /absolute/path/channels.json --no-start
 ```
 
 Use the corresponding ARM64 installer on Raspberry Pi. Windows setup provides an
 optional channels-JSON path field. An administrator can also use:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
+MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe /SERIALPORT=auto /CHANNELSCONFIG="C:\Setup\channels.json" /NOSTART=1
 ```
 
 The old `--channel` / `/CHANNEL` option is only for a single-channel configuration;
@@ -668,7 +668,7 @@ See the [landslide lifecycle and settings](LANDSLIDE_GUIDE.md).
 
 The water family registers `!waterway`, `!basin`, `!floodstatus`, `!floodwarn`,
 and `!floodalarm`, each with a dedicated program and `water_query` input. The
-current configuration contains 31 commands in total. Assign water commands to
+current configuration contains 50 commands in total. Assign water commands to
 stable IDs from `responder.channels`; an empty assignment disables the command.
 Existing installations preserve registrations, assignments, and operator settings,
 so deploy the current water helper programs and explicitly merge older flood
@@ -680,3 +680,13 @@ accepted `!floodalarm` enrollment requires a verified official-alert baseline.
 The service owns monitoring; direct Python invocations cannot enroll subscriptions.
 See [deployment, retention, and settings](WATER_GUIDE.md) and the
 [complete command/subcommand index](COMMAND_REFERENCE.md#subcommand-index).
+
+## Discovery after command upgrades
+
+The default packages register 50 commands with distinct executable programs.
+Preserved installations do not automatically assign every added command to existing
+channels. Review assignments and restart the service; `!help` then shows the requesting
+channel's available families. `!help !COMMAND` distinguishes registration from missing
+local prerequisites, while `!data` reports installed evidence and existing caches.
+Provider availability is not guaranteed by an enabled command. Persistent flood,
+wildfire and landslide subscriptions remain owned by the existing service.

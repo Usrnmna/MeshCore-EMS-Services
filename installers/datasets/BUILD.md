@@ -38,7 +38,7 @@ support; the builder fails if that version is unavailable. PS2EXE is required
 only on the build host. Inno Setup's default location is
 `.build/inno/ISCC.exe`; `--iscc PATH` selects another compiler. Builds create
 isolated snapshots under `.build/data-installers-*` and write artifacts and
-`SHA256SUMS.txt` to `dist/v0.9.6-beta/datasets/`. No service installation,
+`SHA256SUMS.txt` to `dist/v0.9.9-beta/datasets/`. No service installation,
 dataset refresh, or publishing occurs during a build. Rebuild after the last
 change to any included maintenance source or reference seed.
 `--version` permits an individual collection to receive a new release independently
@@ -133,8 +133,8 @@ Linux/Pi artifacts support inspection without administrator privileges or
 installation:
 
 ```sh
-bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run --check
-bash MeshCore-EMS-Data-ebmud-v0.9.6-beta-linux-x86_64.run --extract empty-directory
+bash MeshCore-EMS-Data-ebmud-v0.9.9-beta-linux-x86_64.run --check
+bash MeshCore-EMS-Data-ebmud-v0.9.9-beta-linux-x86_64.run --extract empty-directory
 ```
 
 Automated tests cover the separate artifact matrix, payload integrity,

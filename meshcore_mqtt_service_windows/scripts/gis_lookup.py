@@ -190,6 +190,8 @@ def command_help(kind):
     """Describe accepted syntax and subcommands without loading GIS datasets."""
     if kind == 'boundary':
         return '!boundary LAT LON or near LAT LON [MILES]. Map boundaries only.'
+    if kind == 'trail':
+        return '!trail NAME [ATTRIBUTE]; help endpoints/filters/find'
     return f'!{kind} NAME [ATTRIBUTE] or near LAT LON [MILES]. See command guide.'
 
 
@@ -231,15 +233,12 @@ def attribute_text(kind, attribute, group, snapshot, spatial, settings):
             if not limit:
                 return 'Description disabled by settings.'
             return 'description ' + description[:limit].strip() + ('...' if len(description) > limit else '')
-        if attribute == 'start':
-            starts = [record for record in snapshot.load_dataset('trail_endpoints')
-                      if normalize_name(record['name']) == normalize_name(group[0]['name'])
-                      and record['properties'].get('END_POINT') == 'START'
-                      and record['geometry'] is not None]
-            if not starts:
-                return 'mapped start not recorded'
-            lon, lat = starts[0]['geometry']['coordinates'][:2]
-            return f'mapped start {lat:.5f},{lon:.5f}'
+        if attribute in {'start', 'end'}:
+            if __package__:
+                from .trail_queries import endpoint_reply
+            else:
+                from trail_queries import endpoint_reply
+            return endpoint_reply('name', group[0]['name'], attribute, [group], snapshot, spatial, settings)
         if attribute == 'areas':
             found = spatial.intersections(group, area_groups(snapshot, BOUNDARY_LAYERS))
             return 'overlaps ' + short_list([summary(area) for area in found], settings['max_results'])
@@ -276,6 +275,12 @@ def lookup(kind, query, settings=None):
         from gis_spatial import Spatial
     settings = load_settings() if settings is None else settings
     mode, value, attribute = parse_command_query(kind, query)
+    if kind == 'trail' and mode == 'trail_help':
+        if __package__:
+            from .trail_queries import help_text
+        else:
+            from trail_queries import help_text
+        return help_text(value)
     if mode == 'help':
         return bounded_reply(command_help(kind), None, settings)
     snapshot = Snapshot(settings['data_directory'])
@@ -290,6 +295,17 @@ def lookup(kind, query, settings=None):
                                  if record['named'] or settings['include_unnamed_peaks']])
     else:
         groups = area_groups(snapshot, boundary_layers if kind == 'boundary' else PARK_LAYERS)
+    if kind == 'trail' and (mode == 'find' or attribute in {'start', 'end'} or isinstance(attribute, tuple)):
+        if __package__:
+            from .trail_queries import combined_reply, endpoint_reply
+        else:
+            from trail_queries import combined_reply, endpoint_reply
+        if mode == 'find':
+            body = combined_reply(value, attribute, groups, spatial, settings, eligible, field_values, ATTRIBUTE_FIELDS)
+        else:
+            body = endpoint_reply(mode, value, attribute, groups, snapshot, spatial, settings)
+        snapshot.verify_unchanged()
+        return body
     if mode in {'coordinates', 'near'}:
         point = spatial.point(*value[:2])
         radius = value[2] if len(value) == 3 else None

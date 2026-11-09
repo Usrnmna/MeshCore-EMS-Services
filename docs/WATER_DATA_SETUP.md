@@ -170,3 +170,13 @@ against five official CW3E/CDEC pages. The latest structured source statuses and
 changed fields replace the preceding check, including access failures. Review
 flags produce exit code 1 after saving; unchanged known uncertainty does not.
 Manual evidence dates remain fixed, and no offset or datum conversion is applied.
+
+## Current consumers and paused flood work
+
+Installed water collections support exact station queries, nearby inventory discovery,
+reviewed downstream/tributary exploration, Basin Plan names/parents/uses and existing
+flood alerts. W10 expansion and modelling remain paused; the setup instructions are
+maintenance capabilities, not an instruction to acquire more data for paused work.
+`!data water observations` checks the installed snapshot's observation freshness.
+The [shared publication contract](COMMAND_IMPLEMENTATION.md#data-selection-and-failures)
+preserves existing USGS generation kinds and integrity gates.

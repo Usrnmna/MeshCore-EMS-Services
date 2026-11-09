@@ -49,7 +49,7 @@ Nearby-fire replies prioritize map distance instead of an incident identifier;
 unknown containment and degraded-source qualifiers remain primary fields.
 Landslide station names are admitted whole, including quoted titles and
 parenthetical context; they are never shortened into an unfinished excerpt.
-Both station lookup forms end at the name when it fits; no catalog label or
+The legacy location/near station replies end at the name when it fits; no catalog label or
 catalog-check date follows it. Firedata labels distinguish observations, forecasts,
 cameras, treatments and outlooks. RAWS values retain units and valid zero readings.
 
@@ -61,7 +61,7 @@ text. It is a source-derived review list, not an observation of live RF delivery
 Source parsing, coverage validation, cache freshness and structured snapshots
 remain independent of presentation. A 150-byte reply cannot represent a complete
 bulletin or every simultaneous condition. The entries below support later manual
-selection of more useful fields without adding omission commentary to radio replies.
+selection of more useful fields while the newer bounded reference queries explicitly disclose partial results where required.
 
 | Command or path | Retained priority | Information removed or conditional on available space |
 | --- | --- | --- |
@@ -94,7 +94,7 @@ selection of more useful fields without adding omission commentary to radio repl
 
 ## Review procedure and evidence
 
-The [command response examples](RESPONSE_EXAMPLES.md) show all 31 commands and
+The [command response examples](RESPONSE_EXAMPLES.md) show all 50 commands and
 all GIS field/category forms, closest/radius queries, help, alarm controls,
 and triggered subscription notifications
 with exact tagged byte counts. Notification examples are captured after baseline
@@ -114,3 +114,23 @@ warning preservation, no paging, triggered flood/fire/landslide notifications wi
 independent notification lifecycle guards and
 paired command registration. Tests do not establish native Linux operation or
 live MeshCore recipient delivery.
+
+## Qualified selectors and partial results
+
+New reference and forecast commands retain exact follow-up identifiers, units,
+source timestamps and essential caveats within the existing 150-byte tagged reply.
+Bounded results can explicitly disclose partial coverage; no continuation messages
+are added. If a qualified record cannot fit, select a series, source, operation,
+field, station instrument or briefing category, or use supported local JSON.
+
+| Family | Essential distinction |
+| --- | --- |
+| Park/site/facility | Recorded reference versus access, vacancy or current operation; filtering precedes distance. |
+| Gauge/discovery | Exact station/series, units, quality and age; live versus snapshot; inventory versus eligible readings. |
+| Connectivity/beneficial uses | Reviewed directed edges versus associations; designation versus current water conditions. |
+| Satellite | Separate satellite/operation status; recorded direction; predicted geometry versus RF activity or terrain clearance. |
+| Station metadata | Dated catalog evidence and unverified telemetry; complete instrument fields and partial lists. |
+| Where/weather/brief | Map containment, forecast validity and independent source status; no all-clear. |
+
+The original location-based `!slideinfo` name presentation remains separate from
+the new exact station selectors, which include catalog/source evidence and freshness.

@@ -2,6 +2,8 @@
 import json
 import os
 import re
+import subprocess
+import sys
 from datetime import timedelta
 from pathlib import Path
 import unittest
@@ -248,10 +250,26 @@ class DeliveryFormattingTests(unittest.TestCase):
                 self.assertEqual(response_text.counted(count, noun, plural),
                                  f'{count} {noun if count == 1 else plural}')
 
-    def test_documented_examples_cover_commands_and_fit_radio_budget(self):
+    def test_documented_and_runtime_examples_cover_commands_and_fit_radio_budget(self):
         root = Path(__file__).resolve().parents[1]
         document = (root / 'RESPONSE_EXAMPLES.md').read_text(encoding='utf-8')
         examples = re.findall(r'### (![^\n]+)\n\n(\d+) UTF-8 bytes\.\n\n```text\n([^`]+)\n```', document)
+        # Discovery varies with channel context; verify a real controlled example.
+        env = dict(os.environ, MESHCORE_HELP_COMMANDS=json.dumps({"!status": True}), MESHCORE_SENDER="Alice")
+        help_result = subprocess.run([sys.executable, str(root / "scripts" / "command_help.py"), "!status"],
+                                     capture_output=True, text=True, env=env, check=True)
+        self.assertIn("Local command", help_result.stdout)
+        help_body = responder.reply_parts("Alice", help_result.stdout, max_parts=1)[0]
+        examples.append(("!help !status", str(len(help_body.encode())), help_body))
+        data_result = subprocess.run([sys.executable, str(root / "scripts" / "data_status.py"), "help"],
+                                     capture_output=True, text=True, env=env, check=True)
+        data_body = responder.reply_parts("Alice", data_result.stdout, max_parts=1)[0]
+        examples.append(("!data help", str(len(data_body.encode())), data_body))
+        for command in ("statepark", "entrance", "camp", "parking", "facility", "gauge", "gauges", "downstream", "tributaries", "wateruse", "sat", "satfreq", "satpoint", "satpass", "where", "weather", "brief"):
+            result = subprocess.run([sys.executable, str(root / "scripts" / (command + ".py")), "help"],
+                                    capture_output=True, text=True, env=env, check=True)
+            body = responder.reply_parts("Alice", result.stdout, max_parts=1)[0]
+            examples.append(("!" + command + " help", str(len(body.encode())), body))
         commands = json.loads((root / 'config.json').read_text())['responder']['commands']
         self.assertEqual({command.split()[0] for command, _, _ in examples}, set(commands))
         self.assertEqual({command.split()[0] for command, _, _ in examples if ' near ' in command},

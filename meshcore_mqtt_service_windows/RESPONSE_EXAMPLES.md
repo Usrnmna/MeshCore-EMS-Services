@@ -2,7 +2,7 @@
 
 These offline examples use synthetic provider records, bundled catalog references, fixed timestamps, and the actual command formatters. They are not current conditions or evidence of radio delivery. Each code block is one complete tagged message; byte counts include `@Alice `. Longer sender tags reduce optional fields.
 
-All 31 registered commands, every GIS field and boundary category, all twelve firedata categories, closest/radius searches, available help forms, subscription controls, and representative triggered notices are included. Each scenario is independent; repeated status/stop examples belong to the immediately preceding enrollment. Trigger headings describe events rather than additional command syntax.
+All 50 registered commands, every GIS field and boundary category, all twelve firedata categories, closest/radius searches, available help forms, subscription controls, and representative triggered notices are included. Each scenario is independent; repeated status/stop examples belong to the immediately preceding enrollment. Trigger headings describe events rather than additional command syntax.
 
 There are no details or paging routes. Focused fields and new lookups are independent requests. The [command reference](COMMAND_REFERENCE.md#subcommand-index) explains syntax; the [response policy and review inventory](RESPONSE_FORMATTING.md) records fields that may not fit. Source/coverage limitations and full structured data are described in the [water](WATER_GUIDE.md), [wildfire](WILDFIRE_GUIDE.md), and [landslide](LANDSLIDE_GUIDE.md) guides.
 
@@ -2595,4 +2595,191 @@ These notices are captured from the service notification callbacks after acknowl
 
 ```text
 @Alice NWS alert unlisted; cancellation unconfirmed. Not an all-clear. | Flash Flood Warning | Pasadena CA
+```
+
+## Discovery and expanded command help
+
+The following help replies were produced offline by the dedicated programs
+and the shared sender-tag formatter. They demonstrate syntax without querying
+providers or claiming dataset coverage. `!help !status` uses a synthetic enabled
+channel catalog; actual discovery follows installed channel assignments.
+
+### !help !status
+
+61 UTF-8 bytes.
+
+```text
+@Alice !status: Local command | !status | Local service check
+```
+
+### !data help
+
+132 UTF-8 bytes.
+
+```text
+@Alice Use !data DATASET | parks water flood basin ebmud wildfire landslide satellites | water observations | source water|landslide
+```
+
+### !statepark help
+
+51 UTF-8 bytes.
+
+```text
+@Alice Use !statepark NAME | id UNIT | near LAT LON
+```
+
+### !entrance help
+
+54 UTF-8 bytes.
+
+```text
+@Alice Use !entrance PARK | unit UNIT | id ENTRANCE_ID
+```
+
+### !camp help
+
+49 UTF-8 bytes.
+
+```text
+@Alice !camp NAME; help near/name/id/unit/filters
+```
+
+### !parking help
+
+52 UTF-8 bytes.
+
+```text
+@Alice !parking NAME; help near/name/id/unit/filters
+```
+
+### !facility help
+
+71 UTF-8 bytes.
+
+```text
+@Alice !facility CATEGORY near LAT LON [MILES]; help categories/sources
+```
+
+### !gauge help
+
+55 UTF-8 bytes.
+
+```text
+@Alice !gauge AGENCY-ID [stage|flow|source] [series ID]
+```
+
+### !gauges help
+
+35 UTF-8 bytes.
+
+```text
+@Alice !gauges near LAT LON [MILES]
+```
+
+### !downstream help
+
+53 UTF-8 bytes.
+
+```text
+@Alice !downstream AGENCY-ID or NHDPlusV2:ID; one hop
+```
+
+### !tributaries help
+
+61 UTF-8 bytes.
+
+```text
+@Alice !tributaries NHDPlusV2:ID or name NAME [region REGION]
+```
+
+### !wateruse help
+
+142 UTF-8 bytes.
+
+```text
+@Alice !wateruse BP:SERVICE/LAYER:OBJECT or name NAME [region REGION] [source SERVICE/LAYER]; [use CODE] [field name/description/status/notes]
+```
+
+### !sat help
+
+33 UTF-8 bytes.
+
+```text
+@Alice !sat NORAD-ID or name NAME
+```
+
+### !satfreq help
+
+102 UTF-8 bytes.
+
+```text
+@Alice !satfreq NORAD-ID [op ID] [field uplink/downlink/mode/passband/status]; name NAME also accepted
+```
+
+### !satpoint help
+
+117 UTF-8 bytes.
+
+```text
+@Alice !satpoint ID LAT LON [agl M] [terrain ID] [orbit ID]; WGS84 degrees; GIS required; agl defaults 0m; help units
+```
+
+### !satpass help
+
+98 UTF-8 bytes.
+
+```text
+@Alice !satpass ID LAT LON [next24h/hours H] [min DEG]; shipped defaults 24h/10deg; help selectors
+```
+
+### !where help
+
+107 UTF-8 bytes.
+
+```text
+@Alice !where LAT LON [park|basin|firezone]; basin [Region|Unit|Area|Subarea|SPW|PW]. Map containment only.
+```
+
+### !weather help
+
+119 UTF-8 bytes.
+
+```text
+@Alice !weather [hourly|wind] LAT LON/ZIP/CITY [STATE]. Cities default CA. Forecast only; local --json for full detail.
+```
+
+### !brief help
+
+114 UTF-8 bytes.
+
+```text
+@Alice !brief [alerts|weather|fire|water] LOCATION. Default: all four. Selected info, not all-clear; local --json.
+```
+
+## Recorded endpoint and combined-filter fixtures
+
+These synthetic Oak Loop records exercise the actual GIS formatter; they are not live access reports.
+
+### !trail Oak Loop end
+
+71 UTF-8 bytes.
+
+```text
+@Alice mapped end 37.90000,-122.10000; access unknown; id 42 | Oak Loop
+```
+
+### !trail Oak Loop end id 42
+
+71 UTF-8 bytes.
+
+```text
+@Alice mapped end 37.90000,-122.10000; access unknown; id 42 | Oak Loop
+```
+
+### !trail find dogs shade near 37.9 -122.2 2
+
+104 UTF-8 bytes.
+
+```text
+@Alice Oak Loop (trail ref); dogs Yes; shade Mostly Shade | 0.00 mi map distance | Access status unknown
 ```

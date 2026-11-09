@@ -24,7 +24,7 @@ def main(argv=None):
     from PyQt6.QtWidgets import QApplication
     from installers.datasets.gui.discovery import native_target
     from installers.desktop.service_window import ServiceWindow
-    location = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[2] / "dist/v0.9.6-beta"
+    location = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[2] / "dist/v0.9.9-beta"
     folder = args.installers or (location / "service-installers" if getattr(sys, "frozen", False) else location)
     if args.installers is None and not folder.is_dir() and (location.parent / "dataset-manager/service-installers").is_dir():
         folder = location.parent / "dataset-manager/service-installers"

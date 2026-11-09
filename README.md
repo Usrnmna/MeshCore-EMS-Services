@@ -2,8 +2,8 @@
 
 ![Illustrative same-channel exchanges on #autatestbot: !snowpack Truckee returns an @Alice snow-depth and snowfall report; !floodwarn Sacramento returns an @Alice point-scoped NWS flood-alert report. Values are examples, not live conditions.](docs/assets/readme-hero.svg)
 
-[![Distribution version v0.9.6-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.6-beta.md)
-[![31 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+[![Source release target v0.9.9-beta](docs/assets/version-badge.svg)](RELEASE_v0.9.9-beta.md)
+[![50 registered commands](docs/assets/commands-badge.svg)](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
 [![Offline GIS for the EBMUD area](docs/assets/offline-gis-badge.svg)](data/ebmud/README.md)
 
 [![Offline verification](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml/badge.svg)](https://github.com/Usrnmna/MeshCore-EMS-Services/actions/workflows/ci.yml)
@@ -12,11 +12,12 @@
 
 MC-EMS-Services turns a MeshCore channel into a command-driven information service
 for communities, field teams, and radio operators. Short channel messages retrieve
-weather alerts, water conditions, wildfire and smoke information, landslide-related
-alerts, highway restrictions, and local trail and recreation information.
+weather forecasts and alerts, exact gauge readings, wildfire and landslide
+information, park facilities, geographic context, satellite references and predictions.
+Location briefings combine selected information without implying an all-clear.
 Replies return to the same channel with the sender's name.
 
-**31 commands | Linux and Windows | USB, Bluetooth LE, or TCP | Offline GIS lookups**
+**50 commands | Linux and Windows | USB, Bluetooth LE, or TCP | Offline GIS lookups**
 
 **[Get started](#get-started)** | **[Try the commands](meshcore_mqtt_service/BOT_USER_GUIDE.md)** | [Installation](INSTALL.md) | [All documentation](docs/README.md)
 
@@ -30,7 +31,11 @@ Replies return to the same channel with the sender's name.
 | 🔥 **Wildfire information** | Interstate fire-weather zones, reported fires, containment, forecasts, alerts, context and temporary monitoring. | `!firezone`, `!fires`, `!fire`, `!firewx`, `!firewarn`, `!firedata`, `!firealarm`, `!smoke`, `!firedanger` |
 | **California and Nevada landslide information** | Official alerts mentioning landslide hazards, temporary monitoring, and nearby USGS research stations. | `!slidewarn`, `!slidealarm`, `!slideinfo` |
 | 🗺️ **Offline local maps** | Recorded trail policies, recreation amenities, peak elevations, park details, and mapped boundaries in the EBMUD area. | `!trail`, `!rec`, `!peak`, `!park`, `!boundary` |
-| 🕒 **Service checks** | Responder availability and the configured local time. | `!status`, `!time` |
+| **Discovery and source status** | Channel-aware help, prerequisite reporting, installed evidence and cache status. | `!help`, `!data`, `!status`, `!time` |
+| **State Parks and facilities** | Park identity, recorded entrances, campgrounds, parking and qualified facility references. | `!statepark`, `!entrance`, `!camp`, `!parking`, `!facility` |
+| **Exact water references** | Agency-qualified gauges, reviewed one-hop connectivity and designated beneficial uses. | `!gauge`, `!gauges`, `!downstream`, `!tributaries`, `!wateruse` |
+| **Satellite queries** | Catalog identities and frequencies; GIS-qualified pointing and bounded pass predictions. | `!sat`, `!satfreq`, `!satpoint`, `!satpass` |
+| **Location context** | Geographic containment, NWS forecasts and selected location briefings. | `!where`, `!weather`, `!brief` |
 
 Multiple Public, hashtag, or private channels can have different command
 assignments. Operators can add Python command programs after installation.
@@ -50,7 +55,8 @@ Same channel     <-- Companion Node <-- Tagged, concise reply
 
 The companion connects to the service computer over USB serial, Bluetooth LE,
 or TCP. One connection is active at a time. Internet access is needed by online
-lookups; the five local GIS commands work without network access or API keys.
+lookups. Installed map and catalog reference queries work offline; eligible
+data and optional runtime dependencies must already be present.
 
 An illustrative exchange on the default `#autatestbot` channel:
 
@@ -97,14 +103,14 @@ Service Setup remain available for maintenance.
 ### Install and send the first command
 
 1. Follow the [installation guide](INSTALL.md) for Windows x64, Linux x86_64,
-   or Raspberry Pi ARM64. The distribution version is `v0.9.6-beta`.
+   or Raspberry Pi ARM64. The current source release target is `v0.9.9-beta`; release builds remain pending.
 2. Select USB serial, BLE, or TCP and configure the permitted channels and commands.
    USB serial autodetection is the default; attach one supported device or select
    an explicit port. Complete BLE pairing through the operating system first.
 3. Start the service and send `!status` from another node on an assigned channel.
 4. Try `!uv Sacramento`, `!traffic 80`, or `!trail Bear Creek dogs`.
    Use the [full command reference](meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
-   for all 31 commands and their response types.
+   for all 50 commands and their response types. `!help` lists channel-enabled families.
 
 For interactive source-folder operation, follow the
 [Linux setup guide](meshcore_mqtt_service/README.md#linux-setup) or
@@ -114,6 +120,15 @@ unattended service operation. Restart after configuration changes.
 
 ## Coverage and important limits
 
+Current additions, source contracts and upgrade checks are summarized in the
+[command implementation guide](docs/COMMAND_IMPLEMENTATION.md) and
+[v0.9.9-beta preparation notes](RELEASE_v0.9.9-beta.md).
+
+W10 modelling is paused; no `!floodref` or `!rivertrend` command is exposed.
+Existing flood alerts and subscriptions remain available. Restricted offline
+elevation/environmental references do not enable flood modelling or satellite
+precision transformations. Satellite pointing requires separately qualified terrain.
+
 Hosted Windows/Linux software checks passed all 10 jobs on October 26, 2026.
 The [verification record](installers/VALIDATION.md#hosted-github-actions-october-26-2026)
 identifies the tested revision, scope, conditional skips, and remaining limitations.
@@ -121,7 +136,7 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
 - Bare city names default to California. Several commands accept US city/state,
   ZIP, or GPS input; air quality and river lookups require coordinates.
   Snowpack coverage is California-only, and highway reports cover California routes.
-- Local GIS commands use EBMUD-area snapshots. They do not search every California
+- The original `!trail`, `!rec`, `!peak`, `!park` and `!boundary` commands use EBMUD-area snapshots. They do not search every California
   park or establish current access permission, route accessibility, or live conditions.
   Service ZIPs and service installers require the independent EBMUD data package
   for these lookups. See [GIS deployment](INSTALL.md#gis-source-deployment).
@@ -164,11 +179,11 @@ identifies the tested revision, scope, conditional skips, and remaining limitati
 | Query water conditions and manage flood subscriptions | [Water command guide](meshcore_mqtt_service/WATER_GUIDE.md) / [Station identity and threshold review](meshcore_mqtt_service/WATER_STATION_REVIEW.md) |
 | Query landslide-related alerts and station metadata | [Landslide guide](meshcore_mqtt_service/LANDSLIDE_GUIDE.md) |
 | Use the separate satellite catalog | [Satellite database tools](satellite_database/README.md) / [Stored catalog and exports](data/satellites/README.md) |
-| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.6 - Beta highlights](RELEASE_v0.9.6-beta.md) / [Documentation index](docs/README.md) |
+| Review changes and all documentation | [Release notes](RELEASE_NOTES.md) / [Version 0.9.9 - Beta highlights](RELEASE_v0.9.9-beta.md) / [Documentation index](docs/README.md) |
 
-The California State Parks collection and satellite catalog are separate reference
-resources; they are not registered MeshCore commands. Their guides describe data
-coverage, provenance, refresh procedures, and interpretation limits.
+California State Parks and satellite collections retain separate maintenance
+lifecycles while their dedicated MeshCore commands read eligible installed records.
+Their guides describe coverage, provenance, refresh procedures and interpretation limits.
 
 The [NOAA upstream station review](meshcore_mqtt_service/WATER_STATION_REVIEW.md)
 documents supported gauge identifiers, threshold availability and unresolved

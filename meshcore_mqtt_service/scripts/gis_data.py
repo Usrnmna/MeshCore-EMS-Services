@@ -41,7 +41,7 @@ BOUNDARY_LAYERS = PARK_LAYERS + ('reservoirs', 'watershed_boundary')
 # Command vocabulary and boundary categories are shared by parsing and help text.
 SUBCOMMANDS = {
     'trail': ('dogs', 'horses', 'bikes', 'length', 'difficulty', 'gain', 'surface',
-              'shade', 'time', 'start', 'areas', 'description', 'info'),
+              'shade', 'time', 'start', 'end', 'areas', 'description', 'info'),
     'rec': ('type', 'parking', 'restrooms', 'water', 'picnic', 'fishing',
             'boatlaunch', 'boatrental', 'playground', 'horsetrailers', 'location', 'info'),
     'peak': ('elevation', 'location', 'info'),
@@ -54,6 +54,7 @@ BOUNDARY_FILTERS = {
     'reservoirs': ('reservoirs',),
     'recreation': ('recreation_areas',),
 }
+TRAIL_FILTERS = ('dogs', 'horses', 'bikes', 'shade')
 
 
 class GISUnavailable(RuntimeError):
@@ -139,6 +140,28 @@ def parse_command_query(kind, text):
         raise ValueError('Unknown GIS command.')
     mode, value = parse_query(text)
     words = text.split()
+    if kind == 'trail':
+        if words[0].casefold() == 'help' and len(words) == 2:
+            return 'trail_help', words[1].casefold(), None
+        if words[0].casefold() == 'find':
+            lower = [word.casefold() for word in words]
+            if 'near' not in lower:
+                raise ValueError('Use find FILTERS near LAT LON [MILES].')
+            index = lower.index('near')
+            filters = tuple(lower[1:index])
+            if (not filters or len(filters) != len(set(filters))
+                    or any(item not in TRAIL_FILTERS for item in filters)):
+                raise ValueError('Use distinct filters: dogs horses bikes shade.')
+            if len(text.encode('utf-8')) > 150:
+                raise ValueError('Query exceeds 150 UTF-8 bytes.')
+            _, location = parse_query(' '.join(words[index:]))
+            return 'find', location, filters
+        if len(words) >= 3 and words[-3].casefold() in {'start', 'end'} and words[-2].casefold() == 'id':
+            if len(words) < 4 or not words[-1].isascii() or not words[-1].isdigit():
+                raise ValueError('Use NAME start/end id ID.')
+            return 'name', ' '.join(words[:-3]), ('endpoint', words[-3].casefold(), str(int(words[-1])))
+        if len(words) >= 2 and words[-2].casefold() in {'start', 'end'} and words[-1].casefold() == 'id':
+            raise ValueError('Use NAME start/end id ID.')
     if text.strip().casefold() == 'help':
         return 'help', None, None
     attribute = None

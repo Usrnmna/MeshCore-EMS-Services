@@ -12,7 +12,7 @@ describe presentation; supported local JSON/snapshot modes retain structured dat
 
 Radio and terminal invocations use different argument conventions. The paired
 [radio command and subcommand reference](../meshcore_mqtt_service/COMMAND_REFERENCE.md#subcommand-index)
-documents all 31 registered MeshCore commands. This guide lists operator,
+documents all 50 registered MeshCore commands. This guide lists operator,
 maintenance, collection, and satellite interfaces. Library helpers without an
 executable entry point are described in component function references.
 
@@ -145,8 +145,9 @@ separate observed/forecast source evidence and retention rules.
 ## Satellite catalog
 
 Run `python satellite_database/satellite_db.py [--settings PATH] SUBCOMMAND`.
-Global settings precede the subcommand. These are local catalog tools and have
-no registered MeshCore command.
+Global settings precede the subcommand. These local maintenance tools remain
+separate from the service's dedicated `!sat`, `!satfreq`, `!satpoint` and `!satpass`
+programs; radio queries do not run catalog refresh or export operations.
 
 | Subcommand | Options or positional inputs | Result |
 | --- | --- | --- |
@@ -175,3 +176,31 @@ The [installation guide](../INSTALL.md) lists Windows installer parameters,
 Linux installer options, extraction/check modes, uninstall behavior, preservation,
 credentials, and target-build requirements. The [development guide](DEVELOPMENT.md)
 defines local and GitHub offline checks and their evidence boundaries.
+
+## Expanded dedicated query entry points
+
+Run these from a platform package directory. A quoted query is required by the
+single-query programs; using one quoted query also works for the other entries.
+Do not include `!COMMAND` in the script argument. `--json` is a local terminal
+option only where listed, not a MeshCore selector or a general capability.
+
+| Programs | Invocation contract |
+| --- | --- |
+| `command_help.py` | One quoted topic/command; service `MESHCORE_HELP_COMMANDS` context is required for channel availability. |
+| `data_status.py` | One quoted dataset/source query; no acquisition. |
+| `statepark.py`, `entrance.py`, `camp.py`, `parking.py`, `facility.py` | One quoted radio query, or `help`; installed references only. |
+| `gauge.py`, `gauges.py`, `downstream.py`, `tributaries.py` | Query tokens or one quoted query; compact output, not a general JSON interface. |
+| `wateruse.py`, named `waterway.py`, parent `basin.py` | Optional leading `--json`, then the exact source/name/parent query. |
+| `sat.py`, `satfreq.py`, `satpoint.py`, `satpass.py` | Optional leading `--json`, then query; structured output is rejected in service-request context. |
+| `where.py`, `weather.py`, `brief.py` | Optional leading `--json`, then query; local structured evidence and compact radio output remain distinct. |
+
+```sh
+python scripts/gauge.py "USGS-11464000 stage"
+python scripts/facility.py "restrooms near 38.61 -122.83 5"
+python scripts/weather.py --json "wind Sacramento"
+python scripts/satpass.py "25544 38.61 -122.83 hours 6 min 10"
+```
+
+These examples do not assure source coverage. Satellite prediction requires a
+qualified local orbit and separately configured GIS terrain; see
+[terrain qualification](COMMAND_IMPLEMENTATION.md#satellite-terrain-qualification).

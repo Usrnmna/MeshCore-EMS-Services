@@ -206,3 +206,13 @@ Tests use synthetic CAP fixtures for lifecycle and failure cases, the bundled
 boundary/catalog for geographic checks, and service callbacks for subscription
 and queue behavior. Host tests do not establish native Linux service operation,
 live warning issuance, physical radio delivery, or continuous provider availability.
+
+## Exact station metadata
+
+`!slideinfo station ID [instruments [INDEX]|status|source]` reads recorded metadata;
+the default is status and instrument indices start at one. Unknown/conflicting
+identities, missing metadata, stale/undated evidence and partial instrument lists
+remain explicit. Catalog status does not establish current telemetry or readings.
+Supported Nevada location requests may return California station references with
+the not-local-coverage qualification. See [station metadata syntax](COMMAND_REFERENCE.md#cmd-slideinfo).
+`!data source landslide` reports existing cache status without acquiring telemetry.

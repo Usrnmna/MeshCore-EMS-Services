@@ -1,6 +1,6 @@
 WINDOWS 10 X64: START THE CONTINUOUS SERVICE
 
-Version 0.9.6 - Beta (v0.9.6-beta)
+Version 0.9.9 - Beta (v0.9.9-beta)
 
 Double-click Start-Service.exe once.
 
@@ -56,7 +56,7 @@ Installer upgrades preserve it. All programs receive MESHCORE_TIMEZONE.
 See README.md for provider-text limits and standalone usage.
 
 LOCAL GIS COMMANDS
-The current source includes 31 commands. Local GIS examples:
+The current source includes 50 commands. Local GIS examples:
     !trail Bear Creek
     !rec near 37.90 -122.20
     !peak Wildcat Peak
@@ -115,7 +115,7 @@ California and Nevada landslide commands: !slidewarn LOCATION, !slidealarm on LO
 See LANDSLIDE_GUIDE.md. New commands require channel assignments on registry upgrades.
 
 COMPLETE COMMAND AND SUBCOMMAND INDEX
-The current source registers 31 commands. COMMAND_REFERENCE.md lists every command,
+The current source registers 50 commands. COMMAND_REFERENCE.md lists every command,
 GIS field and category, wildfire context category and query form, location-water
 query, and flood/fire/landslide subscription control. BOT_USER_GUIDE.md provides
 short radio examples. WATER_GUIDE.md, WILDFIRE_GUIDE.md, and LANDSLIDE_GUIDE.md

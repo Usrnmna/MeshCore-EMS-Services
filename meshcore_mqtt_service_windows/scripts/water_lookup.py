@@ -42,6 +42,11 @@ def parse_query(command, text):
     text = " ".join(text.split())
     if text.lower() in {"", "help", "--help"}:
         return {"action": "help", "target": "", "mode": "alerts"}
+    if (command == 'waterway' and text.split()[0] in {'name', 'id'} or
+            command == 'basin' and text.split()[0] == 'parent'):
+        from .basin_plan_lookup import parse
+        parse(command, text)
+        return {'action': 'basin_plan', 'target': text, 'mode': 'reference'}
     action, mode = "lookup", "alerts"
     if text.split()[0].lower() == "details" or re.search(r"\s+page\s+\d+\s*$", text, re.I):
         raise ValueError(f"Use !{command} LOCATION; details and paging are not supported.")
@@ -448,6 +453,12 @@ def format_status(command, data):
 def main(command, argv=None):
     """Dedicated entry points call this once; direct alarm calls never create subscriptions."""
     args = list(sys.argv[1:] if argv is None else argv)
+    reference_args = [arg for arg in args if arg not in {'--snapshot', '--json'}]
+    first = ' '.join(reference_args).split()[:1]
+    if (command == 'waterway' and first and first[0] in {'name', 'id'} or
+            command == 'basin' and first == ['parent']):
+        from .basin_plan_lookup import main as reference_main
+        return reference_main(command, (['--json'] if '--json' in args or '--snapshot' in args else []) + reference_args)
     structured = "--snapshot" in args or "--json" in args
     args = [a for a in args if a not in {"--snapshot", "--json"}]
     if hasattr(sys.stdout, "reconfigure"):
@@ -457,6 +468,9 @@ def main(command, argv=None):
         query = parse_query(command, " ".join(args))
         if query["action"] == "help":
             text = f"Use !{command} LOCATION. LOCATION: coordinates, ZIP, or city [state]; bare cities default CA."
+            if command in {'waterway', 'basin'}:
+                from .basin_plan_lookup import HELP, fit
+                text = fit(HELP[command])
             if command == "floodwarn":
                 text = "!floodwarn CITY [STATE], ZIP, or LAT LON. Default state: CA."
             if command == "floodalarm":

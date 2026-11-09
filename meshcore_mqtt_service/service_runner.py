@@ -42,8 +42,10 @@ def load_environment(path):
     os.environ.update(values)
 
 
-def load_data_root(config):
-    """Propagate a typed non-secret shared root to service-owned child programs."""
+def load_data_root(config, config_path=None):
+    """Propagate non-secret dataset and installed satellite settings paths to children."""
+    if config_path is not None:
+        os.environ["MESHCORE_SATELLITE_SETTINGS"] = str(Path(config_path).resolve().parent / "satellite-settings.json")
     value = config.get("dataset_root")
     if value is None:
         return
@@ -97,7 +99,7 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
     config = json.loads(args.config.read_text(encoding="utf-8-sig"))
-    load_data_root(config)
+    load_data_root(config, args.config)
     connection_settings(config)
     service.validate_config(config.get("responder", {"enabled": False}), service.ROOT)
     if config["command_timeout"] <= 0 or config["command_interval"] < 0:

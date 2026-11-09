@@ -156,3 +156,12 @@ immediate node connections, confluence branches, station-to-downstream-reach
 relationships and derived reach-to-CalWater overlaps. All six CalWater levels
 remain separate. Its potentially affected basin candidates are not flooded-area
 polygons and do not replace published beneficial-use or hierarchy relationships.
+
+## Runtime relationship selection
+
+`!basin parent` follows the recorded immediate CalWater parent and reports roots,
+missing/conflicting parents and incompatible source generations. All six hierarchy
+levels remain distinct from Water Board regions. `!wateruse` preserves recorded
+designation codes, statuses, notes and regional context. Name/use associations do
+not provide directed connectivity or current water-quality/safety determinations.
+See [exact query forms](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#cmd-wateruse).

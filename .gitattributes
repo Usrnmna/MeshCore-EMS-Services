@@ -99,6 +99,11 @@
 # Ignore rules exclude these paths; attributes also protect explicitly added files.
 **/.datasets/** -text -whitespace
 
+# Restricted catalogs, XML evidence and staging receipts retain their hashed bytes.
+# These overrides apply after maintained-source exceptions, including custom roots.
+**/.reference-only/** -text -whitespace
+**/.local-data-staging/** -text -whitespace
+
 # Local planning notes are not distribution documentation.
 /docs/superpowers export-ignore
 /docs/superpowers/** export-ignore

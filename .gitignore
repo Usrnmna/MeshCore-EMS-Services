@@ -96,6 +96,11 @@ datasets.json.*.tmp
 .gui-manager.lock
 /.dataset-test-temp/
 
+# Isolated local dataset downloads and verification receipts, excluded from Git.
+/.local-data-staging/
+# Restricted references may use a custom root; catalogs and rollback evidence stay local.
+.reference-only/
+
 # Interrupted collection refreshes and GIS settings writes.
 .refresh-*/
 .test-refresh-*/

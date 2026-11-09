@@ -25,7 +25,7 @@ def main(argv=None):
     parser.add_argument("--root", type=Path, default=default_root())
     parser.add_argument("--smoke-test", action="store_true", help="With --demo, load the form and exit without host discovery")
     parser.add_argument("--datasets-only", action="store_true", help="Open the independent Dataset Manager interface")
-    location = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[3] / "dist/v0.9.6-beta"
+    location = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parents[3] / "dist/v0.9.9-beta"
     parser.add_argument("--installers", type=Path, default=location)
     args = parser.parse_args(arguments)
     if args.smoke_test and not args.demo:

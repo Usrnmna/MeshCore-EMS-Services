@@ -1,4 +1,4 @@
-# Install MeshCore EMS v0.9.6-beta as an OS service
+# Install MeshCore EMS v0.9.9-beta as an OS service
 
 For Windows, Linux and Raspberry Pi graphical desktops, begin with the
 [desktop installation and removal guide](docs/DESKTOP_INSTALLATION.md).
@@ -19,7 +19,7 @@ The service installers automatically obtain Python and dependencies
 during installation, including Skyfield for satellite positioning. Local development
 environments, service databases, credentials, recovery archives, and distribution
 ZIPs are excluded. The satellite catalog remains a standalone reference tool.
-The maintained source includes all 31 commands and five local GIS
+The maintained source includes all 50 commands and five local GIS
 commands with focused subcommands. Install the EBMUD data package for GIS lookups. See
 [GIS source deployment](#gis-source-deployment) for external settings and manual
 updates. Neither GIS nor satellite refresh is scheduled automatically.
@@ -28,11 +28,11 @@ updates. Neither GIS nor satellite refresh is scheduled automatically.
 
 | File | Target |
 | --- | --- |
-| `MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
-| `MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
-| `MeshCore-EMS-v0.9.6-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
+| `MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe` | Windows 10/11 x64 |
+| `MeshCore-EMS-v0.9.9-beta-raspberry-pi-arm64.run` | Raspberry Pi OS **64-bit**, Bookworm or newer, with systemd |
+| `MeshCore-EMS-v0.9.9-beta-linux-x86_64.run` | Debian 12+ or Ubuntu 24.04+, Intel/AMD 64-bit, with systemd |
 
-Outputs are under `dist/v0.9.6-beta/`, alongside `SHA256SUMS.txt`.
+Outputs are under `dist/v0.9.9-beta/`, alongside `SHA256SUMS.txt`.
 Each operating-system installer is distributed separately. Download only the
 installer matching the target system; installation and validation guides are
 available as separate files alongside the checksums.
@@ -84,7 +84,7 @@ publisher release.
 For unattended installation from an administrator terminal:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
+MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SERIALPORT=auto
 ```
 
 Add `/NOSTART=1` to register without starting now (automatic startup remains enabled).
@@ -118,8 +118,8 @@ Windows wizard: select **Wi-Fi / TCP**, then enter the node IP and port; or sele
 preserves the installed connection. Unattended examples:
 
 ```bat
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
-MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
+MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=tcp /TCPHOST=192.168.1.50 /TCPPORT=5000
+MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe /VERYSILENT /TRANSPORT=ble /BLEADDRESS=AA:BB:CC:DD:EE:FF /NOSTART=1
 ```
 
 Direct PowerShell setup exposes `-Transport`, `-SerialPort`, `-TcpHost`, `-TcpPort`,
@@ -130,8 +130,8 @@ under that account before relying on unattended BLE operation.
 Linux (use the ARM64 filename on Raspberry Pi):
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
+sudo bash MeshCore-EMS-v0.9.9-beta-linux-x86_64.run --transport tcp --tcp-host 192.168.1.50 --tcp-port 5000
+sudo bash MeshCore-EMS-v0.9.9-beta-linux-x86_64.run --transport ble --ble-address AA:BB:CC:DD:EE:FF --no-start
 ```
 
 For BLE, the Linux installer installs BlueZ and enables its service. Pair/trust
@@ -152,9 +152,9 @@ it cannot verify pairing, service-account Bluetooth access, or TCP reachability.
 Run the matching installer with Bash. Automatic USB serial detection is the default:
 
 ```bash
-sudo bash MeshCore-EMS-v0.9.6-beta-raspberry-pi-arm64.run --port auto
+sudo bash MeshCore-EMS-v0.9.9-beta-raspberry-pi-arm64.run --port auto
 # Intel/AMD:
-sudo bash MeshCore-EMS-v0.9.6-beta-linux-x86_64.run --port auto
+sudo bash MeshCore-EMS-v0.9.9-beta-linux-x86_64.run --port auto
 ```
 
 Use `--port auto` to rescan USB serial devices at each start. A new installation
@@ -268,7 +268,7 @@ still limit their usefulness; inclusion is not proof of current RF reception.
 
 ## GIS source deployment
 
-Current source contains 31 commands. The five GIS commands are `!trail`,
+Current source contains 50 commands. The five GIS commands are `!trail`,
 `!rec`, `!peak`, `!park`, and `!boundary`. Service installers and ZIPs include their
 programs and settings. The independent EBMUD data installer supplies twelve
 datasets and preserved polygon-repair originals. Manual source updates must update the deployed
@@ -469,7 +469,7 @@ OS service, or dependency is required beyond the current package requirements.
 
 ## Location water and flood command deployment
 
-The maintained source registers 31 commands. Water additions are `!waterway`,
+The maintained source registers 50 commands. Water additions are `!waterway`,
 `!basin`, and `!floodstatus`; `!floodwarn` and `!floodalarm` use the same
 location-pinned source helpers. Deploy the matching platform responder, flood
 worker, all `scripts/water_*.py` helpers, dedicated command programs, curated
@@ -500,3 +500,14 @@ acknowledgment. Source availability, permissions, deadlines, and recipient deliv
 remain separate validation boundaries. See [complete water behavior, retention,
 and sources](meshcore_mqtt_service/WATER_GUIDE.md) and the
 [terminal option index](docs/CLI_REFERENCE.md).
+
+## v0.9.9-beta command prerequisites
+
+The source target is v0.9.9-beta; new release artifacts require a separate build.
+After an upgrade, review channel assignments for the 19 added commands and restart
+the service. Use `!help !COMMAND` and `!data DATASET` to diagnose missing prerequisites.
+State Parks, EBMUD, Basin Plan, water and satellite catalog references retain their
+independent data lifecycles. Pointing/pass commands additionally require explicitly
+qualified local GIS terrain and supported datum transformations; installing a
+restricted elevation reference alone does not enable them. W10 remains paused.
+See [command prerequisite contracts](docs/COMMAND_IMPLEMENTATION.md).

@@ -38,7 +38,7 @@ class ServiceDesktopTests(unittest.TestCase):
     def test_installer_selection_checks_target_digest_and_ambiguity(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
-            artifact = root / "MeshCore-EMS-v0.9.6-beta-windows-x64-setup.exe"
+            artifact = root / "MeshCore-EMS-v0.9.9-beta-windows-x64-setup.exe"
             artifact.write_bytes(b"fixture")
             digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
             (root / "SHA256SUMS.txt").write_text(digest + "  " + artifact.name + "\n")

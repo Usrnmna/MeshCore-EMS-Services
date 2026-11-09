@@ -5,7 +5,7 @@ Radio replies use one tagged message, with no details or paging. See the
 
 Send a command in the MeshCore channel assigned to the bot. The default channel is `#autatestbot`; a local installation can use another channel. Replies appear in that same channel with the sender's name, such as `@Alice`.
 
-The default configuration registers 31 commands. The [complete subcommand index](COMMAND_REFERENCE.md#subcommand-index)
+The default configuration registers 50 commands. The [complete subcommand index](COMMAND_REFERENCE.md#subcommand-index)
 lists every field, context category, distance form, and subscription control.
 
 Quick links: [First message](#start) · [Weather and local conditions](#conditions) · [Wildfire information](#wildfire) · [Landslide information](#landslides) · [Flood monitoring](#monitoring) · [Trails and recreation](#gis) · [No reply or incomplete reply](#help).
@@ -107,7 +107,7 @@ A name alone identifies the feature. A field such as `dogs` requests a focused a
 
 Common fields:
 
-- Trails: `dogs`, `horses`, `bikes`, `length`, `difficulty`, `gain`, `surface`, `shade`, `time`, `start`, `areas`, `description`, `info`.
+- Trails: `dogs`, `horses`, `bikes`, `length`, `difficulty`, `gain`, `surface`, `shade`, `time`, `start`, `end`, `areas`, `description`, `info`.
 - Recreation: `type`, `parking`, `restrooms`, `water`, `picnic`, `fishing`, `boatlaunch`, `boatrental`, `playground`, `horsetrailers`, `location`, `info`.
 - Peaks: `elevation`, `location`, `info`.
 - Parks: `status`, `agency`, `trails`, `recreation`, `info`.
@@ -139,7 +139,7 @@ Distances are straight map distances to the mapped feature, not walking or drivi
 <a id="help"></a>
 ## Help, missing replies, and shortened answers
 
-Send `!trail help`, `!rec help`, `!peak help`, `!park help`, or `!boundary help` for GIS syntax. There is no global `!help` command.
+Send `!trail help`, `!rec help`, `!peak help`, `!park help`, or `!boundary help` for GIS syntax. Use `!help` for channel-aware discovery and `!help !COMMAND` for prerequisite status.
 
 If no reply arrives, check spelling and channel assignment, allow time for queued radio traffic, and wait through the sender cooldown before retrying. Unknown commands are ignored. `!status` checks whether the local responder is available; reception still depends on the radio path.
 
@@ -148,7 +148,7 @@ fields may be absent; names can be shortened at a word boundary. There are no
 pages or continuation requests. A focused GIS field is an independent lookup.
 [Tagged example replies](RESPONSE_EXAMPLES.md) show the actual formatting. `not recorded` means the dataset lacks a value; it does not mean an amenity is unavailable or a policy prohibits access.
 
-[All response and failure types](COMMAND_REFERENCE.md#troubleshooting) · [All 31 commands](COMMAND_REFERENCE.md#command-index) · [Platform README](README.md).
+[All response and failure types](COMMAND_REFERENCE.md#troubleshooting) · [All 50 commands](COMMAND_REFERENCE.md#command-index) · [Platform README](README.md).
 
 
 <a id="wildfire"></a>
@@ -217,3 +217,43 @@ urgent action. Location, NEW/UPDATED status and expiration appear when space per
 certainty and effective time. A five-second minimum gap separates responses;
 normal radio spacing can make it longer. Source outages mean status unknown,
 not an all-clear. See [flood notification behavior](WATER_GUIDE.md#independent-flood-alarm-notifications).
+
+## Expanded command families
+
+The 50 registered commands include channel-aware `!help`, read-only `!data` status,
+State Parks identity/entrance/campground/parking references, cross-collection
+facilities, exact gauges, reviewed connectivity, beneficial uses, satellite
+catalog/frequency/pointing/pass queries, `!where`, NWS `!weather`, and `!brief`.
+Existing trail, waterway, basin, wildfire-detail and landslide-station queries
+also support focused selectors. The [command reference](COMMAND_REFERENCE.md#command-index)
+contains accepted forms, exact identifiers, bounds, and source qualifications.
+
+Start with `!help`, then `!help !COMMAND` and `!data DATASET` when a dependency
+is unavailable. Registration does not guarantee installed data, provider health,
+current coverage or availability on every channel. Upgrade-preserved channel
+assignments may leave new commands unassigned until configured.
+
+W10 flood modelling remains paused. No `!floodref` or `!rivertrend` command is
+registered. Existing `!floodwarn`, `!floodstatus`, and service-owned `!floodalarm`
+remain available. Restricted elevation/environmental references cannot enable
+modelling or satellite precision conversions.
+
+### Selection examples
+
+```text
+!help satellites
+!data water observations
+!statepark near 38.61 -122.83
+!facility restrooms near 38.61 -122.83 5
+!trail find dogs shade near 37.90 -122.20 2
+!gauge USGS-11464000 stage
+!gauges near 38.61 -122.83 10
+!weather wind Sacramento
+!brief alerts Sacramento
+!where 38.61 -122.83 basin
+```
+
+These are request examples, not assurances of installed coverage or current
+readings. Use returned exact source, operation, endpoint or series IDs when a
+reply requests selection. Satellite pointing and pass commands require an
+eligible orbit and separately configured datum-qualified GIS terrain.

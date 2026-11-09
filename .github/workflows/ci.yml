@@ -82,6 +82,8 @@ jobs:
             installers/datasets/gui/requirements.txt
       - name: Check documentation, examples, commands, and publication rules
         run: python tools/run_ci_check.py .build/ci-reports/documentation.log python tools/check_documentation.py
+      - name: Check publication and paired package contracts
+        run: python tools/run_ci_check.py .build/ci-reports/publication-contracts.log python -m unittest tools.test_repository_configuration data.flood_impacts.test_archive_publication
       - name: Install headless Qt runtime libraries
         if: runner.os == 'Linux'
         shell: bash

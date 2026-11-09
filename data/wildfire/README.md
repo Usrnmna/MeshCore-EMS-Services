@@ -17,3 +17,12 @@ This explicitly replaces the three maintained seed copies after validation.
 NWS/NOAA and NIFC source attribution remains in the manifest and properties.
 
 See the [wildfire commands, sources, interpretation and maintenance guide](../../meshcore_mqtt_service/WILDFIRE_GUIDE.md).
+
+## Current service consumers
+
+`!fire` adds explicit incident ID/name and acreage/containment/perimeter/updated selectors. Incident and perimeter observations retain independent timestamps and source qualifications. Provider failure and old cache contents cannot establish current perimeter, containment, evacuation or safety conditions.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

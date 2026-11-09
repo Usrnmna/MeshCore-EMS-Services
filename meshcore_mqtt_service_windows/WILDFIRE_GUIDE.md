@@ -458,3 +458,14 @@ are excluded from release packages. `test_fire_environment.py` covers
 response omissions, holes/edges, distance limits, source timestamps,
 missing measurements, station selection, percentiles, independent warnings,
 KML validation, FEMS pagination/credentials, and all location forms.
+
+## Exact incident fields
+
+`!fire id INCIDENT-ID` and `!fire name NAME` distinguish identities explicitly.
+Use `!fire field acreage|containment|perimeter|updated id INCIDENT-ID` or the
+corresponding `name NAME` selector for one recorded field. Incident observations
+and perimeters retain independent source timestamps; no missing perimeter,
+containment, spread, evacuation status or current safety is inferred.
+Freshness is evaluated at query time and cached or failed source states remain
+visible. See [wildfire detail syntax](COMMAND_REFERENCE.md#cmd-fire).
+`!data source wildfire CATEGORY` reads existing source-cache status without refresh.

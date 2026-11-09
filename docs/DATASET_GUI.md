@@ -55,12 +55,12 @@ discovery, downloads, installation, deletion or privileged execution. Saving a l
 is an explicit file export. Close the demo and omit `--demo` for real status:
 
 ```powershell
-.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --datasets-only --installers dist/v0.9.6-beta/datasets
+.\.venv-dataset-gui\Scripts\python.exe installers/datasets/gui/main.py --datasets-only --installers dist/v0.9.9-beta/datasets
 ```
 
 Use `--root ABSOLUTE_PATH` to select a nondefault data root. The two editable path
 fields also select the data root and existing installer directory. The source
-launcher defaults to `dist/v0.9.6-beta`; the packaged executable defaults
+launcher defaults to `dist/v0.9.9-beta`; the packaged executable defaults
 to its own directory and discovers adjacent installer folders. Both can be changed in the GUI.
 The native tools path and the package's recorded data root appear in row details.
 
@@ -231,7 +231,7 @@ To make a single distributable directory containing the GUI and the **already
 built** dataset installers for that target:
 
 ```powershell
-.\.venv-dataset-gui\Scripts\python.exe tools/build_dataset_gui.py --installers dist/v0.9.6-beta/datasets --output dist/dataset-manager/windows-bundle
+.\.venv-dataset-gui\Scripts\python.exe tools/build_dataset_gui.py --installers dist/v0.9.9-beta/datasets --output dist/dataset-manager/windows-bundle
 ```
 
 Use the Linux/Pi environment's Python for the same command on its native target.

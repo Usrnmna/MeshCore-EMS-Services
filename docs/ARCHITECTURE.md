@@ -226,3 +226,12 @@ remains authoritative. Guards after the radio wait validate source freshness,
 alert version and subscription/channel state. Categorical baselines remain
 persistent; pending notices are replaceable and are not replayed after restart
 or uncertain sends. See [notification semantics](../meshcore_mqtt_service/WATER_GUIDE.md#independent-flood-alarm-notifications).
+
+## Expanded query components
+
+The service now registers 50 dedicated commands. New helpers provide installed
+reference discovery, exact identity queries, qualified satellite geometry, NWS
+forecasts and bounded location briefings while retaining the existing service's
+subscription and transmission ownership. See [component responsibilities and
+evidence boundaries](COMMAND_IMPLEMENTATION.md). W10 remains paused and internal;
+existing flood alerts are not disabled by that pause.

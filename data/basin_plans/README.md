@@ -282,3 +282,12 @@ monitoring locations, current stage/discharge values, CalWater point membership,
 and published station-to-reach links. It references the original Basin Plan keys
 and archives without modifying them. Derived relationships remain separate from
 published waterbody designations and tributary attributions.
+
+## Current service consumers
+
+`!waterway name/id`, `!basin parent`, `!wateruse` and `!where` use recorded names, identities, parent/use tables and containment. Region/source collisions require selection. CalWater hierarchy, Water Board regions and directed connectivity remain separate concepts.
+
+[Command syntax and qualifications](../../meshcore_mqtt_service/COMMAND_REFERENCE.md#command-index)
+and [runtime evidence contracts](../../docs/COMMAND_IMPLEMENTATION.md) describe
+the consumers. Queries honor custom data paths, verified selected generations
+and explicit removal. They do not authorize dataset acquisition or activation.

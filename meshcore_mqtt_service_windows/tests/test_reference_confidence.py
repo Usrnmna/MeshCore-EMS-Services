@@ -26,6 +26,8 @@ class ConfidenceReferenceTests(unittest.TestCase):
         self.base = Path(tempfile.gettempdir()) / ('confidence-test-' + uuid.uuid4().hex)
         self.root = self.base / policy.DIRECTORY
         self.root.mkdir(parents=True)
+        # Keep an equivalent noncanonical spelling to exercise read interception.
+        self.root = self.root / ".." / self.root.name
         self.addCleanup(lambda: shutil.rmtree(self.base))
         self.path = self.root / 'confidence.tif'
         self.crs = CRS(reference.LAND_COVER_CRS)
@@ -220,7 +222,7 @@ class ConfidenceReferenceTests(unittest.TestCase):
                 now[0] = reference.SECONDS + 1
                 return super().read(size)
         def opened(path, *args, **kwargs):
-            return SlowStream(payload) if path == self.path else original(path, *args, **kwargs)
+            return SlowStream(payload) if path.resolve() == self.path.resolve() else original(path, *args, **kwargs)
         with patch.object(reference.time, 'monotonic', side_effect=lambda: now[0]):
             reader = reference.Catalog(self.root)
             with patch.object(Path, 'open', opened), patch.object(rasterio, 'open', side_effect=AssertionError('Late decode')):

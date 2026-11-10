@@ -79,11 +79,64 @@ class DesktopKitTests(unittest.TestCase):
     def test_service_gui_has_distinct_entry_point_and_identity(self):
         self.assertTrue(hasattr(gui, "build_service"), "Separate service GUI builder is required")
 
+    def test_history_guide_links_resolve_in_standalone_gui_and_kit(self):
+        """Copied guides must remain usable without a surrounding source checkout."""
+        import build_desktop_kit as kit
+        import re
+        import shutil
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            app = root / "standalone"
+            app.mkdir()
+            gui.copy_guides(app)
+            for source in gui.source_files():
+                target = app / "source" / source.relative_to(gui.ROOT)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+            distribution = root / "kit"
+            distribution.mkdir()
+            kit.copy_guides(distribution)
+            checked = 0
+            for folder in (app, distribution):
+                for document in folder.rglob("*.md"):
+                    for link in re.findall(r"\]\(([^)]+CHANNEL_HISTORY\.md)\)", document.read_text(encoding="utf-8")):
+                        destination = (document.parent / link).resolve()
+                        self.assertTrue(destination.is_relative_to(folder.resolve()), str(document))
+                        self.assertTrue(destination.is_file(), str(destination))
+                        self.assertEqual(destination.read_bytes(), (gui.ROOT / "meshcore_mqtt_service/CHANNEL_HISTORY.md").read_bytes())
+                        checked += 1
+            self.assertGreaterEqual(checked, 6)
+
     def test_gui_source_inventory_covers_privileged_workers(self):
         self.assertTrue(hasattr(gui, "source_files"), "Build records must identify compiled worker sources")
         if hasattr(gui, "source_files"):
             names = {p.relative_to(gui.ROOT).as_posix() for p in gui.source_files()}
             self.assertIn("installers/desktop/authorization.py", names)
+            for name in ('backend', 'process', 'state', 'widgets', 'window'):
+                self.assertIn('installers/desktop/history_' + name + '.py', names)
+            for package in ('meshcore_mqtt_service', 'meshcore_mqtt_service_windows'):
+                for name in ('config.json', 'channel_history.py', 'channels.py'):
+                    self.assertIn(package + '/' + name, names)
+                self.assertFalse(json.loads((gui.ROOT / package / 'config.json').read_text())['channel_history']['enabled'])
+            self.assertFalse(any('runtime' in Path(name).parts or name.endswith(('.sqlite3', '-wal', '-shm')) for name in names))
+
+    def test_incoming_history_capability_matches_staged_preview_schema(self):
+        import build_installers
+        from artifact_provenance import write_provenance
+        from installers.desktop.service_backend import incoming_history_supported
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = [gui.ROOT / 'meshcore_mqtt_service' / name for name in ('config.json', 'channels.py', 'channel_history.py')]
+            with patch.object(build_installers, 'source_files', return_value=sources):
+                build_installers.stage_payload(root / 'payload')
+            capabilities = json.loads((root / 'payload/DESKTOP-CAPABILITIES.json').read_text())['capabilities']
+            self.assertIn('channel-history-v1', capabilities)
+            artifact = root / 'fixture.run'; artifact.write_bytes(b'not executable')
+            record = json.loads(write_provenance(artifact, 'service', sources, root=gui.ROOT, target='linux-x86_64').read_text())
+            self.assertEqual(record['capabilities'], capabilities)
+            self.assertTrue(incoming_history_supported(record, 'linux-x86_64'))
+            record['source_sha256']['meshcore_mqtt_service/channels.py'] = '0' * 64
+            self.assertFalse(incoming_history_supported(record, 'linux-x86_64'))
 
     def test_archive_retains_executable_modes_without_chmod_commands(self):
         import build_desktop_kit as kit

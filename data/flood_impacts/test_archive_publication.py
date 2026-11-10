@@ -19,6 +19,9 @@ class PublicationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
+        # Exercise noncanonical paths on every host, including Windows short-path aliases.
+        (self.root / "path-alias").mkdir()
+        self.root = self.root / "path-alias" / ".."
 
     def candidate(self, kind):
         """Create a small isolated candidate without acquiring provider data."""
@@ -32,7 +35,9 @@ class PublicationTests(unittest.TestCase):
             with self.subTest(kind=kind):
                 stage, identifier = self.candidate(kind)
                 target, manifest = archive.publish(self.root, stage, identifier, kind, {})
-                self.assertEqual(archive.open_generation(self.root, kind), (target, manifest))
+                opened, reopened_manifest = archive.open_generation(self.root, kind)
+                self.assertTrue(opened.samefile(target))
+                self.assertEqual(reopened_manifest, manifest)
                 self.assertEqual(manifest["kind"], kind)
                 self.assertEqual(manifest["generation"], identifier)
                 self.assertEqual(archive.read_json(target / "record.json"),
@@ -56,7 +61,7 @@ class PublicationTests(unittest.TestCase):
                 self.assertNotEqual(detached, active)
                 self.assertTrue((detached / "manifest.json").is_file())
                 self.assertEqual(pointer.read_bytes(), original)
-                self.assertEqual(archive.open_generation(self.root, kind)[0], active)
+                self.assertTrue(archive.open_generation(self.root, kind)[0].samefile(active))
 
     def test_validator_tampering_keeps_water_inventory_active(self):
         stage, identifier = self.candidate("inventory")

@@ -24,7 +24,8 @@ class ReadinessTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.base = Path(self.tmp.name)
+        # Exercise configured roots with an equivalent noncanonical spelling.
+        self.base = Path(self.tmp.name) / ".." / Path(self.tmp.name).name
         self.config = water_settings.validate({'data_directory': str(self.base)})
         self.root = self.base / 'flood_readiness'
         self.directory = self.root / 'readiness/g1'
@@ -176,7 +177,7 @@ class ReadinessTests(unittest.TestCase):
         registry = {'schema': 1, 'datasets': {'synthetic_inputs': {
             'active': {'path': '.reference-only/synthetic_inputs'}}}}
         (self.base / 'datasets.json').write_text(json.dumps(registry), encoding='utf-8')
-        with patch.object(readiness.dataset_paths, 'data_root', return_value=self.base):
+        with patch.dict(os.environ, MESHCORE_DATA_DIR=str(self.base)):
             result = self.assess()
         self.assertFalse(result['input_ready'], result)
         self.assertFalse(result['engine_ready'], result)

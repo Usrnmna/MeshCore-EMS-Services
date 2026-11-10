@@ -18,12 +18,29 @@ import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+from installers.desktop.version import VERSION
 from installers.datasets.gui.catalog import DATASETS
 from installers.datasets.gui.discovery import native_target
 from installers.datasets.gui.planning import file_hash, installer_artifact
 
 APP_NAME = "MeshCore-EMS-Dataset-Manager"
 SERVICE_APP_NAME = "MeshCore-EMS-Service-Setup"
+
+
+def windows_version_resource(app_name):
+    """Describe the native PE version resource using the shared release identity."""
+    numeric = tuple(map(int, VERSION.removeprefix("v").split("-", 1)[0].split("."))) + (0,)
+    return f'''VSVersionInfo(
+  ffi=FixedFileInfo(filevers={numeric!r}, prodvers={numeric!r}, mask=0x3f,
+                   flags=0x2, OS=0x40004, fileType=0x1, subtype=0x0, date=(0, 0)),
+  kids=[StringFileInfo([StringTable('040904B0', [
+    StringStruct('CompanyName', 'Usrnmna'),
+    StringStruct('FileDescription', {app_name!r}),
+    StringStruct('FileVersion', {VERSION!r}),
+    StringStruct('ProductName', 'MeshCore EMS Services'),
+    StringStruct('ProductVersion', {VERSION!r})])]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])])
+'''
 
 
 def verify_gui_dependencies():
@@ -45,7 +62,8 @@ def source_files():
     files = {ROOT / "LICENSE", ROOT / "installers/datasets/manage.py", ROOT / "installers/configure.py",
              ROOT / "tools/build_dataset_gui.py", ROOT / "docs/DATASET_GUI.md",
              ROOT / "docs/DATA_PACKAGES.md", ROOT / "docs/UNIFIED_INSTALLER.md"}
-    files.update(ROOT / package / "config.json" for package in ("meshcore_mqtt_service", "meshcore_mqtt_service_windows"))
+    files.update(ROOT / package / name for package in ("meshcore_mqtt_service", "meshcore_mqtt_service_windows")
+                 for name in ("config.json", "channels.py", "channel_history.py", "CHANNEL_HISTORY.md"))
     for directory in (ROOT / "installers/datasets/gui", ROOT / "installers/desktop"):
         files.update(path for path in directory.iterdir() if path.suffix in {".py", ".ui", ".txt"})
     guide = ROOT / "docs/DESKTOP_INSTALLATION.md"
@@ -87,6 +105,17 @@ def copy_installers(source, destination, target):
     (destination / "SHA256SUMS.txt").write_text("".join(sorted(entries)), encoding="utf-8")
 
 
+def copy_guides(bundle):
+    """Keep history links inside a standalone GUI's inspectable source snapshot."""
+    for source, destination in (("DESKTOP_INSTALLATION.md", "README.md"),
+                                ("UNIFIED_INSTALLER.md", "UNIFIED_INSTALLER.md"),
+                                ("DATA_PACKAGES.md", "DATA_PACKAGES.md")):
+        text = (ROOT / "docs" / source).read_text(encoding="utf-8")
+        text = text.replace("(../meshcore_mqtt_service/CHANNEL_HISTORY.md)",
+                            "(source/meshcore_mqtt_service/CHANNEL_HISTORY.md)")
+        (bundle / destination).write_text(text, encoding="utf-8", newline="\n")
+
+
 def build(output, installer_folder=None, *, service=False):
     """Build a native onedir executable with its editable form and source snapshot."""
     target = native_target()
@@ -114,15 +143,24 @@ def build(output, installer_folder=None, *, service=False):
                "--hidden-import", "installers.desktop.service_backend",
                "--hidden-import", "installers.desktop.unified_backend",
                "--hidden-import", "installers.desktop.locking",
+               "--hidden-import", "installers.desktop.history_widgets",
+               "--hidden-import", "installers.desktop.history_window",
+               "--hidden-import", "installers.desktop.history_process",
+               "--hidden-import", "installers.desktop.history_backend",
+               "--hidden-import", "installers.desktop.history_state",
                "--hidden-import", "installers.datasets.gui.privileges",
                str(ROOT / "installers/desktop/service_main.py" if service else gui / "main.py")]
+    for package in ("meshcore_mqtt_service", "meshcore_mqtt_service_windows"):
+        for name in ("channels.py", "channel_history.py"):
+            command[-1:-1] = ["--add-data", str(ROOT / package / name) + ":defaults/" + package]
+    if target == "windows-x64":
+        version_file = work / "version-info.txt"
+        version_file.write_text(windows_version_resource(app_name), encoding="utf-8")
+        command[-1:-1] = ["--version-file", str(version_file)]
     subprocess.run(command, check=True, cwd=ROOT, env=build_environment())
     bundle = output / app_name
     shutil.copy2(ROOT / "LICENSE", bundle / "LICENSE")
-    guide = ROOT / "docs/DESKTOP_INSTALLATION.md"
-    shutil.copy2(guide, bundle / "README.md")
-    for name in ("UNIFIED_INSTALLER.md", "DATA_PACKAGES.md"):
-        shutil.copy2(ROOT / "docs" / name, bundle / name)
+    copy_guides(bundle)
     # Preserve inspectable Python and the maintained form beside the executable.
     source = bundle / "source"
     for path in source_files():
@@ -136,7 +174,7 @@ def build(output, installer_folder=None, *, service=False):
         raise RuntimeError("GUI/worker source changed during compilation; rebuild before distributing")
     bundle_hashes = {path.relative_to(bundle).as_posix(): file_hash(path) for path in sorted(bundle.rglob("*"))
                      if path.is_file() and path.name != "BUILD.json"}
-    (bundle / "BUILD.json").write_text(json.dumps({"target": target, "app": "service" if service else "dataset", "python": sys.version,
+    (bundle / "BUILD.json").write_text(json.dumps({"version": VERSION, "capabilities": ["channel-history-v1"], "target": target, "app": "service" if service else "dataset", "python": sys.version,
         "dependencies": versions.splitlines(), "reused_installers": bool(installer_folder),
         "build_libc": platform.libc_ver() if target != "windows-x64" else None,
         "ui_sha256": file_hash(gui / "main_window.ui"), "source_sha256": inputs,

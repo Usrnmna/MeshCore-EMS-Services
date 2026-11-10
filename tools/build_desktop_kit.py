@@ -156,6 +156,16 @@ def start_guide(target):
     return "Target: **" + target + "**\n\n" + launch + "\n\n" + guide
 
 
+def copy_guides(output):
+    """Retain the history guide at the relative destination used by kit guides."""
+    (output / "docs").mkdir()
+    for name in ("DESKTOP_INSTALLATION.md", "UNIFIED_INSTALLER.md", "DATA_PACKAGES.md", "DATASET_GUI.md"):
+        shutil.copy2(ROOT / "docs" / name, output / "docs" / name)
+    for package in ("meshcore_mqtt_service", "meshcore_mqtt_service_windows"):
+        (output / package).mkdir()
+        shutil.copy2(ROOT / package / "CHANNEL_HISTORY.md", output / package / "CHANNEL_HISTORY.md")
+
+
 def build(output, dataset_gui, service_gui, service_installers, dataset_installers, *, target=None):
     """Validate all inputs before creating a new kit; never overwrite distributions."""
     target = target or native_target()
@@ -187,9 +197,7 @@ def build(output, dataset_gui, service_gui, service_installers, dataset_installe
         entries.append(f"{digest}  {copied.name}\n")
     (dataset_folder / "SHA256SUMS.txt").write_text("".join(entries), encoding="utf-8")
     (output / "START-HERE.md").write_text(start_guide(target), encoding="utf-8")
-    (output / "docs").mkdir()
-    for name in ("DESKTOP_INSTALLATION.md", "UNIFIED_INSTALLER.md", "DATA_PACKAGES.md", "DATASET_GUI.md"):
-        shutil.copy2(ROOT / "docs" / name, output / "docs" / name)
+    copy_guides(output)
     shutil.copy2(ROOT / "LICENSE", output / "LICENSE")
     if target != "windows-x64":
         for label, title, relative in (

@@ -29,7 +29,7 @@ def write_provenance(artifact, kind, sources, *, root, target, dataset=None):
               "artifact": artifact.name, "artifact_sha256": file_hash(artifact),
               "source_sha256": source_hashes(sources, root)}
     if kind == "service":
-        record["capabilities"] = ["staged-startup-v1", "settings-v2", "operation-lock-v1"]
+        record["capabilities"] = ["staged-startup-v1", "settings-v2", "operation-lock-v1", "channel-history-v1"]
     elif kind == "dataset":
         record["capabilities"] = ["retain-data-v1", "maintenance-lock-v1", "dataset-lock-recovery-v1"]
     path = artifact.with_name(artifact.name + ".provenance.json")

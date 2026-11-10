@@ -329,14 +329,14 @@ class SiteIntegrationTests(unittest.IsolatedAsyncioTestCase):
 
     def test_generation_is_pinned_when_registry_changes_during_read(self):
         with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ, {"MESHCORE_DATA_DIR": temp}):
-            root = Path(temp)
+            root = Path(temp) / ".." / Path(temp).name
             generation = write_generation(root, fixture())
             original = parks.verified_json
             def remove_during_read(directory, relative, metadata):
                 result = original(directory, relative, metadata)
                 (root / "datasets.json").write_text(json.dumps({"schema": 1, "datasets": {
                     "california_state_parks": {"active": None}}}))
-                self.assertEqual(directory, generation)
+                self.assertTrue(directory.samefile(generation))
                 return result
             with patch.object(parks, "verified_json", side_effect=remove_during_read):
                 selected = parks.load_snapshot(("park_boundaries", "parking"))

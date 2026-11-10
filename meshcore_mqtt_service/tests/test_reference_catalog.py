@@ -34,6 +34,8 @@ class ReferenceTests(unittest.TestCase):
         self.addCleanup(lambda: shutil.rmtree(self.base))
         self.root = self.base / policy.DIRECTORY
         self.root.mkdir()
+        # Keep an equivalent noncanonical spelling to exercise read interception.
+        self.root = self.root / ".." / self.root.name
         self.gpkg = self.root / 'boundaries.gpkg'
         with closing(sqlite3.connect(self.gpkg)) as db, db:
             db.executescript('''
@@ -139,7 +141,7 @@ class ReferenceTests(unittest.TestCase):
                 self.assertLessEqual(size, reference.MAX_CATALOG + 1)
                 return super().read(size)
         def replaced(path, *args, **kwargs):
-            if path == self.root / policy.CATALOG:
+            if path.resolve() == (self.root / policy.CATALOG).resolve():
                 return BoundedStream(payload)
             return original(path, *args, **kwargs)
         with patch.object(Path, 'open', replaced):
@@ -156,7 +158,7 @@ class ReferenceTests(unittest.TestCase):
                                      'Read exceeded the declared artifact boundary')
                 return super().read(size)
         def replaced(path, *args, **kwargs):
-            if path == self.gpkg:
+            if path.resolve() == self.gpkg.resolve():
                 return GrowingStream(b'x' * (expected + 100))
             return original(path, *args, **kwargs)
         with patch.object(Path, 'open', replaced):

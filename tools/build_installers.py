@@ -106,7 +106,7 @@ def stage_payload(destination):
             data = data.replace(b"\r\n", b"\n")
         target.write_bytes(data)
         manifest[relative.as_posix()] = sha(data)
-    capabilities = json.dumps({"schema": 1, "capabilities": ["staged-startup-v1", "settings-v2", "operation-lock-v1"]}, indent=2) + "\n"
+    capabilities = json.dumps({"schema": 1, "capabilities": ["staged-startup-v1", "settings-v2", "operation-lock-v1", "channel-history-v1"]}, indent=2) + "\n"
     (destination / "DESKTOP-CAPABILITIES.json").write_text(capabilities, encoding="utf-8", newline="\n")
     manifest["DESKTOP-CAPABILITIES.json"] = sha(capabilities.encode("utf-8"))
     (destination / "PAYLOAD-MANIFEST.json").write_text(

@@ -104,11 +104,11 @@ class DataStatusTests(unittest.TestCase):
 
     def test_custom_water_root_overrides_uninstalled_default(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp); custom = root / "custom"; (custom / "usgs_water").mkdir(parents=True)
+            root = Path(temp) / ".." / Path(temp).name; custom = root / "custom"; (custom / "usgs_water").mkdir(parents=True)
             managed = root / "managed"; managed.mkdir()
             (managed / "datasets.json").write_text(json.dumps({"schema": 1, "datasets": {"usgs_water": {"active": None}}}))
             with patch.dict(os.environ, {"MESHCORE_DATA_DIR": str(managed), "MESHCORE_WATER_SETTINGS": json.dumps({"data_directory": str(custom)})}):
-                self.assertEqual(data_status.configured_directory("usgs_water"), custom / "usgs_water")
+                self.assertTrue(data_status.configured_directory("usgs_water").samefile(custom / "usgs_water"))
 
     def test_point_cache_reports_failures_and_preserves_database(self):
         import time
@@ -159,12 +159,12 @@ class DataStatusTests(unittest.TestCase):
 
     def test_satellite_typed_root_matches_catalog_root(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp); shared = root / "shared"; shared.mkdir()
+            root = Path(temp) / ".." / Path(temp).name; shared = root / "shared"; shared.mkdir()
             (root / "satellite-settings.json").write_text(json.dumps({"database": str(shared / "satellites" / "satellites.sqlite3")}))
             (root / "config.json").write_text(json.dumps({"dataset_root": str(shared)}))
             (shared / "datasets.json").write_text(json.dumps({"schema": 1, "datasets": {"satellites": {"active": None}}}))
             with patch.object(data_status, "ROOT", root):
-                self.assertEqual(data_status.reporting_root("satellites"), shared)
+                self.assertTrue(data_status.reporting_root("satellites").samefile(shared))
                 self.assertIn("uninstalled", data_status.dataset_status("satellites"))
 
     def test_custom_water_path_ignores_broken_default_registry(self):

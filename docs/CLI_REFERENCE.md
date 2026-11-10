@@ -30,9 +30,9 @@ service, schedule or subscription.
 
 | Program | Arguments and behavior |
 | --- | --- |
-| `installers/datasets/gui/main.py` | Opens unified graphical maintenance. `--datasets-only` retains the independent dataset form. Optional `--demo` simulates without host discovery or installation. `--root PATH` selects the data root; `--installers PATH` selects existing native artifacts. `--smoke-test` requires `--demo`. See the [editable GUI guide](DATASET_GUI.md). |
+| `installers/datasets/gui/main.py` | Opens unified graphical maintenance. `--datasets-only` retains the independent dataset form. Optional `--demo` simulates without host discovery or installation. `--root PATH` selects the data root; `--installers PATH` selects existing native artifacts. `--smoke-test` requires `--demo`; `--smoke-report PATH` writes synthetic JSON evidence. See the [editable GUI guide](DATASET_GUI.md). |
 | `tools/build_dataset_gui.py` | Build a GUI for the current OS/architecture. Optional `--output PATH` selects a new output directory; `--installers PATH` copies the eight existing checked artifacts for that target without rebuilding them. `--service` builds the separate service setup application instead. |
-| `installers/desktop/service_main.py` | Separate service configuration and maintenance GUI. Optional `--installers PATH` selects native service artifacts. `--demo` simulates operations; `--smoke-test` requires demo mode. The internal `--desktop-worker PATH` protocol is reserved for native authorization and is not an end-user command. |
+| `installers/desktop/service_main.py` | Separate service configuration and maintenance GUI. Optional `--installers PATH` selects native service artifacts. `--demo` simulates operations; `--smoke-test` requires demo mode; `--smoke-report PATH` writes synthetic JSON evidence. The internal `--desktop-worker PATH` protocol is reserved for native authorization and is not an end-user command. |
 | `tools/build_desktop_kit.py` | Developer packaging only. Required `--output PATH`, `--dataset-gui PATH` and `--service-gui PATH` select a new kit and fresh matching native applications. Optional `--service-installers PATH` and `--dataset-installers PATH` select independently built artifacts; all must pass checksum and current-source provenance checks. |
 | `tools/build_data_installers.py` | Repeatable `--dataset ID` selects packages; omission builds all eight. `--linux-only` builds distinct Linux x86_64 and Raspberry Pi ARM64 installers. `--iscc PATH` selects the Inno Setup compiler. Optional `--output PATH` selects a local staging directory; `--sign-tool NAME=COMMAND` enables signing of Windows installers and uninstallers. |
 | `installers/datasets/manage.py` | Positional `install`, `update`, `verify`, `status`, `rollback`, `uninstall` or `recover-lock`; required `--dataset ID`; optional `--root PATH` and `--payload PATH`. `--resume ID` resumes an unchanged install/update candidate. `--retain-data` supplies the uninstall retention contract, preserving dataset files and registry selections. `--purge` applies only to uninstall and includes modified receipt-owned generations. `recover-lock` requires the exact `--reviewed-lock HASH` fingerprint; the graphical recovery workflow performs inspection and authorization. |
@@ -204,3 +204,11 @@ python scripts/satpass.py "25544 38.61 -122.83 hours 6 min 10"
 These examples do not assure source coverage. Satellite prediction requires a
 qualified local orbit and separately configured GIS terrain; see
 [terrain qualification](COMMAND_IMPLEMENTATION.md#satellite-terrain-qualification).
+
+The desktop applications reserve `--history-read` and `--history-session` for
+read-only native helper protocols; neither accepts path or program arguments.
+`--history-smoke-helper` is a synthetic test protocol. These are not MeshCore
+commands. Frozen history checks use `tools/test_packaged_history.py --application
+PATH --expected-version v0.9.9-beta --output REPORT.json`; optional
+`--include-datasets-only` also checks the independent dataset window. `--python
+PATH` selects source-mode verification and does not qualify a frozen executable.

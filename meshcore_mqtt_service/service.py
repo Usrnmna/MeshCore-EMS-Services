@@ -34,6 +34,26 @@ LOG = logging.getLogger("bridge")
 # TCP HEALTH: local device queries detect silent Wi-Fi loss; these do not transmit RF.
 TCP_HEALTH_INTERVAL_SECONDS = 30
 TCP_HEALTH_TIMEOUT_SECONDS = 10
+HISTORY_STATUS = {'state': 'disabled'}
+
+
+def optional_history(config):
+    """Build optional recording support without changing core validation outcomes."""
+    global HISTORY_STATUS
+    section = config.get('channel_history', {})
+    if isinstance(section, dict) and section.get('enabled', False) is False:
+        HISTORY_STATUS = {'state': 'disabled'}
+        return None, None
+    try:
+        import channel_history
+        settings = channel_history.validate_history_config(config)
+        recorder = channel_history.ChannelHistoryRecorder(
+            RUNTIME / 'channel_history' / 'channel_history.sqlite3', settings=settings)
+        HISTORY_STATUS = {'state': 'initializing'}
+        return recorder, channel_history
+    except Exception as error:
+        HISTORY_STATUS = {'state': 'unavailable', 'error': type(error).__name__}
+        return None, None
 
 
 def normalize(value):
@@ -208,8 +228,19 @@ async def bridge_loop(mc, cli, config, port):
     """Own the connected radio/MQTT session, persist events, run the responder, and serialize radio actions."""
     bot_config = dict(config.get("responder", {"enabled": False}), _runtime_directory=str(RUNTIME))
     validate_config(bot_config, ROOT)
+    history, history_api = optional_history(config)
+
+    def observe_slots(slots):
+        """Forward sanitized passive evidence without adding radio operations."""
+        if history is not None:
+            try:
+                for slot in slots:
+                    history.observe_binding(slot)
+            except Exception:
+                pass
+
     bindings = (
-        await resolve_channels(mc, bot_config)
+        await resolve_channels(mc, bot_config, **({'observe_slots': observe_slots} if history is not None else {}))
         if bot_config.get("channels") or bot_config.get("enabled")
         else {}
     )
@@ -337,6 +368,11 @@ async def bridge_loop(mc, cli, config, port):
     bot_task = asyncio.create_task(run_bots()) if bots else None
     receive_tasks = set()
     stopping = False
+    if history is not None:
+        try:
+            history.start()
+        except Exception:
+            history = None
 
     async def process_event(event):
         """Persist each radio event and offer decoded channel messages to the responder queue."""
@@ -346,18 +382,43 @@ async def bridge_loop(mc, cli, config, port):
             if isinstance(event.payload, dict)
             else None
         )
-        if event.type.name == "CHANNEL_MSG_RECV" and binding:
-            try:
-                await verify(binding["index"])
-            except Exception:
-                LOG.error("Channel identity check failed for %s; message ignored", binding["id"])
-                return
-        if binding:
-            record["payload"]["channel_id"] = binding["id"]
-        if not bindings or export_allowed(event.type.name, record["payload"], bindings):
-            store.put(prefix + "/events/" + event.type.name.lower(), record)
-        if event.type.name == "CHANNEL_MSG_RECV" and binding and binding["index"] in bots:
-            bots[binding["index"]].accept(event.payload)
+        verification = 'failed' if binding else 'not_performed'
+        observed_at = None
+        try:
+            if event.type.name == "CHANNEL_MSG_RECV" and binding:
+                try:
+                    await verify(binding["index"])
+                    verification = 'passed'
+                    observed_at = datetime.now(timezone.utc)
+                except Exception:
+                    LOG.error("Channel identity check failed for %s; message ignored", binding["id"])
+                    return
+            if binding:
+                record["payload"]["channel_id"] = binding["id"]
+            if not bindings or export_allowed(event.type.name, record["payload"], bindings):
+                store.put(prefix + "/events/" + event.type.name.lower(), record)
+            if event.type.name == "CHANNEL_MSG_RECV" and binding and binding["index"] in bots:
+                bots[binding["index"]].accept(event.payload)
+        finally:
+            # No await, logging handler, filesystem access, or primary-result replacement.
+            if history is not None:
+                try:
+                    if event.type.name == 'CHANNEL_INFO':
+                        from channels import identity
+                        payload = event.payload
+                        try:
+                            observed_identity = identity(payload)
+                        except Exception:
+                            # An incomplete new observation invalidates the old slot evidence.
+                            observed_identity = ''
+                        observe_slots(((payload['channel_idx'], payload.get('channel_name', ''),
+                                        observed_identity, datetime.now(timezone.utc)),))
+                    elif event.type.name == 'CHANNEL_MSG_RECV':
+                        observation = (history_api.ChannelObservation(binding['index'], binding['name'],
+                            binding['identity'], observed_at) if verification == 'passed' else None)
+                        history.offer_received(record, evidence=history_api.BindingEvidence(verification, observation))
+                except Exception:
+                    pass
 
     async def receive(event):
         """Track SDK callbacks so service stop cancels reads waiting for the radio lock."""
@@ -450,6 +511,11 @@ async def bridge_loop(mc, cli, config, port):
         )
     finally:
         stopping = True
+        if history is not None:
+            try:
+                history.stop_nowait()
+            except Exception:
+                pass
         mc.unsubscribe(subscription)
         pending_receives = list(receive_tasks)
         for task in pending_receives:

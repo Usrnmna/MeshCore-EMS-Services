@@ -47,7 +47,7 @@ def validate_intent(value):
             raise ValueError("Choose an absolute, non-symbolic-link " + field)
         if field == "root" and path == Path(path.anchor):
             raise ValueError("Choose a dedicated shared dataset directory, not a filesystem root")
-    service.validate_settings(value["settings"])
+    service.validate_settings(service.core_settings(value["settings"]))
     if any(value["settings"].values()) and value["service_action"] not in {"install", "configure"}:
         raise ValueError("Settings require Install / Repair or Save settings")
     if value["start"] and value["service_action"] in {"uninstall", "deconfigure", "stop"}:
@@ -82,7 +82,7 @@ def discover(intent, emit, *, demo=False):
     root, target = Path(intent["root"]), intent["target"]
     if demo:
         return demo_snapshot(root, target), dict(registered=False, state="missing", startup="manual", settings={},
-                                                revision="demo", capabilities=["operation-lock-v1", "settings-v2"])
+                                                revision="demo", capabilities=["operation-lock-v1", "settings-v2", "channel-history-v1"])
     installed = service.snapshot(target, emit)
     if not installed.get("registered") and not installed.get("settings"):
         installed["settings"] = default_settings(target)
@@ -115,6 +115,18 @@ def default_settings(target):
             "commands": {name: {"enabled": bool(spec.get("channels")), "channels": spec.get("channels", []),
                                 "script": spec["script"], "owner": "service-package"} for name, spec in commands.items()},
             "defaults_sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "defaults_package": package}
+
+
+def recording_description(section, registry):
+    """Describe the non-secret target without querying its optional database."""
+    section = service.history_summary(section)
+    channel_id = section.get("channel_id", "none")
+    if not isinstance(channel_id, (str, type(None))):
+        return "invalid optional channel ID; recording unavailable"
+    channel = section.get("channel") or registry.get(channel_id, {})
+    if not isinstance(channel, dict):
+        return "invalid optional channel reference; recording unavailable"
+    return ("enabled" if section.get("enabled") is True else "disabled") + "; ID " + str(channel_id) + "; " + str(channel.get("name", "unavailable")) + " (" + str(channel.get("type", "unknown")) + ")"
 
 
 def build_plan(intent, datasets, installed, *, demo=False):
@@ -172,6 +184,7 @@ def build_plan(intent, datasets, installed, *, demo=False):
                 if record.get("artifact_sha256") != artifact["sha256"] or record.get("target") != intent["target"] or "staged-startup-v1" not in record.get("capabilities", []):
                     raise ValueError("Rebuild the service installer with staged-startup and shared-lock capabilities")
                 artifact["provenance_sha256"] = digest(record)
+                artifact["history_supported"] = service.incoming_history_supported(record, intent["target"])
                 defaults = installed.get("settings", {})
                 if not registered and defaults.get("defaults_sha256") and record.get("source_sha256", {}).get(defaults["defaults_package"] + "/config.json") != defaults["defaults_sha256"]:
                     raise ValueError("Service installer and displayed initial command configuration differ. Use a matching desktop kit.")
@@ -234,11 +247,25 @@ def build_plan(intent, datasets, installed, *, demo=False):
                         raise ValueError("Custom source changed after selection; choose it again")
             except (OSError, ValueError) as error:
                 blocked.append(program["name"] + ": " + str(error))
+    reviewed_steps = steps
+    history_outcome = service.review_history(intent["settings"], installed, intent["target"],
+        supported=demo or (bool(artifact and artifact.get("history_supported")) if action == "install" else "channel-history-v1" in installed.get("capabilities", [])), demo=demo, incoming=action == "install")
+    if (action == "configure" and service.HISTORY_FIELDS & intent["settings"].keys()
+            and not any(service.core_settings(intent["settings"]).values())
+            and history_outcome["status"] == "not_applied"):
+        steps = [step for step in steps if not (step["owner"] == "service" and step["action"] == "configure")]
+        # A rejected history-only request has no configuration side effects. An
+        # independently selected dataset/startup/start operation keeps its checks.
+        if not changing_data and intent["startup"] == "preserve" and not intent["start"]:
+            steps = [step for step in steps if step["owner"] != "service"]
     payload = dict(intent=intent, snapshot={"service": dict(installed, installed=registered, status=state), "datasets": snapshot_payload(datasets)},
                    steps=steps, blocked=blocked, warnings=warnings, artifact=artifact,
                    dataset_operations=[{"dataset": op.dataset, "action": op.kind} for op in dataset_plan.operations] if dataset_plan else [],
                    dataset_digest=plan_digest(dataset_plan) if dataset_plan else None, demo=demo)
-    payload["digest"] = digest(payload)
+    payload["digest"] = digest(dict(payload, steps=reviewed_steps))
+    # Optional validation may become unavailable after Review. Core revisions and
+    # requested fields remain bound; a changed optional outcome is reported later.
+    payload["history_outcome"] = history_outcome
     lines = ["SIMULATION — no host changes" if demo else "Reviewed independent-package operation", ""]
     lines.extend(f"{i}. {step['owner']}: {step['action']} — {step['detail']}" for i, step in enumerate(steps, 1))
     if dataset_plan:
@@ -247,13 +274,24 @@ def build_plan(intent, datasets, installed, *, demo=False):
         lines.append("Service artifact: " + artifact["name"] + " SHA-256 " + artifact["sha256"])
     if intent["settings"]:
         lines.append("Service fields selected: " + ", ".join(sorted(intent["settings"])))
-        visible = {k: v for k, v in intent["settings"].items() if k not in {"credentials", "programs"}}
+        visible = {k: v for k, v in intent["settings"].items() if k not in {"credentials", "programs", *service.HISTORY_FIELDS}}
         lines.append(json.dumps(visible, indent=2))
         lines.append("Credential values are hidden; blank values preserve saved credentials.")
         for program in intent["settings"].get("programs", {}).get("register", []):
             lines.append("Register custom command " + program["name"] + " from " + program["source"] + " SHA-256 " + program["sha256"] + "; channels: " + ", ".join(program["channels"]))
         for name in intent["settings"].get("programs", {}).get("unregister", []):
             lines.append("Deregister " + name + "; retain its source file.")
+    if service.HISTORY_FIELDS & intent["settings"].keys():
+        lines.append("Recording: " + ("Not applied" if history_outcome["status"] == "not_applied" else "Apply selected recording settings") + ". " + history_outcome["reason"])
+        saved = installed.get("settings", {})
+        old_registry = saved.get("channels", {}).get("channels", {})
+        new_registry = intent["settings"].get("channels", {}).get("channels", old_registry)
+        lines.append("Saved recording: " + recording_description(saved.get("channel_history"), old_registry))
+        lines.append("Requested recording: " + recording_description(intent["settings"].get("channel_history"), new_registry))
+        state_directory = installed.get("state_directory", "<installed service state>")
+        lines.append("Retention: 86400 seconds (24 hours). Database: " + str(Path(state_directory) / "runtime/channel_history/channel_history.sqlite3") + (" (synthetic demo; no database opened)" if demo else ""))
+        actions = {step["action"] for step in steps if step["owner"] == "service"}
+        lines.append("Recording operation stop: " + ("yes" if "stop" in actions else "no") + "; restart: " + ("yes" if "stop" in actions and "start" in actions else "no") + ".")
     lines.extend("NOTICE: " + item for item in warnings)
     if action == "deconfigure":
         preview = installed.get("settings", {}).get("deconfiguration", {})
@@ -341,6 +379,10 @@ def validate_request(request):
             raise ValueError("Invalid maintenance recovery review")
         return
     fields = {"kind", "action", "intent"} | ({"digest"} if request["action"] == "execute" else set())
+    if request["action"] == "execute" and "history_reviewed" in request:
+        fields.add("history_reviewed")
+        if type(request["history_reviewed"]) is not bool:
+            raise ValueError("Invalid recording Review decision")
     if set(request) != fields:
         raise ValueError("Unexpected unified request fields")
     validate_intent(request["intent"])
@@ -378,7 +420,24 @@ def perform(request, emit, cancel=None):
             raise RuntimeError("Artifacts, configuration, package records or service state changed after review. Refresh and review again.")
         if plan["blocked"]:
             raise RuntimeError("Resolve all review blockers before execution")
+        plan["history_reviewed"] = request.get("history_reviewed", False)
+        if not plan["history_reviewed"]:
+            omit_history_only_steps(plan)
         return run_plan(plan, dataset_plan, emit, cancel or threading.Event())
+
+
+def omit_history_only_steps(plan):
+    """Never activate a previously rejected override or stop consumers for a no-op."""
+    intent = plan["intent"]
+    if (intent["service_action"] != "configure" or not service.HISTORY_FIELDS & intent["settings"].keys()
+            or any(service.core_settings(intent["settings"]).values())):
+        return
+    plan["history_outcome"] = {"status": "not_applied", "available": False,
+        "reason": "Recording settings not applied: the override was not accepted during Review."}
+    plan["steps"] = [step for step in plan["steps"] if not (step["owner"] == "service" and step["action"] == "configure")]
+    changing_data = bool(plan["dataset_operations"] and intent["dataset_action"] != "verify")
+    if not changing_data and intent["startup"] == "preserve" and not intent["start"]:
+        plan["steps"] = [step for step in plan["steps"] if step["owner"] != "service"]
 
 
 def read_history():
@@ -449,14 +508,25 @@ def run_plan(plan, dataset_plan, emit, cancel):
                     request = dict(kind="service", action=action, target=target)
                     if action in {"install", "configure"}:
                         request.update(settings=intent["settings"], start=False)
+                        optional = bool(service.HISTORY_FIELDS & intent["settings"].keys())
+                        accepted_now = plan.get("history_outcome", {}).get("status") != "not_applied"
+                        accepted_review = plan.get("history_reviewed", accepted_now)
+                        skip_history = optional and not (accepted_now and accepted_review)
+                        if skip_history:
+                            request["settings"] = service.core_settings(intent["settings"])
                     if action == "install":
                         request.update(folder=str(service_folder(intent["folder"])), artifact_sha256=plan["artifact"]["sha256"])
                     if action == "startup":
                         request["mode"] = intent["startup"]
                     value = service.perform(request, emit, cancel)
+                    if action in {"install", "configure"} and skip_history:
+                        value = dict(value or {}, history_outcome={"status": "not_applied", "available": False,
+                            "reason": "Recording settings not applied: override was rejected during Review or the optional check is now unavailable."})
                 outcome, detail = "succeeded", "Owner operation completed and verified"
                 if isinstance(value, dict) and value.get("conflicts"):
                     detail += "; retained integration conflicts: " + ", ".join(value["conflicts"])
+                if isinstance(value, dict) and value.get("history_outcome"):
+                    detail += "; " + value["history_outcome"]["reason"]
                 expected = service.snapshot(target, emit)
             except Exception as error:
                 failed = True
@@ -466,10 +536,15 @@ def run_plan(plan, dataset_plan, emit, cancel):
                 detail = "Owner operation failed; inspect the redacted session diagnostics. Refresh before retrying."
                 emit(service.redact(str(error), intent["settings"].get("credentials", {})))
         item = {"owner": step["owner"], "action": step["action"], "outcome": outcome, "detail": detail}
+        if outcome == "succeeded" and isinstance(value, dict):
+            for field in ("core_outcome", "history_outcome"):
+                if field in value:
+                    item[field] = value[field]
         results.append(item); journal.record(index, outcome, detail)
-    complete = bool(results) and all(item["outcome"] == "succeeded" for item in results)
+    complete = not cancel.is_set() and all(item["outcome"] == "succeeded" for item in results)
     journal.finish(complete)
-    return dict(complete=complete, results=results, journal=str(journal.path), recovery=journal.value["recovery"])
+    return dict(complete=complete, results=results, journal=str(journal.path), recovery=journal.value["recovery"],
+                history_outcome=plan.get("history_outcome"))
 
 
 def execute_reviewed(plan, cancel, emit, *, demo=False):
@@ -481,4 +556,7 @@ def execute_reviewed(plan, cancel, emit, *, demo=False):
     if plan.get("demo"):
         raise ValueError("A simulated plan cannot authorize native operations")
     from .authorization import run_authorized
-    return run_authorized(dict(kind="unified", action="execute", intent=plan["intent"], digest=plan["digest"]), emit, cancel)
+    request = dict(kind="unified", action="execute", intent=plan["intent"], digest=plan["digest"])
+    if service.HISTORY_FIELDS & plan["intent"]["settings"].keys():
+        request["history_reviewed"] = plan.get("history_outcome", {}).get("status") == "applied"
+    return run_authorized(request, emit, cancel)

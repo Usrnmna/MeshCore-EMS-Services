@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from .version import VERSION
 from pathlib import Path
 import threading
 
@@ -49,7 +50,7 @@ class UnifiedWindow(QMainWindow):
         self._root_dirty = False
         self._loading_root = False
         self._refresh_again = False
-        self.setWindowTitle("MeshCore EMS — Installation and Maintenance" + (" — DEMO" if demo else ""))
+        self.setWindowTitle("MeshCore EMS — Installation and Maintenance " + VERSION + (" — DEMO" if demo else ""))
         self.resize(1120, 860)
         central = QWidget(); self.setCentralWidget(central)
         outer = QVBoxLayout(central)
@@ -290,6 +291,14 @@ class UnifiedWindow(QMainWindow):
                 for row in range(self.commandTable.rowCount())}
         if not status_only and (self.pending_programs or self.removed_programs):
             settings["programs"] = {"register": list(self.pending_programs), "unregister": sorted(self.removed_programs)}
+        if not status_only and self.serviceForm.historySettings is not None:
+            # The unified table owns pending core registry edits. Refresh choices
+            # before evaluating the optional override collected by the embedded form.
+            registry = settings.get("channels", self.snapshot.get("service", {}).get("settings", {}).get("channels", {})).get("channels", {})
+            self.serviceForm.historySettings.set_registry(registry)
+            for key in ("channel_history", "history_credentials", "history_clear_credentials"):
+                settings.pop(key, None)
+            settings.update(self.serviceForm.history_overrides())
         return {"target": self.target, "root": str(root), "folder": str(folder),
             "dataset_action": "keep" if status_only else self.datasetAction.currentData(),
             "datasets": [] if status_only else self.selected(),
@@ -388,6 +397,10 @@ class UnifiedWindow(QMainWindow):
 
     def show_plan(self, plan):
         self.populate(plan.get("snapshot", {}))
+        if (plan.get("artifact") or {}).get("history_supported") and self.serviceForm.historySettings is not None:
+            widget = self.serviceForm.historySettings
+            widget.load(self.serviceForm.loaded_history, widget.registry, True)
+            widget.viewButton.setEnabled(self.serviceForm.loaded_history_supported)
         self.plan = plan
         self.planText.setPlainText(self.redacted(plan["text"]))
         self.tabs.setCurrentWidget(self.planText)
@@ -415,7 +428,7 @@ class UnifiedWindow(QMainWindow):
         self.statusLabel.setText(f"Target: {self.target}\nService package installed: {service.get('installed', 'unknown')} | "
             f"Runtime: {service.get('status', 'unknown')} | Startup: {service.get('startup', 'unknown')}\n"
             "Package installation, runtime enablement and dataset presence are separate states.")
-        self.serviceForm.completed({"settings": service.get("settings", {})})
+        self.serviceForm.completed({"settings": service.get("settings", {}), "capabilities": service.get("capabilities", [])})
         datasets = snapshot.get("datasets", {}).get("collections", {})
         self.datasetTree.blockSignals(True)
         for row in range(self.datasetTree.topLevelItemCount()):

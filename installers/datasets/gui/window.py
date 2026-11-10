@@ -7,6 +7,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt6.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QTreeWidgetItem
 
+from installers.desktop.version import VERSION
 from .catalog import DATASETS, LABELS
 from .discovery import demo_snapshot, inspect
 from .privileges import execute_reviewed, inspect_with_authorization
@@ -38,6 +39,7 @@ class DatasetWindow(QMainWindow):
     def __init__(self, root, folder, target, demo=False):
         super().__init__()
         uic.loadUi(str(Path(__file__).with_name("main_window.ui")), self)
+        self.setWindowTitle("MeshCore EMS Dataset Manager " + VERSION + (" — DEMO" if demo else ""))
         self.target, self.demo = target, demo
         self.snapshot = self.plan = self.task = None
         self.cancel = threading.Event()

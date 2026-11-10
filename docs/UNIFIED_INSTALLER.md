@@ -116,3 +116,10 @@ and UI paths. WSL, Xvfb and QEMU ARM64 do not establish native desktop authoriza
 reboot behavior, clean-system lifecycle, physical Pi performance, USB/BLE access
 or radio integration. Distribution verification reports identify actual run
 results and artifacts. Older reports do not qualify changed binaries.
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.

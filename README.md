@@ -21,6 +21,10 @@ Replies return to the same channel with the sender's name.
 
 **[Get started](#get-started)** | **[Try the commands](meshcore_mqtt_service/BOT_USER_GUIDE.md)** | [Installation](INSTALL.md) | [All documentation](docs/README.md)
 
+Optional [channel recording and history viewing](meshcore_mqtt_service/CHANNEL_HISTORY.md)
+preserves a rolling 24-hour reception history for one configured channel. Recording
+is disabled by default; direct messages are excluded.
+
 ## What it provides
 
 | Highlight | Practical result | Commands |

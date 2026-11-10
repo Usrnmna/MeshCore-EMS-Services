@@ -338,9 +338,10 @@ class WaterBridgeTests(unittest.TestCase):
     def test_custom_paths_integrity_and_explicit_managed_removal(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
+            root=root/".."/root.name  # Exercise equivalent path spellings.
             config=water_settings.validate({'data_directory':str(root/'custom')})
             with patch.dict(os.environ,MESHCORE_DATA_DIR=str(root)):
-                self.assertEqual(water_settings.collection(config),root/'custom'/'usgs_water')
+                self.assertEqual(water_settings.collection(config),(root/'custom'/'usgs_water').resolve())
                 (root/'datasets.json').write_text(json.dumps({'schema':1,'datasets':{'usgs_water':{'active':None}}}),encoding='utf-8')
                 with self.assertRaises(FileNotFoundError):water_settings.collection(water_settings.validate({}))
             target=root/'artifact'

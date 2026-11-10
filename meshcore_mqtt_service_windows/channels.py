@@ -173,10 +173,19 @@ async def discover(mc):
     return result
 
 
-async def resolve_channels(mc, config):
+async def resolve_channels(mc, config, *, observe_slots=None):
     """Bind every configured ID to one verified radio slot. Never write/fallback."""
     validate_channels(config)
     slots = await discover(mc)
+    if observe_slots is not None:
+        # Optional observers receive no keys and cannot alter required resolution.
+        try:
+            from datetime import datetime, timezone
+            observed_at = datetime.now(timezone.utc)
+            observe_slots(tuple((p['channel_idx'], p['channel_name'], identity(p), observed_at)
+                                for p in slots))
+        except Exception:
+            pass
     result = {}
     used = set()
     for channel_id, spec in config["channels"].items():

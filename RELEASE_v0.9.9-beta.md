@@ -1,7 +1,7 @@
 # MeshCore EMS v0.9.9-beta
 
-Source release preparation — November 9, 2026. Release builds and publication
-are pending; older archives and verification records do not validate this version.
+Release candidate — November 9, 2026. Publication remains pending. The release
+asset verification bundle records checks performed on the candidate packages.
 
 ## Command additions and changes
 
@@ -23,6 +23,16 @@ specifies accepted selectors and source qualifications.
 - Existing `!trail` supports recorded endpoint selection and AND-combined filters;
   `!waterway` supports source IDs/names, `!basin` recorded parents, `!fire` explicit
   incident fields, and `!slideinfo` exact station instrumentation/status/source metadata.
+
+## Retained channel history
+
+The optional channel recorder and read-only GUI viewer shipped in v0.9.8-beta
+are retained alongside the expanded command set. Recording remains disabled by
+default and uses the existing radio connection for one configured channel; direct
+messages are excluded. UTC reception-time filtering limits reads to the preceding
+24 hours. Bounded storage and asynchronous recording failures do not block command
+execution. The viewer uses saved settings and does not apply pending edits or
+start services. See [channel history](meshcore_mqtt_service/CHANNEL_HISTORY.md).
 
 ## Maintenance and isolation
 
@@ -52,5 +62,5 @@ supported local structured query is required when the qualified answer cannot fi
 Host fixture checks do not establish native clean installation, reboot behavior,
 live-provider validity, physical radio delivery or reception. See the
 [current verification record](installers/VALIDATION.md#v099-beta-source-verification)
-and [development checks](docs/DEVELOPMENT.md). No v0.9.9-beta release artifact is
-claimed built, signed, published or deployed by these preparation notes.
+and [development checks](docs/DEVELOPMENT.md). Clean-host testing is deferred. Artifacts remain unsigned and unpublished;
+local verification does not establish deployment or physical-radio behavior.

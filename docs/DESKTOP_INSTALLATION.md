@@ -134,3 +134,10 @@ artifact hashes to all current build inputs. Kit assembly checks both inventorie
 rejects stale/missing provenance, verifies target-specific installer checksums,
 and writes a complete kit inventory and archive checksum. These local checks
 establish byte integrity and freshness, not publisher authenticity.
+
+## Channel recording and viewing
+
+[Channel history configuration and access](../meshcore_mqtt_service/CHANNEL_HISTORY.md)
+covers the shared Windows/Linux/Raspberry Pi installer controls and read-only
+viewer. Recording is an optional service feature; dataset-only mode retains its
+reference-data scope. Reads do not start/stop services or apply pending edits.

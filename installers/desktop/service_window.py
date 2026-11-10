@@ -1,4 +1,5 @@
 """Separate service setup window; dataset installation remains in its own application."""
+from .version import VERSION
 from pathlib import Path
 import hashlib
 import json
@@ -24,7 +25,11 @@ class ServiceWindow(QMainWindow):
         self.pending_action = None
         self.loaded_channels = None
         self.loaded_mqtt = None
-        self.setWindowTitle("MeshCore EMS — Service Setup" + (" — DEMO" if demo else ""))
+        self.historySettings = None
+        self.historyWindow = None
+        self.loaded_history = {}
+        self.loaded_history_supported = demo
+        self.setWindowTitle("MeshCore EMS — Service Setup " + VERSION + (" — DEMO" if demo else ""))
         self.resize(940, 780)
         central = QWidget(); self.setCentralWidget(central)
         layout = QVBoxLayout(central)
@@ -84,6 +89,20 @@ class ServiceWindow(QMainWindow):
         advance.addRow("MQTT port", self.mqttPort)
         self.mqttTLS = QCheckBox("Use TLS for an external broker"); advance.addRow(self.mqttTLS)
         self.localBroker = QCheckBox("Use bundled local broker"); self.localBroker.setChecked(True); advance.addRow(self.localBroker)
+        # Optional GUI imports are contained so damaged history support cannot
+        # prevent the established service controls from being constructed.
+        try:
+            from .history_widgets import HistorySettingsWidget
+            self.historySettings = HistorySettingsWidget(self)
+            self.historySettings.changed.connect(self.settingsChanged)
+            self.historySettings.viewRequested.connect(self.open_history)
+            self.historySettings.load({}, {}, demo)
+            self.tabs.addTab(self.historySettings, "Channel history")
+            self.historyInstallerButton = QPushButton("Check selected installer's recording support")
+            self.historyInstallerButton.clicked.connect(self.check_history_installer)
+            form.addRow(self.historyInstallerButton)
+        except Exception:
+            form.addRow(QLabel("Optional channel-history controls are unavailable."))
         self.results = QPlainTextEdit(); self.results.setReadOnly(True); self.results.document().setMaximumBlockCount(5000)
         self.tabs.addTab(self.results, "Results and diagnostics")
         actions = QHBoxLayout(); layout.addLayout(actions)
@@ -94,6 +113,8 @@ class ServiceWindow(QMainWindow):
         save = QPushButton("Save displayed diagnostics…"); save.clicked.connect(self.save); layout.addWidget(save)
         self.transport.currentIndexChanged.connect(self.connection_fields)
         self.connection_fields()
+        self.channelsEdit.textChanged.connect(self.update_history_registry)
+        self.channelsCheck.toggled.connect(self.update_history_registry)
         if embedded:
             # The unified controller owns review and execution. Reuse only the
             # settings widgets; no second set of native-operation controls is
@@ -102,6 +123,8 @@ class ServiceWindow(QMainWindow):
             folder_row.hide(); form.labelForField(folder_row).hide()
             self.channel.hide(); form.labelForField(self.channel).hide()
             self.startCheck.hide()
+            if hasattr(self, "historyInstallerButton"):
+                self.historyInstallerButton.hide()
             self.channelsCheck.hide(); self.channelsEdit.hide(); self.importChannels.hide()
             advance.labelForField(self.channelsEdit).hide()
             self.tabs.removeTab(self.tabs.indexOf(self.results))
@@ -180,7 +203,70 @@ class ServiceWindow(QMainWindow):
             if self.credentials.cellWidget(row, 2).isChecked():
                 clears.append(name)
         result.update(credentials=credentials, clear_credentials=clears)
-        return validate_settings(result)
+        result.update(self.history_overrides())
+        from .service_backend import core_settings
+        validate_settings(core_settings(result))
+        return result
+
+    def history_overrides(self):
+        """Keep optional invalid edits reviewable without rejecting core settings."""
+        widget = self.historySettings
+        if widget is None:
+            return {}
+        try:
+            override = widget.override()
+            if override is None:
+                return {}
+            return {"channel_history": override, **widget.credential_overrides()}
+        except Exception as error:
+            widget.savedLabel.setText("Not applied: " + str(error))
+            # Deliberately invalid, non-secret sentinel lets the backend report
+            # the skipped optional outcome alongside an otherwise valid core edit.
+            return {"channel_history": {"invalid": True}}
+
+    def check_history_installer(self):
+        """Allow recording edits for a checked matching-capability repair artifact."""
+        if self.historySettings is None:
+            return
+        supported = self.loaded_history_supported
+        try:
+            if self.demo:
+                supported = True
+            else:
+                artifact = select_installer(Path(self.folderEdit.text()).expanduser(), self.target)
+                with artifact.open("rb") as stream:
+                    digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                record = json.loads(artifact.with_name(artifact.name + ".provenance.json").read_text(encoding="utf-8"))
+                supported = supported or (record.get("artifact_sha256") == digest and record.get("target") == self.target
+                    and "channel-history-v1" in record.get("capabilities", []))
+            self.historySettings.load(self.loaded_history, (self.loaded_channels or {}).get("channels", {}), supported)
+            self.historySettings.viewButton.setEnabled(self.loaded_history_supported)
+        except Exception:
+            self.historySettings.load(self.loaded_history, (self.loaded_channels or {}).get("channels", {}), supported)
+            self.historySettings.savedLabel.setText("Installer recording support unavailable. Existing install and service actions remain available.")
+
+    def update_history_registry(self, *args):
+        """Use pending registry edits for history choices without validating core UI."""
+        if self.historySettings is None:
+            return
+        try:
+            registry = json.loads(self.channelsEdit.toPlainText()).get("channels", {}) if self.channelsCheck.isChecked() else (self.loaded_channels or {}).get("channels", {})
+            self.historySettings.set_registry(registry)
+        except Exception:
+            self.historySettings.set_registry({})
+
+    def open_history(self):
+        """Open the separate viewer session without applying pending settings."""
+        try:
+            if self.historyWindow is None:
+                from .history_window import HistoryWindow
+                self.historyWindow = HistoryWindow(self.target, parent=self, demo=self.demo)
+                if self.historySettings is not None:
+                    self.historyWindow.catalogObserved.connect(self.historySettings.observe)
+            self.historyWindow.show()
+            self.historyWindow.raise_()
+        except Exception:
+            self.results.appendPlainText("Channel-history viewer unavailable. Existing service controls remain available.")
 
     def execute(self, action):
         """Review scope once before authorization; perform no native work in demo mode."""
@@ -232,6 +318,15 @@ class ServiceWindow(QMainWindow):
         # only if explicitly selected, preserving upgrade behavior.
         value = result.get("settings", {})
         if value:
+            self.loaded_channels = value.get("channels", {})
+            self.loaded_history = value.get("channel_history", {})
+            self.loaded_history_supported = self.demo or "channel-history-v1" in result.get("capabilities", [])
+            if self.historySettings is not None:
+                try:
+                    self.historySettings.load(self.loaded_history, self.loaded_channels.get("channels", {}), self.loaded_history_supported)
+                    self.update_history_registry()
+                except Exception:
+                    self.historySettings.setEnabled(False)
             if not self.channelsCheck.isChecked():
                 self.channelsEdit.setPlainText(json.dumps(value.get("channels", {}), indent=2))
             for name in value.get("credential_names", []):
@@ -249,6 +344,8 @@ class ServiceWindow(QMainWindow):
         if self.pending_action in {"install", "configure"}:
             for row in range(self.credentials.rowCount()):
                 self.credentials.cellWidget(row,1).clear(); self.credentials.cellWidget(row,2).setChecked(False)
+            if self.historySettings is not None and result.get("history_outcome", {}).get("status") == "applied":
+                self.historySettings.secretValue.clear(); self.historySettings.clearSecret.setChecked(False)
 
     def failed(self, error):
         self.results.appendPlainText("Operation did not complete:\n" + error + "\nInstalled files and recovery material may remain. Review diagnostics before retrying.")

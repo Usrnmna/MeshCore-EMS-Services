@@ -2,7 +2,8 @@
 
 The worker accepts structured operations, never executable names or shell text.
 Request/result files belong to one temporary session; credentials are not printed.
-Cancellation is a marker observed at safe backend boundaries, never process killing.
+Mutation cancellation is a marker observed at safe backend boundaries. History
+reads use a separate parent lease and a supervisor that owns only its read child.
 """
 
 from contextlib import contextmanager, ExitStack
@@ -10,6 +11,8 @@ import json
 import os
 from pathlib import Path
 import shutil
+import secrets
+import socket
 import stat
 import subprocess
 import sys
@@ -22,10 +25,13 @@ MAX_REQUEST = 64 * 1024
 
 def validate_envelope(request):
     """Reject unrecognized dispatchers and unbounded/non-object JSON requests."""
-    if not isinstance(request, dict) or request.get("kind") not in {"dataset", "service", "unified"}:
+    if not isinstance(request, dict) or request.get("kind") not in {"dataset", "service", "unified", "history"}:
         raise ValueError("Unknown desktop operation")
     if len(json.dumps(request).encode("utf-8")) > MAX_REQUEST:
         raise ValueError("Desktop request is too large")
+    if request["kind"] == "history":
+        from installers.desktop.history_backend import validate_history_request
+        validate_history_request(request)
     return request
 
 
@@ -118,6 +124,8 @@ def _read_events(path, emit, offset):
 def run_authorized(request, emit, cancel=None):
     """Authorize one request and return its backend result; raise on refusal/failure."""
     validate_envelope(request)
+    if request["kind"] == "history":
+        return run_authorized_history(request, cancel)
     cancel = cancel or threading.Event()
     if cancel.is_set():
         raise RuntimeError("Operation cancelled before authorization. No operation started.")
@@ -160,6 +168,28 @@ class WorkerSession:
         self.path = path
         self.directory_fd = directory_fd
         self.request = None
+
+    def read_private(self, name):
+        """Read bounded history lease metadata through the anchored private session."""
+        if name != "liveness.json":
+            raise ValueError("Unknown history session input")
+        if self.directory_fd is not None:
+            descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=self.directory_fd)
+        else:
+            import msvcrt
+            handle, close = _windows_locked_handle(self.path.parent / name, directory=False)
+            try:
+                descriptor = msvcrt.open_osfhandle(int(handle), os.O_RDONLY)
+            except Exception:
+                close(handle)
+                raise
+        with os.fdopen(descriptor, "rb") as source:
+            info = os.fstat(source.fileno())
+            if not stat.S_ISREG(info.st_mode) or info.st_size > 1024:
+                raise ValueError("Invalid history liveness metadata")
+            if os.name != "nt" and (info.st_uid != int(os.environ.get("PKEXEC_UID", os.getuid())) or info.st_mode & 0o077):
+                raise ValueError("History liveness metadata must be private")
+            return source.read(1025)
 
     def open_output(self, name):
         """Create an exclusive output in the anchored session, never a substituted path."""
@@ -298,6 +328,8 @@ def worker_main(request_path):
 def _dispatch_session(session):
     """Create output handles and dispatch while the validated session stays anchored."""
     request = session.request
+    if request["kind"] == "history":
+        return _dispatch_history_session(session)
     # Open both output handles before dispatch, never following preplaced links.
     result_fd = session.open_output("result.json")
     try:
@@ -334,6 +366,164 @@ def _dispatch_session(session):
         json.dump(result, output, allow_nan=False)
         output.flush()
     return status
+
+
+def history_parent(session):
+    """Require a fresh authenticated live parent connection before elevated reads."""
+    value = json.loads(session.read_private("liveness.json"))
+    if (not isinstance(value, dict) or set(value) != {"port", "token", "expires"}
+            or type(value["port"]) is not int or not 1 <= value["port"] <= 65535
+            or not isinstance(value["token"], str) or len(value["token"]) != 64
+            or any(letter not in "0123456789abcdef" for letter in value["token"])
+            or type(value["expires"]) not in (float, int)
+            or not time.time() < value["expires"] <= time.time() + 120):
+        raise RuntimeError("History authorization expired")
+    connection = socket.socket()
+    connection.settimeout(1)
+    try:
+        connection.connect(("127.0.0.1", value["port"]))
+        connection.sendall(value["token"].encode("ascii"))
+        if connection.recv(2) != b"OK" or time.time() >= value["expires"] or session.cancelled():
+            raise RuntimeError("History authorization expired")
+        return connection
+    except (OSError, RuntimeError):
+        connection.close()
+        raise RuntimeError("History authorization expired") from None
+
+
+def _dispatch_history_session(session):
+    """Elevated supervisor owns its child and never sends message text to events."""
+    from installers.desktop.history_backend import perform, validate_history_request
+    from installers.desktop.history_process import safe_error
+    validate_history_request(session.request)
+    connection = history_parent(session)
+    cancelled = threading.Event()
+    def watch_parent():
+        try:
+            while not cancelled.is_set():
+                try:
+                    if not connection.recv(1):
+                        break
+                except socket.timeout:
+                    continue
+        except OSError:
+            pass
+        finally:
+            cancelled.set()
+    threading.Thread(target=watch_parent, name="history-authorized-parent", daemon=True).start()
+    try:
+        if session.cancelled():
+            cancelled.set()
+        value = perform(session.request, lambda _: None, cancelled)
+        if cancelled.is_set() or session.cancelled():
+            raise RuntimeError("History read cancelled")
+        result, status = {"ok": True, "value": value}, 0
+    except Exception as error:
+        result, status = {"ok": False, "error": safe_error(error)}, 1
+    finally:
+        cancelled.set()
+        connection.close()
+    descriptor = session.open_output("result.json")
+    if os.name != "nt" and "PKEXEC_UID" in os.environ:
+        os.fchown(descriptor, int(os.environ["PKEXEC_UID"]), -1)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+        json.dump(result, output, allow_nan=False)
+    return status
+
+
+def run_authorized_history(request, cancel=None):
+    """Authorize a history supervisor for 120 seconds using a private parent lease.
+
+    This function runs only in the history-session helper. Late native grants
+    cannot read after its socket closes; no GUI privilege is needed to terminate
+    the elevated read child. Session files contain no message body until the
+    protected result is produced, and cleanup finishes before success is returned.
+    """
+    from installers.desktop.history_process import AUTH_SECONDS, MAX_RESPONSE
+    cancel = cancel or threading.Event()
+    if cancel.is_set():
+        raise RuntimeError("History read cancelled")
+    directory = Path(tempfile.mkdtemp(prefix="meshcore-history-"))
+    listener = socket.socket()
+    listener.bind(("127.0.0.1", 0))
+    listener.listen(4)
+    listener.settimeout(.1)
+    token = secrets.token_hex(32)
+    expires = time.time() + AUTH_SECONDS
+    connection = None
+    process = None
+    launch_done = threading.Event()
+    launch_result = {}
+    try:
+        for name, value in (("request.json", request), ("liveness.json", dict(port=listener.getsockname()[1], token=token, expires=expires))):
+            with (directory / name).open("x", encoding="utf-8") as output:
+                json.dump(value, output, allow_nan=False)
+            if os.name != "nt":
+                (directory / name).chmod(0o600)
+        def launch():
+            try:
+                launch_result["process"] = launch_worker(worker_command(directory / "request.json"))
+            except Exception:
+                launch_result["error"] = True
+            finally:
+                launch_done.set()
+        threading.Thread(target=launch, name="history-authorization", daemon=True).start()
+        while True:
+            if cancel.is_set() or time.time() >= expires:
+                raise RuntimeError("History read cancelled" if cancel.is_set() else "History authorization expired")
+            if launch_done.is_set():
+                if launch_result.get("error"):
+                    raise RuntimeError("History authorization cancelled or unavailable")
+                process = launch_result["process"]
+                if process.poll() is not None:
+                    break
+            if connection is None:
+                try:
+                    candidate, _ = listener.accept()
+                    candidate.settimeout(.5)
+                    supplied = bytearray()
+                    while len(supplied) < 64:
+                        part = candidate.recv(64 - len(supplied))
+                        if not part:
+                            break
+                        supplied.extend(part)
+                    if secrets.compare_digest(bytes(supplied), token.encode()) and not cancel.is_set() and time.time() < expires:
+                        candidate.sendall(b"OK")
+                        connection = candidate
+                    else:
+                        candidate.close()
+                except socket.timeout:
+                    continue
+            else:
+                time.sleep(.05)
+        result_path = directory / "result.json"
+        try:
+            with result_path.open("rb") as source:
+                data = source.read(MAX_RESPONSE + 1025)
+            if len(data) > MAX_RESPONSE + 1024:
+                raise RuntimeError("History response exceeds response budget")
+            result = json.loads(data)
+        except (OSError, ValueError):
+            raise RuntimeError("History authorization cancelled or unavailable") from None
+        if not result.get("ok") or process.poll() != 0:
+            raise RuntimeError(result.get("error", "History authorization cancelled or unavailable"))
+        return result["value"]
+    finally:
+        listener.close()
+        if connection is not None:
+            connection.close()
+        # The elevated supervisor receives EOF and terminates only its own child.
+        # The helper, never the GUI thread, retains these resources until exit.
+        if process is not None:
+            while process.poll() is None:
+                time.sleep(.05)
+            close = getattr(process, "close", None)
+            if close:
+                close()
+        try:
+            shutil.rmtree(directory)
+        except OSError:
+            raise RuntimeError("History cleanup failed") from None
 
 
 if __name__ == "__main__":

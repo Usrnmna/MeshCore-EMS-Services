@@ -19,7 +19,11 @@ class PlanningExclusionTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        # Exercise an equivalent path spelling even without Windows short names.
+        alias = Path(self.temporary.name) / 'path-alias'
+        alias.mkdir()
+        # Match the checker's canonical ROOT, including Windows short-path aliases.
+        self.root = (alias / '..').resolve()
         self.git('init', '--quiet')
         for name in ('.gitignore', '.gitattributes'):
             shutil.copy2(docs.ROOT / name, self.root / name)
@@ -43,6 +47,9 @@ class PlanningExclusionTests(unittest.TestCase):
             docs.check_links(paths)
             self.guide.write_text('[Missing](missing.md)\n')
             with self.assertRaisesRegex(ValueError, 'Missing link:'):
+                docs.check_links(docs.maintained_paths())
+            self.guide.write_text('[Outside](../../outside.md)\n')
+            with self.assertRaisesRegex(ValueError, 'Link escapes workspace:'):
                 docs.check_links(docs.maintained_paths())
         self.assertTrue(self.note.is_file())
 
